@@ -39,8 +39,8 @@ export default function LandingPage() {
 
             <Reveal direction="up" delay={0.1}>
               <h1 className="text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-6xl md:text-7xl font-display leading-[1.1] text-balance px-4 sm:px-0">
-                Open Path for <br className="hidden sm:block" />
-                <span className="bg-gradient-to-r from-[var(--color-brand-primary-400)] to-[var(--color-brand-primary-700)] bg-clip-text text-transparent pb-1 mt-2 inline-block sm:mt-0 sm:pb-2">
+                Open Path for <br />
+                <span className="text-5xl sm:text-6xl md:text-7xl bg-gradient-to-r from-[var(--color-brand-primary-400)] to-[var(--color-brand-primary-700)] bg-clip-text text-transparent pb-1 mt-2 inline-block sm:mt-0 sm:pb-2">
                   Social First Merchants.
                 </span>
               </h1>
