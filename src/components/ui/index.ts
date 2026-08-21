@@ -2,7 +2,6 @@ export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from ".
 export { Badge, type BadgeProps, type BadgeVariant, type BadgeSize } from "./Badge";
 export { Skeleton, type SkeletonProps, type SkeletonVariant } from "./Skeleton";
 export { FormField, type FormFieldProps } from "./FormField";
-export { Select, type SelectProps } from "./Select";
 export {
   Card,
   CardHeader,

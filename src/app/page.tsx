@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { Sparkles, Ship, Wallet, MessageSquare, Database, LineChart, Package, CheckCircle, Store, Box, Briefcase, Truck } from "lucide-react";
+import { Ship, Wallet, MessageSquare, LineChart, Package, CheckCircle, Store, Box, Briefcase, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -40,9 +39,9 @@ export default function LandingPage() {
 
             <Reveal direction="up" delay={0.1}>
               <h1 className="text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-6xl md:text-7xl font-display leading-[1.1] text-balance px-4 sm:px-0">
-                Turn conversations into <br className="hidden sm:block" />
+                Open Path for <br className="hidden sm:block" />
                 <span className="bg-gradient-to-r from-[var(--color-brand-primary-400)] to-[var(--color-brand-primary-700)] bg-clip-text text-transparent pb-1 mt-2 inline-block sm:mt-0 sm:pb-2">
-                  Organized Commerce.
+                  Social First Merchants.
                 </span>
               </h1>
             </Reveal>
@@ -216,7 +215,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="mb-3 text-xl font-bold font-display text-[var(--color-text-primary)]">Supplier Management</h3>
                   <p className="leading-relaxed text-[var(--color-text-secondary)]">
-                    Record supplier purchases, track invoices, and monitor exactly how much you've paid versus your outstanding balances.
+                    Record supplier purchases, track invoices, and monitor exactly how much you&apos;ve paid versus your outstanding balances.
                   </p>
                 </div>
               </StaggerItem>
@@ -242,7 +241,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="mb-3 text-xl font-bold font-display text-[var(--color-text-primary)]">Connected Inventory</h3>
                   <p className="leading-relaxed text-[var(--color-text-secondary)]">
-                    Inventory isn't just a number. Merchander understands when stock is purchased, in-transit, received, available, reserved, or sold.
+                    Inventory isn&apos;t just a number. Merchander understands when stock is purchased, in-transit, received, available, reserved, or sold.
                   </p>
                 </div>
               </StaggerItem>
@@ -282,7 +281,7 @@ export default function LandingPage() {
                   <div>
                     <h3 className="mb-3 text-2xl font-bold font-display text-[var(--color-text-primary)]">The Commerce Core</h3>
                     <p className="leading-relaxed text-[var(--color-text-secondary)] text-lg">
-                      Beneath the conversational interface is a robust e-commerce engine managing your entire catalog, product variants, dynamic pricing, and staff permissions. It's the central nervous system for your growing business.
+                      Beneath the conversational interface is a robust e-commerce engine managing your entire catalog, product variants, dynamic pricing, and staff permissions. It&apos;s the central nervous system for your growing business.
                     </p>
                   </div>
                 </div>

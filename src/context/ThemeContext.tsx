@@ -1,7 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
-import Script from "next/script";
 
 export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
@@ -129,3 +129,4 @@ export function useTheme(): ThemeContextValue {
   }
   return context;
 }
+

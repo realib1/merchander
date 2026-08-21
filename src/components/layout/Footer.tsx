@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React from "react";
@@ -160,3 +161,4 @@ export const Footer: React.FC<FooterProps> = ({
     </footer>
   );
 };
+

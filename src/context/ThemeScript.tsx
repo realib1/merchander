@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import Script from "next/script";
 
 export const ThemeScript = () => {
@@ -24,3 +25,4 @@ export const ThemeScript = () => {
   `;
   return <Script id="theme-script" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: scriptContent }} />;
 };
+

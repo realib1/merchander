@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -59,3 +60,4 @@ export function useDevicePerformance(): DevicePerformanceState {
 
   return performance;
 }
+

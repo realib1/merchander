@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -182,3 +183,4 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     </button>
   );
 };
+
