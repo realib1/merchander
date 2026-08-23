@@ -68,7 +68,7 @@ export default async function OrdersPage({
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="min-h-full flex flex-col">
       <OrdersHeader />
       <div className="mt-6">
         <OrdersTopMetrics 

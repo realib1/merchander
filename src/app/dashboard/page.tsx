@@ -45,7 +45,7 @@ export default async function DashboardOverview({
     .limit(3);
 
   return (
-    <div className="h-full flex flex-col space-y-10 pb-10">
+    <div className="min-h-full flex flex-col space-y-10 pb-10">
       <h1 className="sr-only">Dashboard Overview</h1>
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
         <div className="flex flex-wrap items-center gap-3">
@@ -145,7 +145,7 @@ export default async function DashboardOverview({
             </Link>
           </div>
           <div className="overflow-x-auto flex-1">
-            <table className="w-full text-sm text-left">
+            <table className="w-full text-sm text-left whitespace-nowrap">
               <thead className="text-xs text-muted uppercase bg-surface border-b border-separator">
                 <tr>
                   <th className="px-6 py-3">Order</th>

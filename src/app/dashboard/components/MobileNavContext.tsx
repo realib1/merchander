@@ -6,12 +6,15 @@ import { usePathname } from 'next/navigation';
 type MobileNavContextType = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  isDesktopCollapsed: boolean;
+  setIsDesktopCollapsed: (isCollapsed: boolean) => void;
 };
 
 const MobileNavContext = createContext<MobileNavContextType | undefined>(undefined);
 
 export function MobileNavProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const pathname = usePathname();
 
   // Close the sidebar when the route changes
@@ -21,7 +24,7 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   return (
-    <MobileNavContext.Provider value={{ isOpen, setIsOpen }}>
+    <MobileNavContext.Provider value={{ isOpen, setIsOpen, isDesktopCollapsed, setIsDesktopCollapsed }}>
       {children}
     </MobileNavContext.Provider>
   );

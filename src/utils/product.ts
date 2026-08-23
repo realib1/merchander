@@ -51,3 +51,41 @@ export function getVariantPriceRange(
 
   return { min, max, hasRange: uniquePrices.size > 1 };
 }
+
+/**
+ * Generates a short, reusable ID from a database UUID for display purposes.
+ */
+export function getShortId(id: string, length = 8): string {
+  if (!id) return '';
+  // Remove dashes and take the first N characters
+  return id.replace(/-/g, '').substring(0, length).toUpperCase();
+}
+
+/**
+ * Generates a unique SKU for a product based on its name and an optional UUID.
+ * Format: [INITIALS]-[SHORT_ID or RANDOM_NUMBERS]
+ */
+export function generateSKU(productName: string, id?: string): string {
+  if (!productName) return `PRD-${id ? getShortId(id, 6) : Math.floor(100000 + Math.random() * 900000)}`;
+
+  // Extract initials (up to 3 characters) from the product name
+  const words = productName.trim().split(/\s+/);
+  let initials = '';
+  
+  if (words.length === 1) {
+    initials = words[0].substring(0, 3).toUpperCase();
+  } else {
+    initials = words.slice(0, 3).map(w => w[0]).join('').toUpperCase();
+  }
+  
+  // Ensure initials are alphabetic and padded if needed (fallback for weird names)
+  initials = initials.replace(/[^A-Z0-9]/g, '').padEnd(2, 'X').substring(0, 3);
+
+  if (id) {
+    return `${initials}-${getShortId(id, 6)}`;
+  } else {
+    // Generate 6 random digits
+    const randomDigits = Math.floor(100000 + Math.random() * 900000).toString();
+    return `${initials}-${randomDigits}`;
+  }
+}

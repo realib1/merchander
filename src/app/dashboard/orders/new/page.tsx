@@ -68,7 +68,7 @@ export default async function NewOrderPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="h-full flex flex-col max-w-4xl animate-fadeIn">
+    <div className="min-h-full flex flex-col max-w-4xl animate-fadeIn">
       <header className="mb-8">
         <Link 
           href="/dashboard/orders" 

@@ -4,15 +4,18 @@ import { useState, useEffect } from 'react';
 import { CustomerStats } from '@/app/actions/customers';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency, formatDate } from '@/utils/format';
-import { MoreHorizontal, FileText, Mail, Phone } from 'lucide-react';
+import { MoreHorizontal, FileText, Mail, Phone, X, Trash2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { bulkDeleteCustomers } from '@/app/actions/customers';
 
 export function CustomersTable({ initialCustomers }: { initialCustomers: CustomerStats[] }) {
   const [customers, setCustomers] = useState<CustomerStats[]>(initialCustomers);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<string | 'bulk' | null>(null);
 
   // Sync state when URL search parameters trigger a server re-fetch
   useEffect(() => {
@@ -35,6 +38,32 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
     setSelectedIds(newSet);
   };
 
+  const confirmDelete = async () => {
+    if (!customerToDelete) return;
+    
+    setIsUpdating(true);
+    const idsToDelete = customerToDelete === 'bulk' ? Array.from(selectedIds) : [customerToDelete];
+    
+    try {
+      await bulkDeleteCustomers(idsToDelete);
+      toast.success(`Deleted ${idsToDelete.length} customer${idsToDelete.length > 1 ? 's' : ''}`);
+      setCustomers(prev => prev.filter(c => !idsToDelete.includes(c.id)));
+      if (customerToDelete === 'bulk') {
+        setSelectedIds(new Set());
+      } else {
+        const newSelected = new Set(selectedIds);
+        newSelected.delete(customerToDelete);
+        setSelectedIds(newSelected);
+      }
+      setCustomerToDelete(null);
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to delete customers');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -47,8 +76,9 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
   }, []);
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
-      <div className="overflow-x-auto flex-1">
+    <>
+      <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
+        <div className="overflow-x-auto flex-1">
         <table className="w-full text-left text-sm whitespace-nowrap">
           <thead className="bg-surface-elevated border-b border-separator text-secondary text-xs uppercase tracking-wider">
             <tr>
@@ -153,6 +183,17 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                               <Phone size={14} />
                               Contact
                             </button>
+                            <div className="h-px bg-separator my-1" />
+                            <button 
+                              onClick={() => {
+                                setCustomerToDelete(customer.id);
+                                setActiveMenuId(null);
+                              }} 
+                              className="w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg flex items-center gap-2 transition-colors"
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </button>
                           </div>
                         </motion.div>
                       )}
@@ -172,7 +213,89 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
           <button className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">Previous</button>
           <button className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">Next</button>
         </div>
+        </div>
       </div>
-    </div>
+      
+      {/* Floating Bulk Action Bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div 
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-4 bg-surface-elevated/90 backdrop-blur-xl border border-separator/80 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] rounded-full px-3 sm:px-4 py-2 w-max max-w-[calc(100vw-2rem)] overflow-x-auto hide-scrollbar"
+          >
+            <div className="flex items-center gap-2 pr-2 sm:pr-4 border-r border-separator shrink-0">
+              <div className="flex items-center justify-center bg-brand-primary text-white text-xs font-bold w-6 h-6 rounded-full tabular-nums">
+                {selectedIds.size}
+              </div>
+              <span className="hidden sm:inline text-sm font-semibold text-primary">Selected</span>
+            </div>
+            
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              <button 
+                onClick={() => setSelectedIds(new Set())}
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold text-secondary hover:text-primary hover:bg-surface/50 rounded-full transition-colors"
+                title="Deselect"
+              >
+                <X size={14} />
+                <span className="hidden sm:inline">Deselect</span>
+              </button>
+              <button 
+                onClick={() => setCustomerToDelete('bulk')}
+                disabled={isUpdating}
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Delete"
+              >
+                {isUpdating && customerToDelete === 'bulk' ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                <span className="hidden sm:inline">Delete</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {customerToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-surface rounded-2xl border border-separator shadow-xl w-full max-w-sm overflow-hidden"
+            >
+              <div className="p-5 border-b border-separator">
+                <h3 className="text-lg font-bold text-primary">Confirm Deletion</h3>
+                <p className="text-sm text-secondary mt-1">
+                  {customerToDelete === 'bulk' 
+                    ? `Are you sure you want to permanently delete ${selectedIds.size} customers?` 
+                    : `Are you sure you want to permanently delete this customer?`} This action cannot be undone.
+                </p>
+              </div>
+              
+              <div className="p-5 flex justify-end gap-3 bg-surface-elevated/30">
+                <button
+                  type="button"
+                  onClick={() => setCustomerToDelete(null)}
+                  disabled={isUpdating}
+                  className="px-4 py-2 text-sm font-medium text-secondary hover:text-primary transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isUpdating}
+                  className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors shadow-sm shadow-red-500/20"
+                >
+                  {isUpdating && <Loader2 size={16} className="animate-spin" />}
+                  {isUpdating ? 'Deleting...' : 'Delete Permanently'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

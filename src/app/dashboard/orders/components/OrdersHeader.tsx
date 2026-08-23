@@ -126,7 +126,7 @@ export function OrdersHeader() {
           />
         </div>
         
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
           <button 
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium text-primary hover:bg-surface-elevated transition-colors"
@@ -138,7 +138,7 @@ export function OrdersHeader() {
           <div className="h-6 w-px bg-separator mx-1" />
 
           {/* View Toggles */}
-          <div className="flex bg-surface border border-separator rounded-lg p-1 hidden sm:flex">
+          <div className="hidden sm:flex bg-surface border border-separator rounded-lg p-1">
             <button 
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());

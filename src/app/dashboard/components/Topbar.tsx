@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Bell, Menu } from 'lucide-react';
+import { Search, Bell, Menu, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { LiveStatusPill } from './LiveStatusPill';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
@@ -8,7 +8,7 @@ import { useMobileNav } from './MobileNavContext';
 
 export function Topbar() {
   const pathname = usePathname();
-  const { setIsOpen } = useMobileNav();
+  const { setIsOpen, isDesktopCollapsed, setIsDesktopCollapsed } = useMobileNav();
   
   // Format pathname for breadcrumb (e.g. /dashboard/orders -> Orders)
   const segments = pathname.split('/').filter(Boolean);
@@ -51,6 +51,15 @@ export function Topbar() {
           aria-label="Open navigation menu"
         >
           <Menu size={20} />
+        </button>
+
+        {/* Desktop panel toggle */}
+        <button 
+          className="hidden md:flex p-2 -ml-2 text-secondary hover:bg-surface-elevated rounded-lg transition-colors"
+          onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
+          aria-label="Toggle sidebar panel"
+        >
+          {isDesktopCollapsed ? <PanelLeft size={20} /> : <PanelLeftClose size={20} />}
         </button>
         
         {/* Page Title & Subtitle */}

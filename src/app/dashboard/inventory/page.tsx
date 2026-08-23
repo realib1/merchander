@@ -1,25 +1,28 @@
 import { createClient } from '@/lib/supabase/server';
-import { PackageSearch, Warehouse, AlertCircle, Save } from 'lucide-react';
-import { formatCurrency } from '@/utils/format';
-import { updateStock } from '@/app/actions/inventory';
-
-interface ProductVariant {
-  id: string;
-  sku: string;
-  name: string;
-  price: number;
-  product?: { name: string } | null;
-  inventory?: { quantity: number; store?: { id: string; name: string } | null }[] | null;
-}
+import { InventoryPageClient } from './components/InventoryPageClient';
+import { InventoryTopMetrics } from './components/InventoryTopMetrics';
+import type { InventoryRowData } from './components/InventoryTable';
 
 export const metadata = {
   title: 'Inventory | Merchander',
 };
 
-export default async function InventoryPage() {
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const supabase = await createClient();
 
-  // Fetch variants and their inventory levels
+  const resolvedParams = await searchParams;
+  const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
+  const categoryFilter = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'All categories';
+  const statusFilter = typeof resolvedParams.status === 'string' ? resolvedParams.status : 'All statuses';
+
+  // We fetch all variants with their inventory and product category.
+  // Note: Complex filtering (like status based on sum of inventory) is hard to do purely in Supabase PostgREST
+  // without a view or RPC. Since the dashboard usually manages a reasonable number of SKUs,
+  // we can fetch the dataset and filter it server-side before passing to the client.
   const { data: variants, error } = await supabase
     .from('product_variants')
     .select(`
@@ -27,7 +30,11 @@ export default async function InventoryPage() {
       sku,
       name,
       price,
-      product:products(name),
+      product:products(
+        name,
+        image_urls,
+        category:product_categories(name)
+      ),
       inventory:inventory_levels(quantity, store:stores(id, name))
     `)
     .order('created_at', { ascending: false });
@@ -36,94 +43,82 @@ export default async function InventoryPage() {
     console.error('Error fetching inventory:', error);
   }
 
+  // Flatten variants to rows
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allRows: InventoryRowData[] = ((variants as any[]) || []).flatMap(variant => {
+    const hasInventory = variant.inventory && variant.inventory.length > 0;
+    if (!hasInventory) {
+      return [{
+        variantId: variant.id,
+        sku: variant.sku,
+        name: variant.name,
+        price: variant.price,
+        productName: variant.product?.name || 'Unknown Product',
+        imageUrls: variant.product?.image_urls || [],
+        categoryName: variant.product?.category?.name || 'Uncategorized',
+        quantity: 0,
+        storeId: null,
+        storeName: 'Unassigned',
+      }];
+    }
+    return variant.inventory!.map((inv: any) /* eslint-disable-line @typescript-eslint/no-explicit-any */ => ({
+      variantId: variant.id,
+      sku: variant.sku,
+      name: variant.name,
+      price: variant.price,
+      productName: variant.product?.name || 'Unknown Product',
+      imageUrls: variant.product?.image_urls || [],
+      categoryName: variant.product?.category?.name || 'Uncategorized',
+      quantity: inv.quantity,
+      storeId: inv.store?.id || null,
+      storeName: inv.store?.name || 'Unknown Store',
+    }));
+  });
+
+  // Apply filters server-side
+  const filteredRows = allRows.filter(row => {
+    if (query) {
+      const searchString = `${row.productName} ${row.name} ${row.sku}`.toLowerCase();
+      if (!searchString.includes(query.toLowerCase())) return false;
+    }
+    
+    if (categoryFilter !== 'All categories' && row.categoryName !== categoryFilter) {
+      return false;
+    }
+    
+    if (statusFilter !== 'All statuses') {
+      if (statusFilter === 'In stock' && row.quantity < 10) return false;
+      if (statusFilter === 'Low stock' && (row.quantity === 0 || row.quantity >= 10)) return false;
+      if (statusFilter === 'Out of stock' && row.quantity > 0) return false;
+    }
+
+    return true;
+  });
+
+  // Calculate global metrics (can be based on filtered or unfiltered depending on requirement, here we use filtered)
+  const totalVariants = new Set(filteredRows.map(r => r.variantId)).size;
+  const totalUnits = filteredRows.reduce((acc, row) => acc + row.quantity, 0);
+  const totalValue = filteredRows.reduce((acc, row) => acc + (row.quantity * row.price), 0);
+  const lowStockCount = filteredRows.filter(row => row.quantity > 0 && row.quantity < 10).length;
+  const outOfStockCount = filteredRows.filter(row => row.quantity === 0).length;
+
+  const categories = ['All categories', ...Array.from(new Set(allRows.map(r => r.categoryName))).filter(Boolean)];
+  const statuses = ['All statuses', 'In stock', 'Low stock', 'Out of stock'];
+
   return (
-    <div className="h-full flex flex-col max-w-5xl">
-      <div className="bg-surface border border-separator rounded-2xl shadow-sm overflow-hidden mt-6">
-        <div className="grid grid-cols-12 gap-4 p-4 font-semibold text-secondary text-sm border-b border-separator bg-surface-elevated/50">
-          <div className="col-span-5">SKU / Item</div>
-          <div className="col-span-3">Branch</div>
-          <div className="col-span-4 text-right">Available Stock</div>
-        </div>
-
-        <div className="divide-y divide-gray-50">
-          {(variants as unknown as ProductVariant[])?.map((variant) => {
-            const hasInventory = variant.inventory && variant.inventory.length > 0;
-            const productName = variant.product?.name || 'Unknown Product';
-            const displayName = variant.name ? `${productName} - ${variant.name}` : productName;
-
-            // If no inventory levels are set up yet
-            if (!hasInventory) {
-              return (
-                <div key={variant.id} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-elevated/50 transition-colors">
-                  <div className="col-span-5">
-                    <div className="font-mono text-xs text-muted font-medium mb-1">{variant.sku}</div>
-                    <div className="font-semibold text-primary">{displayName}</div>
-                    <div className="text-xs font-medium text-secondary mt-0.5">{formatCurrency(variant.price)}</div>
-                  </div>
-                  <div className="col-span-3 text-sm text-muted flex items-center gap-2">
-                    <AlertCircle size={14} />
-                    Unassigned
-                  </div>
-                  <div className="col-span-4 text-right">
-                    <span className="text-sm font-semibold text-muted">0</span>
-                  </div>
-                </div>
-              );
-            }
-
-            // Render each store's inventory for this variant
-            return variant.inventory?.map((inv, idx: number) => (
-              <div key={`${variant.id}-${idx}`} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-elevated/50 transition-colors">
-                <div className="col-span-5">
-                  <div className="font-mono text-xs text-muted font-medium mb-1">{variant.sku}</div>
-                  <div className="font-semibold text-primary">{displayName}</div>
-                  <div className="text-xs font-medium text-secondary mt-0.5">{formatCurrency(variant.price)}</div>
-                </div>
-                
-                <div className="col-span-3 flex items-center gap-2 text-sm font-medium text-secondary">
-                  <Warehouse size={16} className="text-muted" />
-                  {inv.store?.name || 'Main Branch'}
-                </div>
-
-                <div className="col-span-4 flex items-center justify-end gap-3">
-                  <div className="w-full max-w-37.5 bg-surface-elevated rounded-full h-1.5 overflow-hidden">
-                    {/* Visual indicator bar */}
-                    <div 
-                      className={`h-full rounded-full ${inv.quantity > 20 ? 'bg-green-500' : inv.quantity > 5 ? 'bg-orange-500' : 'bg-red-500'}`} 
-                      style={{ width: `${Math.min((inv.quantity / 50) * 100, 100)}%` }}
-                    />
-                  </div>
-                  <form action={async (formData) => {
-                    "use server";
-                    await updateStock(formData);
-                  }} className="flex items-center gap-1 group/form">
-                    <input type="hidden" name="variantId" value={variant.id} />
-                    <input type="hidden" name="storeId" value={inv.store?.id || ''} />
-                    <input 
-                      type="number" 
-                      name="quantity" 
-                      defaultValue={inv.quantity} 
-                      min="0"
-                      className={`w-16 text-right px-2 py-1 text-sm font-bold border rounded-md outline-none transition-all ${inv.quantity === 0 ? 'text-red-500' : inv.quantity < 10 ? 'text-orange-500' : 'text-primary'}` + " border-transparent focus:border-brand-primary bg-transparent focus:bg-surface"}
-                    />
-                    <button type="submit" className={"p-1.5 text-muted hover:text-brand-primary hover:bg-brand-primary/10 rounded-md transition-all cursor-pointer" + " opacity-0 focus:opacity-100 group-hover/form:opacity-100"}>
-                      <Save size={14} />
-                    </button>
-                  </form>
-                </div>
-              </div>
-            ));
-          })}
-
-          {(!variants || variants.length === 0) && (
-            <div className="p-12 text-center text-secondary">
-              <PackageSearch size={48} className="mx-auto mb-4 text-muted" />
-              <p className="font-medium text-primary">No inventory to track</p>
-              <p className="text-sm mt-1">Add items to your catalog to track stock.</p>
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full min-h-full">
+      <InventoryTopMetrics
+        totalUnits={totalUnits}
+        totalVariants={totalVariants}
+        totalValue={totalValue}
+        lowStockCount={lowStockCount}
+        outOfStockCount={outOfStockCount}
+      />
+      <InventoryPageClient 
+        rows={filteredRows} 
+        categories={categories} 
+        statuses={statuses} 
+      />
     </div>
   );
 }

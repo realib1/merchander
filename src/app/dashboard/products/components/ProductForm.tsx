@@ -256,6 +256,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       });
       
       formData.append('variants', JSON.stringify(finalVariants));
+      if (categoryId) formData.append('categoryId', categoryId);
       if (vendor) formData.append('vendor', vendor);
       formData.append('stockUnit', stockUnit);
       if (initialData) formData.append('id', initialData.id);
@@ -311,7 +312,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   };
 
   return (
-    <form onSubmit={handleSubmit} className="h-full flex flex-col w-full max-w-6xl mx-auto animate-fadeIn pb-12">
+    <form onSubmit={handleSubmit} className="min-h-full flex flex-col w-full max-w-6xl mx-auto animate-fadeIn pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>

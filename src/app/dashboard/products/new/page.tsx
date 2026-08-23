@@ -38,7 +38,7 @@ export default async function NewProductPage() {
     .order('name');
 
   return (
-    <div className="h-full">
+    <div className="min-h-full">
       <ProductForm stores={stores || []} categories={categories || []} />
     </div>
   );

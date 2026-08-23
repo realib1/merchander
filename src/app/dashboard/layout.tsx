@@ -30,14 +30,14 @@ export default async function DashboardLayout({
 
   return (
     <MobileNavProvider>
-      <div className="flex h-screen bg-background text-primary overflow-hidden pb-12">
+      <div className="flex h-screen bg-background text-primary overflow-hidden">
         <Sidebar userEmail={user.email || ''} businessName={businessName} />
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 bg-background relative z-10 transition-all overflow-hidden">
           <Topbar />
           
-          <div className="flex-1 overflow-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
+          <div className="flex-1 overflow-auto p-4 md:p-8 pb-20 md:pb-24 max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>

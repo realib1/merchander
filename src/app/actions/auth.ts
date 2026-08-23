@@ -21,7 +21,7 @@ export async function login(prevState: unknown, formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: error.message, email };
   }
 
   // Clear cache and redirect to dashboard on success

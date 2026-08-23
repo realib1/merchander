@@ -127,7 +127,7 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
                     key={order.id}
                     draggable={true}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onDragStart={(e: any) => {
+                    onDragStart={(e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
                       e.dataTransfer.setData('orderId', order.id);
                     }}
                     className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab active:cursor-grabbing"
@@ -263,3 +263,4 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
     </>
   );
 }
+

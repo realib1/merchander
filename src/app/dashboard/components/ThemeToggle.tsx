@@ -21,7 +21,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative w-8 h-8 rounded-full bg-surface-elevated border border-separator flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-brand-primary/50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+      className="relative w-8 h-8 rounded-full bg-surface-elevated border border-separator flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-brand-primary/50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer"
       aria-label="Toggle theme"
     >
       {resolvedTheme === 'dark' ? (

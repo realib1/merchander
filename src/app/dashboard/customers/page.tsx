@@ -45,7 +45,7 @@ export default async function CustomersPage({
   const totalRevenue = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
 
   return (
-    <div className="h-full flex flex-col relative overflow-hidden">
+    <div className="min-h-full flex flex-col relative">
       <CustomersHeader />
       <CustomersTopMetrics 
         totalCustomers={totalCustomers}
@@ -61,7 +61,7 @@ export default async function CustomersPage({
           <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
         </div>
       }>
-        <div className="flex-1 overflow-hidden min-h-0 pb-6 mt-6">
+        <div className="flex-1 pb-6 mt-6">
           <CustomersTable initialCustomers={customers} />
         </div>
       </Suspense>

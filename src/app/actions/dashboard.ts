@@ -86,10 +86,10 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   // Margin calculation (Sales - Cost)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const calculateCost = (orderList: any[]) => {
+  const calculateCost = (orderList: any /* eslint-disable-line @typescript-eslint/no-explicit-any */[]) => {
     return orderList.reduce((sum, order) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itemsCost = (order.order_items || []).reduce((itemSum: number, item: any) => {
+      const itemsCost = (order.order_items || []).reduce((itemSum: number, item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
         const costPrice = item.product_variants?.cost_price || (item.unit_price * 0.6); // fallback to 60% of price if missing
         return itemSum + (Number(item.quantity) * Number(costPrice));
       }, 0);
@@ -172,9 +172,9 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   // Process shipments data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shipmentsList = (shipmentsData || []).map((s: any) => {
+  const shipmentsList = (shipmentsData || []).map((s: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalUnits = (s.shipment_items || []).reduce((sum: number, item: any) => sum + item.quantity, 0);
+    const totalUnits = (s.shipment_items || []).reduce((sum: number, item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => sum + item.quantity, 0);
     return {
       id: s.tracking_number || s.id.substring(0, 8).toUpperCase(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -191,7 +191,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   // Process low stock data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lowStockList = (lowStockData || []).map((ls: any) => {
+  const lowStockList = (lowStockData || []).map((ls: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
     const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
     const prod = variant?.products ? (Array.isArray(variant.products) ? variant.products[0] : variant.products) : null;
     return {
@@ -205,7 +205,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   // Process supplier balances
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supplierBalancesList = (suppliersBal || []).map((s: any) => ({
+  const supplierBalancesList = (suppliersBal || []).map((s: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => ({
     id: s.id,
     supplierName: s.name,
     balance: Number(s.outstanding_balance)
@@ -259,3 +259,4 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     incoming: nextShipment
   };
 }
+

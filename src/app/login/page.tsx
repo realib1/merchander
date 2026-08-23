@@ -34,8 +34,8 @@ export default async function LoginPage({
         <div className="bg-surface py-8 px-4 shadow-xl shadow-brand-primary/5 sm:rounded-2xl sm:px-10 border border-separator">
 
           {resolvedSearchParams?.error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3">
-              <AlertCircle size={18} className="mt-0.5 shrink-0" />
+            <div className="mb-6 py-2 px-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3">
+              <AlertCircle size={14} className="mt-0.5 shrink-0" />
               <div>
                 {resolvedSearchParams.error === 'auth-failed'
                   ? 'Authentication failed. Please check your credentials and try again.'
@@ -49,9 +49,9 @@ export default async function LoginPage({
         </div>
 
         <p className="text-center text-sm text-secondary mt-8 font-medium">
-          Don&apos;t have an account?{' '}
+          New to Merchander?{' '}
           <Link href="#" className="font-semibold text-brand-primary hover:text-brand-primary-600 transition-colors">
-            Contact Sales
+            Contact Us
           </Link>
         </p>
       </div>

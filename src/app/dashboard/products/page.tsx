@@ -4,10 +4,11 @@ import { Package, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { ProductsHeader } from './components/ProductsHeader';
 import { ProductsActionMenu } from './components/ProductsActionMenu';
 import { ProductsMetrics } from './components/ProductsMetrics';
+import { ProductsTable, StockBadge } from './components/ProductsTable';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatCurrency } from '@/utils/format';
-import { calculateTotalStock, calculateTotalUnitsSold, getVariantPriceRange } from '@/utils/product';
+import { calculateTotalStock, calculateTotalUnitsSold, getVariantPriceRange, generateSKU } from '@/utils/product';
 import type { Product } from '@/types/product';
 
 export const metadata = {
@@ -49,15 +50,15 @@ export default async function CatalogPage({
   }
 
   return (
-    <div className="h-full flex flex-col mx-auto w-full">
+    <div className="flex flex-col mx-auto w-full min-h-full">
       <ProductsMetrics products={products as Product[]} />
       <ProductsHeader />
 
-      <div className="bg-surface border border-separator rounded-xl overflow-hidden min-h-125 flex flex-col">
+      <div className="bg-surface border border-separator rounded-xl overflow-hidden min-h-125 flex flex-col min-w-0 w-full">
         {view === 'grid' ? (
           <ProductGridView products={products as Product[]} />
         ) : (
-          <ProductTableView products={products as Product[]} />
+          <ProductsTable initialProducts={products as Product[]} />
         )}
       </div>
     </div>
@@ -97,7 +98,7 @@ function ProductGridView({ products }: { products: Product[] }) {
               <Link href={`/dashboard/products/${product.id}`} className="font-semibold text-primary text-sm line-clamp-1 group-hover:text-brand-primary transition-colors before:absolute before:inset-0 before:z-10 focus:outline-none focus:underline">
                 {product.name}
               </Link>
-              <p className="text-xs text-muted mt-0.5 relative z-10 pointer-events-none">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
+              <p className="text-xs text-muted mt-0.5 relative z-10 pointer-events-none">{generateSKU(product.name, product.id)}</p>
               
               <div className="mt-3 flex items-center justify-between relative z-10 pointer-events-none">
                 <span className="font-bold text-primary text-sm tabular-nums">
@@ -124,140 +125,4 @@ function ProductGridView({ products }: { products: Product[] }) {
   );
 }
 
-/** Semantic table layout for products — uses proper <table> elements for accessibility */
-function ProductTableView({ products }: { products: Product[] }) {
-  return (
-    <div className="overflow-x-auto flex-1 flex flex-col">
-      <div className="min-w-250 flex flex-col flex-1">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="font-medium text-muted text-body-sm border-b border-separator bg-surface-elevated/20">
-              <th className="px-4 py-3 w-12 text-center font-medium">
-                <input type="checkbox" aria-label="Select all products" className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
-              </th>
-              <th className="px-4 py-3 font-medium">Product</th>
-              <th className="px-4 py-3 font-medium">Category</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Inventory</th>
-              <th className="px-4 py-3 font-medium">Price</th>
-              <th className="px-4 py-3 font-medium">Units sold</th>
-              <th className="px-4 py-3 w-12"><span className="sr-only">Actions</span></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-separator">
-            {products?.map((product) => {
-              const totalStock = calculateTotalStock(product.variants ?? undefined);
-              const { min: minPrice, hasRange } = getVariantPriceRange(product.variants ?? undefined);
-              const totalUnitsSold = calculateTotalUnitsSold(product.variants ?? undefined);
 
-              return (
-                <tr key={product.id} className="hover:bg-surface-elevated/30 transition-colors group">
-                  <td className="px-4 py-3 text-center">
-                    <input type="checkbox" aria-label={`Select ${product.name}`} className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden relative">
-                        {product.image_urls && product.image_urls.length > 0 ? (
-                          <Image src={product.image_urls[0]} alt={product.name} fill className="object-cover" sizes="40px" />
-                        ) : (
-                          product.name ? product.name.substring(0, 2).toUpperCase() : 'UN'
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-body-sm font-semibold text-primary truncate">{product.name}</div>
-                        <div className="text-xs text-muted truncate">SKU-{product.id.substring(0, 6).toUpperCase()}</div>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-3 text-body-sm text-secondary truncate">
-                    {product.category?.name || 'Uncategorized'}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    {product.is_active ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-emerald-500/10 text-emerald-600">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-orange-500/10 text-orange-600">
-                        Archived
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="px-4 py-3 text-body-sm">
-                    <StockBadge totalStock={totalStock} stockUnit={product.stock_unit} />
-                  </td>
-
-                  <td className="px-4 py-3 text-body-sm font-medium text-primary tabular-nums">
-                    {hasRange ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
-                  </td>
-
-                  <td className="px-4 py-3 text-body-sm text-secondary tabular-nums">
-                    {totalUnitsSold.toLocaleString()}
-                  </td>
-
-                  <td className="px-4 py-3 text-right relative z-10">
-                    <ProductsActionMenu productId={product.id} />
-                  </td>
-                </tr>
-              );
-            })}
-
-            {(!products || products.length === 0) && (
-              <tr>
-                <td colSpan={8} className="p-12 text-center text-secondary">
-                  <Package size={48} className="mx-auto mb-4 text-muted" />
-                  <p className="font-medium text-primary">No products found</p>
-                  <p className="text-sm mt-1">Get started by creating your first product.</p>
-                  <Link href="/dashboard/products/new" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-600 transition-colors">
-                    Add Product
-                  </Link>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        
-        {/* Pagination Footer */}
-        {products && products.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-body-sm text-secondary mt-auto">
-            <div className="flex items-center gap-2">
-              <span>Showing</span>
-              <span className="font-medium text-primary tabular-nums">{products.length}</span>
-              <span>products</span>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <span className="tabular-nums">Page 1 of 1</span>
-              <div className="flex items-center gap-1">
-                <button className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Previous page">
-                  <ChevronLeft size={16} />
-                </button>
-                <span className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator text-primary tabular-nums" aria-current="page">1</span>
-                <button className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Next page">
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-      </div>
-    </div>
-  );
-}
-
-/** Reusable stock status badge */
-function StockBadge({ totalStock, stockUnit }: { totalStock: number; stockUnit?: string | null }) {
-  const unit = stockUnit || 'pcs';
-  if (totalStock === 0) {
-    return <span className="text-red-500 font-medium bg-red-500/10 px-2 py-0.5 rounded text-xs whitespace-nowrap">Out of stock</span>;
-  }
-  if (totalStock < 10) {
-    return <span className="text-orange-500 font-medium bg-orange-500/10 px-2 py-0.5 rounded text-xs whitespace-nowrap">{totalStock} {unit} low</span>;
-  }
-  return <span className="text-primary font-medium whitespace-nowrap text-xs">{totalStock} {unit} in stock</span>;
-}

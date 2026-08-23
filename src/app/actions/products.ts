@@ -235,3 +235,67 @@ export async function setInventory(
   return data;
 }
 
+/**
+ * Bulk archive multiple products.
+ */
+export async function bulkArchiveProducts(productIds: string[]) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: tenantUser } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!tenantUser) throw new Error('Tenant not found');
+
+  const { error } = await supabase
+    .from('products')
+    .update({ is_active: false })
+    .in('id', productIds)
+    .eq('tenant_id', tenantUser.tenant_id);
+
+  if (error) {
+    console.error('Error archiving products:', error);
+    throw new Error('Failed to archive products');
+  }
+
+  revalidatePath('/dashboard/products');
+  return { success: true };
+}
+
+/**
+ * Bulk delete multiple products.
+ */
+export async function bulkDeleteProducts(productIds: string[]) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: tenantUser } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!tenantUser) throw new Error('Tenant not found');
+
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .in('id', productIds)
+    .eq('tenant_id', tenantUser.tenant_id);
+
+  if (error) {
+    console.error('Error deleting products:', error);
+    throw new Error('Failed to delete products');
+  }
+
+  revalidatePath('/dashboard/products');
+  return { success: true };
+}
+

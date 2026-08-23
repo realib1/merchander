@@ -66,7 +66,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
     : formatCurrency(minPrice);
 
   return (
-    <div className="h-full flex flex-col max-w-5xl mx-auto w-full">
+    <div className="min-h-full flex flex-col max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">

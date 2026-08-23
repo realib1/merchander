@@ -172,3 +172,32 @@ export async function createCustomer(data: { name: string; phone: string; email:
   return newCustomer;
 }
 
+export async function bulkDeleteCustomers(customerIds: string[]) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: tenantUser } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!tenantUser) throw new Error('Tenant not found');
+
+  const { error } = await supabase
+    .from('customers')
+    .delete()
+    .in('id', customerIds)
+    .eq('tenant_id', tenantUser.tenant_id);
+
+  if (error) {
+    console.error('Error deleting customers:', error);
+    throw new Error('Failed to delete customers');
+  }
+
+  revalidatePath('/dashboard/customers');
+  return { success: true };
+}
+

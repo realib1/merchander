@@ -99,7 +99,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   };
 
   return (
-    <div className="h-full">
+    <div className="min-h-full">
       <ProductForm 
         stores={stores || []} 
         categories={categories || []} 
