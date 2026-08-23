@@ -72,7 +72,7 @@ export function CategoriesTable({
                         <div className="font-semibold text-primary text-sm">{cat.name}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-secondary truncate max-w-[200px]">
+                    <td className="px-6 py-4 text-sm text-secondary truncate max-w-50">
                       {cat.description || <span className="text-muted italic">No description</span>}
                     </td>
                     <td className="px-6 py-4 text-right">

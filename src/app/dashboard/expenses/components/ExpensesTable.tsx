@@ -67,7 +67,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
                         {expense.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-secondary truncate max-w-[250px]">
+                    <td className="px-6 py-4 text-sm text-secondary truncate max-w-62.5">
                       {expense.description || <span className="text-muted italic">No description</span>}
                     </td>
                     <td className="px-6 py-4 text-right">
