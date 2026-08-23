@@ -24,7 +24,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "overflow-hidden rounded-lg text-text-primary",
+          "overflow-hidden rounded-lg text-primary",
           VARIANT_STYLES[variant],
           className
         )}
@@ -65,7 +65,7 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
   className,
   ...props
 }) => (
-  <p className={cn("text-xs text-text-secondary", className)} {...props}>
+  <p className={cn("text-xs text-secondary", className)} {...props}>
     {children}
   </p>
 );

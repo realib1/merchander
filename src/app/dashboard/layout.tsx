@@ -30,7 +30,7 @@ export default async function DashboardLayout({
 
   return (
     <MobileNavProvider>
-      <div className="flex h-screen bg-background text-text-primary overflow-hidden pb-12">
+      <div className="flex h-screen bg-background text-primary overflow-hidden pb-12">
         <Sidebar userEmail={user.email || ''} businessName={businessName} />
 
         {/* Main Content Area */}

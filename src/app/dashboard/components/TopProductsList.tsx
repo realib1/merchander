@@ -13,7 +13,7 @@ export interface TopProduct {
 export function TopProductsList({ products }: { products: TopProduct[] }) {
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center text-text-muted">
+      <div className="flex flex-col items-center justify-center p-6 text-center text-muted">
         <Package className="w-10 h-10 mb-2 opacity-20" />
         <p className="text-sm">No products found</p>
       </div>
@@ -33,12 +33,12 @@ export function TopProductsList({ products }: { products: TopProduct[] }) {
                 className="object-cover" 
               />
             ) : (
-              <Package size={16} className="text-text-muted" />
+              <Package size={16} className="text-muted" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-text-primary truncate">{product.name}</h4>
-            <p className="text-xs text-text-muted">{formatCurrency(product.price)}</p>
+            <h4 className="text-sm font-semibold text-primary truncate">{product.name}</h4>
+            <p className="text-xs text-muted">{formatCurrency(product.price)}</p>
           </div>
         </div>
       ))}

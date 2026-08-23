@@ -56,10 +56,10 @@ export function OrdersHeader() {
       <div className="block sm:hidden relative">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="w-full flex items-center justify-between px-4 py-2.5 bg-surface border border-separator rounded-lg text-body font-medium text-text-primary"
+          className="w-full flex items-center justify-between px-4 py-2.5 bg-surface border border-separator rounded-lg text-body font-medium text-primary"
         >
           <span>{tabs.find(t => t.id === currentStatus)?.label || 'All'}</span>
-          <ChevronDown size={16} className={`text-text-muted transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown size={16} className={`text-muted transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
         </button>
         
         <AnimatePresence>
@@ -81,7 +81,7 @@ export function OrdersHeader() {
                       className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${
                         currentStatus === tab.id
                           ? 'bg-brand-primary/10 text-brand-primary font-semibold'
-                          : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'
+                          : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
                       }`}
                     >
                       {tab.label}
@@ -104,7 +104,7 @@ export function OrdersHeader() {
             className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${
               currentStatus === tab.id
                 ? 'border-brand-primary text-brand-primary'
-                : 'border-transparent text-text-secondary hover:text-brand-primary'
+                : 'border-transparent text-secondary hover:text-brand-primary'
             }`}
           >
             {tab.label}
@@ -116,22 +116,22 @@ export function OrdersHeader() {
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center w-full mb-6">
         {/* Search */}
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
           <input 
             type="text"
             placeholder="Search order, customer or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-text-primary placeholder:text-text-muted transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-primary placeholder:text-muted transition-all"
           />
         </div>
         
         <div className="flex items-center gap-3 shrink-0">
           <button 
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium text-text-primary hover:bg-surface-elevated transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium text-primary hover:bg-surface-elevated transition-colors"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             Export
           </button>
 
@@ -145,7 +145,7 @@ export function OrdersHeader() {
                 params.delete('view');
                 router.push(`?${params.toString()}`);
               }}
-              className={`p-1.5 rounded-md transition-colors ${!searchParams.get('view') || searchParams.get('view') === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
+              className={`p-1.5 rounded-md transition-colors ${!searchParams.get('view') || searchParams.get('view') === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
               title="Table View"
             >
               <LayoutList size={14} />
@@ -156,7 +156,7 @@ export function OrdersHeader() {
                 params.set('view', 'kanban');
                 router.push(`?${params.toString()}`);
               }}
-              className={`p-1.5 rounded-md transition-colors ${searchParams.get('view') === 'kanban' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
+              className={`p-1.5 rounded-md transition-colors ${searchParams.get('view') === 'kanban' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
               title="Kanban View"
             >
               <KanbanSquare size={14} />

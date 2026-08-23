@@ -50,7 +50,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
 
     const baseInputStyles = cn(
       "w-full rounded-md border bg-surface px-3.5 py-2 text-sm",
-      "text-text-primary placeholder:text-text-muted",
+      "text-primary placeholder:text-muted",
       "transition-colors duration-150 outline-none",
       "focus-visible:ring-2",
       leftIcon && "pl-10",
@@ -67,7 +67,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
         {label && (
           <label
             htmlFor={id}
-            className="flex items-center gap-1 text-xs font-semibold text-text-primary select-none"
+            className="flex items-center gap-1 text-xs font-semibold text-primary select-none"
           >
             {label}
             {required && (
@@ -80,7 +80,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
 
         <div className="relative flex w-full items-center">
           {leftIcon && (
-            <div className="pointer-events-none absolute left-3 flex items-center text-text-muted">
+            <div className="pointer-events-none absolute left-3 flex items-center text-muted">
               {leftIcon}
             </div>
           )}
@@ -111,7 +111,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
           )}
 
           {rightIcon && (
-            <div className="pointer-events-none absolute right-3 flex items-center text-text-muted">
+            <div className="pointer-events-none absolute right-3 flex items-center text-muted">
               {rightIcon}
             </div>
           )}
@@ -128,7 +128,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
         )}
 
         {!error && hint && (
-          <p id={hintId} className="text-xs text-text-secondary">
+          <p id={hintId} className="text-xs text-secondary">
             {hint}
           </p>
         )}

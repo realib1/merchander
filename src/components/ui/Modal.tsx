@@ -156,7 +156,7 @@ export const Modal: React.FC<ModalProps> = ({
         aria-labelledby={title ? "modal-title" : undefined}
         aria-describedby={description ? "modal-description" : undefined}
         className={cn(
-          "relative z-10 flex flex-col bg-surface-elevated text-text-primary",
+          "relative z-10 flex flex-col bg-surface-elevated text-primary",
           "animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-xl duration-150",
           SIZE_STYLES[size],
           className
@@ -172,7 +172,7 @@ export const Modal: React.FC<ModalProps> = ({
                 </h2>
               )}
               {description && (
-                <p id="modal-description" className="text-xs text-text-secondary">
+                <p id="modal-description" className="text-xs text-secondary">
                   {description}
                 </p>
               )}
@@ -183,7 +183,7 @@ export const Modal: React.FC<ModalProps> = ({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="rounded-sm p-1.5 text-text-muted transition-colors hover:bg-surface hover:text-brand-primary"
+                className="rounded-sm p-1.5 text-muted transition-colors hover:bg-surface hover:text-brand-primary"
               >
                 <svg
                   className="h-4 w-4"

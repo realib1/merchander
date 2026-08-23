@@ -6,8 +6,8 @@ export default function ChannelsSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Connected Channels</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Connected Channels</h1>
+        <p className="text-sm text-secondary mt-1">
           Connect your social media accounts to sync messages and orders into Merchander.
         </p>
       </div>
@@ -32,12 +32,12 @@ export default function ChannelsSettingsPage() {
         <CardBody className="space-y-4">
           <div className="p-4 bg-surface-elevated rounded-md border border-separator flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-text-primary">Official WhatsApp Number</p>
-              <p className="text-xs text-text-secondary mt-1">+233 24 123 4567</p>
+              <p className="text-sm font-medium text-primary">Official WhatsApp Number</p>
+              <p className="text-xs text-secondary mt-1">+233 24 123 4567</p>
             </div>
             <Button variant="outline" size="sm">Manage Number</Button>
           </div>
-          <p className="text-xs text-text-secondary">
+          <p className="text-xs text-secondary">
             Your WhatsApp Business account is active. Auto-replies and anti-ban safeguards are automatically enforced.
           </p>
         </CardBody>

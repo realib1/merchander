@@ -21,8 +21,8 @@ export default function ErrorBoundary({
       <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-6">
         <AlertTriangle size={32} />
       </div>
-      <h2 className="text-2xl font-bold text-text-primary mb-2 font-display">Something went wrong!</h2>
-      <p className="text-text-secondary mb-8 max-w-md">
+      <h2 className="text-2xl font-bold text-primary mb-2 font-display">Something went wrong!</h2>
+      <p className="text-secondary mb-8 max-w-md">
         An unexpected error occurred in this section of the dashboard. Our team has been notified.
       </p>
       <div className="flex gap-4">

@@ -25,9 +25,9 @@ const VARIANT_STYLES: Record<ButtonVariant, string> = {
   secondary:
     "bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
   outline:
-    "border border-separator bg-transparent text-text-primary hover:bg-surface-elevated active:scale-[0.98]",
+    "border border-separator bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]",
   ghost:
-    "bg-transparent text-text-primary hover:bg-surface-elevated active:scale-[0.98]",
+    "bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]",
   destructive:
     "bg-destructive text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
 };

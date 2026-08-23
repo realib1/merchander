@@ -160,11 +160,11 @@ export function OrdersTable({
 
   const getStatusBadge = (status: OrderStatus) => {
     switch(status) {
-      case 'draft': return <span className="bg-surface-elevated text-text-secondary border border-separator px-3 py-1 rounded-full text-xs font-medium">Draft</span>;
+      case 'draft': return <span className="bg-surface-elevated text-secondary border border-separator px-3 py-1 rounded-full text-xs font-medium">Draft</span>;
       case 'pending_payment': return <span className="bg-warning/10 text-warning px-3 py-1 rounded-full text-xs font-medium">Awaiting Pay</span>;
       case 'paid': return <span className="bg-success/10 text-success px-3 py-1 rounded-full text-xs font-medium">Paid</span>;
       case 'dispatched': return <span className="bg-brand-secondary/10 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">Dispatched</span>;
-      default: return <span className="bg-surface-elevated text-text-secondary border border-separator px-3 py-1 rounded-full text-xs font-medium capitalize">{status.replace('_', ' ')}</span>;
+      default: return <span className="bg-surface-elevated text-secondary border border-separator px-3 py-1 rounded-full text-xs font-medium capitalize">{status.replace('_', ' ')}</span>;
     }
   };
 
@@ -173,7 +173,7 @@ export function OrdersTable({
       <div className="flex-1 flex flex-col bg-surface border border-separator rounded-2xl overflow-hidden min-h-125">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-surface-elevated border-b border-separator text-text-secondary text-xs uppercase tracking-wider">
+            <thead className="bg-surface-elevated border-b border-separator text-secondary text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 font-semibold w-12 text-center">
                   <input 
@@ -195,7 +195,7 @@ export function OrdersTable({
             <tbody className="divide-y divide-separator">
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-text-muted italic">
+                  <td colSpan={8} className="px-6 py-12 text-center text-muted italic">
                     No orders found matching these criteria.
                   </td>
                 </tr>
@@ -216,16 +216,16 @@ export function OrdersTable({
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-text-primary">{order.customer?.name || 'Unknown'}</div>
-                      <div className="text-xs text-text-muted">{formatGhanaLocalDisplay(order.customer?.phone || '')}</div>
+                      <div className="font-semibold text-primary">{order.customer?.name || 'Unknown'}</div>
+                      <div className="text-xs text-muted">{formatGhanaLocalDisplay(order.customer?.phone || '')}</div>
                     </td>
-                    <td className="px-6 py-4 text-text-secondary text-xs">
+                    <td className="px-6 py-4 text-secondary text-xs">
                       {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </td>
-                    <td className="px-6 py-4 text-text-secondary text-xs">
+                    <td className="px-6 py-4 text-secondary text-xs">
                       {order.items?.length || 0} items
                     </td>
-                    <td className="px-6 py-4 font-bold text-text-primary text-right">
+                    <td className="px-6 py-4 font-bold text-primary text-right">
                       {formatCurrency(order.total_amount)}
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -237,7 +237,7 @@ export function OrdersTable({
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === order.id ? null : order.id);
                         }}
-                        className="p-2 text-text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
+                        className="p-2 text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
                       >
                         <MoreHorizontal size={18} />
                       </button>
@@ -258,7 +258,7 @@ export function OrdersTable({
                                   setSelectedOrder(order);
                                   setActiveMenuId(null);
                                 }}
-                                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                                className="w-full px-3 py-2 text-sm text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                               >
                                 <Eye size={14} />
                                 View Details
@@ -325,9 +325,9 @@ export function OrdersTable({
           </table>
         </div>
         
-        <div className="mt-auto p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm text-text-secondary">
+        <div className="mt-auto p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm text-secondary">
           <div>
-            Showing <span className="font-medium text-text-primary">{totalCount === 0 ? 0 : (currentPage - 1) * 10 + 1}</span> to <span className="font-medium text-text-primary">{Math.min(currentPage * 10, totalCount)}</span> of <span className="font-medium text-text-primary">{totalCount}</span> orders
+            Showing <span className="font-medium text-primary">{totalCount === 0 ? 0 : (currentPage - 1) * 10 + 1}</span> to <span className="font-medium text-primary">{Math.min(currentPage * 10, totalCount)}</span> of <span className="font-medium text-primary">{totalCount}</span> orders
           </div>
           <div className="flex gap-2">
             <button 
@@ -375,12 +375,12 @@ export function OrdersTable({
               <span className="bg-brand-primary text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
                 {selectedOrderIds.size}
               </span>
-              <span className="text-sm font-medium text-text-primary">selected</span>
+              <span className="text-sm font-medium text-primary">selected</span>
             </div>
             <div className="flex items-center gap-2">
               <button 
                 onClick={handleBulkExport}
-                className="px-4 py-2 text-sm font-medium text-text-primary bg-surface-elevated hover:bg-surface-elevated/80 border border-separator rounded-full transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-primary bg-surface-elevated hover:bg-surface-elevated/80 border border-separator rounded-full transition-colors flex items-center gap-2"
               >
                 <FileText size={14} />
                 Export
@@ -409,15 +409,15 @@ export function OrdersTable({
               className="bg-surface rounded-2xl border border-separator shadow-xl w-full max-w-md overflow-hidden"
             >
               <div className="p-5 border-b border-separator">
-                <h3 className="text-lg font-bold text-text-primary">Verify Mobile Money Payment</h3>
-                <p className="text-sm text-text-secondary mt-1">
+                <h3 className="text-lg font-bold text-primary">Verify Mobile Money Payment</h3>
+                <p className="text-sm text-secondary mt-1">
                   Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} • {formatCurrency(reconciliationOrder.total_amount)}
                 </p>
               </div>
               
               <form onSubmit={handleReconcile} className="p-5 space-y-4">
                 <div>
-                  <label htmlFor="smsText" className="block text-sm font-medium text-text-primary mb-1.5">
+                  <label htmlFor="smsText" className="block text-sm font-medium text-primary mb-1.5">
                     Paste Payment SMS
                   </label>
                   <textarea
@@ -426,10 +426,10 @@ export function OrdersTable({
                     value={smsText}
                     onChange={(e) => setSmsText(e.target.value)}
                     placeholder="e.g. Payment received for GHS 450.00 from Kwame Mensah. Ref: 18273918239"
-                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 text-text-primary focus:border-brand-primary focus:ring-brand-primary placeholder:text-text-muted resize-none"
+                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 text-primary focus:border-brand-primary focus:ring-brand-primary placeholder:text-muted resize-none"
                     required
                   />
-                  <p className="text-xs text-text-muted mt-2">
+                  <p className="text-xs text-muted mt-2">
                     The system will securely extract the transaction reference and prevent duplicate entries.
                   </p>
                 </div>
@@ -441,7 +441,7 @@ export function OrdersTable({
                       setReconciliationOrder(null);
                       setSmsText('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-brand-primary transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-secondary hover:text-brand-primary transition-colors"
                   >
                     Cancel
                   </button>

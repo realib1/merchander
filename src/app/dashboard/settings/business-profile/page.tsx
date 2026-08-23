@@ -7,7 +7,7 @@ export default function GeneralSettingsPage() {
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">General</h1>
-        <p className="text-sm text-text-secondary mt-1">Manage your store&apos;s basic information and identity.</p>
+        <p className="text-sm text-secondary mt-1">Manage your store&apos;s basic information and identity.</p>
       </div>
 
       <Card>

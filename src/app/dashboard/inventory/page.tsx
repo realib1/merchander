@@ -39,7 +39,7 @@ export default async function InventoryPage() {
   return (
     <div className="h-full flex flex-col max-w-5xl">
       <div className="bg-surface border border-separator rounded-2xl shadow-sm overflow-hidden mt-6">
-        <div className="grid grid-cols-12 gap-4 p-4 font-semibold text-text-secondary text-sm border-b border-separator bg-surface-elevated/50">
+        <div className="grid grid-cols-12 gap-4 p-4 font-semibold text-secondary text-sm border-b border-separator bg-surface-elevated/50">
           <div className="col-span-5">SKU / Item</div>
           <div className="col-span-3">Branch</div>
           <div className="col-span-4 text-right">Available Stock</div>
@@ -56,16 +56,16 @@ export default async function InventoryPage() {
               return (
                 <div key={variant.id} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-elevated/50 transition-colors">
                   <div className="col-span-5">
-                    <div className="font-mono text-xs text-text-muted font-medium mb-1">{variant.sku}</div>
-                    <div className="font-semibold text-text-primary">{displayName}</div>
-                    <div className="text-xs font-medium text-text-secondary mt-0.5">{formatCurrency(variant.price)}</div>
+                    <div className="font-mono text-xs text-muted font-medium mb-1">{variant.sku}</div>
+                    <div className="font-semibold text-primary">{displayName}</div>
+                    <div className="text-xs font-medium text-secondary mt-0.5">{formatCurrency(variant.price)}</div>
                   </div>
-                  <div className="col-span-3 text-sm text-text-muted flex items-center gap-2">
+                  <div className="col-span-3 text-sm text-muted flex items-center gap-2">
                     <AlertCircle size={14} />
                     Unassigned
                   </div>
                   <div className="col-span-4 text-right">
-                    <span className="text-sm font-semibold text-text-muted">0</span>
+                    <span className="text-sm font-semibold text-muted">0</span>
                   </div>
                 </div>
               );
@@ -75,13 +75,13 @@ export default async function InventoryPage() {
             return variant.inventory?.map((inv, idx: number) => (
               <div key={`${variant.id}-${idx}`} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-elevated/50 transition-colors">
                 <div className="col-span-5">
-                  <div className="font-mono text-xs text-text-muted font-medium mb-1">{variant.sku}</div>
-                  <div className="font-semibold text-text-primary">{displayName}</div>
-                  <div className="text-xs font-medium text-text-secondary mt-0.5">{formatCurrency(variant.price)}</div>
+                  <div className="font-mono text-xs text-muted font-medium mb-1">{variant.sku}</div>
+                  <div className="font-semibold text-primary">{displayName}</div>
+                  <div className="text-xs font-medium text-secondary mt-0.5">{formatCurrency(variant.price)}</div>
                 </div>
                 
-                <div className="col-span-3 flex items-center gap-2 text-sm font-medium text-text-secondary">
-                  <Warehouse size={16} className="text-text-muted" />
+                <div className="col-span-3 flex items-center gap-2 text-sm font-medium text-secondary">
+                  <Warehouse size={16} className="text-muted" />
                   {inv.store?.name || 'Main Branch'}
                 </div>
 
@@ -104,9 +104,9 @@ export default async function InventoryPage() {
                       name="quantity" 
                       defaultValue={inv.quantity} 
                       min="0"
-                      className={`w-16 text-right px-2 py-1 text-sm font-bold border rounded-md outline-none transition-all ${inv.quantity === 0 ? 'text-red-500' : inv.quantity < 10 ? 'text-orange-500' : 'text-text-primary'}` + " border-transparent focus:border-brand-primary bg-transparent focus:bg-surface"}
+                      className={`w-16 text-right px-2 py-1 text-sm font-bold border rounded-md outline-none transition-all ${inv.quantity === 0 ? 'text-red-500' : inv.quantity < 10 ? 'text-orange-500' : 'text-primary'}` + " border-transparent focus:border-brand-primary bg-transparent focus:bg-surface"}
                     />
-                    <button type="submit" className={"p-1.5 text-text-muted hover:text-brand-primary hover:bg-brand-primary/10 rounded-md transition-all cursor-pointer" + " opacity-0 focus:opacity-100 group-hover/form:opacity-100"}>
+                    <button type="submit" className={"p-1.5 text-muted hover:text-brand-primary hover:bg-brand-primary/10 rounded-md transition-all cursor-pointer" + " opacity-0 focus:opacity-100 group-hover/form:opacity-100"}>
                       <Save size={14} />
                     </button>
                   </form>
@@ -116,9 +116,9 @@ export default async function InventoryPage() {
           })}
 
           {(!variants || variants.length === 0) && (
-            <div className="p-12 text-center text-text-secondary">
-              <PackageSearch size={48} className="mx-auto mb-4 text-text-muted" />
-              <p className="font-medium text-text-primary">No inventory to track</p>
+            <div className="p-12 text-center text-secondary">
+              <PackageSearch size={48} className="mx-auto mb-4 text-muted" />
+              <p className="font-medium text-primary">No inventory to track</p>
               <p className="text-sm mt-1">Add items to your catalog to track stock.</p>
             </div>
           )}

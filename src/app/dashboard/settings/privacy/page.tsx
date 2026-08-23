@@ -7,8 +7,8 @@ export default function PrivacySettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Privacy & Data</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Privacy & Data</h1>
+        <p className="text-sm text-secondary mt-1">
           Manage how customer data is handled on your storefront.
         </p>
       </div>
@@ -28,8 +28,8 @@ export default function PrivacySettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Show Cookie Banner</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Show Cookie Banner</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 Require customers in the EU/UK to accept tracking cookies before analytics load.
               </p>
             </div>
@@ -40,8 +40,8 @@ export default function PrivacySettingsPage() {
           
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Marketing Consent Checkbox</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Marketing Consent Checkbox</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 Add an opt-in checkbox at checkout for promotional emails.
               </p>
             </div>
@@ -64,8 +64,8 @@ export default function PrivacySettingsPage() {
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-text-primary">Delete Abandoned Checkouts</label>
-            <select className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <label className="text-sm font-medium text-primary">Delete Abandoned Checkouts</label>
+            <select className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
               <option>After 30 days</option>
               <option>After 90 days</option>
               <option>Never</option>

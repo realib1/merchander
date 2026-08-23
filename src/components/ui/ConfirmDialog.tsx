@@ -62,7 +62,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </>
       }
     >
-      <div className="text-sm text-text-secondary">
+      <div className="text-sm text-secondary">
         {description || "Are you sure you want to proceed?"}
       </div>
     </Modal>

@@ -25,7 +25,7 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
       case 'paid': return <span className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-xs font-medium">Paid</span>;
       case 'dispatched': return <span className="bg-brand-secondary/10 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">Dispatched</span>;
       case 'cancelled': return <span className="bg-error/10 text-error px-3 py-1 rounded-full text-xs font-medium">Cancelled</span>;
-      default: return <span className="bg-surface-elevated text-text-secondary px-3 py-1 rounded-full text-xs font-medium">{status}</span>;
+      default: return <span className="bg-surface-elevated text-secondary px-3 py-1 rounded-full text-xs font-medium">{status}</span>;
     }
   };
 
@@ -33,7 +33,7 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
     <div className="flex flex-col gap-6 overflow-y-auto pb-8 h-full">
       <div className="flex justify-between items-start">
         <div>
-          <Link href="/dashboard/customers" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-brand-primary transition-colors mb-4">
+          <Link href="/dashboard/customers" className="inline-flex items-center gap-2 text-sm text-secondary hover:text-brand-primary transition-colors mb-4">
             <ArrowLeft size={16} />
             Back to Customers
           </Link>
@@ -42,12 +42,12 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
               <User size={32} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-text-primary tracking-tight font-display">
+              <h1 className="text-3xl font-bold text-primary tracking-tight font-display">
                 {customer.name || 'Unnamed Customer'}
               </h1>
-              <div className="flex gap-4 mt-2 text-sm text-text-secondary font-medium">
-                <span className="flex items-center gap-1.5"><Phone size={14} className="text-text-muted" /> {formatGhanaLocalDisplay(customer.phone)}</span>
-                {customer.email && <span className="flex items-center gap-1.5"><Mail size={14} className="text-text-muted" /> {customer.email}</span>}
+              <div className="flex gap-4 mt-2 text-sm text-secondary font-medium">
+                <span className="flex items-center gap-1.5"><Phone size={14} className="text-muted" /> {formatGhanaLocalDisplay(customer.phone)}</span>
+                {customer.email && <span className="flex items-center gap-1.5"><Mail size={14} className="text-muted" /> {customer.email}</span>}
               </div>
             </div>
           </div>
@@ -59,8 +59,8 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-primary/10 transition-colors duration-500"></div>
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <p className="text-text-secondary font-medium text-sm">Lifetime Value</p>
-              <h3 className="text-3xl font-bold text-text-primary mt-2">{formatCurrency(customer.stats.totalSpent)}</h3>
+              <p className="text-secondary font-medium text-sm">Lifetime Value</p>
+              <h3 className="text-3xl font-bold text-primary mt-2">{formatCurrency(customer.stats.totalSpent)}</h3>
             </div>
             <div className="p-3 bg-brand-primary/10 rounded-xl text-brand-primary">
               <TrendingUp size={24} />
@@ -72,8 +72,8 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-500/10 transition-colors duration-500"></div>
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <p className="text-text-secondary font-medium text-sm">Total Orders</p>
-              <h3 className="text-3xl font-bold text-text-primary mt-2">{customer.stats.totalOrders}</h3>
+              <p className="text-secondary font-medium text-sm">Total Orders</p>
+              <h3 className="text-3xl font-bold text-primary mt-2">{customer.stats.totalOrders}</h3>
             </div>
             <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500">
               <ShoppingBag size={24} />
@@ -85,8 +85,8 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-500/10 transition-colors duration-500"></div>
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <p className="text-text-secondary font-medium text-sm">Avg. Order Value</p>
-              <h3 className="text-3xl font-bold text-text-primary mt-2">{formatCurrency(customer.stats.aov)}</h3>
+              <p className="text-secondary font-medium text-sm">Avg. Order Value</p>
+              <h3 className="text-3xl font-bold text-primary mt-2">{formatCurrency(customer.stats.aov)}</h3>
             </div>
             <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500">
               <CreditCard size={24} />
@@ -96,11 +96,11 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
       </div>
 
       <div className="mt-4">
-        <h2 className="text-xl font-bold text-text-primary mb-4">Order History</h2>
+        <h2 className="text-xl font-bold text-primary mb-4">Order History</h2>
         <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-surface-elevated border-b border-separator text-text-secondary text-xs uppercase tracking-wider">
+              <thead className="bg-surface-elevated border-b border-separator text-secondary text-xs uppercase tracking-wider">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Order ID</th>
                   <th className="px-6 py-4 font-semibold">Date</th>
@@ -112,7 +112,7 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
               <tbody className="divide-y divide-separator">
                 {customer.orders.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-text-muted italic">
+                    <td colSpan={5} className="px-6 py-12 text-center text-muted italic">
                       This customer hasn&apos;t placed any orders yet.
                     </td>
                   </tr>
@@ -125,13 +125,13 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
                           #{order.id.substring(0, 8).toUpperCase()}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-text-secondary text-xs">
+                      <td className="px-6 py-4 text-secondary text-xs">
                         {formatDate(order.created_at)}
                       </td>
-                      <td className="px-6 py-4 text-text-secondary text-xs">
+                      <td className="px-6 py-4 text-secondary text-xs">
                         {order.items?.length || 0} items
                       </td>
-                      <td className="px-6 py-4 font-bold text-text-primary text-right">
+                      <td className="px-6 py-4 font-bold text-primary text-right">
                         {formatCurrency(order.total_amount)}
                       </td>
                       <td className="px-6 py-4 text-center">

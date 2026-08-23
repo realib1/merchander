@@ -7,8 +7,8 @@ export default function SubscriptionSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Subscription</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Subscription</h1>
+        <p className="text-sm text-secondary mt-1">
           Manage your Merchander billing plan and payment methods.
         </p>
       </div>
@@ -27,22 +27,22 @@ export default function SubscriptionSettingsPage() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-text-primary">{formatCurrency(250).replace('.00', '')}<span className="text-sm font-normal text-text-secondary">/mo</span></p>
+              <p className="text-2xl font-bold text-primary">{formatCurrency(250).replace('.00', '')}<span className="text-sm font-normal text-secondary">/mo</span></p>
             </div>
           </div>
         </CardHeader>
         <CardBody className="space-y-4">
           <ul className="grid grid-cols-2 gap-3 mt-4">
-            <li className="flex items-center gap-2 text-sm text-text-primary">
+            <li className="flex items-center gap-2 text-sm text-primary">
               <CheckCircle2 className="w-4 h-4 text-brand-primary" /> Unlimited Products
             </li>
-            <li className="flex items-center gap-2 text-sm text-text-primary">
+            <li className="flex items-center gap-2 text-sm text-primary">
               <CheckCircle2 className="w-4 h-4 text-brand-primary" /> 5 Staff Accounts
             </li>
-            <li className="flex items-center gap-2 text-sm text-text-primary">
+            <li className="flex items-center gap-2 text-sm text-primary">
               <CheckCircle2 className="w-4 h-4 text-brand-primary" /> WhatsApp API Integration
             </li>
-            <li className="flex items-center gap-2 text-sm text-text-primary">
+            <li className="flex items-center gap-2 text-sm text-primary">
               <CheckCircle2 className="w-4 h-4 text-brand-primary" /> Priority Support
             </li>
           </ul>
@@ -57,7 +57,7 @@ export default function SubscriptionSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-surface-elevated text-text-primary border border-separator">
+              <div className="p-2 rounded-lg bg-surface-elevated text-primary border border-separator">
                 <CreditCard className="h-5 w-5" />
               </div>
               <div>
@@ -72,8 +72,8 @@ export default function SubscriptionSettingsPage() {
           <div className="flex items-center gap-4 p-4 border border-separator rounded-md bg-surface-elevated">
             <div className="w-12 h-8 bg-white rounded border border-separator flex items-center justify-center font-bold text-caption text-blue-900 italic">VISA</div>
             <div>
-              <p className="text-sm font-medium text-text-primary">Visa ending in 4242</p>
-              <p className="text-xs text-text-secondary">Expires 12/2028</p>
+              <p className="text-sm font-medium text-primary">Visa ending in 4242</p>
+              <p className="text-xs text-secondary">Expires 12/2028</p>
             </div>
           </div>
         </CardBody>

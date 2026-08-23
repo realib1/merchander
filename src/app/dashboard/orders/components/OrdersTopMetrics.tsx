@@ -23,13 +23,13 @@ function MetricCard({ title, value, subtitle, subtitleColor, icon, iconBg }: Met
   return (
     <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-32">
       <div className="flex justify-between w-full p-4">
-        <h3 className="text-body font-medium text-text-secondary">{title}</h3>
+        <h3 className="text-body font-medium text-secondary">{title}</h3>
         <div className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
           {icon}
         </div>
       </div>
       <div className="rounded-xl w-full p-4 border-t border-t-separator shadow-md">
-        <div className="text-h1 font-bold text-text-primary leading-none mb-3 tabular-nums">
+        <div className="text-h1 font-bold text-primary leading-none mb-3 tabular-nums">
           {value}
         </div>
         <div className={`text-xs font-medium ${subtitleColor}`}>
@@ -55,7 +55,7 @@ export function OrdersTopMetrics({ metrics }: OrdersMetricsProps) {
         title="Pending payment"
         value={metrics.pendingPayment.toLocaleString()}
         subtitle="Awaiting fulfillment"
-        subtitleColor="text-text-muted"
+        subtitleColor="text-muted"
         icon={<Clock size={14} />}
         iconBg="bg-warning/10 text-warning"
       />
@@ -63,7 +63,7 @@ export function OrdersTopMetrics({ metrics }: OrdersMetricsProps) {
         title="To dispatch"
         value={metrics.toDispatch.toLocaleString()}
         subtitle="Currently shipping"
-        subtitleColor="text-text-muted"
+        subtitleColor="text-muted"
         icon={<Truck size={14} />}
         iconBg="bg-info/10 text-info"
       />

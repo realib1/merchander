@@ -50,7 +50,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
     <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left text-sm whitespace-nowrap">
-          <thead className="bg-surface-elevated border-b border-separator text-text-secondary text-xs uppercase tracking-wider">
+          <thead className="bg-surface-elevated border-b border-separator text-secondary text-xs uppercase tracking-wider">
             <tr>
               <th className="px-6 py-4 font-semibold w-12 text-center">
                 <input 
@@ -72,7 +72,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
           <tbody className="divide-y divide-separator">
             {customers.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-text-muted italic">
+                <td colSpan={8} className="px-6 py-12 text-center text-muted italic">
                   No customers found matching these criteria.
                 </td>
               </tr>
@@ -94,22 +94,22 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                       </div>
                       <div>
                         <div className="font-semibold text-brand-primary group-hover:text-brand-secondary transition-colors">{customer.name || 'Unknown'}</div>
-                        <div className="text-xs text-text-muted mt-0.5 flex items-center gap-1">
+                        <div className="text-xs text-muted mt-0.5 flex items-center gap-1">
                           {customer.email ? `${customer.email} · ` : ''}{formatGhanaLocalDisplay(customer.phone)}
                         </div>
                       </div>
                     </Link>
                   </td>
-                  <td className="px-6 py-4 font-bold text-text-primary text-center">
+                  <td className="px-6 py-4 font-bold text-primary text-center">
                     {customer.totalOrders}
                   </td>
-                  <td className="px-6 py-4 font-bold text-text-primary text-right">
+                  <td className="px-6 py-4 font-bold text-primary text-right">
                     {formatCurrency(customer.totalSpent)}
                   </td>
-                  <td className="px-6 py-4 text-text-secondary text-right text-sm">
+                  <td className="px-6 py-4 text-secondary text-right text-sm">
                     {formatCurrency(customer.aov || 0)}
                   </td>
-                  <td className="px-6 py-4 text-text-secondary text-right text-sm">
+                  <td className="px-6 py-4 text-secondary text-right text-sm">
                     {customer.lastOrderDate ? formatDate(customer.lastOrderDate) : 'Never'}
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -118,7 +118,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center justify-center bg-surface-elevated text-text-secondary px-3 py-1 rounded-full text-xs font-semibold">
+                      <span className="inline-flex items-center justify-center bg-surface-elevated text-secondary px-3 py-1 rounded-full text-xs font-semibold">
                         Inactive
                       </span>
                     )}
@@ -129,7 +129,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                         e.stopPropagation();
                         setActiveMenuId(activeMenuId === customer.id ? null : customer.id);
                       }}
-                      className="p-2 text-text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
+                      className="p-2 text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
                     >
                       <MoreHorizontal size={18} />
                     </button>
@@ -145,11 +145,11 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                           className="absolute right-6 top-12 w-40 bg-surface border border-separator rounded-xl shadow-lg z-10 overflow-hidden text-left"
                         >
                           <div className="p-1">
-                            <Link href={`/dashboard/customers/${customer.id}`} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
+                            <Link href={`/dashboard/customers/${customer.id}`} className="w-full px-3 py-2 text-sm text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
                               <FileText size={14} />
                               View Profile
                             </Link>
-                            <button onClick={() => { toast.info('Contact features coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
+                            <button onClick={() => { toast.info('Contact features coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
                               <Phone size={14} />
                               Contact
                             </button>
@@ -166,7 +166,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
       </div>
       
       {/* Pagination placeholder */}
-      <div className="p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm text-text-secondary shrink-0">
+      <div className="p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm text-secondary shrink-0">
         <div>Showing {customers.length} customers</div>
         <div className="flex gap-2">
           <button className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">Previous</button>

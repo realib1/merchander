@@ -29,18 +29,18 @@ export function CustomersHeader() {
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
           <input 
             type="text"
             placeholder="Search by name, phone, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={"w-full sm:max-w-md pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-text-primary placeholder:text-text-muted"}
+            className={"w-full sm:max-w-md pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-primary placeholder:text-muted"}
           />
         </div>
         
         <div className="flex gap-2 shrink-0">
-          <Link href="/dashboard/customers/new" className="flex justify-center items-center gap-1.5 bg- hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-body-sm font-medium transition-colors">
+          <Link href="/dashboard/customers/new" className="flex justify-center items-center gap-1.5 bg-brand-primary hover:bg-brand-primary/80 text-white px-4 py-2 rounded-lg text-body-sm font-medium transition-colors">
             <Plus size={16} />
             Add customer
           </Link>

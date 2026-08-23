@@ -16,7 +16,7 @@ interface Order {
 }
 
 const COLUMNS: { id: OrderStatus; title: string; bg: string; text: string }[] = [
-  { id: 'draft', title: 'New (AI Draft)', bg: 'bg-surface-elevated border-separator', text: 'text-text-secondary' },
+  { id: 'draft', title: 'New (AI Draft)', bg: 'bg-surface-elevated border-separator', text: 'text-secondary' },
   { id: 'pending_payment', title: 'Awaiting Payment', bg: 'bg-warning/10 border-warning/20', text: 'text-warning' },
   { id: 'paid', title: 'Paid (To Pack)', bg: 'bg-success/10 border-success/20', text: 'text-success' },
   { id: 'dispatched', title: 'Dispatched', bg: 'bg-brand-secondary/10 border-brand-secondary/20', text: 'text-brand-secondary' },

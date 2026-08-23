@@ -9,8 +9,8 @@ export default function ShipmentsSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Shipments & Delivery</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Shipments & Delivery</h1>
+        <p className="text-sm text-secondary mt-1">
           Set up local delivery zones, dispatch riders, and shipping rates.
         </p>
       </div>
@@ -31,17 +31,17 @@ export default function ShipmentsSettingsPage() {
           <div className="rounded-md border border-separator overflow-hidden">
             <div className="flex items-center justify-between p-4 bg-surface-elevated border-b border-separator/50">
               <div>
-                <h4 className="text-sm font-medium text-text-primary">Greater Accra</h4>
-                <p className="text-xs text-text-secondary">Standard Delivery (1-2 Days)</p>
+                <h4 className="text-sm font-medium text-primary">Greater Accra</h4>
+                <p className="text-xs text-secondary">Standard Delivery (1-2 Days)</p>
               </div>
-              <div className="text-sm font-semibold text-text-primary">{formatCurrency(30)}</div>
+              <div className="text-sm font-semibold text-primary">{formatCurrency(30)}</div>
             </div>
             <div className="flex items-center justify-between p-4 bg-surface hover:bg-surface-elevated transition-colors border-b border-separator/50">
               <div>
-                <h4 className="text-sm font-medium text-text-primary">Ashanti Region (Kumasi)</h4>
-                <p className="text-xs text-text-secondary">Inter-city Transport (2-3 Days)</p>
+                <h4 className="text-sm font-medium text-primary">Ashanti Region (Kumasi)</h4>
+                <p className="text-xs text-secondary">Inter-city Transport (2-3 Days)</p>
               </div>
-              <div className="text-sm font-semibold text-text-primary">{formatCurrency(50)}</div>
+              <div className="text-sm font-semibold text-primary">{formatCurrency(50)}</div>
             </div>
             <div className="p-3 bg-surface text-center">
               <Button variant="outline" size="sm" className="w-full text-xs">Add New Delivery Zone</Button>
@@ -65,8 +65,8 @@ export default function ShipmentsSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Allow Customer Tracking</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Allow Customer Tracking</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 Send SMS notifications to customers with rider contact details when out for delivery.
               </p>
             </div>

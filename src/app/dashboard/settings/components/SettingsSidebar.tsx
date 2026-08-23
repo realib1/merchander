@@ -78,7 +78,7 @@ export function SettingsSidebar() {
     <nav className="space-y-8 pb-10 h-full overflow-y-auto pr-4 custom-scrollbar">
       {settingsGroups.map((group) => (
         <div key={group.title} className="space-y-1">
-          <h2 className="px-3 text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+          <h2 className="px-3 text-xs font-semibold uppercase tracking-wider text-muted mb-3">
             {group.title}
           </h2>
           <ul className="space-y-1">
@@ -93,12 +93,12 @@ export function SettingsSidebar() {
                     className={`group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-brand-primary/10 text-brand-primary'
-                        : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'
+                        : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
                     }`}
                   >
                     <Icon
                       className={`h-4 w-4 shrink-0 transition-colors ${
-                        isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-brand-primary'
+                        isActive ? 'text-brand-primary' : 'text-muted group-hover:text-brand-primary'
                       }`}
                     />
                     {item.name}

@@ -37,7 +37,7 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-background text-text-primary transition-colors duration-200">
+      <body className="min-h-full flex flex-col font-sans bg-background text-primary transition-colors duration-200">
         <ThemeProvider>{children}</ThemeProvider>
         <Toaster position="top-right" richColors />
       </body>

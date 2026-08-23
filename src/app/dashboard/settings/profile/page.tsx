@@ -23,8 +23,8 @@ export default async function ProfileSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Profile Settings</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Profile Settings</h1>
+        <p className="text-sm text-secondary mt-1">
           Manage your personal information and preferences.
         </p>
       </div>
@@ -47,15 +47,15 @@ export default async function ProfileSettingsPage() {
         <CardBody className="space-y-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label htmlFor="language" className="text-sm font-medium text-text-primary">Language</label>
-              <select id="language" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              <label htmlFor="language" className="text-sm font-medium text-primary">Language</label>
+              <select id="language" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
                 <option>English (US)</option>
                 <option>French (FR)</option>
               </select>
             </div>
             <div className="space-y-1.5">
-              <label htmlFor="timezone" className="text-sm font-medium text-text-primary">Timezone</label>
-              <select id="timezone" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              <label htmlFor="timezone" className="text-sm font-medium text-primary">Timezone</label>
+              <select id="timezone" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
                 <option>GMT (Greenwich Mean Time)</option>
                 <option>EST (Eastern Standard Time)</option>
                 <option>PST (Pacific Standard Time)</option>

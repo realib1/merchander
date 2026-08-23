@@ -128,20 +128,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             role="alert"
             className={cn(
               "pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg",
-              "border-separator bg-surface-elevated text-text-primary",
+              "border-separator bg-surface-elevated text-primary",
               "animate-in slide-in-from-bottom-2 fade-in transition-all duration-200"
             )}
           >
             <div className="shrink-0 pt-0.5">{TOAST_ICONS[t.type]}</div>
             <div className="flex flex-1 flex-col gap-0.5 text-left">
               {t.title && <h4 className="text-xs font-semibold">{t.title}</h4>}
-              <p className="text-xs text-text-secondary">{t.message}</p>
+              <p className="text-xs text-secondary">{t.message}</p>
             </div>
             <button
               type="button"
               onClick={() => removeToast(t.id)}
               aria-label="Close notification"
-              className="shrink-0 rounded-full p-1 text-text-muted transition-colors hover:text-brand-primary"
+              className="shrink-0 rounded-full p-1 text-muted transition-colors hover:text-brand-primary"
             >
               <svg
                 className="h-3.5 w-3.5"

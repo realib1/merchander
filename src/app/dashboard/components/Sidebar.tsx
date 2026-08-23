@@ -121,7 +121,7 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
       <nav className="flex-1 px-4 py-6 space-y-6 overflow-y-auto">
         {navGroups.map((group) => (
           <div key={group.title} className="space-y-1.5">
-            <div className="text-caption font-bold text-text-muted mb-2 px-3 tracking-widest uppercase">
+            <div className="text-caption font-bold text-muted mb-2 px-3 tracking-widest uppercase">
               {group.title}
             </div>
             {group.items.map((item) => {
@@ -137,10 +137,10 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
                     flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all group
                     ${isActive
                       ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'}
+                      : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'}
                   `}
                 >
-                  <Icon size={18} className={isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-brand-primary transition-colors'} />
+                  <Icon size={18} className={isActive ? 'text-brand-primary' : 'text-muted group-hover:text-brand-primary transition-colors'} />
                   <span className="text-sm">{item.name}</span>
                   {isActive && (
                     <div className="ml-auto w-1 h-4 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(255,106,0,0.5)]"></div>
@@ -157,12 +157,12 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5">
             <div className="w-full h-full rounded-full bg-surface flex items-center justify-center">
-              <span className="text-sm font-bold text-text-primary">{userEmail.charAt(0).toUpperCase()}</span>
+              <span className="text-sm font-bold text-primary">{userEmail.charAt(0).toUpperCase()}</span>
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-text-primary truncate">Admin User</p>
-            <p className="text-xs text-text-muted truncate">{userEmail}</p>
+            <p className="text-sm font-semibold text-primary truncate">Admin User</p>
+            <p className="text-xs text-muted truncate">{userEmail}</p>
           </div>
         </div>
         <button

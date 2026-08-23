@@ -16,7 +16,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 const VARIANT_STYLES: Record<BadgeVariant, { container: string; dot: string }> = {
   default: {
     container:
-      "bg-surface-elevated text-text-primary border border-separator",
+      "bg-surface-elevated text-primary border border-separator",
     dot: "bg-text-secondary",
   },
   success: {

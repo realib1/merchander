@@ -40,8 +40,8 @@ export function BusinessForm({ initialTenantName }: { initialTenantName: string 
           <FormField name="tradingName" label="Trading Name (DBA)" defaultValue="" hint="Optional" />
           
           <div className="space-y-1.5">
-            <label htmlFor="industry" className="text-sm font-medium text-text-primary">Industry / Business Type</label>
-            <select id="industry" name="industry" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <label htmlFor="industry" className="text-sm font-medium text-primary">Industry / Business Type</label>
+            <select id="industry" name="industry" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
               <option>Retail & E-commerce</option>
               <option>Wholesale & Distribution</option>
               <option>Fashion & Apparel</option>

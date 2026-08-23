@@ -46,7 +46,7 @@ export function Topbar() {
       <div className="flex items-center gap-4">
         {/* Mobile menu button */}
         <button 
-          className="md:hidden p-2 -ml-2 text-text-secondary hover:bg-surface-elevated rounded-lg transition-colors"
+          className="md:hidden p-2 -ml-2 text-secondary hover:bg-surface-elevated rounded-lg transition-colors"
           onClick={() => setIsOpen(true)}
           aria-label="Open navigation menu"
         >
@@ -55,26 +55,26 @@ export function Topbar() {
         
         {/* Page Title & Subtitle */}
         <div className="flex flex-col justify-center">
-          <h1 className="text-xl font-bold text-text-primary tracking-tight leading-none">{header.title}</h1>
-          <p className="hidden sm:block text-xs text-text-secondary mt-1.5 leading-none">{header.subtitle}</p>
+          <h1 className="text-xl font-bold text-primary tracking-tight leading-none">{header.title}</h1>
+          <p className="hidden sm:block text-xs text-secondary mt-1.5 leading-none">{header.subtitle}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
         {/* Search Bar */}
         <div className="hidden md:flex items-center relative">
-          <Search size={16} className="absolute left-3 text-text-muted" />
+          <Search size={16} className="absolute left-3 text-muted" />
           <input 
             type="text" 
             placeholder="Search products, orders, customers, suppliers..." 
-            className="w-80 lg:w-96 bg-surface/50 border border-separator/80 rounded-md pl-9 pr-4 py-1.5 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all placeholder:text-text-muted/50"
+            className="w-80 lg:w-96 bg-surface/50 border border-separator/80 rounded-md pl-9 pr-4 py-1.5 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all placeholder:text-muted/50"
           />
         </div>
 
         {/* Notifications & Status */}
         <div className="flex items-center gap-3">
           
-          <button className="relative p-2 text-text-secondary hover:bg-surface-elevated hover:text-brand-primary rounded-full transition-colors">
+          <button className="relative p-2 text-secondary hover:bg-surface-elevated hover:text-brand-primary rounded-full transition-colors">
             <Bell size={18} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-primary rounded-full border border-background"></span>
           </button>

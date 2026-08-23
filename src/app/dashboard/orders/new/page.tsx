@@ -72,13 +72,13 @@ export default async function NewOrderPage() {
       <header className="mb-8">
         <Link 
           href="/dashboard/orders" 
-          className="inline-flex items-center text-sm font-medium text-text-muted hover:text-brand-primary transition-colors mb-4"
+          className="inline-flex items-center text-sm font-medium text-muted hover:text-brand-primary transition-colors mb-4"
         >
           <ArrowLeft size={16} className="mr-1.5" />
           Back to Orders
         </Link>
-        <h1 className="text-3xl font-bold text-text-primary tracking-tight">Create Order</h1>
-        <p className="text-text-secondary mt-1">Manually enter an order taken from WhatsApp, phone, or in-person.</p>
+        <h1 className="text-3xl font-bold text-primary tracking-tight">Create Order</h1>
+        <p className="text-secondary mt-1">Manually enter an order taken from WhatsApp, phone, or in-person.</p>
       </header>
 
       <CreateOrderForm 

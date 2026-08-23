@@ -8,8 +8,8 @@ export default function PaymentsSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Payments</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Payments</h1>
+        <p className="text-sm text-secondary mt-1">
           Manage how your store accepts payments from customers.
         </p>
       </div>
@@ -41,8 +41,8 @@ export default function PaymentsSettingsPage() {
           <div className="p-4 bg-surface-elevated rounded-md border border-separator flex items-start gap-3">
             <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-text-primary">Powered by Paystack</p>
-              <p className="text-xs text-text-secondary mt-1">Funds are settled into your Paystack account within 24 hours. Transaction fee: 1.95%.</p>
+              <p className="text-sm font-medium text-primary">Powered by Paystack</p>
+              <p className="text-xs text-secondary mt-1">Funds are settled into your Paystack account within 24 hours. Transaction fee: 1.95%.</p>
             </div>
           </div>
         </CardBody>
@@ -71,7 +71,7 @@ export default function PaymentsSettingsPage() {
             <div className="w-10 h-6 rounded bg-white flex items-center justify-center font-bold text-caption text-blue-900 border border-separator/30 italic">VISA</div>
             <div className="w-10 h-6 rounded bg-[#27303E] flex items-center justify-center font-bold text-[8px] text-white border border-separator/30">Mastercard</div>
           </div>
-          <p className="text-xs text-text-secondary">Processed securely via your active Paystack integration.</p>
+          <p className="text-xs text-secondary">Processed securely via your active Paystack integration.</p>
         </CardBody>
       </Card>
 
@@ -90,8 +90,8 @@ export default function PaymentsSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Enable COD</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Enable COD</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 High risk of fake orders. Recommended only for verified customers or specific delivery zones.
               </p>
             </div>

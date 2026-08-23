@@ -8,8 +8,8 @@ export default function InventorySettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Products & Inventory</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Products & Inventory</h1>
+        <p className="text-sm text-secondary mt-1">
           Configure inventory tracking, low stock alerts, and product defaults.
         </p>
       </div>
@@ -29,8 +29,8 @@ export default function InventorySettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Stop selling when out of stock</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Stop selling when out of stock</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 Automatically hide products or show them as &quot;Sold Out&quot; when their inventory level reaches zero.
               </p>
             </div>
@@ -41,8 +41,8 @@ export default function InventorySettingsPage() {
           
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Track Inventory by Default</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Track Inventory by Default</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 Enable inventory tracking automatically for all newly created products.
               </p>
             </div>
@@ -66,7 +66,7 @@ export default function InventorySettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2 mb-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Enable Low Stock Alerts</h4>
+              <h4 className="text-sm font-medium text-primary">Enable Low Stock Alerts</h4>
             </div>
             <Switch defaultChecked={true} />
           </div>
@@ -98,8 +98,8 @@ export default function InventorySettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-text-primary">Auto-generate SKUs</h4>
-              <p className="text-sm text-text-secondary max-w-lg">
+              <h4 className="text-sm font-medium text-primary">Auto-generate SKUs</h4>
+              <p className="text-sm text-secondary max-w-lg">
                 Automatically create a unique SKU for new products based on category and title.
               </p>
             </div>

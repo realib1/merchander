@@ -127,7 +127,7 @@ export function DataTable<T extends Record<string, unknown>>({
       <div className="w-full overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="border-b border-separator bg-surface-elevated text-text-secondary">
+            <tr className="border-b border-separator bg-surface-elevated text-secondary">
               {selectable && (
                 <th className="w-10 px-4 py-3 text-center">
                   <input
@@ -161,7 +161,7 @@ export function DataTable<T extends Record<string, unknown>>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-separator/50 text-text-primary">
+          <tbody className="divide-y divide-separator/50 text-primary">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, rIndex) => (
                 <tr key={`skel-${rIndex}`}>
@@ -181,7 +181,7 @@ export function DataTable<T extends Record<string, unknown>>({
               <tr>
                 <td
                   colSpan={totalColCount}
-                  className="px-4 py-8 text-center text-sm text-text-muted"
+                  className="px-4 py-8 text-center text-sm text-muted"
                 >
                   {emptyMessage}
                 </td>
@@ -224,7 +224,7 @@ export function DataTable<T extends Record<string, unknown>>({
       </div>
 
       {totalPages > 1 && !isLoading && (
-        <div className="flex items-center justify-between border-t border-separator px-4 py-3 text-xs text-text-secondary">
+        <div className="flex items-center justify-between border-t border-separator px-4 py-3 text-xs text-secondary">
           <span>
             Page {currentPage} of {totalPages}
           </span>

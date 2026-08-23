@@ -45,20 +45,20 @@ export function ProductsHeader() {
       {/* StudioGrid Single-Row Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
           <input 
             type="text"
             placeholder="Search products or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={"w-full pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-text-primary placeholder:text-text-muted"}
+            className={"w-full pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-primary placeholder:text-muted"}
           />
         </div>
         
         <div className="flex gap-2 shrink-0">
           <select 
             disabled
-            className="px-3 py-2 bg-surface border border-separator rounded-lg text-body-sm font-medium text-text-primary outline-none focus:ring-1 focus:ring-brand-primary min-w-30"
+            className="px-3 py-2 bg-surface border border-separator rounded-lg text-body-sm font-medium text-primary outline-none focus:ring-1 focus:ring-brand-primary min-w-30"
           >
             <option>All categories</option>
           </select>
@@ -66,7 +66,7 @@ export function ProductsHeader() {
           <select
             value={currentStatus}
             onChange={(e) => updateParam('status', e.target.value)}
-            className="px-3 py-2 bg-surface border border-separator rounded-lg text-body-sm font-medium text-text-primary outline-none focus:ring-1 focus:ring-brand-primary min-w-30"
+            className="px-3 py-2 bg-surface border border-separator rounded-lg text-body-sm font-medium text-primary outline-none focus:ring-1 focus:ring-brand-primary min-w-30"
           >
             <option value="all">All statuses</option>
             <option value="active">Active</option>
@@ -76,13 +76,13 @@ export function ProductsHeader() {
           <div className="flex bg-surface border border-separator rounded-lg p-1">
             <button 
               onClick={() => updateParam('view', 'table')}
-              className={`p-1 rounded-md transition-colors ${currentView === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
+              className={`p-1 rounded-md transition-colors ${currentView === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
             >
               <List size={16} />
             </button>
             <button 
               onClick={() => updateParam('view', 'grid')}
-              className={`p-1 rounded-md transition-colors ${currentView === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
+              className={`p-1 rounded-md transition-colors ${currentView === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
             >
               <LayoutGrid size={16} />
             </button>

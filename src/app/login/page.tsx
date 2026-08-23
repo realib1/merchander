@@ -14,7 +14,7 @@ export default async function LoginPage({
 }) {
   const resolvedSearchParams = await searchParams;
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-text-primary">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-primary">
       {/* Subtle modern SaaS background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-100 bg-brand-primary/10 blur-[100px] pointer-events-none rounded-full" />
 
@@ -25,7 +25,7 @@ export default async function LoginPage({
         <h2 className="text-center text-3xl font-bold tracking-tight font-display">
           Welcome back
         </h2>
-        <p className="mt-2 text-center text-sm text-text-secondary font-medium">
+        <p className="mt-2 text-center text-sm text-secondary font-medium">
           Sign in to your merchant dashboard
         </p>
       </div>
@@ -48,7 +48,7 @@ export default async function LoginPage({
 
         </div>
 
-        <p className="text-center text-sm text-text-secondary mt-8 font-medium">
+        <p className="text-center text-sm text-secondary mt-8 font-medium">
           Don&apos;t have an account?{' '}
           <Link href="#" className="font-semibold text-brand-primary hover:text-brand-primary-600 transition-colors">
             Contact Sales

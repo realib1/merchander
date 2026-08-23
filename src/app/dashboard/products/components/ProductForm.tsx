@@ -317,12 +317,12 @@ export function ProductForm({ stores, categories: initialCategories, initialData
         <div>
           <Link 
             href="/dashboard/products" 
-            className="inline-flex items-center text-sm font-medium text-text-muted hover:text-brand-primary transition-colors mb-2"
+            className="inline-flex items-center text-sm font-medium text-muted hover:text-brand-primary transition-colors mb-2"
           >
             <ArrowLeft size={16} className="mr-1.5" />
             Back to Catalog
           </Link>
-          <h1 className="text-3xl font-bold text-text-primary tracking-tight">
+          <h1 className="text-3xl font-bold text-primary tracking-tight">
             {initialData ? 'Edit Product' : 'Add New Product'}
           </h1>
         </div>
@@ -349,7 +349,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             </CardHeader>
             <CardBody className="space-y-5">
               <div className="space-y-2">
-                <label htmlFor="product-name" className="text-body-sm font-semibold text-text-primary">Name <span className="text-destructive" aria-hidden="true">*</span></label>
+                <label htmlFor="product-name" className="text-body-sm font-semibold text-primary">Name <span className="text-destructive" aria-hidden="true">*</span></label>
                 <input 
                   id="product-name"
                   type="text"
@@ -358,18 +358,18 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="e.g. Authentic Kente Cloth"
-                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-description" className="text-body-sm font-semibold text-text-primary">Description</label>
+                <label htmlFor="product-description" className="text-body-sm font-semibold text-primary">Description</label>
                 <textarea 
                   id="product-description"
                   rows={5}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Provide a detailed description..."
-                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted resize-y"
+                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted resize-y"
                 />
               </div>
             </CardBody>
@@ -394,8 +394,8 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                   <div className="w-16 h-16 bg-surface border border-separator rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                     <UploadCloud className="w-8 h-8 text-brand-primary" />
                   </div>
-                  <p className="text-sm font-semibold text-text-primary">Click or drag images to upload</p>
-                  <p className="text-xs text-text-tertiary mt-2">SVG, PNG, JPG or GIF (max. 5MB)</p>
+                  <p className="text-sm font-semibold text-primary">Click or drag images to upload</p>
+                  <p className="text-xs text-muted mt-2">SVG, PNG, JPG or GIF (max. 5MB)</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -470,9 +470,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                         onChange={handleFileChange} 
                       />
                       <div className="w-10 h-10 bg-surface rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm border border-separator mb-2">
-                        <Plus className="w-5 h-5 text-text-tertiary group-hover:text-brand-primary transition-colors" />
+                        <Plus className="w-5 h-5 text-muted group-hover:text-brand-primary transition-colors" />
                       </div>
-                      <span className="text-xs font-medium text-text-tertiary group-hover:text-brand-primary transition-colors">Add Image</span>
+                      <span className="text-xs font-medium text-muted group-hover:text-brand-primary transition-colors">Add Image</span>
                     </div>
                   )}
                 </div>
@@ -496,11 +496,11 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                   <div key={variant.id} className={`relative transition-all ${variants.length > 1 ? 'p-5 bg-surface-elevated border border-separator rounded-xl group hover:border-brand-primary' : ''}`}>
                     {variants.length > 1 && (
                       <div className="flex justify-between items-center mb-5">
-                        <h4 className="text-sm font-semibold text-text-primary">Variant {index + 1}</h4>
+                        <h4 className="text-sm font-semibold text-primary">Variant {index + 1}</h4>
                         <button 
                           type="button" 
                           onClick={() => removeVariant(variant.id)}
-                          className="text-text-tertiary hover:text-red-500 p-1.5 rounded-md hover:bg-red-500/10 transition-colors"
+                          className="text-muted hover:text-red-500 p-1.5 rounded-md hover:bg-red-500/10 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -511,14 +511,14 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Name (Only show if multiple variants) */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-body-sm font-medium text-text-secondary">Option Name</label>
+                          <label className="text-body-sm font-medium text-secondary">Option Name</label>
                           <input 
                             type="text"
                             required
                             value={variant.name}
                             onChange={e => updateVariant(variant.id, 'name', e.target.value)}
                             placeholder="e.g. Large"
-                            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                           />
                         </div>
                       )}
@@ -526,9 +526,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Price (Only show if multiple variants, else base price is used) */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-body-sm font-medium text-text-secondary">Price (GHS)</label>
+                          <label className="text-body-sm font-medium text-secondary">Price (GHS)</label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
                             <input 
                               type="number"
                               min="0"
@@ -536,7 +536,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                               value={variant.price === '' ? '' : variant.price}
                               onChange={e => updateVariant(variant.id, 'price', e.target.value === '' ? '' : parseFloat(e.target.value))}
                               placeholder={basePrice === '' ? "0.00" : `Base: ₵${basePrice}`}
-                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                             />
                           </div>
                         </div>
@@ -545,9 +545,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Cost Price */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-body-sm font-medium text-text-secondary">Cost Price</label>
+                          <label className="text-body-sm font-medium text-secondary">Cost Price</label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
                             <input 
                               type="number"
                               min="0"
@@ -555,7 +555,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                               value={variant.costPrice === '' || variant.costPrice === undefined ? '' : variant.costPrice}
                               onChange={e => updateVariant(variant.id, 'costPrice', e.target.value === '' ? '' : parseFloat(e.target.value))}
                               placeholder={baseCostPrice === '' ? "0.00" : `Base: ₵${baseCostPrice}`}
-                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                             />
                           </div>
                         </div>
@@ -563,30 +563,30 @@ export function ProductForm({ stores, categories: initialCategories, initialData
 
                       {/* SKU */}
                       <div className={`space-y-2 lg:col-span-1`}>
-                        <label className="text-body-sm font-medium text-text-secondary">SKU (Stock Keeping Unit)</label>
+                        <label className="text-body-sm font-medium text-secondary">SKU (Stock Keeping Unit)</label>
                         <input 
                           type="text"
                           value={variant.sku}
                           onChange={e => updateVariant(variant.id, 'sku', e.target.value)}
                           placeholder="e.g. KENTE-RED-L"
-                          className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted uppercase"
+                          className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase"
                         />
                       </div>
                     </div>
                     
                     <div className={`${variants.length > 1 ? 'border-t border-separator pt-5' : ''}`}>
-                      <h5 className="text-body-sm font-medium text-text-secondary mb-3">Available Inventory</h5>
+                      <h5 className="text-body-sm font-medium text-secondary mb-3">Available Inventory</h5>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {stores.map(store => (
                           <div key={store.id} className="flex items-center justify-between p-3 bg-surface-elevated border border-separator rounded-lg">
-                            <span className="text-sm font-medium text-text-primary truncate mr-3">{store.name}</span>
+                            <span className="text-sm font-medium text-primary truncate mr-3">{store.name}</span>
                             <input 
                               type="number"
                               min="0"
                               placeholder="0"
                               value={variant.inventory[store.id] || ''}
                               onChange={e => updateVariantInventory(variant.id, store.id, parseInt(e.target.value) || 0)}
-                              className="w-20 px-2 py-1 bg-surface border border-separator rounded text-sm text-text-primary text-center focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                              className="w-20 px-2 py-1 bg-surface border border-separator rounded text-sm text-primary text-center focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                             />
                           </div>
                         ))}
@@ -599,7 +599,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                   type="button" 
                   variant="outline" 
                   onClick={handleAddVariant}
-                  className="w-full h-11 border-dashed border-2 hover:bg-surface-elevated transition-colors text-text-secondary hover:text-brand-primary"
+                  className="w-full h-11 border-dashed border-2 hover:bg-surface-elevated transition-colors text-secondary hover:text-brand-primary"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {variants.length === 1 ? 'Add Options like Size or Color' : 'Add Another Variant'}
@@ -622,9 +622,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-body-sm font-semibold text-text-primary">Selling Price (GHS)</label>
+                  <label className="text-body-sm font-semibold text-primary">Selling Price (GHS)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
                     <input 
                       type="number"
                       min="0"
@@ -633,15 +633,15 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       value={basePrice === '' ? '' : basePrice}
                       onChange={e => setBasePrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
                       placeholder="0.00"
-                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-body-sm font-semibold text-text-primary">Cost Price (GHS)</label>
+                  <label className="text-body-sm font-semibold text-primary">Cost Price (GHS)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
                     <input 
                       type="number"
                       min="0"
@@ -649,10 +649,10 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       value={baseCostPrice === '' ? '' : baseCostPrice}
                       onChange={e => setBaseCostPrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
                       placeholder="0.00"
-                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                     />
                   </div>
-                  <p className="text-xs text-text-muted">Used for profit calculation (not visible to customers).</p>
+                  <p className="text-xs text-muted">Used for profit calculation (not visible to customers).</p>
                 </div>
               </div>
             </CardBody>
@@ -669,7 +669,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                 id="product-status"
                 value={isActive ? 'active' : 'draft'}
                 onChange={e => setIsActive(e.target.value === 'active')}
-                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
               >
                 <option value="active">Active (Published)</option>
                 <option value="draft">Draft (Hidden)</option>
@@ -685,7 +685,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="product-category" className="text-body-sm font-semibold text-text-primary">Category</label>
+                  <label htmlFor="product-category" className="text-body-sm font-semibold text-primary">Category</label>
                   <button 
                     type="button" 
                     onClick={() => setIsCreatingCategory(!isCreatingCategory)} 
@@ -703,7 +703,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       value={newCategoryName}
                       onChange={e => setNewCategoryName(e.target.value)}
                       placeholder="Category name"
-                      className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                      className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -725,7 +725,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                     id="product-category"
                     value={categoryId}
                     onChange={e => setCategoryId(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
                   >
                     <option value="">Select Category...</option>
                     {categories.map(c => (
@@ -735,25 +735,25 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                 )}
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-vendor" className="text-body-sm font-semibold text-text-primary">Vendor</label>
+                <label htmlFor="product-vendor" className="text-body-sm font-semibold text-primary">Vendor</label>
                 <input 
                   id="product-vendor"
                   type="text" 
                   value={vendor}
                   onChange={e => setVendor(e.target.value)}
                   placeholder="e.g. Merchander"
-                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-text-muted"
+                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="product-stock-unit" className="text-body-sm font-semibold text-text-primary">Stock Unit</label>
+                <label htmlFor="product-stock-unit" className="text-body-sm font-semibold text-primary">Stock Unit</label>
                 <div className="relative">
                   <select 
                     id="product-stock-unit"
                     value={stockUnit}
                     onChange={e => setStockUnit(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all appearance-none cursor-pointer"
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all appearance-none cursor-pointer"
                   >
                     <option value="pcs">Pieces (pcs)</option>
                     <option value="kg">Kilograms (kg)</option>
@@ -766,7 +766,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                     <option value="carton">Cartons</option>
                     <option value="pack">Packs</option>
                   </select>
-                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-text-tertiary">
+                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   </div>
                 </div>

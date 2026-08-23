@@ -94,13 +94,13 @@ function ProductGridView({ products }: { products: Product[] }) {
               </div>
             </div>
             <div className="p-4 flex flex-col flex-1">
-              <Link href={`/dashboard/products/${product.id}`} className="font-semibold text-text-primary text-sm line-clamp-1 group-hover:text-brand-primary transition-colors before:absolute before:inset-0 before:z-10 focus:outline-none focus:underline">
+              <Link href={`/dashboard/products/${product.id}`} className="font-semibold text-primary text-sm line-clamp-1 group-hover:text-brand-primary transition-colors before:absolute before:inset-0 before:z-10 focus:outline-none focus:underline">
                 {product.name}
               </Link>
-              <p className="text-xs text-text-muted mt-0.5 relative z-10 pointer-events-none">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
+              <p className="text-xs text-muted mt-0.5 relative z-10 pointer-events-none">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
               
               <div className="mt-3 flex items-center justify-between relative z-10 pointer-events-none">
-                <span className="font-bold text-text-primary text-sm tabular-nums">
+                <span className="font-bold text-primary text-sm tabular-nums">
                   {hasRange ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
                 </span>
                 <StockBadge totalStock={totalStock} stockUnit={product.stock_unit} />
@@ -111,9 +111,9 @@ function ProductGridView({ products }: { products: Product[] }) {
       })}
       
       {(!products || products.length === 0) && (
-        <div className="col-span-full p-12 text-center text-text-secondary">
-          <Package size={48} className="mx-auto mb-4 text-text-muted" />
-          <p className="font-medium text-text-primary">No products found</p>
+        <div className="col-span-full p-12 text-center text-secondary">
+          <Package size={48} className="mx-auto mb-4 text-muted" />
+          <p className="font-medium text-primary">No products found</p>
           <p className="text-sm mt-1">Try adjusting your search or filters, or create your first product.</p>
           <Link href="/dashboard/products/new" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-600 transition-colors">
             Add Product
@@ -131,7 +131,7 @@ function ProductTableView({ products }: { products: Product[] }) {
       <div className="min-w-250 flex flex-col flex-1">
         <table className="w-full text-left">
           <thead>
-            <tr className="font-medium text-text-muted text-body-sm border-b border-separator bg-surface-elevated/20">
+            <tr className="font-medium text-muted text-body-sm border-b border-separator bg-surface-elevated/20">
               <th className="px-4 py-3 w-12 text-center font-medium">
                 <input type="checkbox" aria-label="Select all products" className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
               </th>
@@ -165,13 +165,13 @@ function ProductTableView({ products }: { products: Product[] }) {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-body-sm font-semibold text-text-primary truncate">{product.name}</div>
-                        <div className="text-xs text-text-muted truncate">SKU-{product.id.substring(0, 6).toUpperCase()}</div>
+                        <div className="text-body-sm font-semibold text-primary truncate">{product.name}</div>
+                        <div className="text-xs text-muted truncate">SKU-{product.id.substring(0, 6).toUpperCase()}</div>
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-4 py-3 text-body-sm text-text-secondary truncate">
+                  <td className="px-4 py-3 text-body-sm text-secondary truncate">
                     {product.category?.name || 'Uncategorized'}
                   </td>
 
@@ -191,11 +191,11 @@ function ProductTableView({ products }: { products: Product[] }) {
                     <StockBadge totalStock={totalStock} stockUnit={product.stock_unit} />
                   </td>
 
-                  <td className="px-4 py-3 text-body-sm font-medium text-text-primary tabular-nums">
+                  <td className="px-4 py-3 text-body-sm font-medium text-primary tabular-nums">
                     {hasRange ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
                   </td>
 
-                  <td className="px-4 py-3 text-body-sm text-text-secondary tabular-nums">
+                  <td className="px-4 py-3 text-body-sm text-secondary tabular-nums">
                     {totalUnitsSold.toLocaleString()}
                   </td>
 
@@ -208,9 +208,9 @@ function ProductTableView({ products }: { products: Product[] }) {
 
             {(!products || products.length === 0) && (
               <tr>
-                <td colSpan={8} className="p-12 text-center text-text-secondary">
-                  <Package size={48} className="mx-auto mb-4 text-text-muted" />
-                  <p className="font-medium text-text-primary">No products found</p>
+                <td colSpan={8} className="p-12 text-center text-secondary">
+                  <Package size={48} className="mx-auto mb-4 text-muted" />
+                  <p className="font-medium text-primary">No products found</p>
                   <p className="text-sm mt-1">Get started by creating your first product.</p>
                   <Link href="/dashboard/products/new" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-600 transition-colors">
                     Add Product
@@ -223,21 +223,21 @@ function ProductTableView({ products }: { products: Product[] }) {
         
         {/* Pagination Footer */}
         {products && products.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-body-sm text-text-secondary mt-auto">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-body-sm text-secondary mt-auto">
             <div className="flex items-center gap-2">
               <span>Showing</span>
-              <span className="font-medium text-text-primary tabular-nums">{products.length}</span>
+              <span className="font-medium text-primary tabular-nums">{products.length}</span>
               <span>products</span>
             </div>
             
             <div className="flex items-center gap-4">
               <span className="tabular-nums">Page 1 of 1</span>
               <div className="flex items-center gap-1">
-                <button className="p-1 rounded text-text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Previous page">
+                <button className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Previous page">
                   <ChevronLeft size={16} />
                 </button>
-                <span className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator text-text-primary tabular-nums" aria-current="page">1</span>
-                <button className="p-1 rounded text-text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Next page">
+                <span className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator text-primary tabular-nums" aria-current="page">1</span>
+                <button className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Next page">
                   <ChevronRight size={16} />
                 </button>
               </div>
@@ -259,5 +259,5 @@ function StockBadge({ totalStock, stockUnit }: { totalStock: number; stockUnit?:
   if (totalStock < 10) {
     return <span className="text-orange-500 font-medium bg-orange-500/10 px-2 py-0.5 rounded text-xs whitespace-nowrap">{totalStock} {unit} low</span>;
   }
-  return <span className="text-text-primary font-medium whitespace-nowrap text-xs">{totalStock} {unit} in stock</span>;
+  return <span className="text-primary font-medium whitespace-nowrap text-xs">{totalStock} {unit} in stock</span>;
 }

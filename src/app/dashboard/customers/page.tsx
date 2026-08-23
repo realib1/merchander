@@ -61,7 +61,7 @@ export default async function CustomersPage({
           <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
         </div>
       }>
-        <div className="flex-1 overflow-hidden min-h-0 pb-6">
+        <div className="flex-1 overflow-hidden min-h-0 pb-6 mt-6">
           <CustomersTable initialCustomers={customers} />
         </div>
       </Suspense>

@@ -35,8 +35,8 @@ export default async function BusinessProfileSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Business Profile</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Business Profile</h1>
+        <p className="text-sm text-secondary mt-1">
           Manage your company&apos;s legal information and contact details.
         </p>
       </div>
@@ -68,8 +68,8 @@ export default async function BusinessProfileSettingsPage() {
           </div>
           
           <div className="space-y-1.5">
-            <label htmlFor="country" className="text-sm font-medium text-text-primary">Country</label>
-            <select id="country" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <label htmlFor="country" className="text-sm font-medium text-primary">Country</label>
+            <select id="country" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
               <option>Ghana</option>
               <option>Nigeria</option>
               <option>Kenya</option>

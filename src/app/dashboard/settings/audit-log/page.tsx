@@ -6,8 +6,8 @@ export default function AuditLogSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Audit Log</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Audit Log</h1>
+        <p className="text-sm text-secondary mt-1">
           Review a secure trail of all actions performed by your team.
         </p>
       </div>
@@ -34,35 +34,35 @@ export default function AuditLogSettingsPage() {
           <div className="rounded-md border border-separator overflow-hidden divide-y divide-separator">
             <div className="p-4 bg-surface hover:bg-surface-elevated transition-colors flex items-start gap-4">
               <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center shrink-0 border border-separator">
-                <span className="text-xs font-bold text-text-primary">AU</span>
+                <span className="text-xs font-bold text-primary">AU</span>
               </div>
               <div className="flex-1">
-                <p className="text-sm text-text-primary">
+                <p className="text-sm text-primary">
                   <span className="font-medium">Admin User</span> updated the <span className="font-medium">Shipping Rates</span>.
                 </p>
-                <p className="text-xs text-text-secondary mt-1">Today at 10:42 AM • IP: 102.176.65.12</p>
+                <p className="text-xs text-secondary mt-1">Today at 10:42 AM • IP: 102.176.65.12</p>
               </div>
             </div>
             <div className="p-4 bg-surface hover:bg-surface-elevated transition-colors flex items-start gap-4">
               <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center shrink-0 border border-separator">
-                <span className="text-xs font-bold text-text-primary">JD</span>
+                <span className="text-xs font-bold text-primary">JD</span>
               </div>
               <div className="flex-1">
-                <p className="text-sm text-text-primary">
+                <p className="text-sm text-primary">
                   <span className="font-medium">John Doe</span> processed a refund for <span className="font-medium">#ORD-1041</span>.
                 </p>
-                <p className="text-xs text-text-secondary mt-1">Yesterday at 4:15 PM • IP: 154.160.22.45</p>
+                <p className="text-xs text-secondary mt-1">Yesterday at 4:15 PM • IP: 154.160.22.45</p>
               </div>
             </div>
             <div className="p-4 bg-surface hover:bg-surface-elevated transition-colors flex items-start gap-4">
               <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center shrink-0 border border-separator">
-                <span className="text-xs font-bold text-text-primary">AU</span>
+                <span className="text-xs font-bold text-primary">AU</span>
               </div>
               <div className="flex-1">
-                <p className="text-sm text-text-primary">
+                <p className="text-sm text-primary">
                   <span className="font-medium">Admin User</span> logged in.
                 </p>
-                <p className="text-xs text-text-secondary mt-1">Yesterday at 9:00 AM • IP: 102.176.65.12</p>
+                <p className="text-xs text-secondary mt-1">Yesterday at 9:00 AM • IP: 102.176.65.12</p>
               </div>
             </div>
           </div>

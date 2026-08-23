@@ -71,12 +71,12 @@ function CustomerAutocomplete({
   return (
     <div className="relative w-full">
       <div className="mb-1.5 flex justify-between items-end">
-        <label className="block text-sm font-medium text-text-primary">Search Existing Customer</label>
+        <label className="block text-sm font-medium text-primary">Search Existing Customer</label>
       </div>
       <div className="relative">
         <input
           type="text"
-          className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow placeholder:text-text-muted"
+          className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow placeholder:text-muted"
           placeholder="Search by name or phone..."
           value={search}
           onChange={(e) => {
@@ -112,8 +112,8 @@ function CustomerAutocomplete({
                     setSearch('');
                   }}
                 >
-                  <div className="font-semibold text-text-primary">{c.name}</div>
-                  <div className="text-text-secondary text-xs">{c.phone}</div>
+                  <div className="font-semibold text-primary">{c.name}</div>
+                  <div className="text-secondary text-xs">{c.phone}</div>
                 </div>
               ))}
             </div>
@@ -146,11 +146,11 @@ function GlobalProductSearch({
     <div className="relative w-full">
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-text-muted" />
+          <Search className="h-5 w-5 text-muted" />
         </div>
         <input
           type="text"
-          className="w-full rounded-xl border border-separator bg-surface text-sm pl-10 pr-10 py-2.5 text-text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow placeholder:text-text-muted"
+          className="w-full rounded-xl border border-separator bg-surface text-sm pl-10 pr-10 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow placeholder:text-muted"
           placeholder="Search or scan barcode..."
           value={search}
           onChange={(e) => {
@@ -173,14 +173,14 @@ function GlobalProductSearch({
           }}
         />
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-          <Barcode className="h-5 w-5 text-text-muted" />
+          <Barcode className="h-5 w-5 text-muted" />
         </div>
         {isOpen && search.length > 0 && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
             <div className="absolute z-50 w-full mt-1 bg-surface-elevated border border-separator rounded-xl shadow-lg overflow-hidden max-h-96 overflow-y-auto">
               {filtered.length === 0 ? (
-                <div className="p-4 text-sm text-text-muted text-center">No products found</div>
+                <div className="p-4 text-sm text-muted text-center">No products found</div>
               ) : (
                 filtered.map(v => (
                   <div
@@ -193,11 +193,11 @@ function GlobalProductSearch({
                     }}
                   >
                     <div className="w-8 h-8 shrink-0 bg-surface-elevated rounded border border-separator flex items-center justify-center overflow-hidden">
-                      <Package className="w-4 h-4 text-text-muted opacity-50" />
+                      <Package className="w-4 h-4 text-muted opacity-50" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-text-primary truncate">{v.product_name} {v.name ? `- ${v.name}` : ''}</div>
-                      <div className="text-xs text-text-secondary">{formatCurrency(v.price)}</div>
+                      <div className="text-sm font-semibold text-primary truncate">{v.product_name} {v.name ? `- ${v.name}` : ''}</div>
+                      <div className="text-xs text-secondary">{formatCurrency(v.price)}</div>
                     </div>
                   </div>
                 ))
@@ -298,7 +298,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
             <div className="space-y-3 mt-2">
               {items.length === 0 ? (
                 <div className="text-center p-8 bg-surface-elevated rounded-xl border border-dashed border-separator">
-                  <p className="text-text-muted text-sm">No items added yet. Search above to add products.</p>
+                  <p className="text-muted text-sm">No items added yet. Search above to add products.</p>
                 </div>
               ) : (
                 items.map((item) => {
@@ -308,15 +308,15 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
                       <div className="flex items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
                         {/* Image Placeholder */}
                         <div className="w-12 h-12 shrink-0 bg-surface rounded-lg border border-separator flex items-center justify-center overflow-hidden">
-                          <Package className="w-5 h-5 text-text-muted opacity-50" />
+                          <Package className="w-5 h-5 text-muted opacity-50" />
                         </div>
 
                         {/* Name & Price */}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-text-primary truncate">
+                          <h4 className="text-sm font-semibold text-primary truncate">
                             {variant?.product_name} {variant?.name ? `- ${variant.name}` : ''}
                           </h4>
-                          <p className="text-xs text-text-secondary mt-0.5">{formatCurrency(item.unitPrice)}</p>
+                          <p className="text-xs text-secondary mt-0.5">{formatCurrency(item.unitPrice)}</p>
                         </div>
                       </div>
 
@@ -328,17 +328,17 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
                             min="1"
                             value={item.quantity}
                             onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
-                            className="w-full rounded-lg border border-separator bg-surface text-sm px-3 py-2 text-text-primary focus:border-brand-primary outline-none text-center"
+                            className="w-full rounded-lg border border-separator bg-surface text-sm px-3 py-2 text-primary focus:border-brand-primary outline-none text-center"
                           />
                         </div>
 
                         {/* Line Total */}
                         <div className="flex-1 sm:w-24 text-right">
-                          <span className="font-semibold text-text-primary">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                          <span className="font-semibold text-primary">{formatCurrency(item.unitPrice * item.quantity)}</span>
                         </div>
 
                         {/* Delete */}
-                        <button type="button" onClick={() => removeItem(item.id)} className="p-2 -mr-2 text-text-muted hover:text-red-500 transition-colors shrink-0">
+                        <button type="button" onClick={() => removeItem(item.id)} className="p-2 -mr-2 text-muted hover:text-red-500 transition-colors shrink-0">
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -425,11 +425,11 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           </CardHeader>
           <CardBody className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1.5">Fulfillment Branch</label>
+              <label className="block text-sm font-medium text-primary mb-1.5">Fulfillment Branch</label>
               {(userRole === 'admin' || userRole === 'owner') ? (
                 <select
                   name="storeId"
-                  className="w-full rounded-xl border-separator bg-surface text-sm px-4 py-2.5 text-text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow"
+                  className="w-full rounded-xl border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow"
                   required
                 >
                   {stores.map(s => (
@@ -439,7 +439,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
               ) : (
                 <>
                   <input type="hidden" name="storeId" value={stores[0]?.id || ''} />
-                  <div className="w-full rounded-xl border border-separator bg-surface-elevated/50 text-sm px-4 py-2.5 text-text-secondary cursor-not-allowed">
+                  <div className="w-full rounded-xl border border-separator bg-surface-elevated/50 text-sm px-4 py-2.5 text-secondary cursor-not-allowed">
                     {stores[0]?.name || 'No Branch Available'}
                   </div>
                 </>
@@ -464,7 +464,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           <CardBody>
             <select
               name="paymentMethod"
-              className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 text-text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow"
+              className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow"
               required
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
@@ -485,16 +485,16 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           <CardBody>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-text-secondary">Subtotal</span>
-                <span className="font-medium text-text-primary">{formatCurrency(subtotal)}</span>
+                <span className="text-secondary">Subtotal</span>
+                <span className="font-medium text-primary">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm pb-3 border-b border-separator">
-                <span className="text-text-secondary">Delivery</span>
-                <span className="font-medium text-text-primary">{formatCurrency(deliveryFee)}</span>
+                <span className="text-secondary">Delivery</span>
+                <span className="font-medium text-primary">{formatCurrency(deliveryFee)}</span>
               </div>
               <div className="flex justify-between items-center pt-1">
-                <span className="font-semibold text-text-primary">Total: </span>
-                <span className="text-lg font-bold text-text-primary">{formatCurrency(total)}</span>
+                <span className="font-semibold text-primary">Total: </span>
+                <span className="text-lg font-bold text-primary">{formatCurrency(total)}</span>
               </div>
             </div>
           </CardBody>
@@ -503,7 +503,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
         <div className="flex flex-col gap-3 sticky top-6">
           <SubmitButtons paymentMethod={paymentMethod} />
           <Link href="/dashboard/orders" className="w-full">
-            <Button variant="outline" type="button" className="w-full border-separator text-text-secondary hover:text-brand-primary">Cancel</Button>
+            <Button variant="outline" type="button" className="w-full border-separator text-secondary hover:text-brand-primary">Cancel</Button>
           </Link>
         </div>
       </div>

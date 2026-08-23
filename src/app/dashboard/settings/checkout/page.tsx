@@ -7,7 +7,7 @@ export default function CheckoutSettingsPage() {
         <div className="max-w-3xl space-y-8 animate-fadeIn">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Checkout</h1>
-                <p className="text-sm text-text-secondary mt-1">Manage what information is required during checkout.</p>
+                <p className="text-sm text-secondary mt-1">Manage what information is required during checkout.</p>
             </div>
 
             <Card>
@@ -19,7 +19,7 @@ export default function CheckoutSettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium">Require phone number</p>
-                            <p className="text-xs text-text-secondary mt-1">Customers must enter a valid phone number to complete purchase.</p>
+                            <p className="text-xs text-secondary mt-1">Customers must enter a valid phone number to complete purchase.</p>
                         </div>
                         <Switch defaultChecked />
                     </div>
@@ -29,7 +29,7 @@ export default function CheckoutSettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium">Require email address</p>
-                            <p className="text-xs text-text-secondary mt-1">Customers must enter an email to receive order confirmation.</p>
+                            <p className="text-xs text-secondary mt-1">Customers must enter an email to receive order confirmation.</p>
                         </div>
                         <Switch />
                     </div>
@@ -45,7 +45,7 @@ export default function CheckoutSettingsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium">Automatically fulfill digital orders</p>
-                            <p className="text-xs text-text-secondary mt-1">Digital products are sent immediately after successful payment.</p>
+                            <p className="text-xs text-secondary mt-1">Digital products are sent immediately after successful payment.</p>
                         </div>
                         <Switch defaultChecked />
                     </div>
@@ -61,7 +61,7 @@ export default function CheckoutSettingsPage() {
                     <CardDescription className="text-destructive/80">Generate fake orders and customers for testing purposes.</CardDescription>
                 </CardHeader>
                 <CardBody>
-                    <p className="text-sm text-text-secondary">This will populate your store with mock data. Useful for visualizing your dashboard before going live.</p>
+                    <p className="text-sm text-secondary">This will populate your store with mock data. Useful for visualizing your dashboard before going live.</p>
                 </CardBody>
                 <CardFooter className="border-destructive/30">
                     <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive/10">Generate Demo Data</Button>
