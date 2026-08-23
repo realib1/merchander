@@ -42,13 +42,13 @@ export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
             dataKey="formattedDate" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: textColor, fontSize: 12 }} 
+            tick={{ fill: textColor, fontSize: 10 }} 
             dy={10}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: textColor, fontSize: 12 }}
+            tick={{ fill: textColor, fontSize: 10 }}
             tickFormatter={(value: number) => `₵${value}`}
           />
           <Tooltip
