@@ -22,7 +22,7 @@ export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
   const strokeColor = 'var(--color-brand-primary)';
   const fillColor = 'var(--color-brand-primary)';
   const gridColor = 'var(--color-separator)';
-  const textColor = 'var(--color-text-secondary)';
+  const textColor = 'var(--color-secondary)';
 
   return (
     <div className="w-full h-75 mt-4">
@@ -56,7 +56,7 @@ export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
               backgroundColor: 'var(--color-surface)', 
               borderColor: 'var(--color-separator)',
               borderRadius: '8px',
-              color: 'var(--color-text-primary)'
+              color: 'var(--color-primary)'
             }}
             itemStyle={{ color: strokeColor }}
             formatter={(value: number) => [formatCurrency(value), 'Sales']}

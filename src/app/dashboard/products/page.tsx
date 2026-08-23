@@ -49,7 +49,7 @@ export default async function CatalogPage({
   }
 
   return (
-    <div className="h-full flex flex-col max-w-6xl mx-auto w-full">
+    <div className="h-full flex flex-col mx-auto w-full">
       <ProductsMetrics products={products as Product[]} />
       <ProductsHeader />
 
