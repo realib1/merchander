@@ -32,7 +32,7 @@ function MetricCard({ title, value, subtitle, change, icon, iconBg }: MetricCard
         </div>
       </div>
       <div className="rounded-xl w-full p-4 border-t border-t-separator shadow-md">
-        <div className="text-h1 font-bold text-primary leading-none mb-3 tabular-nums">
+        <div className="text-h3 font-bold text-primary leading-none mb-3 tabular-nums">
           {value}
         </div>
         {change !== undefined ? (
