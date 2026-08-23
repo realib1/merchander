@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { createContext, useContext, useState, useCallback, useId } from "react";
 import { cn } from "@/utils/cn";
@@ -30,7 +30,7 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 const TOAST_ICONS: Record<ToastType, React.JSX.Element> = {
   success: (
     <svg
-      className="h-5 w-5 text-[var(--color-brand-secondary)]"
+      className="h-5 w-5 text-brand-secondary"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -42,7 +42,7 @@ const TOAST_ICONS: Record<ToastType, React.JSX.Element> = {
   ),
   error: (
     <svg
-      className="h-5 w-5 text-[var(--color-destructive)]"
+      className="h-5 w-5 text-destructive"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -55,7 +55,7 @@ const TOAST_ICONS: Record<ToastType, React.JSX.Element> = {
   ),
   warning: (
     <svg
-      className="h-5 w-5 text-[var(--color-warning)]"
+      className="h-5 w-5 text-warning"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -68,7 +68,7 @@ const TOAST_ICONS: Record<ToastType, React.JSX.Element> = {
   ),
   info: (
     <svg
-      className="h-5 w-5 text-[var(--color-info)]"
+      className="h-5 w-5 text-info"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -127,21 +127,21 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             key={t.id}
             role="alert"
             className={cn(
-              "pointer-events-auto flex items-start gap-3 rounded-[var(--radius-lg)] border p-4 shadow-lg",
-              "border-[var(--color-border)] bg-[var(--color-surface-elevated)] text-[var(--color-text-primary)]",
+              "pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg",
+              "border-separator bg-surface-elevated text-text-primary",
               "animate-in slide-in-from-bottom-2 fade-in transition-all duration-200"
             )}
           >
             <div className="shrink-0 pt-0.5">{TOAST_ICONS[t.type]}</div>
             <div className="flex flex-1 flex-col gap-0.5 text-left">
               {t.title && <h4 className="text-xs font-semibold">{t.title}</h4>}
-              <p className="text-xs text-[var(--color-text-secondary)]">{t.message}</p>
+              <p className="text-xs text-text-secondary">{t.message}</p>
             </div>
             <button
               type="button"
               onClick={() => removeToast(t.id)}
               aria-label="Close notification"
-              className="shrink-0 rounded-full p-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
+              className="shrink-0 rounded-full p-1 text-text-muted transition-colors hover:text-text-primary"
             >
               <svg
                 className="h-3.5 w-3.5"

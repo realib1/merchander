@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { cn } from "@/utils/cn";
 
 export type SkeletonVariant = "rect" | "circle" | "text";
@@ -15,9 +15,9 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const VARIANT_STYLES: Record<SkeletonVariant, string> = {
-  rect: "rounded-[var(--radius-md)]",
+  rect: "rounded-md",
   circle: "rounded-full",
-  text: "rounded-[var(--radius-sm)] h-4 my-1",
+  text: "rounded-sm h-4 my-1",
 };
 
 /**
@@ -41,7 +41,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   };
 
   const baseClasses = cn(
-    "animate-pulse bg-[var(--color-border)]/60 select-none",
+    "animate-pulse bg-separator/60 select-none",
     VARIANT_STYLES[variant],
     className
   );

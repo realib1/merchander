@@ -1,0 +1,104 @@
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\actions\auth.ts
+  7:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\actions\create-order.ts
+  31:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\actions\create-product.ts
+   38:12  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  103:27  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\actions\customers.ts
+   43:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   46:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   46:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   48:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\actions\dashboard.ts
+   83:37  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+   85:82  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  145:55  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  146:76  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  166:54  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  185:61  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  193:7   error  'intelligence' is never reassigned. Use 'const' instead  prefer-const
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\components\WaitlistForm.tsx
+  29:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\components\Topbar.tsx
+   4:10  warning  'LiveStatusPill' is defined but never used      @typescript-eslint/no-unused-vars
+  16:9   warning  'pageTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\customers\components\CustomersTable.tsx
+  7:36  warning  'Mail' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\orders\components\CreateOrderForm.tsx
+  8:10  warning  'Plus' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\orders\components\OrdersTopMetrics.tsx
+  2:10  warning  'ShoppingCart' is defined but never used  @typescript-eslint/no-unused-vars
+  2:24  warning  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
+  2:31  warning  'Truck' is defined but never used         @typescript-eslint/no-unused-vars
+  2:38  warning  'XCircle' is defined but never used       @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\new\components\ProductForm.tsx
+  33:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\page.tsx
+   3:19  warning  'Tag' is defined but never used                      @typescript-eslint/no-unused-vars
+   3:24  warning  'Archive' is defined but never used                  @typescript-eslint/no-unused-vars
+   3:33  warning  'Star' is defined but never used                     @typescript-eslint/no-unused-vars
+  66:21  warning  'totalUnitsSold' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\audit-log\page.tsx
+  1:66  warning  'CardFooter' is defined but never used   @typescript-eslint/no-unused-vars
+  3:20  warning  'ShieldAlert' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\business\page.tsx
+  4:10  warning  'Building2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\channels\page.tsx
+  1:66  warning  'CardFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\conversations\page.tsx
+  4:17  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\export\page.tsx
+  1:66  warning  'CardFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\payments\page.tsx
+  5:8  warning  'Image' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\privacy\page.tsx
+  4:26  warning  'Globe' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\profile\page.tsx
+  2:10  warning  'FormField' is defined but never used  @typescript-eslint/no-unused-vars
+  4:10  warning  'Camera' is defined but never used     @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\shipments\page.tsx
+  1:66  warning  'CardFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\staff\page.tsx
+  1:66  warning  'CardFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\store\page.tsx
+  4:26  warning  'ImageIcon' is defined but never used  @typescript-eslint/no-unused-vars
+  4:45  warning  'LinkIcon' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\context\ThemeScript.tsx
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-before-interactive-script-outside-document')
+  2:8  warning  'Script' is defined but never used                                                                                           @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\lib\supabase\proxy.ts
+  18:48  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 50 problems (17 errors, 33 warnings)
+  1 error and 1 warning potentially fixable with the `--fix` option.
+

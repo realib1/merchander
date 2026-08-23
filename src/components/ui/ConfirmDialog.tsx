@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { Modal } from "./Modal";
@@ -62,7 +62,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </>
       }
     >
-      <div className="text-sm text-[var(--color-text-secondary)]">
+      <div className="text-sm text-text-secondary">
         {description || "Are you sure you want to proceed?"}
       </div>
     </Modal>

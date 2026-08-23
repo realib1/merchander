@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+﻿/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -72,7 +72,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         role="group"
         aria-label="Select theme"
         className={cn(
-          "inline-flex items-center rounded-[var(--radius-md,6px)] border border-[var(--color-border)] bg-[var(--color-surface)] p-1 shadow-xs",
+          "inline-flex items-center rounded-[var(--radius-md,6px)] border border-separator bg-surface p-1 shadow-xs",
           className
         )}
       >
@@ -85,10 +85,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               onClick={() => setTheme(value)}
               aria-pressed={isActive}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-[var(--radius-sm,4px)] px-2.5 py-1 text-xs font-medium transition-all duration-[var(--duration-fast,150ms)] focus-visible:outline-2 focus-visible:outline-[var(--color-brand-primary)]",
+                "inline-flex items-center gap-1.5 rounded-[var(--radius-sm,4px)] px-2.5 py-1 text-xs font-medium transition-all duration-[var(--duration-fast,150ms)] focus-visible:outline-2 focus-visible:outline-brand-primary",
                 isActive
-                  ? "bg-[var(--color-brand-primary)] text-white shadow-xs"
-                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
+                  ? "bg-brand-primary text-white shadow-xs"
+                  : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -109,16 +109,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           aria-haspopup="true"
           aria-expanded={isOpen}
           aria-label="Theme selector"
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md,6px)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-text-primary)] shadow-xs transition-colors hover:bg-[var(--color-surface-elevated)] focus-visible:outline-2 focus-visible:outline-[var(--color-brand-primary)]"
+          className="inline-flex items-center gap-2 rounded-[var(--radius-md,6px)] border border-separator bg-surface px-3 py-1.5 text-sm font-medium text-text-primary shadow-xs transition-colors hover:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-brand-primary"
         >
           {!mounted ? (
             <div className="h-4 w-4" />
           ) : theme === "system" ? (
-            <Monitor className="h-4 w-4 text-[var(--color-text-secondary)]" />
+            <Monitor className="h-4 w-4 text-text-secondary" />
           ) : resolvedTheme === "dark" ? (
-            <Moon className="h-4 w-4 text-[var(--color-text-secondary)]" />
+            <Moon className="h-4 w-4 text-text-secondary" />
           ) : (
-            <Sun className="h-4 w-4 text-[var(--color-brand-primary)]" />
+            <Sun className="h-4 w-4 text-brand-primary" />
           )}
           {showLabel && (
             <span className="capitalize">
@@ -131,7 +131,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           <div
             role="menu"
             aria-orientation="vertical"
-            className="absolute right-0 z-50 mt-1.5 w-36 origin-top-right rounded-[var(--radius-md,6px)] border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-1 shadow-lg ring-1 ring-black/5 transition-all"
+            className="absolute right-0 z-50 mt-1.5 w-36 origin-top-right rounded-[var(--radius-md,6px)] border border-separator bg-surface-elevated p-1 shadow-lg ring-1 ring-black/5 transition-all"
           >
             {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
               const isSelected = mounted && theme === value;
@@ -147,8 +147,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
                   className={cn(
                     "flex w-full items-center gap-2 rounded-[var(--radius-sm,4px)] px-2.5 py-1.5 text-left text-xs font-medium transition-colors",
                     isSelected
-                      ? "bg-[var(--color-brand-primary)] text-white"
-                      : "text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-brand-primary)]"
+                      ? "bg-brand-primary text-white"
+                      : "text-text-primary hover:bg-surface hover:text-brand-primary"
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -169,7 +169,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       onClick={toggleTheme}
       aria-label={!mounted ? "Toggle theme" : resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-xs transition-all duration-[var(--duration-fast,150ms)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-brand-primary)] focus-visible:outline-2 focus-visible:outline-[var(--color-brand-primary)]",
+        "inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-separator bg-surface text-text-primary shadow-xs transition-all duration-[var(--duration-fast,150ms)] hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary",
         className
       )}
     >

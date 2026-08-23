@@ -33,7 +33,7 @@ It empowers merchants who manage pre-orders, sea-freight shipments, and staggere
 | Architecture Layers | 3-Layer OS | Core (Next.js), Intelligence (Python), Channels (Meta API) |
 | Bot architecture | Human-in-the-Loop | GREEN (auto), YELLOW (approval), RED (human) |
 | Architecture | Next.js Full Stack + Python Bot | Paradigm B chosen for simplicity, speed, and shared DB logic |
-| ORM | Drizzle ORM | Better for RLS and Edge compatibility than Prisma |
+| Database / BaaS | Supabase | Native RLS, easy Edge compatibility, replaces need for separate ORM |
 
 ## Tech Stack Decisions
 
@@ -46,7 +46,7 @@ It empowers merchants who manage pre-orders, sea-freight shipments, and staggere
 | Database | PostgreSQL | Relational, supports RLS, reliable |
 | Queue | Celery + Redis | Proven task queue for Python |
 | Scheduler | APScheduler | Cron jobs per tenant |
-| ORM (Next.js) | Drizzle ORM | Edge-compatible, allows RLS injection, SHERO Core standard |
+| Database Client | Supabase JS | Native RLS, Edge-compatible, SHERO Core standard |
 | ORM (Python) | SQLAlchemy | Mature, flexible |
 | Auth | NextAuth.js | JWT with tenantId embedded |
 | State | TanStack Query + Zustand | React data fetching + local state |

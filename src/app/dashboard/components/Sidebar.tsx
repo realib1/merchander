@@ -1,0 +1,179 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Users,
+  Package,
+  Boxes,
+  Truck,
+  Container,
+  Ship,
+  Wallet,
+  Receipt,
+  LineChart,
+  Sparkles,
+  PieChart,
+  MessageSquare,
+  UserCog,
+  Settings,
+  LogOut
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useMobileNav } from './MobileNavContext';
+
+export function Sidebar({ userEmail }: { userEmail: string }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+  const { isOpen, setIsOpen } = useMobileNav();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
+  const navGroups = [
+    {
+      title: 'COMMAND',
+      items: [
+        { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+        { name: 'Orders', href: '/dashboard/orders', icon: ClipboardList },
+        { name: 'Customers', href: '/dashboard/customers', icon: Users },
+      ]
+    },
+    {
+      title: 'COMMERCE',
+      items: [
+        { name: 'Products', href: '/dashboard/products', icon: Package },
+        { name: 'Inventory', href: '/dashboard/inventory', icon: Boxes },
+        { name: 'Procurement', href: '/dashboard/procurement', icon: Truck },
+        { name: 'Suppliers', href: '/dashboard/suppliers', icon: Container },
+        { name: 'Shipments', href: '/dashboard/shipments', icon: Ship },
+      ]
+    },
+    {
+      title: 'MONEY',
+      items: [
+        { name: 'Payments', href: '/dashboard/payments', icon: Wallet },
+        { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
+        { name: 'Profitability', href: '/dashboard/profitability', icon: LineChart },
+      ]
+    },
+    {
+      title: 'INTELLIGENCE',
+      items: [
+        { name: 'Insights', href: '/dashboard/insights', icon: Sparkles },
+        { name: 'Analytics', href: '/dashboard/analytics', icon: PieChart },
+      ]
+    },
+    {
+      title: 'SYSTEM',
+      items: [
+        { name: 'Conversations', href: '/dashboard/conversations', icon: MessageSquare },
+        { name: 'Staff', href: '/dashboard/staff', icon: UserCog },
+        { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+      ]
+    }
+  ];
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+          aria-hidden="true"
+          onClick={() => setIsOpen(false)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setIsOpen(false); }}
+        />
+      )}
+      
+      <aside 
+        aria-label="Main navigation"
+        className={`
+        fixed md:static inset-y-0 left-0 z-50
+        w-64 bg-surface/50 backdrop-blur-xl border-r border-separator/50 flex-col flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]
+        transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="p-6 pb-4 border-b border-separator/50">
+        <Link href="/dashboard" className="flex items-center gap-2 group">
+          <div className="w-8 h-8">
+            {/* Logo */}
+            <Image src="/merchander.png" alt="Logo" width={100} height={100} />
+          </div>
+          <div>
+            <div className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-text-primary to-text-secondary font-display tracking-tight">
+              Business Name
+            </div>
+            <div className="text-[10px] text-brand-primary font-bold tracking-widest uppercase -mt-1">
+              Merchander OS
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      <nav className="flex-1 px-4 py-6 space-y-6 overflow-y-auto">
+        {navGroups.map((group) => (
+          <div key={group.title} className="space-y-1.5">
+            <div className="text-[11px] font-bold text-text-muted mb-2 px-3 tracking-widest uppercase">
+              {group.title}
+            </div>
+            {group.items.map((item) => {
+              const isActive = item.href === '/dashboard'
+                ? pathname === '/dashboard'
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`
+                    flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all group
+                    ${isActive
+                      ? 'bg-brand-primary/10 text-brand-primary'
+                      : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'}
+                  `}
+                >
+                  <Icon size={18} className={isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-text-primary transition-colors'} />
+                  <span className="text-sm">{item.name}</span>
+                  {isActive && (
+                    <div className="ml-auto w-1 h-4 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(255,106,0,0.5)]"></div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      {/* User Profile Section at bottom */}
+      <div className="p-4 m-4 mt-0 bg-surface-elevated/50 border border-separator/50 rounded-2xl backdrop-blur-sm">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5">
+            <div className="w-full h-full rounded-full bg-surface flex items-center justify-center">
+              <span className="text-sm font-bold text-text-primary">{userEmail.charAt(0).toUpperCase()}</span>
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-text-primary truncate">Admin User</p>
+            <p className="text-xs text-text-muted truncate">{userEmail}</p>
+          </div>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-red-500/80 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+        >
+          <LogOut size={14} />
+          Sign Out
+        </button>
+      </div>
+      </aside>
+    </>
+  );
+}

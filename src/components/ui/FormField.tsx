@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useId } from "react";
 import { cn } from "@/utils/cn";
@@ -49,16 +49,16 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
     const hintId = `${id}-hint`;
 
     const baseInputStyles = cn(
-      "w-full rounded-[var(--radius-md)] border bg-[var(--color-surface)] px-3.5 py-2 text-sm",
-      "text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]",
+      "w-full rounded-md border bg-surface px-3.5 py-2 text-sm",
+      "text-text-primary placeholder:text-text-muted",
       "transition-colors duration-150 outline-none",
-      "focus-visible:ring-3 focus-visible:ring-offset-1",
+      "focus-visible:ring-2",
       leftIcon && "pl-10",
       rightIcon && "pr-10",
       error
-        ? "border-[var(--color-destructive)] focus-visible:border-[var(--color-destructive)] focus-visible:ring-[var(--color-destructive)]/30"
-        : "border-[var(--color-border)] focus-visible:border-[var(--color-brand-primary)] focus-visible:ring-[var(--color-brand-primary)]/30",
-      disabled && "opacity-50 cursor-not-allowed bg-[var(--color-surface-elevated)]",
+        ? "border-destructive focus-visible:ring-destructive"
+        : "border-separator focus-visible:ring-brand-primary",
+      disabled && "opacity-50 cursor-not-allowed bg-surface-elevated",
       className
     );
 
@@ -67,11 +67,11 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
         {label && (
           <label
             htmlFor={id}
-            className="flex items-center gap-1 text-xs font-semibold text-[var(--color-text-primary)] select-none"
+            className="flex items-center gap-1 text-xs font-semibold text-text-primary select-none"
           >
             {label}
             {required && (
-              <span className="text-[var(--color-destructive)]" aria-hidden="true">
+              <span className="text-destructive" aria-hidden="true">
                 *
               </span>
             )}
@@ -80,7 +80,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
 
         <div className="relative flex w-full items-center">
           {leftIcon && (
-            <div className="pointer-events-none absolute left-3 flex items-center text-[var(--color-text-muted)]">
+            <div className="pointer-events-none absolute left-3 flex items-center text-text-muted">
               {leftIcon}
             </div>
           )}
@@ -111,7 +111,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
           )}
 
           {rightIcon && (
-            <div className="pointer-events-none absolute right-3 flex items-center text-[var(--color-text-muted)]">
+            <div className="pointer-events-none absolute right-3 flex items-center text-text-muted">
               {rightIcon}
             </div>
           )}
@@ -121,14 +121,14 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
           <p
             id={errorId}
             role="alert"
-            className="animate-fadeIn text-xs font-medium text-[var(--color-destructive)]"
+            className="animate-fadeIn text-xs font-medium text-destructive"
           >
             {error}
           </p>
         )}
 
         {!error && hint && (
-          <p id={hintId} className="text-xs text-[var(--color-text-secondary)]">
+          <p id={hintId} className="text-xs text-text-secondary">
             {hint}
           </p>
         )}

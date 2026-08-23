@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useMemo } from "react";
 import { cn } from "@/utils/cn";
@@ -120,14 +120,14 @@ export function DataTable<T extends Record<string, unknown>>({
   return (
     <div
       className={cn(
-        "flex w-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]",
+        "flex w-full flex-col overflow-hidden rounded-lg border border-separator bg-surface",
         className
       )}
     >
       <div className="w-full overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-elevated)] text-[var(--color-text-secondary)]">
+            <tr className="border-b border-separator bg-surface-elevated text-text-secondary">
               {selectable && (
                 <th className="w-10 px-4 py-3 text-center">
                   <input
@@ -135,7 +135,7 @@ export function DataTable<T extends Record<string, unknown>>({
                     checked={isAllPageSelected}
                     onChange={handleSelectAll}
                     aria-label="Select all rows"
-                    className="h-4 w-4 cursor-pointer rounded border-[var(--color-border)] accent-[var(--color-brand-primary)]"
+                    className="h-4 w-4 cursor-pointer rounded border-separator accent-brand-primary"
                   />
                 </th>
               )}
@@ -145,7 +145,7 @@ export function DataTable<T extends Record<string, unknown>>({
                   onClick={() => col.sortable && handleSort(col.key)}
                   className={cn(
                     "px-4 py-3 text-xs font-semibold select-none",
-                    col.sortable && "cursor-pointer hover:text-[var(--color-text-primary)]",
+                    col.sortable && "cursor-pointer hover:text-text-primary",
                     col.className
                   )}
                 >
@@ -161,7 +161,7 @@ export function DataTable<T extends Record<string, unknown>>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--color-border)]/50 text-[var(--color-text-primary)]">
+          <tbody className="divide-y divide-separator/50 text-text-primary">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, rIndex) => (
                 <tr key={`skel-${rIndex}`}>
@@ -181,7 +181,7 @@ export function DataTable<T extends Record<string, unknown>>({
               <tr>
                 <td
                   colSpan={totalColCount}
-                  className="px-4 py-8 text-center text-sm text-[var(--color-text-muted)]"
+                  className="px-4 py-8 text-center text-sm text-text-muted"
                 >
                   {emptyMessage}
                 </td>
@@ -195,8 +195,8 @@ export function DataTable<T extends Record<string, unknown>>({
                   <tr
                     key={rowKey}
                     className={cn(
-                      "transition-colors hover:bg-[var(--color-surface-elevated)]/50",
-                      isSelected && "bg-[var(--color-brand-primary)]/5"
+                      "transition-colors hover:bg-surface-elevated/50",
+                      isSelected && "bg-brand-primary/5"
                     )}
                   >
                     {selectable && (
@@ -206,7 +206,7 @@ export function DataTable<T extends Record<string, unknown>>({
                           checked={isSelected}
                           onChange={() => handleSelectRow(rowKey)}
                           aria-label={`Select row ${rowKey}`}
-                          className="h-4 w-4 cursor-pointer rounded border-[var(--color-border)] accent-[var(--color-brand-primary)]"
+                          className="h-4 w-4 cursor-pointer rounded border-separator accent-brand-primary"
                         />
                       </td>
                     )}
@@ -224,7 +224,7 @@ export function DataTable<T extends Record<string, unknown>>({
       </div>
 
       {totalPages > 1 && !isLoading && (
-        <div className="flex items-center justify-between border-t border-[var(--color-border)] px-4 py-3 text-xs text-[var(--color-text-secondary)]">
+        <div className="flex items-center justify-between border-t border-separator px-4 py-3 text-xs text-text-secondary">
           <span>
             Page {currentPage} of {totalPages}
           </span>
@@ -233,7 +233,7 @@ export function DataTable<T extends Record<string, unknown>>({
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1 disabled:opacity-40"
+              className="rounded border border-separator bg-surface px-2.5 py-1 disabled:opacity-40"
             >
               Previous
             </button>
@@ -241,7 +241,7 @@ export function DataTable<T extends Record<string, unknown>>({
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1 disabled:opacity-40"
+              className="rounded border border-separator bg-surface px-2.5 py-1 disabled:opacity-40"
             >
               Next
             </button>

@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState } from "react";
@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header
         className={cn(
-          "z-40 w-full border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-md transition-colors duration-[var(--duration-fast,150ms)]",
+          "z-40 w-full border-b border-separator bg-surface/80 backdrop-blur-md transition-colors duration-[var(--duration-fast,150ms)]",
           sticky && "sticky top-0",
           className
         )}
@@ -64,14 +64,14 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <Link
                 href="/"
-                className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-[var(--color-brand-primary)]"
+                className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-brand-primary"
               >
                 <img 
                   src="/merchander.png" 
                   alt="Merchander Logo" 
                   className="h-8 w-auto dark:invert-0" 
                 />
-                <span className="hidden text-xl font-bold tracking-tight text-[var(--color-text-primary)] font-display sm:inline-block">
+                <span className="hidden text-xl font-bold tracking-tight text-text-primary font-display sm:inline-block">
                   Merchander
                 </span>
               </Link>
@@ -93,8 +93,8 @@ export const Header: React.FC<HeaderProps> = ({
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-[var(--radius-md,6px)] px-3 py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast,150ms)]",
                         item.active
-                          ? "bg-[var(--color-brand-primary)]/10 font-semibold text-[var(--color-brand-primary)]"
-                          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
+                          ? "bg-brand-primary/10 font-semibold text-brand-primary"
+                          : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
                       )}
                     >
                       {Icon && <Icon className="h-4 w-4" />}
@@ -115,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open navigation menu"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--color-brand-primary)] md:hidden cursor-pointer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-separator bg-surface text-text-secondary hover:bg-surface-elevated hover:text-text-primary focus-visible:outline-2 focus-visible:outline-brand-primary md:hidden cursor-pointer"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -136,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({
                 alt="Merchander Logo" 
                 className="h-6 w-auto dark:invert-0" 
               />
-              <span className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] font-display">
+              <span className="text-lg font-bold tracking-tight text-text-primary font-display">
                 Merchander
               </span>
             </div>
@@ -156,8 +156,8 @@ export const Header: React.FC<HeaderProps> = ({
                 className={cn(
                   "flex items-center gap-3 rounded-[var(--radius-md,6px)] px-3 py-2.5 text-sm font-medium transition-colors",
                   item.active
-                    ? "bg-[var(--color-brand-primary)] font-semibold text-white shadow-xs"
-                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
+                    ? "bg-brand-primary font-semibold text-white shadow-xs"
+                    : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
                 )}
               >
                 {Icon && <Icon className="h-4 w-4" />}

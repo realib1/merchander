@@ -416,6 +416,6 @@ CREATE POLICY tenant_isolation_workflow_logs ON workflow_logs
 
 ## 7. Security & Anti-Leak Checklist
 1. **Never Trust Client Tenant ID**: `tenant_id` is always extracted from the cryptographically signed JWT in the authorization header or validated session token.
-2. **Zero Naked SELECTs**: Every database query must either rely on database RLS context (via `set_config('app.current_tenant_id')`) or explicitly filter by `eq(table.tenantId, currentTenantId)` in Drizzle ORM.
+2. **Zero Naked SELECTs**: Every database query must either rely on database RLS context (automatically handled by Supabase Auth integration) or explicitly filter by `eq('tenant_id', currentTenantId)` using the Supabase client.
 3. **Queue Isolation**: Celery message tasks always carry explicit `tenant_id` in their payload and immediately initialize the tenant context upon task execution.
 4. **Media Isolation**: File uploads (product photos, payment receipts) are stored under S3/Cloud Storage prefixes: `s3://merchander-assets/{tenant_id}/products/...`.

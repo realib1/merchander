@@ -105,47 +105,55 @@ pip install \
 
 ---
 
-# PART 2: DATABASE (DRIZZLE ORM)
+# PART 2: DATABASE (SUPABASE)
 
-## 2.1 db/schema.ts
+## 2.1 Supabase Schema
 
-`	ypescript
-import { pgTable, text, timestamp, boolean, uuid, decimal, jsonb, varchar } from "drizzle-orm/pg-core";
+Database schema should be managed via Supabase SQL migrations or the Supabase UI. Use `npx supabase gen types` to keep TypeScript definitions in sync.
 
-export const tenants = pgTable("tenants", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 100 }).unique().notNull(),
-  email: varchar("email", { length: 255 }).unique().notNull(),
-  plan: varchar("plan", { length: 50 }).default("FREE"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+```sql
+-- Create tenants table
+create table public.tenants (
+  id uuid default gen_random_uuid() primary key,
+  name varchar(255) not null,
+  slug varchar(100) unique not null,
+  email varchar(255) unique not null,
+  plan varchar(50) default 'FREE',
+  is_active boolean default true,
+  created_at timestamp with time zone default now()
+);
 
-export const products = pgTable("products", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+-- Create products table
+create table public.products (
+  id uuid default gen_random_uuid() primary key,
+  tenant_id uuid references public.tenants(id) on delete cascade not null,
+  name varchar(255) not null,
+  price numeric(10, 2) not null,
+  is_active boolean default true,
+  created_at timestamp with time zone default now()
+);
 
-export const orders = pgTable("orders", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
-  customerName: varchar("customer_name", { length: 255 }).notNull(),
-  customerPhone: varchar("customer_phone", { length: 50 }).notNull(),
-  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
-  status: varchar("status", { length: 50 }).default("PENDING"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-`
+-- Create orders table
+create table public.orders (
+  id uuid default gen_random_uuid() primary key,
+  tenant_id uuid references public.tenants(id) on delete cascade not null,
+  customer_name varchar(255) not null,
+  customer_phone varchar(50) not null,
+  total_price numeric(10, 2) not null,
+  status varchar(50) default 'PENDING',
+  created_at timestamp with time zone default now()
+);
 
-`ash
-npx drizzle-kit generate
-npx drizzle-kit push
-`
+-- Enable RLS
+alter table public.tenants enable row level security;
+alter table public.products enable row level security;
+alter table public.orders enable row level security;
+```
+
+```bash
+# Generate types from Supabase
+npx supabase gen types typescript --local > types_db.ts
+```
 
 ---
 
@@ -1148,6 +1156,6 @@ cd bot && celery -A tasks.celery worker --loglevel=info -Q messages,reports
 # Terminal 4: Redis
 redis-server
 
-# Terminal 5: Prisma Studio (optional)
-npx drizzle-kit studio
+# Terminal 5: Supabase Local (optional)
+npx supabase start
 ```

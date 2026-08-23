@@ -7,3 +7,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Core Development Principles
+
+Always adhere to the following principles across the entire codebase. Detailed guidelines for each can be found in the `.agents/skills/` directory.
+
+1. **Security First**: Validate all inputs, enforce Supabase Row Level Security (RLS) on all database operations, sanitize data, and strictly enforce authentication/authorization boundaries before returning data.
+2. **Accessibility (a11y)**: Ensure all UI components are keyboard navigable, use proper ARIA labels, maintain high color contrast (solid opacity for focus rings), and support screen readers.
+3. **UX & Aesthetics**: Merchander must maintain a premium, cohesive, and modern SaaS aesthetic. Use the established Tailwind v4 utility tokens (`text-primary`, `bg-surface-elevated`) instead of arbitrary values.
+4. **Performance**: Utilize React Server Components wherever possible to minimize client JavaScript. Optimize images, use streaming/suspense for slow data fetches, and avoid unnecessary re-renders in Client Components.
+5. **Web App Best Practices**: Strictly follow "Vertical Slicing" when building new features. Build the database schema, server actions, and UI simultaneously. Maintain clean separation of concerns and robust error handling boundaries.
+6. **File Size & Modularity**: Keep files focused and maintainable. React components and logic files should ideally stay under **200-250 lines of code**. If a file exceeds this, aggressively refactor by extracting smaller components, hooks, or utility functions.

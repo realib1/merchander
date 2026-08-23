@@ -8,7 +8,7 @@
  * @param amount - The numeric monetary value.
  * @param currency - 3-letter ISO currency code (defaults to "GHS").
  * @param locale - BCP 47 language tag (defaults to "en-GH").
- * @returns Formatted currency string (e.g. "GH₵1,500.00").
+ * @returns Formatted currency string (e.g. "GHS 1,500.00").
  */
 export function formatCurrency(
   amount: number,
@@ -17,12 +17,15 @@ export function formatCurrency(
 ): string {
   if (isNaN(amount)) return `${currency} 0.00`;
   try {
-    return new Intl.NumberFormat(locale, {
+    const formatter = new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
+      currencyDisplay: "code",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(amount);
+    });
+    const parts = formatter.formatToParts(amount);
+    return parts.map(p => p.type === 'currency' ? p.value + ' ' : p.value).join('').replace(/\s+/g, ' ').trim();
   } catch {
     return `${currency} ${amount.toFixed(2)}`;
   }

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { cn } from "@/utils/cn";
 
 export type BadgeVariant = "default" | "success" | "warning" | "destructive" | "info";
@@ -16,34 +16,34 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 const VARIANT_STYLES: Record<BadgeVariant, { container: string; dot: string }> = {
   default: {
     container:
-      "bg-[var(--color-surface-elevated)] text-[var(--color-text-primary)] border border-[var(--color-border)]",
-    dot: "bg-[var(--color-text-secondary)]",
+      "bg-surface-elevated text-text-primary border border-separator",
+    dot: "bg-text-secondary",
   },
   success: {
     container:
-      "bg-[var(--color-brand-secondary)]/15 text-[var(--color-brand-secondary)] border border-[var(--color-brand-secondary)]/30",
-    dot: "bg-[var(--color-brand-secondary)]",
+      "bg-brand-secondary/15 text-brand-secondary border border-brand-secondary/30",
+    dot: "bg-brand-secondary",
   },
   warning: {
     container:
-      "bg-[var(--color-warning)]/15 text-[var(--color-warning)] border border-[var(--color-warning)]/30",
-    dot: "bg-[var(--color-warning)]",
+      "bg-warning/15 text-warning border border-warning/30",
+    dot: "bg-warning",
   },
   destructive: {
     container:
-      "bg-[var(--color-destructive)]/15 text-[var(--color-destructive)] border border-[var(--color-destructive)]/30",
-    dot: "bg-[var(--color-destructive)]",
+      "bg-destructive/15 text-destructive border border-destructive/30",
+    dot: "bg-destructive",
   },
   info: {
     container:
-      "bg-[var(--color-info)]/15 text-[var(--color-info)] border border-[var(--color-info)]/30",
-    dot: "bg-[var(--color-info)]",
+      "bg-info/15 text-info border border-info/30",
+    dot: "bg-info",
   },
 };
 
 const SIZE_STYLES: Record<BadgeSize, string> = {
-  sm: "px-2 py-0.5 text-[11px] gap-1 rounded-[var(--radius-sm)]",
-  md: "px-2.5 py-1 text-xs gap-1.5 rounded-[var(--radius-md)]",
+  sm: "px-2 py-0.5 text-[11px] gap-1 rounded-sm",
+  md: "px-2.5 py-1 text-xs gap-1.5 rounded-md",
 };
 
 /**

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { cn } from "@/utils/cn";
@@ -21,15 +21,15 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--color-brand-primary)] text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
+    "bg-brand-primary text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
   secondary:
-    "bg-[var(--color-brand-secondary)] text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
+    "bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
   outline:
-    "border border-[var(--color-border)] bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] active:scale-[0.98]",
+    "border border-separator bg-transparent text-text-primary hover:bg-surface-elevated active:scale-[0.98]",
   ghost:
-    "bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-elevated)] active:scale-[0.98]",
+    "bg-transparent text-text-primary hover:bg-surface-elevated active:scale-[0.98]",
   destructive:
-    "bg-[var(--color-destructive)] text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
+    "bg-destructive text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
 };
 
 const SIZE_STYLES: Record<ButtonSize, string> = {
@@ -67,8 +67,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         aria-busy={isLoading}
         className={cn(
           "inline-flex items-center justify-center font-medium transition-all duration-150 select-none",
-          "cursor-pointer rounded-[var(--radius-md)] disabled:cursor-not-allowed disabled:opacity-50",
-          "focus-visible:ring-3 focus-visible:ring-[var(--color-brand-primary)] focus-visible:ring-offset-2 focus-visible:outline-none",
+          "cursor-pointer rounded-md disabled:cursor-not-allowed disabled:opacity-50",
+          "focus-visible:ring-3 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:outline-none",
           VARIANT_STYLES[variant],
           SIZE_STYLES[size],
           className

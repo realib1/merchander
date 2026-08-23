@@ -23,6 +23,6 @@ export const ThemeScript = () => {
       } catch (e) {}
     })();
   `;
-  return <Script id="theme-script" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: scriptContent }} />;
+  return <script id="theme-script" dangerouslySetInnerHTML={{ __html: scriptContent }} suppressHydrationWarning />;
 };
 

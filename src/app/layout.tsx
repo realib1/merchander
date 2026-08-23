@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "The Operating System for Social-First Merchants",
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,8 +37,9 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-[var(--color-background)] text-[var(--color-text-primary)] transition-colors duration-200">
+      <body className="min-h-full flex flex-col font-sans bg-background text-text-primary transition-colors duration-200">
         <ThemeProvider>{children}</ThemeProvider>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
@@ -94,21 +94,21 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
               duration: isReducedMotion ? 0 : 0.25,
             }}
             className={cn(
-              "relative z-10 flex h-full w-4/5 max-w-sm flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-2xl",
+              "relative z-10 flex h-full w-4/5 max-w-sm flex-col border-r border-separator bg-surface text-text-primary shadow-2xl",
               position === "right" && "border-r-0 border-l",
               className
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-              <div className="text-base font-semibold tracking-tight text-[var(--color-text-primary)]">
+            <div className="flex items-center justify-between border-b border-separator px-5 py-4">
+              <div className="text-base font-semibold tracking-tight text-text-primary">
                 {title || "Menu"}
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close menu"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm,4px)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--color-brand-primary)]"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm,4px)] text-text-muted hover:bg-surface-elevated hover:text-text-primary focus-visible:outline-2 focus-visible:outline-brand-primary"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -119,7 +119,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
 
             {/* Footer */}
             {footer && (
-              <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-elevated)]/50 px-5 py-4">
+              <div className="border-t border-separator bg-surface-elevated/50 px-5 py-4">
                 {footer}
               </div>
             )}

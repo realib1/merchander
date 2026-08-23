@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef } from "react";
 import { cn } from "@/utils/cn";
@@ -29,9 +29,9 @@ export interface ModalProps {
 }
 
 const SIZE_STYLES: Record<ModalSize, string> = {
-  sm: "max-w-md w-full rounded-[var(--radius-lg)]",
-  md: "max-w-lg w-full rounded-[var(--radius-lg)]",
-  lg: "max-w-2xl w-full rounded-[var(--radius-lg)]",
+  sm: "max-w-md w-full rounded-lg",
+  md: "max-w-lg w-full rounded-lg",
+  lg: "max-w-2xl w-full rounded-lg",
   fullscreen: "w-screen h-screen max-w-none rounded-none",
 };
 
@@ -156,15 +156,15 @@ export const Modal: React.FC<ModalProps> = ({
         aria-labelledby={title ? "modal-title" : undefined}
         aria-describedby={description ? "modal-description" : undefined}
         className={cn(
-          "relative z-10 flex flex-col bg-[var(--color-surface-elevated)] text-[var(--color-text-primary)]",
-          "animate-in fade-in zoom-in-95 overflow-hidden border border-[var(--color-border)] shadow-xl duration-150",
+          "relative z-10 flex flex-col bg-surface-elevated text-text-primary",
+          "animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-xl duration-150",
           SIZE_STYLES[size],
           className
         )}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between border-b border-[var(--color-border)]/60 p-5">
+          <div className="flex items-start justify-between border-b border-separator/60 p-5">
             <div className="flex flex-col gap-1 pr-6">
               {title && (
                 <h2 id="modal-title" className="text-lg font-semibold tracking-tight">
@@ -172,7 +172,7 @@ export const Modal: React.FC<ModalProps> = ({
                 </h2>
               )}
               {description && (
-                <p id="modal-description" className="text-xs text-[var(--color-text-secondary)]">
+                <p id="modal-description" className="text-xs text-text-secondary">
                   {description}
                 </p>
               )}
@@ -183,7 +183,7 @@ export const Modal: React.FC<ModalProps> = ({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="rounded-[var(--radius-sm)] p-1.5 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-text-primary)]"
+                className="rounded-sm p-1.5 text-text-muted transition-colors hover:bg-surface hover:text-text-primary"
               >
                 <svg
                   className="h-4 w-4"
@@ -205,7 +205,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 border-t border-[var(--color-border)]/60 bg-[var(--color-surface)]/40 p-5">
+          <div className="flex items-center justify-end gap-3 border-t border-separator/60 bg-surface/40 p-5">
             {footer}
           </div>
         )}

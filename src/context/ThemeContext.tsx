@@ -23,7 +23,7 @@ export interface ThemeProviderProps {
   storageKey?: string;
 }
 
-const STORAGE_KEY_DEFAULT = "shero-theme";
+const STORAGE_KEY_DEFAULT = "merchander-theme";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
