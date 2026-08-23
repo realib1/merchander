@@ -349,7 +349,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             </CardHeader>
             <CardBody className="space-y-5">
               <div className="space-y-2">
-                <label htmlFor="product-name" className="text-[13px] font-semibold text-text-primary">Name <span className="text-destructive" aria-hidden="true">*</span></label>
+                <label htmlFor="product-name" className="text-body-sm font-semibold text-text-primary">Name <span className="text-destructive" aria-hidden="true">*</span></label>
                 <input 
                   id="product-name"
                   type="text"
@@ -362,7 +362,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-description" className="text-[13px] font-semibold text-text-primary">Description</label>
+                <label htmlFor="product-description" className="text-body-sm font-semibold text-text-primary">Description</label>
                 <textarea 
                   id="product-description"
                   rows={5}
@@ -421,7 +421,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                         </button>
                       </div>
                       {index === 0 && (
-                        <div className="absolute top-3 left-3 px-2.5 py-1 text-white text-[10px] font-bold rounded shadow-md uppercase tracking-wider backdrop-blur-sm bg-brand-primary/90">
+                        <div className="absolute top-3 left-3 px-2.5 py-1 text-white text-caption font-bold rounded shadow-md uppercase tracking-wider backdrop-blur-sm bg-brand-primary/90">
                           Cover
                         </div>
                       )}
@@ -452,7 +452,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                           </button>
                         </div>
                         {globalIndex === 0 && (
-                          <div className="absolute top-3 left-3 px-2.5 py-1 text-white text-[10px] font-bold rounded shadow-md uppercase tracking-wider backdrop-blur-sm bg-brand-primary/90">
+                          <div className="absolute top-3 left-3 px-2.5 py-1 text-white text-caption font-bold rounded shadow-md uppercase tracking-wider backdrop-blur-sm bg-brand-primary/90">
                             Cover
                           </div>
                         )}
@@ -511,7 +511,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Name (Only show if multiple variants) */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-[13px] font-medium text-text-secondary">Option Name</label>
+                          <label className="text-body-sm font-medium text-text-secondary">Option Name</label>
                           <input 
                             type="text"
                             required
@@ -526,7 +526,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Price (Only show if multiple variants, else base price is used) */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-[13px] font-medium text-text-secondary">Price (GHS)</label>
+                          <label className="text-body-sm font-medium text-text-secondary">Price (GHS)</label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
                             <input 
@@ -545,7 +545,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Cost Price */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-[13px] font-medium text-text-secondary">Cost Price</label>
+                          <label className="text-body-sm font-medium text-text-secondary">Cost Price</label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
                             <input 
@@ -563,7 +563,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
 
                       {/* SKU */}
                       <div className={`space-y-2 lg:col-span-1`}>
-                        <label className="text-[13px] font-medium text-text-secondary">SKU (Stock Keeping Unit)</label>
+                        <label className="text-body-sm font-medium text-text-secondary">SKU (Stock Keeping Unit)</label>
                         <input 
                           type="text"
                           value={variant.sku}
@@ -575,7 +575,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                     </div>
                     
                     <div className={`${variants.length > 1 ? 'border-t border-separator pt-5' : ''}`}>
-                      <h5 className="text-[13px] font-medium text-text-secondary mb-3">Available Inventory</h5>
+                      <h5 className="text-body-sm font-medium text-text-secondary mb-3">Available Inventory</h5>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {stores.map(store => (
                           <div key={store.id} className="flex items-center justify-between p-3 bg-surface-elevated border border-separator rounded-lg">
@@ -622,7 +622,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-text-primary">Selling Price (GHS)</label>
+                  <label className="text-body-sm font-semibold text-text-primary">Selling Price (GHS)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
                     <input 
@@ -639,7 +639,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-text-primary">Cost Price (GHS)</label>
+                  <label className="text-body-sm font-semibold text-text-primary">Cost Price (GHS)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm font-medium">₵</span>
                     <input 
@@ -685,7 +685,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="product-category" className="text-[13px] font-semibold text-text-primary">Category</label>
+                  <label htmlFor="product-category" className="text-body-sm font-semibold text-text-primary">Category</label>
                   <button 
                     type="button" 
                     onClick={() => setIsCreatingCategory(!isCreatingCategory)} 
@@ -735,7 +735,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                 )}
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-vendor" className="text-[13px] font-semibold text-text-primary">Vendor</label>
+                <label htmlFor="product-vendor" className="text-body-sm font-semibold text-text-primary">Vendor</label>
                 <input 
                   id="product-vendor"
                   type="text" 
@@ -747,7 +747,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="product-stock-unit" className="text-[13px] font-semibold text-text-primary">Stock Unit</label>
+                <label htmlFor="product-stock-unit" className="text-body-sm font-semibold text-text-primary">Stock Unit</label>
                 <div className="relative">
                   <select 
                     id="product-stock-unit"

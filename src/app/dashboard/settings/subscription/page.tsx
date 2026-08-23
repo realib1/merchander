@@ -70,7 +70,7 @@ export default function SubscriptionSettingsPage() {
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="flex items-center gap-4 p-4 border border-separator rounded-md bg-surface-elevated">
-            <div className="w-12 h-8 bg-white rounded border border-separator flex items-center justify-center font-bold text-[10px] text-blue-900 italic">VISA</div>
+            <div className="w-12 h-8 bg-white rounded border border-separator flex items-center justify-center font-bold text-caption text-blue-900 italic">VISA</div>
             <div>
               <p className="text-sm font-medium text-text-primary">Visa ending in 4242</p>
               <p className="text-xs text-text-secondary">Expires 12/2028</p>

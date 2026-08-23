@@ -82,9 +82,9 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
               <span className="text-sm text-text-muted">SKU-{product.id.substring(0, 6).toUpperCase()}</span>
               <span className="w-1 h-1 rounded-full bg-separator mx-1" />
               {product.is_active ? (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600">Active</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold bg-emerald-500/10 text-emerald-600">Active</span>
               ) : (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-orange-500/10 text-orange-600">Archived</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold bg-orange-500/10 text-orange-600">Archived</span>
               )}
             </div>
           </div>

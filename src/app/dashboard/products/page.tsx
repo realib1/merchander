@@ -87,17 +87,17 @@ function ProductGridView({ products }: { products: Product[] }) {
                   <ProductsActionMenu productId={product.id} />
                 </div>
                 {product.is_active ? (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-surface/90 backdrop-blur-sm text-emerald-600 shadow-sm border border-emerald-500/20 relative">Active</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold bg-surface/90 backdrop-blur-sm text-emerald-600 shadow-sm border border-emerald-500/20 relative">Active</span>
                 ) : (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-surface/90 backdrop-blur-sm text-orange-600 shadow-sm border border-orange-500/20 relative">Archived</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-caption font-semibold bg-surface/90 backdrop-blur-sm text-orange-600 shadow-sm border border-orange-500/20 relative">Archived</span>
                 )}
               </div>
             </div>
             <div className="p-4 flex flex-col flex-1">
-              <Link href={`/dashboard/products/${product.id}`} className="font-semibold text-text-primary text-[14px] line-clamp-1 group-hover:text-brand-primary transition-colors before:absolute before:inset-0 before:z-10 focus:outline-none focus:underline">
+              <Link href={`/dashboard/products/${product.id}`} className="font-semibold text-text-primary text-sm line-clamp-1 group-hover:text-brand-primary transition-colors before:absolute before:inset-0 before:z-10 focus:outline-none focus:underline">
                 {product.name}
               </Link>
-              <p className="text-[12px] text-text-muted mt-0.5 relative z-10 pointer-events-none">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
+              <p className="text-xs text-text-muted mt-0.5 relative z-10 pointer-events-none">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
               
               <div className="mt-3 flex items-center justify-between relative z-10 pointer-events-none">
                 <span className="font-bold text-text-primary text-sm tabular-nums">
@@ -131,7 +131,7 @@ function ProductTableView({ products }: { products: Product[] }) {
       <div className="min-w-250 flex flex-col flex-1">
         <table className="w-full text-left">
           <thead>
-            <tr className="font-medium text-text-muted text-[13px] border-b border-separator bg-surface-elevated/20">
+            <tr className="font-medium text-text-muted text-body-sm border-b border-separator bg-surface-elevated/20">
               <th className="px-4 py-3 w-12 text-center font-medium">
                 <input type="checkbox" aria-label="Select all products" className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
               </th>
@@ -165,37 +165,37 @@ function ProductTableView({ products }: { products: Product[] }) {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[13px] font-semibold text-text-primary truncate">{product.name}</div>
-                        <div className="text-[12px] text-text-muted truncate">SKU-{product.id.substring(0, 6).toUpperCase()}</div>
+                        <div className="text-body-sm font-semibold text-text-primary truncate">{product.name}</div>
+                        <div className="text-xs text-text-muted truncate">SKU-{product.id.substring(0, 6).toUpperCase()}</div>
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-4 py-3 text-[13px] text-text-secondary truncate">
+                  <td className="px-4 py-3 text-body-sm text-text-secondary truncate">
                     {product.category?.name || 'Uncategorized'}
                   </td>
 
                   <td className="px-4 py-3">
                     {product.is_active ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-600">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-emerald-500/10 text-emerald-600">
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-orange-500/10 text-orange-600">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-orange-500/10 text-orange-600">
                         Archived
                       </span>
                     )}
                   </td>
 
-                  <td className="px-4 py-3 text-[13px]">
+                  <td className="px-4 py-3 text-body-sm">
                     <StockBadge totalStock={totalStock} stockUnit={product.stock_unit} />
                   </td>
 
-                  <td className="px-4 py-3 text-[13px] font-medium text-text-primary tabular-nums">
+                  <td className="px-4 py-3 text-body-sm font-medium text-text-primary tabular-nums">
                     {hasRange ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
                   </td>
 
-                  <td className="px-4 py-3 text-[13px] text-text-secondary tabular-nums">
+                  <td className="px-4 py-3 text-body-sm text-text-secondary tabular-nums">
                     {totalUnitsSold.toLocaleString()}
                   </td>
 
@@ -223,7 +223,7 @@ function ProductTableView({ products }: { products: Product[] }) {
         
         {/* Pagination Footer */}
         {products && products.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-[13px] text-text-secondary mt-auto">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-body-sm text-text-secondary mt-auto">
             <div className="flex items-center gap-2">
               <span>Showing</span>
               <span className="font-medium text-text-primary tabular-nums">{products.length}</span>

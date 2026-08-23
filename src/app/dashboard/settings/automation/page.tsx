@@ -71,7 +71,7 @@ export default function AutomationSettingsPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-medium text-text-primary">Store Location</h4>
-                  <span className="px-1.5 py-0.5 rounded bg-surface border border-separator text-[10px] text-text-muted">location, where are you</span>
+                  <span className="px-1.5 py-0.5 rounded bg-surface border border-separator text-caption text-text-muted">location, where are you</span>
                 </div>
                 <p className="text-xs text-text-secondary mt-1 line-clamp-1">We are located at 14 Independence Avenue, Accra.</p>
               </div>

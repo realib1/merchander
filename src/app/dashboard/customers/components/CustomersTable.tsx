@@ -93,7 +93,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                         {customer.name ? customer.name.substring(0, 2).toUpperCase() : 'UN'}
                       </div>
                       <div>
-                        <div className="font-semibold text-text-primary">{customer.name || 'Unknown'}</div>
+                        <div className="font-semibold text-brand-primary group-hover:text-brand-secondary transition-colors">{customer.name || 'Unknown'}</div>
                         <div className="text-xs text-text-muted mt-0.5 flex items-center gap-1">
                           {customer.email ? `${customer.email} · ` : ''}{formatGhanaLocalDisplay(customer.phone)}
                         </div>

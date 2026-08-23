@@ -111,7 +111,7 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
             <div className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-text-primary to-text-secondary font-display tracking-tight">
               {businessName}
             </div>
-            <div className="text-[10px] text-brand-primary font-bold tracking-widest uppercase -mt-1">
+            <div className="text-caption text-brand-primary font-bold tracking-widest uppercase -mt-1">
               Merchander OS
             </div>
           </div>
@@ -121,7 +121,7 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
       <nav className="flex-1 px-4 py-6 space-y-6 overflow-y-auto">
         {navGroups.map((group) => (
           <div key={group.title} className="space-y-1.5">
-            <div className="text-[11px] font-bold text-text-muted mb-2 px-3 tracking-widest uppercase">
+            <div className="text-caption font-bold text-text-muted mb-2 px-3 tracking-widest uppercase">
               {group.title}
             </div>
             {group.items.map((item) => {

@@ -56,7 +56,7 @@ export function OrdersHeader() {
       <div className="block sm:hidden relative">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="w-full flex items-center justify-between px-4 py-2.5 bg-surface border border-separator rounded-lg text-[15px] font-medium text-text-primary"
+          className="w-full flex items-center justify-between px-4 py-2.5 bg-surface border border-separator rounded-lg text-body font-medium text-text-primary"
         >
           <span>{tabs.find(t => t.id === currentStatus)?.label || 'All'}</span>
           <ChevronDown size={16} className={`text-text-muted transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
@@ -78,7 +78,7 @@ export function OrdersHeader() {
                     <button
                       key={tab.id}
                       onClick={() => setStatus(tab.id)}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 text-[15px] rounded-md transition-colors ${
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${
                         currentStatus === tab.id
                           ? 'bg-brand-primary/10 text-brand-primary font-semibold'
                           : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'
@@ -101,7 +101,7 @@ export function OrdersHeader() {
           <button
             key={tab.id}
             onClick={() => setStatus(tab.id)}
-            className={`pb-3 text-[15px] font-medium whitespace-nowrap border-b-2 transition-colors ${
+            className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${
               currentStatus === tab.id
                 ? 'border-brand-primary text-brand-primary'
                 : 'border-transparent text-text-secondary hover:text-brand-primary'

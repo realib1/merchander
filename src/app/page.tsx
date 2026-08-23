@@ -79,7 +79,7 @@ export default function LandingPage() {
                     <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]"></div>
                     <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]"></div>
                   </div>
-                  <div className="text-[11px] font-semibold text-text-muted/80 tracking-wide">Merchander Dashboard</div>
+                  <div className="text-caption font-semibold text-text-muted/80 tracking-wide">Merchander Dashboard</div>
                   <div className="w-12"></div>
                 </div>
 
@@ -95,19 +95,19 @@ export default function LandingPage() {
                   {/* Mockup Cards */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="p-4 rounded-xl border border-separator bg-surface">
-                      <div className="text-[10px] uppercase text-text-muted font-bold mb-1">Sales</div>
+                      <div className="text-caption uppercase text-text-muted font-bold mb-1">Sales</div>
                       <div className="text-xl font-bold tabular-nums">₵18.4k</div>
                     </div>
                     <div className="p-4 rounded-xl border border-separator bg-surface">
-                      <div className="text-[10px] uppercase text-text-muted font-bold mb-1">Orders</div>
+                      <div className="text-caption uppercase text-text-muted font-bold mb-1">Orders</div>
                       <div className="text-xl font-bold tabular-nums">42</div>
                     </div>
                     <div className="p-4 rounded-xl border border-separator bg-surface">
-                      <div className="text-[10px] uppercase text-text-muted font-bold mb-1">To receive</div>
+                      <div className="text-caption uppercase text-text-muted font-bold mb-1">To receive</div>
                       <div className="text-xl font-bold tabular-nums">3 shipments</div>
                     </div>
                     <div className="p-4 rounded-xl border border-brand-primary/20 bg-brand-primary/5">
-                      <div className="text-[10px] uppercase text-brand-primary font-bold mb-1">Profit</div>
+                      <div className="text-caption uppercase text-brand-primary font-bold mb-1">Profit</div>
                       <div className="text-xl font-bold text-brand-primary tabular-nums">₵6.8k</div>
                     </div>
                   </div>
@@ -115,7 +115,7 @@ export default function LandingPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Mock Chart */}
                     <div className="p-4 rounded-xl border border-separator bg-surface md:col-span-2 h-40 flex flex-col">
-                      <div className="text-[10px] uppercase text-text-muted font-bold mb-4">Sales Performance</div>
+                      <div className="text-caption uppercase text-text-muted font-bold mb-4">Sales Performance</div>
                       <div className="flex-1 flex items-end justify-between gap-2 pb-1">
                         {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
                           <div key={i} className="w-full bg-brand-primary/20 rounded-t-sm transition-all hover:bg-brand-primary/40" style={{ height: `${h}%` }}>
@@ -126,7 +126,7 @@ export default function LandingPage() {
                     </div>
                     {/* Attention List */}
                     <div className="p-4 rounded-xl border border-separator bg-surface h-40 flex flex-col justify-center space-y-3">
-                      <div className="text-[10px] uppercase text-text-muted font-bold mb-1">Attention Center</div>
+                      <div className="text-caption uppercase text-text-muted font-bold mb-1">Attention Center</div>
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <div className="w-2 h-2 rounded-full bg-warning"></div>
                         <span className="text-text-secondary text-xs">SHP-024 arriving</span>
@@ -145,7 +145,7 @@ export default function LandingPage() {
                   {/* List of Products */}
                   <div className="rounded-xl border border-separator bg-surface overflow-hidden">
                     <div className="px-4 py-3 border-b border-separator bg-surface-elevated">
-                      <div className="text-[10px] uppercase text-text-muted font-bold">Top Selling Products</div>
+                      <div className="text-caption uppercase text-text-muted font-bold">Top Selling Products</div>
                     </div>
                     <div className="divide-y divide-separator">
                       <div className="px-4 py-3 flex items-center justify-between hover:bg-surface-elevated/30 transition-colors">

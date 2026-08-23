@@ -56,7 +56,7 @@ export function Topbar() {
         {/* Page Title & Subtitle */}
         <div className="flex flex-col justify-center">
           <h1 className="text-xl font-bold text-text-primary tracking-tight leading-none">{header.title}</h1>
-          <p className="hidden sm:block text-[12px] text-text-secondary mt-1.5 leading-none">{header.subtitle}</p>
+          <p className="hidden sm:block text-xs text-text-secondary mt-1.5 leading-none">{header.subtitle}</p>
         </div>
       </div>
 

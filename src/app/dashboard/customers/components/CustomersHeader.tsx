@@ -35,12 +35,12 @@ export function CustomersHeader() {
             placeholder="Search by name, phone, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={"w-full sm:max-w-md pl-9 pr-4 py-2 bg-surface border rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-text-primary placeholder:text-text-muted"}
+            className={"w-full sm:max-w-md pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-text-primary placeholder:text-text-muted"}
           />
         </div>
         
         <div className="flex gap-2 shrink-0">
-          <Link href="/dashboard/customers/new" className="flex justify-center items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-colors">
+          <Link href="/dashboard/customers/new" className="flex justify-center items-center gap-1.5 bg- hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-body-sm font-medium transition-colors">
             <Plus size={16} />
             Add customer
           </Link>

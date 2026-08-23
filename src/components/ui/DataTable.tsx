@@ -152,7 +152,7 @@ export function DataTable<T extends Record<string, unknown>>({
                   <div className="flex items-center gap-1.5">
                     <span>{col.header}</span>
                     {col.sortable && (
-                      <span className="text-[10px] opacity-70">
+                      <span className="text-caption opacity-70">
                         {sortKey === col.key ? (sortOrder === "asc" ? "▲" : "▼") : "↕"}
                       </span>
                     )}

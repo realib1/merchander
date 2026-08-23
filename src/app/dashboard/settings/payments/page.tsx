@@ -34,7 +34,7 @@ export default function PaymentsSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex gap-4">
             <div className="w-12 h-8 rounded bg-[#FFCC00] flex items-center justify-center font-bold text-xs text-black border border-separator/30">MTN</div>
-            <div className="w-12 h-8 rounded bg-[#E31837] flex items-center justify-center font-bold text-[10px] text-white border border-separator/30">Telecel</div>
+            <div className="w-12 h-8 rounded bg-[#E31837] flex items-center justify-center font-bold text-caption text-white border border-separator/30">Telecel</div>
             <div className="w-12 h-8 rounded bg-[#000000] flex items-center justify-center font-bold text-xs text-white border border-separator/30">AT</div>
           </div>
           
@@ -68,7 +68,7 @@ export default function PaymentsSettingsPage() {
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="flex gap-2">
-            <div className="w-10 h-6 rounded bg-white flex items-center justify-center font-bold text-[10px] text-blue-900 border border-separator/30 italic">VISA</div>
+            <div className="w-10 h-6 rounded bg-white flex items-center justify-center font-bold text-caption text-blue-900 border border-separator/30 italic">VISA</div>
             <div className="w-10 h-6 rounded bg-[#27303E] flex items-center justify-center font-bold text-[8px] text-white border border-separator/30">Mastercard</div>
           </div>
           <p className="text-xs text-text-secondary">Processed securely via your active Paystack integration.</p>

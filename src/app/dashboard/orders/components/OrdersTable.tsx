@@ -211,7 +211,7 @@ export function OrdersTable({
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-mono font-medium text-text-primary">
+                      <div className="font-mono font-medium text-brand-primary group-hover:text-brand-secondary transition-colors">
                         #{order.id.substring(0, 6).toUpperCase()}
                       </div>
                     </td>

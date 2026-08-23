@@ -118,7 +118,7 @@ export function CatalogTable({ initialProducts }: { initialProducts: Product[] }
                           <PackageSearch size={18} className="text-text-muted" />
                         </div>
                         <div>
-                          <div className="font-semibold text-text-primary">{product.name}</div>
+                          <div className="font-semibold text-brand-primary group-hover:text-brand-secondary transition-colors">{product.name}</div>
                           <div className="font-mono text-xs text-text-muted mt-0.5">#{product.id.substring(0, 8)}</div>
                         </div>
                       </div>

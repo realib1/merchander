@@ -110,7 +110,7 @@ export default function SecuritySettingsPage() {
                 <div>
                   <h4 className="text-sm font-medium text-text-primary flex items-center gap-2">
                     MacBook Pro - Accra, Ghana
-                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    <span className="px-2 py-0.5 rounded text-caption font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                       Current Session
                     </span>
                   </h4>
