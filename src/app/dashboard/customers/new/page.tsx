@@ -82,7 +82,7 @@ export default function NewCustomerPage() {
         </div>
 
         <div className="pt-4 border-t border-separator flex justify-end gap-3">
-          <Link href="/dashboard/customers" className="px-5 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
+          <Link href="/dashboard/customers" className="px-5 py-2.5 text-sm font-medium text-text-secondary hover:text-brand-primary transition-colors">
             Cancel
           </Link>
           <button

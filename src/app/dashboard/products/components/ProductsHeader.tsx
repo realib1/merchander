@@ -76,13 +76,13 @@ export function ProductsHeader() {
           <div className="flex bg-surface border border-separator rounded-lg p-1">
             <button 
               onClick={() => updateParam('view', 'table')}
-              className={`p-1 rounded-md transition-colors ${currentView === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+              className={`p-1 rounded-md transition-colors ${currentView === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
             >
               <List size={16} />
             </button>
             <button 
               onClick={() => updateParam('view', 'grid')}
-              className={`p-1 rounded-md transition-colors ${currentView === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+              className={`p-1 rounded-md transition-colors ${currentView === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
             >
               <LayoutGrid size={16} />
             </button>

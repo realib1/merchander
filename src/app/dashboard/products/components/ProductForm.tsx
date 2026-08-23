@@ -317,7 +317,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
         <div>
           <Link 
             href="/dashboard/products" 
-            className="inline-flex items-center text-sm font-medium text-text-muted hover:text-text-primary transition-colors mb-2"
+            className="inline-flex items-center text-sm font-medium text-text-muted hover:text-brand-primary transition-colors mb-2"
           >
             <ArrowLeft size={16} className="mr-1.5" />
             Back to Catalog
@@ -470,9 +470,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                         onChange={handleFileChange} 
                       />
                       <div className="w-10 h-10 bg-surface rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm border border-separator mb-2">
-                        <Plus className="w-5 h-5 text-text-tertiary group-hover:text-text-primary transition-colors" />
+                        <Plus className="w-5 h-5 text-text-tertiary group-hover:text-brand-primary transition-colors" />
                       </div>
-                      <span className="text-xs font-medium text-text-tertiary group-hover:text-text-primary transition-colors">Add Image</span>
+                      <span className="text-xs font-medium text-text-tertiary group-hover:text-brand-primary transition-colors">Add Image</span>
                     </div>
                   )}
                 </div>
@@ -599,7 +599,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                   type="button" 
                   variant="outline" 
                   onClick={handleAddVariant}
-                  className="w-full h-11 border-dashed border-2 hover:bg-surface-elevated transition-colors text-text-secondary hover:text-text-primary"
+                  className="w-full h-11 border-dashed border-2 hover:bg-surface-elevated transition-colors text-text-secondary hover:text-brand-primary"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {variants.length === 1 ? 'Add Options like Size or Color' : 'Add Another Variant'}

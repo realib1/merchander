@@ -53,7 +53,7 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
         aria-label="Product actions"
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-elevated rounded-lg transition-colors"
+        className="p-2 text-text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
       >
         <MoreHorizontal size={18} />
       </button>
@@ -71,7 +71,7 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
               <Link
                 href={`/dashboard/products/${productId}`}
                 onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                 role="menuitem"
               >
                 <Eye size={14} />
@@ -80,7 +80,7 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
               <Link
                 href={`/dashboard/products/${productId}/edit`}
                 onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                 role="menuitem"
               >
                 <Edit size={14} />
@@ -89,7 +89,7 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
               <Link 
                 href={`/dashboard/inventory?product=${productId}`}
                 onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} 
-                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                 role="menuitem"
               >
                 <PackageSearch size={14} />

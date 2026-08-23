@@ -72,7 +72,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
         <div className="flex items-center gap-4">
           <Link 
             href="/dashboard/products" 
-            className="p-2 -ml-2 hover:bg-surface-elevated rounded-lg text-text-muted hover:text-text-primary transition-colors"
+            className="p-2 -ml-2 hover:bg-surface-elevated rounded-lg text-text-muted hover:text-brand-primary transition-colors"
           >
             <ChevronLeft size={20} />
           </Link>

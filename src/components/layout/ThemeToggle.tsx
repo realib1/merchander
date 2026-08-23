@@ -88,7 +88,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
                 "inline-flex items-center gap-1.5 rounded-[var(--radius-sm,4px)] px-2.5 py-1 text-xs font-medium transition-all duration-[var(--duration-fast,150ms)] focus-visible:outline-2 focus-visible:outline-brand-primary",
                 isActive
                   ? "bg-brand-primary text-white shadow-xs"
-                  : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
+                  : "text-text-secondary hover:bg-surface-elevated hover:text-brand-primary"
               )}
             >
               <Icon className="h-3.5 w-3.5" />

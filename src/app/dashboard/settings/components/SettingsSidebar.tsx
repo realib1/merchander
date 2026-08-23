@@ -93,12 +93,12 @@ export function SettingsSidebar() {
                     className={`group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-brand-primary/10 text-brand-primary'
-                        : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
+                        : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'
                     }`}
                   >
                     <Icon
                       className={`h-4 w-4 shrink-0 transition-colors ${
-                        isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-text-primary'
+                        isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-brand-primary'
                       }`}
                     />
                     {item.name}

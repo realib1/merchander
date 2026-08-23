@@ -74,7 +74,7 @@ export function Topbar() {
         {/* Notifications & Status */}
         <div className="flex items-center gap-3">
           
-          <button className="relative p-2 text-text-secondary hover:bg-surface-elevated hover:text-text-primary rounded-full transition-colors">
+          <button className="relative p-2 text-text-secondary hover:bg-surface-elevated hover:text-brand-primary rounded-full transition-colors">
             <Bell size={18} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-primary rounded-full border border-background"></span>
           </button>

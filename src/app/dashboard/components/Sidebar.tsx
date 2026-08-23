@@ -137,10 +137,10 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
                     flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all group
                     ${isActive
                       ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'}
+                      : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'}
                   `}
                 >
-                  <Icon size={18} className={isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-text-primary transition-colors'} />
+                  <Icon size={18} className={isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-brand-primary transition-colors'} />
                   <span className="text-sm">{item.name}</span>
                   {isActive && (
                     <div className="ml-auto w-1 h-4 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(255,106,0,0.5)]"></div>

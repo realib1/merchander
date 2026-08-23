@@ -145,7 +145,7 @@ export function DataTable<T extends Record<string, unknown>>({
                   onClick={() => col.sortable && handleSort(col.key)}
                   className={cn(
                     "px-4 py-3 text-xs font-semibold select-none",
-                    col.sortable && "cursor-pointer hover:text-text-primary",
+                    col.sortable && "cursor-pointer hover:text-brand-primary",
                     col.className
                   )}
                 >

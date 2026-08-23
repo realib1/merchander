@@ -233,11 +233,11 @@ function ProductTableView({ products }: { products: Product[] }) {
             <div className="flex items-center gap-4">
               <span className="tabular-nums">Page 1 of 1</span>
               <div className="flex items-center gap-1">
-                <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Previous page">
+                <button className="p-1 rounded text-text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Previous page">
                   <ChevronLeft size={16} />
                 </button>
                 <span className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator text-text-primary tabular-nums" aria-current="page">1</span>
-                <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Next page">
+                <button className="p-1 rounded text-text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Next page">
                   <ChevronRight size={16} />
                 </button>
               </div>

@@ -81,7 +81,7 @@ export function OrdersHeader() {
                       className={`w-full flex items-center justify-between px-3 py-2.5 text-[15px] rounded-md transition-colors ${
                         currentStatus === tab.id
                           ? 'bg-brand-primary/10 text-brand-primary font-semibold'
-                          : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
+                          : 'text-text-secondary hover:bg-surface-elevated hover:text-brand-primary'
                       }`}
                     >
                       {tab.label}
@@ -104,7 +104,7 @@ export function OrdersHeader() {
             className={`pb-3 text-[15px] font-medium whitespace-nowrap border-b-2 transition-colors ${
               currentStatus === tab.id
                 ? 'border-brand-primary text-brand-primary'
-                : 'border-transparent text-text-secondary hover:text-text-primary'
+                : 'border-transparent text-text-secondary hover:text-brand-primary'
             }`}
           >
             {tab.label}
@@ -145,7 +145,7 @@ export function OrdersHeader() {
                 params.delete('view');
                 router.push(`?${params.toString()}`);
               }}
-              className={`p-1.5 rounded-md transition-colors ${!searchParams.get('view') || searchParams.get('view') === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+              className={`p-1.5 rounded-md transition-colors ${!searchParams.get('view') || searchParams.get('view') === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
               title="Table View"
             >
               <LayoutList size={14} />
@@ -156,7 +156,7 @@ export function OrdersHeader() {
                 params.set('view', 'kanban');
                 router.push(`?${params.toString()}`);
               }}
-              className={`p-1.5 rounded-md transition-colors ${searchParams.get('view') === 'kanban' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+              className={`p-1.5 rounded-md transition-colors ${searchParams.get('view') === 'kanban' ? 'bg-brand-primary text-white shadow-sm' : 'text-text-muted hover:text-brand-primary'}`}
               title="Kanban View"
             >
               <KanbanSquare size={14} />

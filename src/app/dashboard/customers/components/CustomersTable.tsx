@@ -129,7 +129,7 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                         e.stopPropagation();
                         setActiveMenuId(activeMenuId === customer.id ? null : customer.id);
                       }}
-                      className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-elevated rounded-lg transition-colors"
+                      className="p-2 text-text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
                     >
                       <MoreHorizontal size={18} />
                     </button>
@@ -145,11 +145,11 @@ export function CustomersTable({ initialCustomers }: { initialCustomers: Custome
                           className="absolute right-6 top-12 w-40 bg-surface border border-separator rounded-xl shadow-lg z-10 overflow-hidden text-left"
                         >
                           <div className="p-1">
-                            <Link href={`/dashboard/customers/${customer.id}`} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
+                            <Link href={`/dashboard/customers/${customer.id}`} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
                               <FileText size={14} />
                               View Profile
                             </Link>
-                            <button onClick={() => { toast.info('Contact features coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
+                            <button onClick={() => { toast.info('Contact features coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
                               <Phone size={14} />
                               Contact
                             </button>

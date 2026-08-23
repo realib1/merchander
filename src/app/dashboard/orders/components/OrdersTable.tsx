@@ -237,7 +237,7 @@ export function OrdersTable({
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === order.id ? null : order.id);
                         }}
-                        className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-elevated rounded-lg transition-colors"
+                        className="p-2 text-text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
                       >
                         <MoreHorizontal size={18} />
                       </button>
@@ -258,7 +258,7 @@ export function OrdersTable({
                                   setSelectedOrder(order);
                                   setActiveMenuId(null);
                                 }}
-                                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                               >
                                 <Eye size={14} />
                                 View Details
@@ -441,7 +441,7 @@ export function OrdersTable({
                       setReconciliationOrder(null);
                       setSmsText('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-brand-primary transition-colors"
                   >
                     Cancel
                   </button>

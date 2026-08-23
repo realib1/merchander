@@ -141,7 +141,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               type="button"
               onClick={() => removeToast(t.id)}
               aria-label="Close notification"
-              className="shrink-0 rounded-full p-1 text-text-muted transition-colors hover:text-text-primary"
+              className="shrink-0 rounded-full p-1 text-text-muted transition-colors hover:text-brand-primary"
             >
               <svg
                 className="h-3.5 w-3.5"

@@ -76,9 +76,9 @@ export default async function DashboardOverview({
         </div>
 
         <div className="flex items-center bg-surface-elevated border border-separator rounded-lg overflow-hidden text-[13px] font-medium shrink-0">
-          <Link href="?period=7d" className={`px-4 py-2 transition-colors ${period === '7d' ? 'bg-brand-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}>7 days</Link>
-          <Link href="?period=30d" className={`px-4 py-2 transition-colors ${period === '30d' ? 'bg-brand-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}>30 days</Link>
-          <Link href="?period=90d" className={`px-4 py-2 transition-colors ${period === '90d' ? 'bg-brand-primary text-white' : 'text-text-secondary hover:text-text-primary'}`}>90 days</Link>
+          <Link href="?period=7d" className={`px-4 py-2 transition-colors ${period === '7d' ? 'bg-brand-primary text-white' : 'text-text-secondary hover:text-brand-primary'}`}>7 days</Link>
+          <Link href="?period=30d" className={`px-4 py-2 transition-colors ${period === '30d' ? 'bg-brand-primary text-white' : 'text-text-secondary hover:text-brand-primary'}`}>30 days</Link>
+          <Link href="?period=90d" className={`px-4 py-2 transition-colors ${period === '90d' ? 'bg-brand-primary text-white' : 'text-text-secondary hover:text-brand-primary'}`}>90 days</Link>
         </div>
       </header>
 

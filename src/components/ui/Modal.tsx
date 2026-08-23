@@ -183,7 +183,7 @@ export const Modal: React.FC<ModalProps> = ({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="rounded-sm p-1.5 text-text-muted transition-colors hover:bg-surface hover:text-text-primary"
+                className="rounded-sm p-1.5 text-text-muted transition-colors hover:bg-surface hover:text-brand-primary"
               >
                 <svg
                   className="h-4 w-4"

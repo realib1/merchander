@@ -503,7 +503,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
         <div className="flex flex-col gap-3 sticky top-6">
           <SubmitButtons paymentMethod={paymentMethod} />
           <Link href="/dashboard/orders" className="w-full">
-            <Button variant="outline" type="button" className="w-full border-separator text-text-secondary hover:text-text-primary">Cancel</Button>
+            <Button variant="outline" type="button" className="w-full border-separator text-text-secondary hover:text-brand-primary">Cancel</Button>
           </Link>
         </div>
       </div>

@@ -72,7 +72,7 @@ export default async function NewOrderPage() {
       <header className="mb-8">
         <Link 
           href="/dashboard/orders" 
-          className="inline-flex items-center text-sm font-medium text-text-muted hover:text-text-primary transition-colors mb-4"
+          className="inline-flex items-center text-sm font-medium text-text-muted hover:text-brand-primary transition-colors mb-4"
         >
           <ArrowLeft size={16} className="mr-1.5" />
           Back to Orders

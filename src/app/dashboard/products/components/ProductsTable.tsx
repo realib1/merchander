@@ -150,7 +150,7 @@ export function CatalogTable({ initialProducts }: { initialProducts: Product[] }
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === product.id ? null : product.id);
                         }}
-                        className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-elevated rounded-lg transition-colors"
+                        className="p-2 text-text-muted hover:text-brand-primary hover:bg-surface-elevated rounded-lg transition-colors"
                       >
                         <MoreHorizontal size={18} />
                       </button>
@@ -168,12 +168,12 @@ export function CatalogTable({ initialProducts }: { initialProducts: Product[] }
                             <div className="p-1">
                               <Link
                                 href={`/dashboard/products/${product.id}/edit`}
-                                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                               >
                                 <Edit size={14} />
                                 Edit
                               </Link>
-                              <button onClick={() => { toast.info('Manage inventory coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
+                              <button onClick={() => { toast.info('Manage inventory coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
                                 <PackageSearch size={14} />
                                 Inventory
                               </button>
