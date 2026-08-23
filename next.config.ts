@@ -10,6 +10,18 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    dangerouslyAllowLocalIP: true,
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '54321', // Default local Supabase port
+        pathname: '/storage/v1/object/public/**',
+      },
+      // You can add production domains here later (e.g. *.supabase.co)
+    ],
+  },
   async headers() {
     return [
       {

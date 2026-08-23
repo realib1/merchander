@@ -1,32 +1,12 @@
 
-C:\Users\shero\Documents\projects\web\merchander\src\app\actions\auth.ts
-  7:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
 C:\Users\shero\Documents\projects\web\merchander\src\app\actions\create-order.ts
-  31:12  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  31:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\shero\Documents\projects\web\merchander\src\app\actions\create-product.ts
-   38:12  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
-  103:27  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Users\shero\Documents\projects\web\merchander\src\app\actions\customers.ts
-   43:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   46:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   46:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   48:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  108:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  109:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  113:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  113:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-C:\Users\shero\Documents\projects\web\merchander\src\app\actions\dashboard.ts
-   83:37  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-   85:82  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-  145:55  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-  146:76  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-  166:54  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-  185:61  error  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
-  193:7   error  'intelligence' is never reassigned. Use 'const' instead  prefer-const
+C:\Users\shero\Documents\projects\web\merchander\src\app\actions\update-product.ts
+  43:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\shero\Documents\projects\web\merchander\src\app\components\WaitlistForm.tsx
   29:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
@@ -41,20 +21,63 @@ C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\customers\com
 C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\orders\components\CreateOrderForm.tsx
   8:10  warning  'Plus' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\orders\components\OrdersTopMetrics.tsx
-  2:10  warning  'ShoppingCart' is defined but never used  @typescript-eslint/no-unused-vars
-  2:24  warning  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
-  2:31  warning  'Truck' is defined but never used         @typescript-eslint/no-unused-vars
-  2:38  warning  'XCircle' is defined but never used       @typescript-eslint/no-unused-vars
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\[id]\page.tsx
+   51:64  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   52:55  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   56:44  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  112:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  151:48  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  152:81  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  179:56  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
 
-C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\new\components\ProductForm.tsx
-  33:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\components\ProductForm.tsx
+   10:37  warning  'Settings' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   75:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\components\ProductForm.tsx:75:5
+  73 |   // Sync with server on revalidate
+  74 |   useEffect(() => {
+> 75 |     setCategories(initialCategories);
+     |     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  76 |   }, [initialCategories]);
+  77 |
+  78 |   const [isCreatingCategory, setIsCreatingCategory] = useState(false);                                                                                                                                                                                                     react-hooks/set-state-in-effect
+  104:40  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\components\ProductForm.tsx:104:40
+  102 |       try {
+  103 |         const parsed = JSON.parse(draft);
+> 104 |         if (parsed.name !== undefined) setName(parsed.name);
+      |                                        ^^^^^^^ Avoid calling setState() directly within an effect
+  105 |         if (parsed.description !== undefined) setDescription(parsed.description);
+  106 |         if (parsed.isActive !== undefined) setIsActive(parsed.isActive);
+  107 |         if (parsed.categoryId !== undefined) setCategoryId(parsed.categoryId);  react-hooks/set-state-in-effect
+  113:16  warning  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  136:6   warning  React Hook useEffect has a missing dependency: 'initialData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/exhaustive-deps
+  404:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @next/next/no-img-element
+  435:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @next/next/no-img-element
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\components\ProductsActionMenu.tsx
+  14:9   warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  26:14  warning  'error' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\components\ProductsTable.tsx
+  21:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\products\page.tsx
-   3:19  warning  'Tag' is defined but never used                      @typescript-eslint/no-unused-vars
-   3:24  warning  'Archive' is defined but never used                  @typescript-eslint/no-unused-vars
-   3:33  warning  'Star' is defined but never used                     @typescript-eslint/no-unused-vars
-  66:21  warning  'totalUnitsSold' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  3:46  warning  'ChevronDown' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\shero\Documents\projects\web\merchander\src\app\dashboard\settings\audit-log\page.tsx
   1:66  warning  'CardFooter' is defined but never used   @typescript-eslint/no-unused-vars
@@ -99,6 +122,6 @@ C:\Users\shero\Documents\projects\web\merchander\src\context\ThemeScript.tsx
 C:\Users\shero\Documents\projects\web\merchander\src\lib\supabase\proxy.ts
   18:48  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
 
-Γ£û 50 problems (17 errors, 33 warnings)
-  1 error and 1 warning potentially fixable with the `--fix` option.
+Γ£û 43 problems (8 errors, 35 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
 

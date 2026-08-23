@@ -26,7 +26,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useMobileNav } from './MobileNavContext';
 
-export function Sidebar({ userEmail }: { userEmail: string }) {
+export function Sidebar({ userEmail, businessName }: { userEmail: string; businessName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -109,7 +109,7 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           </div>
           <div>
             <div className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-text-primary to-text-secondary font-display tracking-tight">
-              Business Name
+              {businessName}
             </div>
             <div className="text-[10px] text-brand-primary font-bold tracking-widest uppercase -mt-1">
               Merchander OS

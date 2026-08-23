@@ -1,6 +1,5 @@
-import React from 'react';
 import { formatCurrency } from '@/utils/format';
-import { Users, ShoppingCart, DollarSign, Activity } from 'lucide-react';
+import { Users, ShoppingCart, DollarSign, Activity, TrendingUp, TrendingDown } from 'lucide-react';
 
 export interface DashboardMetricsProps {
   metrics: {
@@ -12,90 +11,82 @@ export interface DashboardMetricsProps {
   period: string;
 }
 
+interface MetricCardProps {
+  title: string;
+  value: string;
+  change: number;
+  periodText: string;
+  icon: React.ReactNode;
+  iconBg: string;
+}
+
+/** Single KPI metric card — extracted to eliminate 4x copy-paste. */
+function MetricCard({ title, value, change, periodText, icon, iconBg }: MetricCardProps) {
+  const isPositive = change >= 0;
+
+  return (
+    <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-35">
+      <div className="flex justify-between w-full p-4">
+        <h3 className="text-[15px] font-medium text-text-secondary">{title}</h3>
+         <div className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
+        {icon}
+      </div>
+      </div>
+      <div className='rounded-xl w-full p-4 border-t border-t-separator shadow-md'>
+
+        <div className="text-[32px] font-bold text-text-primary leading-none mb-3 tabular-nums">
+          {value}
+        </div>
+        <div className="text-xs font-medium">
+          <span className={`inline-flex items-center gap-1 font-semibold ${isPositive ? 'text-success' : 'text-destructive'}`}>
+            {isPositive ? <TrendingUp size={12} aria-hidden="true" /> : <TrendingDown size={14} aria-hidden="true" />}
+            {isPositive ? '+' : ''}{change.toFixed(1)}%
+          </span>
+          <span className="text-text-muted ml-1.5">vs. {periodText}</span>
+        </div>
+      </div>
+     
+    </div>
+  );
+}
+
 export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) {
   const periodText = period === '7d' ? 'last 7 days' : period === '90d' ? 'last 90 days' : 'last 30 days';
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* Sales / Revenue */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 flex justify-between items-start min-h-35">
-        <div className="flex flex-col">
-          <h3 className="text-[15px] font-medium text-text-secondary mb-3">Revenue</h3>
-          <div className="text-[32px] font-bold text-text-primary leading-none mb-3">
-            {formatCurrency(metrics.totalSales.value)}
-          </div>
-          <div className="text-sm font-medium">
-            <span className={`inline-flex items-center gap-1 font-semibold ${metrics.totalSales.change >= 0 ? 'text-success' : 'text-destructive'
-              }`}>
-              {metrics.totalSales.change >= 0 ? '+' : ''}{metrics.totalSales.change.toFixed(1)}%
-            </span>
-            <span className="text-text-muted ml-1.5">vs. {periodText}</span>
-          </div>
-        </div>
-        <div className="h-12 w-12 rounded-xl bg-success/10 text-success flex items-center justify-center shrink-0">
-          <DollarSign size={24} />
-        </div>
-      </div>
-
-      {/* Orders */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 flex justify-between items-start min-h-35">
-        <div className="flex flex-col">
-          <h3 className="text-[15px] font-medium text-text-secondary mb-3">Orders</h3>
-          <div className="text-[32px] font-bold text-text-primary leading-none mb-3">
-            {metrics.totalOrders.value}
-          </div>
-          <div className="text-sm font-medium">
-            <span className={`inline-flex items-center gap-1 font-semibold ${metrics.totalOrders.change >= 0 ? 'text-success' : 'text-destructive'
-              }`}>
-              {metrics.totalOrders.change >= 0 ? '+' : ''}{metrics.totalOrders.change.toFixed(1)}%
-            </span>
-            <span className="text-text-muted ml-1.5">vs. {periodText}</span>
-          </div>
-        </div>
-        <div className="h-12 w-12 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0">
-          <ShoppingCart size={24} />
-        </div>
-      </div>
-
-      {/* Customers */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 flex justify-between items-start min-h-35">
-        <div className="flex flex-col">
-          <h3 className="text-[15px] font-medium text-text-secondary mb-3">Customers</h3>
-          <div className="text-[32px] font-bold text-text-primary leading-none mb-3">
-            {metrics.totalCustomers.value}
-          </div>
-          <div className="text-sm font-medium">
-            <span className={`inline-flex items-center gap-1 font-semibold ${metrics.totalCustomers.change >= 0 ? 'text-success' : 'text-destructive'
-              }`}>
-              {metrics.totalCustomers.change >= 0 ? '+' : ''}{metrics.totalCustomers.change.toFixed(1)}%
-            </span>
-            <span className="text-text-muted ml-1.5">vs. {periodText}</span>
-          </div>
-        </div>
-        <div className="h-12 w-12 rounded-xl bg-brand-secondary/10 text-brand-secondary flex items-center justify-center shrink-0">
-          <Users size={24} />
-        </div>
-      </div>
-
-      {/* Profit / Gross Margin */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 flex justify-between items-start min-h-35">
-        <div className="flex flex-col">
-          <h3 className="text-[15px] font-medium text-text-secondary mb-3">Gross Margin</h3>
-          <div className="text-[32px] font-bold text-text-primary leading-none mb-3">
-            {formatCurrency(metrics.grossMargin.value)}
-          </div>
-          <div className="text-sm font-medium">
-            <span className={`inline-flex items-center gap-1 font-semibold ${metrics.grossMargin.change >= 0 ? 'text-success' : 'text-destructive'
-              }`}>
-              {metrics.grossMargin.change >= 0 ? '+' : ''}{metrics.grossMargin.change.toFixed(1)}%
-            </span>
-            <span className="text-text-muted ml-1.5">vs. {periodText}</span>
-          </div>
-        </div>
-        <div className="h-12 w-12 rounded-xl bg-info/10 text-info flex items-center justify-center shrink-0">
-          <Activity size={24} />
-        </div>
-      </div>
+      <MetricCard
+        title="Revenue"
+        value={formatCurrency(metrics.totalSales.value)}
+        change={metrics.totalSales.change}
+        periodText={periodText}
+        icon={<DollarSign size={14} />}
+        iconBg="bg-success/10 text-success"
+      />
+      <MetricCard
+        title="Orders"
+        value={metrics.totalOrders.value.toLocaleString()}
+        change={metrics.totalOrders.change}
+        periodText={periodText}
+        icon={<ShoppingCart size={14} />}
+        iconBg="bg-brand-primary/10 text-brand-primary"
+      />
+      <MetricCard
+        title="Customers"
+        value={metrics.totalCustomers.value.toLocaleString()}
+        change={metrics.totalCustomers.change}
+        periodText={periodText}
+        icon={<Users size={14} />}
+        iconBg="bg-brand-secondary/10 text-brand-secondary"
+      />
+      <MetricCard
+        title="Gross Margin"
+        value={formatCurrency(metrics.grossMargin.value)}
+        change={metrics.grossMargin.change}
+        periodText={periodText}
+        icon={<Activity size={14} />}
+        iconBg="bg-info/10 text-info"
+      />
     </div>
   );
 }

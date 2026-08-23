@@ -10,6 +10,7 @@ const variantSchema = z.object({
   sku: z.string().min(1, "SKU is required"),
   name: z.string().optional(), // Variant name like 'Red / Large'
   price: z.number().min(0, "Price must be non-negative"),
+  costPrice: z.number().min(0, "Cost Price must be non-negative").optional().nullable(),
   inventory: z.record(z.number()).optional(), // store_id -> quantity
 });
 
@@ -20,6 +21,7 @@ const createProductSchema = z.object({
   variants: z.array(variantSchema).min(1, "At least one variant is required"),
   categoryId: z.string().uuid().optional().nullable(),
   vendor: z.string().optional().nullable(),
+  stockUnit: z.string().optional().nullable(),
   imageUrls: z.array(z.string()).optional(),
 });
 
@@ -33,6 +35,7 @@ export async function createProductAction(formData: FormData) {
       variants: JSON.parse(formData.get('variants') as string || '[]'),
       categoryId: formData.get('categoryId') || null,
       vendor: formData.get('vendor') || null,
+      stockUnit: formData.get('stockUnit') || 'pcs',
       imageUrls: JSON.parse(formData.get('imageUrls') as string || '[]'),
     };
   } catch (_e) {
@@ -71,6 +74,7 @@ export async function createProductAction(formData: FormData) {
       is_active: data.isActive,
       category_id: data.categoryId,
       vendor: data.vendor,
+      stock_unit: data.stockUnit,
       image_urls: data.imageUrls || []
     })
     .select('id')
@@ -86,7 +90,8 @@ export async function createProductAction(formData: FormData) {
     product_id: product.id,
     sku: v.sku,
     name: v.name || null,
-    price: v.price
+    price: v.price,
+    cost_price: v.costPrice || null
   }));
 
   const { data: variants, error: variantsError } = await supabase

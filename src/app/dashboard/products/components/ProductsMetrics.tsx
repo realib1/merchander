@@ -2,6 +2,36 @@ import { Box, DollarSign, ShoppingBag, Package } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 import type { Product, ProductVariant, OrderItem } from '@/types/product';
 
+interface MetricCardProps {
+  title: string;
+  value: string;
+  subtitle: string;
+  subtitleColor: string;
+  icon: React.ElementType;
+  iconBg: string;
+}
+
+function MetricCard({ title, value, subtitle, subtitleColor, icon: Icon, iconBg }: MetricCardProps) {
+  return (
+    <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-35">
+      <div className="flex justify-between w-full p-4">
+        <h3 className="text-[15px] font-medium text-text-secondary">{title}</h3>
+        <div className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
+          <Icon size={14} strokeWidth={2.5} />
+        </div>
+      </div>
+      <div className="rounded-xl w-full p-4 border-t border-t-separator shadow-md">
+        <div className="text-[32px] font-bold text-text-primary leading-none mb-3 tabular-nums">
+          {value}
+        </div>
+        <div className={`text-xs font-medium ${subtitleColor}`}>
+          {subtitle}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProductsMetrics({ products }: { products: Product[] }) {
   const totalProducts = products.length;
   const activeProducts = products.filter(p => p.is_active).length;
@@ -35,10 +65,11 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
   const metrics = [
     {
       title: 'Total products',
-      value: totalProducts,
+      value: totalProducts.toLocaleString(),
       icon: Package,
       subtitle: `${activeProducts} active products`,
       trend: 'neutral',
+      iconBg: 'bg-brand-primary/10 text-brand-primary'
     },
     {
       title: 'Inventory units',
@@ -46,6 +77,7 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: Box,
       subtitle: lowStockVariants > 0 ? `${lowStockVariants} products low on stock` : 'Stock levels healthy',
       trend: lowStockVariants > 0 ? 'warning' : 'neutral',
+      iconBg: 'bg-warning/10 text-warning'
     },
     {
       title: 'Catalog value',
@@ -53,6 +85,7 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: DollarSign,
       subtitle: 'Based on current stock',
       trend: 'neutral',
+      iconBg: 'bg-success/10 text-success'
     },
     {
       title: 'Units sold',
@@ -60,30 +93,26 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: ShoppingBag,
       subtitle: 'All-time completed orders',
       trend: 'neutral',
+      iconBg: 'bg-info/10 text-info'
     },
   ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {metrics.map((metric) => (
-        <div key={metric.title} className="bg-surface border border-separator rounded-xl p-5">
-          <div className="flex justify-between items-start mb-2">
-            <p className="text-[13px] font-medium text-text-secondary">{metric.title}</p>
-            <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
-              <metric.icon size={16} strokeWidth={2.5} />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-3xl font-bold text-text-primary tracking-tight mb-1">{metric.value}</h3>
-            <p className={`text-[12px] font-medium ${
-              metric.trend === 'warning' ? 'text-orange-500' :
-              metric.trend === 'positive' ? 'text-emerald-500' :
-              'text-text-secondary'
-            }`}>
-              {metric.subtitle}
-            </p>
-          </div>
-        </div>
+        <MetricCard
+          key={metric.title}
+          title={metric.title}
+          value={metric.value}
+          subtitle={metric.subtitle}
+          subtitleColor={
+            metric.trend === 'warning' ? 'text-orange-500' :
+            metric.trend === 'positive' ? 'text-emerald-500' :
+            'text-text-muted'
+          }
+          icon={metric.icon}
+          iconBg={metric.iconBg}
+        />
       ))}
     </div>
   );

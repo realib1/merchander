@@ -46,6 +46,7 @@ export default async function DashboardOverview({
 
   return (
     <div className="h-full flex flex-col space-y-10 pb-10">
+      <h1 className="sr-only">Dashboard Overview</h1>
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-semibold text-text-primary mr-2">Quick status:</span>

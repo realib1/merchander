@@ -35,7 +35,7 @@ export function CustomersHeader() {
             placeholder="Search by name, phone, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={"w-full pl-9 pr-4 py-2 bg-surface border rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-text-primary placeholder:text-text-muted"}
+            className={"w-full sm:max-w-md pl-9 pr-4 py-2 bg-surface border rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all" + " border-separator focus:border-brand-primary text-text-primary placeholder:text-text-muted"}
           />
         </div>
         

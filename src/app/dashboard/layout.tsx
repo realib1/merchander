@@ -17,10 +17,21 @@ export default async function DashboardLayout({
     redirect('/login'); 
   }
 
+  // Fetch tenant name for sidebar display
+  const { data: tenantUser } = await supabase
+    .from('tenant_users')
+    .select('tenants(name)')
+    .eq('user_id', user.id)
+    .single();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tenantData = tenantUser?.tenants as any;
+  const businessName = tenantData?.name || 'My Business';
+
   return (
     <MobileNavProvider>
       <div className="flex h-screen bg-background text-text-primary overflow-hidden pb-12">
-        <Sidebar userEmail={user.email || ''} />
+        <Sidebar userEmail={user.email || ''} businessName={businessName} />
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 bg-background relative z-10 transition-all overflow-hidden">

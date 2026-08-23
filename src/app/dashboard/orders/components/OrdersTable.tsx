@@ -170,7 +170,7 @@ export function OrdersTable({
 
   return (
     <>
-      <div className="flex-1 flex flex-col bg-surface border border-separator rounded-2xl overflow-hidden min-h-[500px]">
+      <div className="flex-1 flex flex-col bg-surface border border-separator rounded-2xl overflow-hidden min-h-125">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-surface-elevated border-b border-separator text-text-secondary text-xs uppercase tracking-wider">

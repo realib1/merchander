@@ -27,6 +27,10 @@ export type ProductVariant = {
 export async function getProducts(query?: string) {
   const supabase = await createClient();
 
+  // Dual-layer security: explicit auth check + RLS
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
   let queryBuilder = supabase
     .from('products')
     .select(`
@@ -50,9 +54,9 @@ export async function getProducts(query?: string) {
 }
 
 /**
- * Create a new product with its variants.
- * Requires tenant_id to be passed in, or handled by a trigger/RLS default.
- * Assuming the client provides the tenant_id for now until we set up default DB logic.
+ * @deprecated Use `createProductAction` from `@/app/actions/create-product` instead.
+ * This function trusts client-supplied tenantId which is an IDOR vulnerability.
+ * Kept temporarily for backward compatibility — will be removed.
  */
 export async function createProduct(
   tenantId: string,
@@ -208,6 +212,10 @@ export async function setInventory(
   quantity: number
 ) {
   const supabase = await createClient();
+
+  // Dual-layer security: explicit auth check + RLS
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
 
   const { data, error } = await supabase
     .from('inventory_levels')

@@ -1,12 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Package, Tag, Archive, Star, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Package, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { ProductsHeader } from './components/ProductsHeader';
 import { ProductsActionMenu } from './components/ProductsActionMenu';
 import { ProductsMetrics } from './components/ProductsMetrics';
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatCurrency } from '@/utils/format';
-import type { Product, ProductVariant, OrderItem } from '@/types/product';
+import { calculateTotalStock, calculateTotalUnitsSold, getVariantPriceRange } from '@/utils/product';
+import type { Product } from '@/types/product';
 
 export const metadata = {
   title: 'Catalog | Merchander',
@@ -30,7 +32,7 @@ export default async function CatalogPage({
 
   let queryBuilder = supabase
     .from('products')
-    .select('*, variants:product_variants(*, inventory:inventory_levels(quantity), order_items(quantity, order:orders(status)))')
+    .select('*, category:product_categories(id, name), variants:product_variants(*, inventory:inventory_levels(quantity), order_items(quantity, order:orders(status)))')
     .order('created_at', { ascending: false });
 
   if (query) {
@@ -51,204 +53,211 @@ export default async function CatalogPage({
       <ProductsMetrics products={products as Product[]} />
       <ProductsHeader />
 
-      <div className="bg-surface border border-separator rounded-xl overflow-hidden min-h-[500px] flex flex-col">
+      <div className="bg-surface border border-separator rounded-xl overflow-hidden min-h-125 flex flex-col">
         {view === 'grid' ? (
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-1 content-start">
-            {(products as Product[])?.map((product) => {
-              const totalStock = product.variants?.reduce((acc: number, v: ProductVariant) => {
-                const inv = v.inventory?.reduce((iAcc: number, i: { quantity: number }) => iAcc + (i.quantity || 0), 0) || 0;
-                return acc + inv;
-              }, 0) ?? 0;
+          <ProductGridView products={products as Product[]} />
+        ) : (
+          <ProductTableView products={products as Product[]} />
+        )}
+      </div>
+    </div>
+  );
+}
 
-              const prices = product.variants?.map((v: ProductVariant) => v.price) || [0];
-              const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+/** Grid card layout for products */
+function ProductGridView({ products }: { products: Product[] }) {
+  return (
+    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-1 content-start">
+      {products?.map((product) => {
+        const totalStock = calculateTotalStock(product.variants ?? undefined);
+        const { min: minPrice, hasRange } = getVariantPriceRange(product.variants ?? undefined);
+
+        return (
+          <div key={product.id} className="group flex flex-col bg-surface border border-separator rounded-xl overflow-hidden hover:border-brand-primary/50 transition-colors shadow-sm hover:shadow-md relative">
+            <div className="aspect-square bg-brand-primary/5 border-b border-separator/30 flex items-center justify-center relative overflow-hidden">
+              {product.image_urls && product.image_urls.length > 0 ? (
+                <Image src={product.image_urls[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw" />
+              ) : (
+                <div className="w-20 h-20 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-3xl">
+                  {product.name ? product.name.substring(0, 2).toUpperCase() : 'UN'}
+                </div>
+              )}
+              <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-20">
+                <div className="bg-surface/80 rounded-lg p-0.5 backdrop-blur-sm shadow-sm border border-separator/50 relative">
+                  <ProductsActionMenu productId={product.id} />
+                </div>
+                {product.is_active ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-surface/90 backdrop-blur-sm text-emerald-600 shadow-sm border border-emerald-500/20 relative">Active</span>
+                ) : (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-surface/90 backdrop-blur-sm text-orange-600 shadow-sm border border-orange-500/20 relative">Archived</span>
+                )}
+              </div>
+            </div>
+            <div className="p-4 flex flex-col flex-1">
+              <Link href={`/dashboard/products/${product.id}`} className="font-semibold text-text-primary text-[14px] line-clamp-1 group-hover:text-brand-primary transition-colors before:absolute before:inset-0 before:z-10 focus:outline-none focus:underline">
+                {product.name}
+              </Link>
+              <p className="text-[12px] text-text-muted mt-0.5 relative z-10 pointer-events-none">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
               
-              const totalUnitsSold = product.variants?.reduce((acc: number, v: ProductVariant) => {
-                const sold = v.order_items?.reduce((sAcc: number, item: OrderItem) => {
-                  const status = item.order?.status || item.orders?.status;
-                  if (status !== 'draft' && status !== 'cancelled') {
-                    return sAcc + (item.quantity || 0);
-                  }
-                  return sAcc;
-                }, 0) || 0;
-                return acc + sold;
-              }, 0) ?? 0;
+              <div className="mt-3 flex items-center justify-between relative z-10 pointer-events-none">
+                <span className="font-bold text-text-primary text-sm tabular-nums">
+                  {hasRange ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
+                </span>
+                <StockBadge totalStock={totalStock} stockUnit={product.stock_unit} />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      
+      {(!products || products.length === 0) && (
+        <div className="col-span-full p-12 text-center text-text-secondary">
+          <Package size={48} className="mx-auto mb-4 text-text-muted" />
+          <p className="font-medium text-text-primary">No products found</p>
+          <p className="text-sm mt-1">Try adjusting your search or filters, or create your first product.</p>
+          <Link href="/dashboard/products/new" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-600 transition-colors">
+            Add Product
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Semantic table layout for products — uses proper <table> elements for accessibility */
+function ProductTableView({ products }: { products: Product[] }) {
+  return (
+    <div className="overflow-x-auto flex-1 flex flex-col">
+      <div className="min-w-250 flex flex-col flex-1">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="font-medium text-text-muted text-[13px] border-b border-separator bg-surface-elevated/20">
+              <th className="px-4 py-3 w-12 text-center font-medium">
+                <input type="checkbox" aria-label="Select all products" className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
+              </th>
+              <th className="px-4 py-3 font-medium">Product</th>
+              <th className="px-4 py-3 font-medium">Category</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Inventory</th>
+              <th className="px-4 py-3 font-medium">Price</th>
+              <th className="px-4 py-3 font-medium">Units sold</th>
+              <th className="px-4 py-3 w-12"><span className="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-separator">
+            {products?.map((product) => {
+              const totalStock = calculateTotalStock(product.variants ?? undefined);
+              const { min: minPrice, hasRange } = getVariantPriceRange(product.variants ?? undefined);
+              const totalUnitsSold = calculateTotalUnitsSold(product.variants ?? undefined);
 
               return (
-                <Link href={`/dashboard/products/${product.id}`} key={product.id} className="group flex flex-col bg-surface border border-separator rounded-xl overflow-hidden hover:border-brand-primary/50 transition-colors shadow-sm hover:shadow-md cursor-pointer">
-                  <div className="aspect-square bg-brand-primary/5 border-b border-separator/30 flex items-center justify-center p-4 relative">
-                    <div className="w-20 h-20 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-3xl">
-                      {product.name ? product.name.substring(0, 2).toUpperCase() : 'UN'}
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      {product.is_active ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-600">Active</span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-500/10 text-orange-600">Archived</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-semibold text-text-primary text-[14px] line-clamp-1 group-hover:text-brand-primary transition-colors">{product.name}</h3>
-                    <p className="text-[12px] text-text-muted mt-0.5">SKU-{product.id.substring(0, 6).toUpperCase()}</p>
-                    
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="font-bold text-text-primary text-sm">
-                        {prices.length > 1 && new Set(prices).size > 1 ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
-                      </span>
-                      {totalStock === 0 ? (
-                        <span className="text-red-500 font-medium bg-red-500/10 px-2 py-0.5 rounded text-xs">Out of stock</span>
-                      ) : totalStock < 10 ? (
-                        <span className="text-orange-500 font-medium bg-orange-500/10 px-2 py-0.5 rounded text-xs">{totalStock} left</span>
-                      ) : (
-                        <span className="text-text-secondary text-xs">{totalStock} in stock</span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-            
-            {(!products || products.length === 0) && (
-              <div className="col-span-full p-12 text-center text-text-secondary">
-                <Package size={48} className="mx-auto mb-4 text-text-muted" />
-                <p className="font-medium text-text-primary">No products found</p>
-                <p className="text-sm mt-1">Try adjusting your search or filters.</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="overflow-x-auto flex-1 flex flex-col">
-            <div className="min-w-250 flex flex-col flex-1">
-              {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 px-4 py-3 font-medium text-text-muted text-[13px] border-b border-separator bg-surface-elevated/20">
-              <div className="col-span-1 flex items-center justify-center">
-                <input type="checkbox" aria-label="Select all products" className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
-              </div>
-              <div className="col-span-4">Product</div>
-              <div className="col-span-2">Category</div>
-              <div className="col-span-1">Status</div>
-              <div className="col-span-1">Inventory</div>
-              <div className="col-span-1">Price</div>
-              <div className="col-span-1">Units sold</div>
-              <div className="col-span-1 text-right"></div>
-            </div>
-
-            <div className="flex-1 divide-y divide-gray-50">
-              {(products as Product[])?.map((product) => {
-                const totalStock = product.variants?.reduce((acc: number, v: ProductVariant) => {
-                  const inv = v.inventory?.reduce((iAcc: number, i: { quantity: number }) => iAcc + (i.quantity || 0), 0) || 0;
-                  return acc + inv;
-                }, 0) ?? 0;
-
-                const prices = product.variants?.map((v: ProductVariant) => v.price) || [0];
-                const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-                
-                const totalUnitsSold = product.variants?.reduce((acc: number, v: ProductVariant) => {
-                  const sold = v.order_items?.reduce((sAcc: number, item: OrderItem) => {
-                    const status = item.order?.status || item.orders?.status;
-                    if (status !== 'draft' && status !== 'cancelled') {
-                      return sAcc + (item.quantity || 0);
-                    }
-                    return sAcc;
-                  }, 0) || 0;
-                  return acc + sold;
-                }, 0) ?? 0;
-
-                return (
-                  <div key={product.id} className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-surface-elevated/30 transition-colors group">
-                    <div className="col-span-1 flex items-center justify-center">
-                      <input type="checkbox" aria-label={`Select ${product.name}`} className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
-                    </div>
-                    <div className="col-span-4 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-sm shrink-0">
-                        {product.name ? product.name.substring(0, 2).toUpperCase() : 'UN'}
+                <tr key={product.id} className="hover:bg-surface-elevated/30 transition-colors group">
+                  <td className="px-4 py-3 text-center">
+                    <input type="checkbox" aria-label={`Select ${product.name}`} className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden relative">
+                        {product.image_urls && product.image_urls.length > 0 ? (
+                          <Image src={product.image_urls[0]} alt={product.name} fill className="object-cover" sizes="40px" />
+                        ) : (
+                          product.name ? product.name.substring(0, 2).toUpperCase() : 'UN'
+                        )}
                       </div>
                       <div className="min-w-0">
                         <div className="text-[13px] font-semibold text-text-primary truncate">{product.name}</div>
                         <div className="text-[12px] text-text-muted truncate">SKU-{product.id.substring(0, 6).toUpperCase()}</div>
                       </div>
                     </div>
+                  </td>
 
-                    <div className="col-span-2 text-[13px] text-text-secondary truncate">
-                      Uncategorized
-                    </div>
+                  <td className="px-4 py-3 text-[13px] text-text-secondary truncate">
+                    {product.category?.name || 'Uncategorized'}
+                  </td>
 
-                    <div className="col-span-1">
-                      {product.is_active ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-600">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-orange-500/10 text-orange-600">
-                          Archived
-                        </span>
-                      )}
-                    </div>
+                  <td className="px-4 py-3">
+                    {product.is_active ? (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-600">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-orange-500/10 text-orange-600">
+                        Archived
+                      </span>
+                    )}
+                  </td>
 
-                    <div className="col-span-1 text-[13px]">
-                      {totalStock === 0 ? (
-                        <span className="text-red-500 font-medium bg-red-500/10 px-2 py-0.5 rounded text-xs">Out of stock</span>
-                      ) : totalStock < 10 ? (
-                        <span className="text-orange-500 font-medium bg-orange-500/10 px-2 py-0.5 rounded text-xs">{totalStock} low stock</span>
-                      ) : (
-                        <span className="text-text-primary font-medium">{totalStock} in stock</span>
-                      )}
-                    </div>
+                  <td className="px-4 py-3 text-[13px]">
+                    <StockBadge totalStock={totalStock} stockUnit={product.stock_unit} />
+                  </td>
 
-                    <div className="col-span-1 text-[13px] font-medium text-text-primary">
-                      {prices.length > 1 && new Set(prices).size > 1 ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
-                    </div>
+                  <td className="px-4 py-3 text-[13px] font-medium text-text-primary tabular-nums">
+                    {hasRange ? `From ${formatCurrency(minPrice)}` : formatCurrency(minPrice)}
+                  </td>
 
-                    <div className="col-span-1 text-[13px] text-text-secondary">
-                      {totalUnitsSold.toLocaleString()}
-                    </div>
+                  <td className="px-4 py-3 text-[13px] text-text-secondary tabular-nums">
+                    {totalUnitsSold.toLocaleString()}
+                  </td>
 
-                    <div className="col-span-1 flex justify-end relative z-10">
-                      <ProductsActionMenu productId={product.id} />
-                    </div>
-                  </div>
-                );
-              })}
+                  <td className="px-4 py-3 text-right relative z-10">
+                    <ProductsActionMenu productId={product.id} />
+                  </td>
+                </tr>
+              );
+            })}
 
-              {(!products || products.length === 0) && (
-                <div className="p-12 text-center text-text-secondary">
+            {(!products || products.length === 0) && (
+              <tr>
+                <td colSpan={8} className="p-12 text-center text-text-secondary">
                   <Package size={48} className="mx-auto mb-4 text-text-muted" />
                   <p className="font-medium text-text-primary">No products found</p>
                   <p className="text-sm mt-1">Get started by creating your first product.</p>
-                </div>
-              )}
+                  <Link href="/dashboard/products/new" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-600 transition-colors">
+                    Add Product
+                  </Link>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        
+        {/* Pagination Footer */}
+        {products && products.length > 0 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-[13px] text-text-secondary mt-auto">
+            <div className="flex items-center gap-2">
+              <span>Showing</span>
+              <span className="font-medium text-text-primary tabular-nums">{products.length}</span>
+              <span>products</span>
             </div>
             
-            {/* Pagination Footer */}
-            {products && products.length > 0 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-separator bg-surface-elevated/20 text-[13px] text-text-secondary mt-auto">
-                <div className="flex items-center gap-2">
-                  <span>Rows per page</span>
-                  <button className="flex items-center gap-1.5 px-2 py-1 rounded bg-surface border border-separator text-text-primary hover:bg-surface-elevated transition-colors">
-                    10 <ChevronDown size={14} className="text-text-muted" />
-                  </button>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <span>1 - {products.length} of {products.length}</span>
-                  <div className="flex items-center gap-1">
-                    <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled>
-                      <ChevronLeft size={16} />
-                    </button>
-                    <button className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator text-text-primary">1</button>
-                    <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-separator transition-all">
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
+            <div className="flex items-center gap-4">
+              <span className="tabular-nums">Page 1 of 1</span>
+              <div className="flex items-center gap-1">
+                <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Previous page">
+                  <ChevronLeft size={16} />
+                </button>
+                <span className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator text-text-primary tabular-nums" aria-current="page">1</span>
+                <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-separator transition-all" disabled aria-label="Next page">
+                  <ChevronRight size={16} />
+                </button>
               </div>
-            )}
-
+            </div>
           </div>
-        </div>
         )}
+
       </div>
     </div>
   );
+}
+
+/** Reusable stock status badge */
+function StockBadge({ totalStock, stockUnit }: { totalStock: number; stockUnit?: string | null }) {
+  const unit = stockUnit || 'pcs';
+  if (totalStock === 0) {
+    return <span className="text-red-500 font-medium bg-red-500/10 px-2 py-0.5 rounded text-xs whitespace-nowrap">Out of stock</span>;
+  }
+  if (totalStock < 10) {
+    return <span className="text-orange-500 font-medium bg-orange-500/10 px-2 py-0.5 rounded text-xs whitespace-nowrap">{totalStock} {unit} low</span>;
+  }
+  return <span className="text-text-primary font-medium whitespace-nowrap text-xs">{totalStock} {unit} in stock</span>;
 }

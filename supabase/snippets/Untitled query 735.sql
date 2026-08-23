@@ -1,1 +1,1 @@
-select * from stores;
+select * from products;

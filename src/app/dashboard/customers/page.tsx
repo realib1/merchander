@@ -21,11 +21,27 @@ export default async function CustomersPage({
   const customers = await getCustomers(query);
 
   const totalCustomers = customers.length;
+  
+  // Calculate periods
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+  const currentNewCustomers = customers.filter(c => new Date(c.created_at) >= thirtyDaysAgo).length;
+  const previousNewCustomers = customers.filter(c => new Date(c.created_at) >= sixtyDaysAgo && new Date(c.created_at) < thirtyDaysAgo).length;
+  const customersChange = previousNewCustomers === 0 ? 100 : ((currentNewCustomers - previousNewCustomers) / previousNewCustomers) * 100;
+  
   const ninetyDaysAgo = new Date();
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
   
   const activeCustomers = customers.filter(c => c.lastOrderDate && new Date(c.lastOrderDate) >= ninetyDaysAgo).length;
   const totalOrders = customers.reduce((sum, c) => sum + (c.totalOrders || 0), 0);
+  
+  const currentOrders = customers.reduce((sum, c) => sum + (c.currentOrders || 0), 0);
+  const previousOrders = customers.reduce((sum, c) => sum + (c.previousOrders || 0), 0);
+  const ordersChange = previousOrders === 0 ? 100 : ((currentOrders - previousOrders) / previousOrders) * 100;
+
   const totalRevenue = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
 
   return (
@@ -33,8 +49,10 @@ export default async function CustomersPage({
       <CustomersHeader />
       <CustomersTopMetrics 
         totalCustomers={totalCustomers}
+        customersChange={customersChange}
         activeCustomers={activeCustomers}
         totalOrders={totalOrders}
+        ordersChange={ordersChange}
         totalRevenue={totalRevenue}
       />
 

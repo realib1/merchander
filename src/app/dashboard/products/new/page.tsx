@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { ProductForm } from './components/ProductForm';
+import { ProductForm } from '../components/ProductForm';
 
 export const metadata = {
   title: 'Add Product | Merchander',

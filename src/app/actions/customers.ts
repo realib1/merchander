@@ -13,10 +13,16 @@ export interface CustomerStats {
   totalSpent: number;
   aov: number;
   lastOrderDate: string | null;
+  currentOrders: number;
+  previousOrders: number;
 }
 
 export async function getCustomers(query?: string): Promise<CustomerStats[]> {
   const supabase = await createClient();
+
+  // Dual-layer security: explicit auth check + RLS
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
 
   let queryBuilder = supabase
     .from('customers')
@@ -34,11 +40,16 @@ export async function getCustomers(query?: string): Promise<CustomerStats[]> {
     throw new Error('Failed to fetch customers');
   }
 
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
   // Calculate stats
   return (data || []).map(customer => {
     const orders = Array.isArray(customer.orders) ? customer.orders : [];
     
-    // For stats, we consider orders that are not draft or cancelled
     // For stats, we consider orders that are not draft or cancelled
     const validOrders = orders.filter((o: { status: string }) => o.status !== 'cancelled' && o.status !== 'draft');
     
@@ -49,6 +60,9 @@ export async function getCustomers(query?: string): Promise<CustomerStats[]> {
     const aov = validOrders.length > 0 ? totalSpent / validOrders.length : 0;
     const lastOrderDate = validOrders.length > 0 ? validOrders[0].created_at : null;
     
+    const currentOrders = validOrders.filter((o: { created_at: string }) => new Date(o.created_at) >= thirtyDaysAgo).length;
+    const previousOrders = validOrders.filter((o: { created_at: string }) => new Date(o.created_at) >= sixtyDaysAgo && new Date(o.created_at) < thirtyDaysAgo).length;
+
     return {
       id: customer.id,
       name: customer.name,
@@ -58,7 +72,9 @@ export async function getCustomers(query?: string): Promise<CustomerStats[]> {
       totalOrders: validOrders.length,
       totalSpent,
       aov,
-      lastOrderDate
+      lastOrderDate,
+      currentOrders,
+      previousOrders
     };
   });
 }

@@ -21,10 +21,20 @@ export interface ProductVariant {
   order_items?: OrderItem[] | null;
 }
 
+export interface ProductCategory {
+  id: string;
+  name: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   description?: string | null;
   is_active: boolean;
+  category_id?: string | null;
+  category?: ProductCategory | null;
+  vendor?: string | null;
+  image_urls?: string[] | null;
+  stock_unit?: string | null;
   variants?: ProductVariant[] | null;
 }

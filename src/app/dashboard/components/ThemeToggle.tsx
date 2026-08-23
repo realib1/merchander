@@ -15,13 +15,13 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div className="w-[34px] h-[34px]" />; // Placeholder to match button size
+    return <div className="w-8 h-8" />; // Placeholder to match button size
   }
 
   return (
     <button
       onClick={toggleTheme}
-      className="relative p-2 text-text-secondary hover:bg-surface-elevated hover:text-text-primary rounded-full transition-colors flex items-center justify-center"
+      className="relative w-8 h-8 rounded-full bg-surface-elevated border border-separator flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-brand-primary/50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
       aria-label="Toggle theme"
     >
       {resolvedTheme === 'dark' ? (

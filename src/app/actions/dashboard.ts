@@ -44,6 +44,11 @@ export interface DashboardMetrics {
 
 export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'): Promise<DashboardMetrics> {
   const supabase = await createClient();
+
+  // Dual-layer security: explicit auth check + RLS
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
   const now = new Date();
   
   let days = 30;
@@ -99,20 +104,57 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   const previousMargin = previousSales - previousCost;
   const marginChange = previousMargin === 0 ? 100 : ((currentMargin - previousMargin) / previousMargin) * 100;
 
-  // 2. Customers
-  const { count: currentCustomers } = await supabase
-    .from('customers')
-    .select('*', { count: 'exact', head: true })
-    .gte('created_at', currentPeriodStart);
+  // 2–5. Run independent queries in parallel for performance
+  const [
+    { count: currentCustomers },
+    { count: totalCustomers },
+    { data: topProductsData },
+    { data: shipmentsData },
+    { data: lowStockData },
+    { data: suppliersBal }
+  ] = await Promise.all([
+    // 2a. New customers in current period
+    supabase
+      .from('customers')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', currentPeriodStart),
+    // 2b. Total customers
+    supabase
+      .from('customers')
+      .select('*', { count: 'exact', head: true }),
+    // 4. Top Products (ordered by newest — TODO: order by sales volume when available)
+    supabase
+      .from('products')
+      .select('id, name, base_price, image_url')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(4),
+    // 5A. Incoming Shipments
+    supabase
+      .from('shipments')
+      .select('id, tracking_number, eta, suppliers(name, country), shipment_items(quantity)')
+      .eq('status', 'in_transit')
+      .order('eta', { ascending: true })
+      .limit(3),
+    // 5B. Low Stock Alerts
+    supabase
+      .from('inventory_levels')
+      .select('quantity, product_variants(id, sku, name, products(name))')
+      .lt('quantity', 10)
+      .limit(3),
+    // 5C. Supplier Balances
+    supabase
+      .from('suppliers')
+      .select('id, name, outstanding_balance')
+      .gt('outstanding_balance', 0)
+      .limit(3),
+  ]);
 
-  const { count: totalCustomers } = await supabase
-    .from('customers')
-    .select('*', { count: 'exact', head: true });
-    
+  // Process customer stats
   const totalCust = totalCustomers || 0;
   const customerChange = totalCust === 0 ? 0 : ((currentCustomers || 0) / totalCust) * 100;
 
-  // 3. Sales Chart
+  // 3. Sales Chart (computed from already-fetched orders, no extra query needed)
   const salesChartMap = new Map<string, number>();
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -128,22 +170,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   const salesChart = Array.from(salesChartMap.entries()).map(([date, sales]) => ({ date, sales }));
 
-  // 4. Top Products
-  const { data: topProductsData } = await supabase
-    .from('products')
-    .select('id, name, base_price, image_url')
-    .limit(4);
-
-  // 5. Procurements & Intelligence (New wiring)
-  
-  // A. Incoming Shipments
-  const { data: shipmentsData } = await supabase
-    .from('shipments')
-    .select('id, tracking_number, eta, suppliers(name, country), shipment_items(quantity)')
-    .eq('status', 'in_transit')
-    .order('eta', { ascending: true })
-    .limit(3);
-
+  // Process shipments data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const shipmentsList = (shipmentsData || []).map((s: any) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,13 +189,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   const nextShipment = shipmentsList.length > 0 ? shipmentsList[0] : null;
 
-  // B. Low Stock Alerts
-  const { data: lowStockData } = await supabase
-    .from('inventory_levels')
-    .select('quantity, product_variants(id, sku, name, products(name))')
-    .lt('quantity', 10)
-    .limit(3);
-
+  // Process low stock data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lowStockList = (lowStockData || []).map((ls: any) => {
     const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
@@ -182,13 +203,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     };
   });
 
-  // C. Supplier Balances
-  const { data: suppliersBal } = await supabase
-    .from('suppliers')
-    .select('id, name, outstanding_balance')
-    .gt('outstanding_balance', 0)
-    .limit(3);
-
+  // Process supplier balances
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supplierBalancesList = (suppliersBal || []).map((s: any) => ({
     id: s.id,

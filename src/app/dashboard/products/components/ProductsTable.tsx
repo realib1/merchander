@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { MoreHorizontal, Edit, PackageSearch, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 
@@ -16,6 +18,7 @@ interface VariantWithInventory {
 }
 
 export function CatalogTable({ initialProducts }: { initialProducts: Product[] }) {
+  const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -163,10 +166,13 @@ export function CatalogTable({ initialProducts }: { initialProducts: Product[] }
                             className="absolute right-6 top-12 w-40 bg-surface border border-separator rounded-xl shadow-lg z-10 overflow-hidden text-left"
                           >
                             <div className="p-1">
-                              <button onClick={() => { toast.info('Edit product coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
+                              <Link
+                                href={`/dashboard/products/${product.id}/edit`}
+                                className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                              >
                                 <Edit size={14} />
                                 Edit
-                              </button>
+                              </Link>
                               <button onClick={() => { toast.info('Manage inventory coming soon!'); setActiveMenuId(null); }} className="w-full px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors">
                                 <PackageSearch size={14} />
                                 Inventory
