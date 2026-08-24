@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { bulkDeleteCustomers } from '@/app/actions/customers';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export function CustomersTable({ 
   initialCustomers,

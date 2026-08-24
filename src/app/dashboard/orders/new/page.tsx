@@ -78,8 +78,8 @@ export default async function NewOrderPage() {
   const customersData =
     rawCustomersData?.map((c) => {
       let address = '';
-      // Use any as a workaround for complex Supabase nested types
-      const orders = c.orders as any[];
+      // Use unknown as a workaround for complex Supabase nested types
+      const orders = c.orders as unknown as { delivery_address: string; created_at: string }[];
       if (orders && Array.isArray(orders)) {
         const sortedOrders = [...orders].sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()

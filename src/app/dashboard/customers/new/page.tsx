@@ -57,7 +57,7 @@ export default function NewCustomerPage() {
             placeholder="e.g. Kwame Mensah"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary  transition-colors"
           />
         </div>
 
@@ -72,7 +72,7 @@ export default function NewCustomerPage() {
             placeholder="e.g. 0241234567"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary  transition-colors"
           />
         </div>
 
@@ -86,7 +86,7 @@ export default function NewCustomerPage() {
             placeholder="e.g. kwame@example.com"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary  transition-colors"
           />
         </div>
 

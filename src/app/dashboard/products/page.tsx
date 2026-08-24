@@ -98,6 +98,7 @@ function ProductGridView({
   currentPage: number;
   totalPages: number;
   totalCount: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchParams: any;
 }) {
   const createPageUrl = (pageNumber: number) => {

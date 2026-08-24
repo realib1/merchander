@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { extractMomoReference } from '@/utils/momo';
-import { decrementInventory } from './inventory-actions';
+// removed unused decrementInventory
 
 export type OrderStatus = 'draft' | 'pending_payment' | 'paid' | 'dispatched' | 'delivered' | 'cancelled';
 
@@ -153,5 +153,5 @@ export async function getKanbanOrders(status: OrderStatus, offset: number, limit
     throw new Error('Failed to fetch more orders');
   }
 
-  return data as any[]; // Map to expected Order format on client
+  return data as unknown[]; // Map to expected Order format on client
 }

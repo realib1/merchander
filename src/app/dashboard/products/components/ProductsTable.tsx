@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Package, Trash2, Archive, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -50,7 +50,7 @@ export function ProductsTable({
   const [products, setProducts] = useState(initialProducts);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isUpdating, setIsUpdating] = useState(false);
-  const router = useRouter();
+  // removed useRouter
   const pathname = usePathname();
   const searchParams = useSearchParams();
 

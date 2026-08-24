@@ -47,7 +47,9 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
         setOrders((prev) => {
           const newOrders = [...prev];
           for (const order of moreOrders) {
-            if (!newOrders.find(o => o.id === order.id)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (!newOrders.find((o) => o.id === (order as any).id)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               newOrders.push(order as any);
             }
           }
@@ -155,7 +157,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                       onDragStart={(e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
                         e.dataTransfer.setData('orderId', order.id);
                       }}
-                      className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab active:cursor-grabbing"
+                      className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab"
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-xs font-mono text-muted">#{order.id.substring(0, 6).toUpperCase()}</span>
@@ -223,9 +225,9 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                     No orders in this state
                   </div>
                 )}
-                
+
                 {colOrders.length > 0 && colOrders.length % 10 === 0 && (
-                  <button 
+                  <button
                     onClick={() => handleLoadMore(col.id as OrderStatus, colOrders.length)}
                     disabled={isUpdating}
                     className="w-full py-2 mt-2 text-xs font-medium border border-separator rounded-xl text-muted hover:text-foreground hover:bg-surface transition-colors"
@@ -281,7 +283,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                     value={smsText}
                     onChange={(e) => setSmsText(e.target.value)}
                     placeholder="e.g. Payment received for GHS 450.00 from Kwame Mensah. Ref: 18273918239"
-                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3  focus:border-brand-primary focus:ring-brand-primary placeholder:text-muted resize-none"
+                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 focus:ring-brand-primary placeholder:text-muted resize-none"
                     required
                   />
                   <p className="text-xs text-muted mt-2">

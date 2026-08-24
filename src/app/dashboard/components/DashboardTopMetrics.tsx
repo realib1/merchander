@@ -1,5 +1,5 @@
 import { formatCurrency } from '@/utils/format';
-import { Users, ShoppingCart, DollarSign, Activity, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, DollarSign, ShoppingCart, Activity } from 'lucide-react';
 
 export interface DashboardMetricsProps {
   metrics: {

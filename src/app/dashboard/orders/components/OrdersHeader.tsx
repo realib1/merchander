@@ -81,11 +81,10 @@ export function OrdersHeader() {
                     <button
                       key={tab.id}
                       onClick={() => setStatus(tab.id)}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${
-                        currentStatus === tab.id
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${currentStatus === tab.id
                           ? 'bg-brand-primary/10 text-brand-primary font-semibold'
                           : ' hover:bg-surface-elevated hover:text-brand-primary'
-                      }`}
+                        }`}
                     >
                       {tab.label}
                       {currentStatus === tab.id && <Check size={16} />}
@@ -104,11 +103,10 @@ export function OrdersHeader() {
           <button
             key={tab.id}
             onClick={() => setStatus(tab.id)}
-            className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${
-              currentStatus === tab.id
+            className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${currentStatus === tab.id
                 ? 'border-brand-primary text-brand-primary'
                 : 'border-transparent  hover:text-brand-primary'
-            }`}
+              }`}
           >
             {tab.label}
           </button>
@@ -125,7 +123,7 @@ export function OrdersHeader() {
             placeholder="Search order, customer or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary  placeholder:text-muted transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary   placeholder:text-muted transition-all"
           />
         </div>
 

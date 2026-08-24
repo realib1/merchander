@@ -37,7 +37,7 @@ export function CustomersHeader() {
             onChange={(e) => setSearch(e.target.value)}
             className={
               'w-full sm:max-w-md pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all' +
-              ' border-separator focus:border-brand-primary  placeholder:text-muted'
+              ' border-separator   placeholder:text-muted'
             }
           />
         </div>

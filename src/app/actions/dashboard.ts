@@ -77,6 +77,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     current_cost, previous_cost,
     current_customers, total_customers,
     sales_chart, top_products
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = metricsData as any;
 
   const salesChange = previous_sales === 0 ? 100 : ((current_sales - previous_sales) / previous_sales) * 100;
@@ -142,7 +143,8 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   
   const lowStockList = await Promise.all(
-    (lowStockData || []).map(async (ls: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (lowStockData as any[] || []).map(async (ls) => {
       const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
       const prod = variant?.products
         ? Array.isArray(variant.products)

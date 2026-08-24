@@ -53,7 +53,7 @@ export function CategoriesToolbar({ statuses, onAddCategory }: CategoriesToolbar
             placeholder="Search categories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm  placeholder-muted focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm  placeholder-muted focus:outline-none focus:ring-1 focus:ring-brand-primary  transition-all shadow-sm"
           />
         </div>
 
@@ -62,7 +62,7 @@ export function CategoriesToolbar({ statuses, onAddCategory }: CategoriesToolbar
             <select
               value={currentStatus}
               onChange={(e) => updateParam('status', e.target.value.toLowerCase())}
-              className="w-full sm:w-auto appearance-none bg-surface border border-separator rounded-lg pl-4 pr-10 py-2 text-sm  focus:outline-none focus:border-brand-primary shadow-sm"
+              className="w-full sm:w-auto appearance-none bg-surface border border-separator rounded-lg pl-4 pr-10 py-2 text-sm  focus:outline-none  shadow-sm"
             >
               {statuses.map((s) => (
                 <option key={s} value={s.toLowerCase()}>

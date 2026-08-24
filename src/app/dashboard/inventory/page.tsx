@@ -24,6 +24,7 @@ export default async function InventoryPage({
     getInventoryMetrics()
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows: InventoryRowData[] = (data || []).map((row: any) => ({
     variantId: row.variant_id,
     sku: row.sku,

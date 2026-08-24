@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, UserCheck, ShoppingBag, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, UserCheck, ShoppingBag, DollarSign } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 
 interface CustomersTopMetricsProps {
