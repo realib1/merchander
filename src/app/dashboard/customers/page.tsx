@@ -20,9 +20,11 @@ export default async function CustomersPage({
   
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const pageSize = 10;
+  const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'created_at';
+  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'desc';
 
   const [{ data: customers, count }, metrics] = await Promise.all([
-    getCustomers(query, page, pageSize),
+    getCustomers(query, page, pageSize, sortBy, sortOrder),
     getCustomerPageMetrics()
   ]);
 

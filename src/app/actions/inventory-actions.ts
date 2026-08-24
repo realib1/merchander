@@ -85,7 +85,9 @@ export async function getInventory(
   categoryFilter: string = 'All categories',
   statusFilter: string = 'All statuses',
   page: number = 1,
-  pageSize: number = 15
+  pageSize: number = 15,
+  sortBy: string = 'product_name',
+  sortOrder: 'asc' | 'desc' = 'asc'
 ) {
   const supabase = await createClient();
   const {
@@ -96,7 +98,7 @@ export async function getInventory(
   let queryBuilder = supabase
     .from('inventory_view')
     .select('*', { count: 'exact' })
-    .order('product_name', { ascending: true });
+    .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (query) {
     queryBuilder = queryBuilder.or(`product_name.ilike.%${query}%,variant_name.ilike.%${query}%,sku.ilike.%${query}%`);

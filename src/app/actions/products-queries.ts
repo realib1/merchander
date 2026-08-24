@@ -22,7 +22,14 @@ export type ProductVariant = {
  * Fetch all products for the current tenant.
  * RLS ensures we only get our own products.
  */
-export async function getProducts(query?: string, page: number = 1, pageSize: number = 10) {
+export async function getProducts(
+  query?: string,
+  page: number = 1,
+  pageSize: number = 10,
+  sortBy: string = 'created_at',
+  sortOrder: 'asc' | 'desc' = 'desc',
+  statusFilter?: string
+) {
   const supabase = await createClient();
 
   // Dual-layer security: explicit auth check + RLS
@@ -39,10 +46,14 @@ export async function getProducts(query?: string, page: number = 1, pageSize: nu
       variants:product_variants(*, inventory_levels(*))
     `, { count: 'exact' }
     )
-    .order('created_at', { ascending: false });
+    .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (query) {
     queryBuilder = queryBuilder.ilike('name', `%${query}%`);
+  }
+  
+  if (statusFilter && statusFilter !== 'all') {
+    queryBuilder = queryBuilder.eq('is_active', statusFilter === 'active');
   }
 
   const { data, count, error } = await queryBuilder

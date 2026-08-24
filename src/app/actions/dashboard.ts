@@ -51,7 +51,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
-  const now = new Date();
+
 
   let days = 30;
   if (period === '7d') days = 7;

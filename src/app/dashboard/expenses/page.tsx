@@ -25,12 +25,15 @@ export default async function ExpensesPage({
   const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
   const categoryFilter = typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined;
   const monthFilter = typeof resolvedParams.month === 'string' ? resolvedParams.month : undefined; // YYYY-MM format
+  
+  const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'expense_date';
+  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'desc';
 
   // Build the query
   let queryBuilder = supabase
     .from('expenses')
     .select('*')
-    .order('expense_date', { ascending: false })
+    .order(sortBy, { ascending: sortOrder === 'asc' })
     .order('created_at', { ascending: false });
 
   if (query) {

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getProducts } from '@/app/actions/products-queries';
 import { redirect } from 'next/navigation';
 import { Package } from 'lucide-react';
 import { ProductsHeader } from './components/ProductsHeader';
@@ -32,32 +33,14 @@ export default async function CatalogPage({
   const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
   const statusFilter = typeof resolvedParams.status === 'string' ? resolvedParams.status : undefined;
   const view = typeof resolvedParams.view === 'string' ? resolvedParams.view : 'table';
+  const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'created_at';
+  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'desc';
 
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const pageSize = 12; // 12 is good for grid layout (3x4 or 4x3)
 
-  let queryBuilder = supabase
-    .from('products')
-    .select(
-      '*, category:product_categories(id, name), variants:product_variants(*, inventory:inventory_levels(quantity), order_items(quantity, order:orders(status)))',
-      { count: 'exact' }
-    )
-    .order('created_at', { ascending: false });
+  const { data: products, count } = await getProducts(query, page, pageSize, sortBy, sortOrder, statusFilter);
 
-  if (query) {
-    queryBuilder = queryBuilder.ilike('name', `%${query}%`);
-  }
-  if (statusFilter && statusFilter !== 'all') {
-    queryBuilder = queryBuilder.eq('is_active', statusFilter === 'active');
-  }
-
-  const { data: products, count, error } = await queryBuilder
-    .range((page - 1) * pageSize, page * pageSize - 1);
-
-  if (error) {
-    console.error('Error fetching catalog:', error);
-  }
-  
   const totalPages = Math.ceil((count || 0) / pageSize);
 
   return (

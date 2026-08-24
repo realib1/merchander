@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Package, Trash2, Archive, X, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Package, Trash2, Archive, X, Loader2, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { bulkArchiveProducts, bulkDeleteProducts } from '@/app/actions/products-mutations';
@@ -12,6 +12,15 @@ import { formatCurrency } from '@/utils/format';
 import { calculateTotalStock, calculateTotalUnitsSold, getVariantPriceRange, generateSKU } from '@/utils/product';
 import type { Product } from '@/types/product';
 import { ProductsActionMenu } from './ProductsActionMenu';
+
+function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
+  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+  return currentSortOrder === 'asc' ? (
+    <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
+  ) : (
+    <ArrowDown className="w-3 h-3 ml-1 inline text-foreground" />
+  );
+}
 
 export function StockBadge({ totalStock, stockUnit }: { totalStock: number; stockUnit?: string | null }) {
   const unit = stockUnit || 'pcs';
@@ -117,6 +126,24 @@ export function ProductsTable({
     return `${pathname}?${params.toString()}`;
   };
 
+  const createSortUrl = (column: string) => {
+    const params = new URLSearchParams(searchParams);
+    const currentSortBy = params.get('sortBy') || 'created_at';
+    const currentSortOrder = params.get('sortOrder') || 'desc';
+    
+    if (currentSortBy === column) {
+      params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      params.set('sortBy', column);
+      params.set('sortOrder', 'asc');
+    }
+    
+    return `${pathname}?${params.toString()}`;
+  };
+
+  const currentSortBy = searchParams.get('sortBy') || 'created_at';
+  const currentSortOrder = searchParams.get('sortOrder') || 'desc';
+
   return (
     <div className="overflow-x-auto flex-1 flex flex-col min-w-0 w-full">
       <div className="min-w-250 flex flex-col flex-1">
@@ -127,17 +154,26 @@ export function ProductsTable({
                 <input
                   type="checkbox"
                   aria-label="Select all products"
-                  checked={products.length > 0 && selectedIds.size === products.length}
+                  checked={selectedIds.size === products.length && products.length > 0}
                   onChange={(e) => toggleAll(e.target.checked)}
                   className="w-4 h-4 rounded border-separator bg-surface text-brand-primary focus:ring-brand-primary cursor-pointer"
                 />
               </th>
-              <th className="px-4 py-3 font-medium">Product</th>
+              <th className="px-4 py-3 font-medium">
+                <Link href={createSortUrl('name')} className="flex items-center group cursor-pointer">
+                  Product <SortIcon column="name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
               <th className="px-4 py-3 font-medium">Category</th>
+              <th className="px-4 py-3 font-medium">
+                <Link href={createSortUrl('created_at')} className="flex items-center group cursor-pointer">
+                  Created Date <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Inventory</th>
-              <th className="px-4 py-3 font-medium">Price</th>
-              <th className="px-4 py-3 font-medium">Units sold</th>
+              <th className="px-4 py-3 font-medium text-right">Price</th>
+              <th className="px-4 py-3 font-medium text-right">Units sold</th>
               <th className="px-4 py-3 w-12">
                 <span className="sr-only">Actions</span>
               </th>

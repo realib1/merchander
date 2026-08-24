@@ -21,6 +21,9 @@ export default async function OrdersPage({
   const view = typeof resolvedParams?.view === 'string' ? resolvedParams.view : 'table';
   const page = typeof resolvedParams?.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const pageSize = 10;
+  
+  const sortBy = typeof resolvedParams?.sortBy === 'string' ? resolvedParams.sortBy : 'created_at';
+  const sortOrder = typeof resolvedParams?.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'desc';
 
   // Fetch KPI Metrics
   const thirtyDaysAgo = new Date();
@@ -94,7 +97,7 @@ export default async function OrdersPage({
     data: orders,
     error,
     count,
-  } = await query.order('created_at', { ascending: false }).range((page - 1) * pageSize, page * pageSize - 1);
+  } = await query.order(sortBy, { ascending: sortOrder === 'asc' }).range((page - 1) * pageSize, page * pageSize - 1);
 
   const totalPages = Math.ceil((count || 0) / pageSize);
 

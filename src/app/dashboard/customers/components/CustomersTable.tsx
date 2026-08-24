@@ -4,12 +4,21 @@ import { useState, useEffect } from 'react';
 import { CustomerStats } from '@/app/actions/customers';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency, formatDate } from '@/utils/format';
-import { MoreHorizontal, FileText, Phone, X, Trash2, Loader2 } from 'lucide-react';
+import { MoreHorizontal, FileText, Phone, X, Trash2, Loader2, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { bulkDeleteCustomers } from '@/app/actions/customers';
 import { usePathname, useSearchParams } from 'next/navigation';
+
+function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
+  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+  return currentSortOrder === 'asc' ? (
+    <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
+  ) : (
+    <ArrowDown className="w-3 h-3 ml-1 inline text-foreground" />
+  );
+}
 
 export function CustomersTable({ 
   initialCustomers,
@@ -94,6 +103,24 @@ export function CustomersTable({
     return `${pathname}?${params.toString()}`;
   };
 
+  const createSortUrl = (column: string) => {
+    const params = new URLSearchParams(searchParams);
+    const currentSortBy = params.get('sortBy') || 'created_at';
+    const currentSortOrder = params.get('sortOrder') || 'desc';
+    
+    if (currentSortBy === column) {
+      params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      params.set('sortBy', column);
+      params.set('sortOrder', 'asc');
+    }
+    
+    return `${pathname}?${params.toString()}`;
+  };
+
+  const currentSortBy = searchParams.get('sortBy') || 'created_at';
+  const currentSortOrder = searchParams.get('sortOrder') || 'desc';
+
   return (
     <>
       <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
@@ -109,11 +136,31 @@ export function CustomersTable({
                     className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5"
                   />
                 </th>
-                <th className="px-6 py-4 font-semibold">Customer</th>
-                <th className="px-6 py-4 font-semibold text-center">Orders</th>
-                <th className="px-6 py-4 font-semibold text-right">Total spent</th>
-                <th className="px-6 py-4 font-semibold text-right">Avg. order</th>
-                <th className="px-6 py-4 font-semibold text-right">Last order</th>
+                <th className="px-6 py-4 font-semibold">
+                  <Link href={createSortUrl('name')} className="flex items-center group cursor-pointer">
+                    Customer <SortIcon column="name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  </Link>
+                </th>
+                <th className="px-6 py-4 font-semibold text-center">
+                  <Link href={createSortUrl('total_orders')} className="flex items-center justify-center group cursor-pointer">
+                    Orders <SortIcon column="total_orders" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  </Link>
+                </th>
+                <th className="px-6 py-4 font-semibold text-right">
+                  <Link href={createSortUrl('total_spent')} className="flex items-center justify-end group cursor-pointer">
+                    Total spent <SortIcon column="total_spent" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  </Link>
+                </th>
+                <th className="px-6 py-4 font-semibold text-right">
+                  <Link href={createSortUrl('aov')} className="flex items-center justify-end group cursor-pointer">
+                    Avg. order <SortIcon column="aov" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  </Link>
+                </th>
+                <th className="px-6 py-4 font-semibold text-right">
+                  <Link href={createSortUrl('last_order_date')} className="flex items-center justify-end group cursor-pointer">
+                    Last order <SortIcon column="last_order_date" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  </Link>
+                </th>
                 <th className="px-6 py-4 font-semibold text-center">Status</th>
                 <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>

@@ -1,12 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { DollarSign, Edit3, Trash2, Calendar } from 'lucide-react';
+import { DollarSign, Edit3, Trash2, Calendar, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { deleteExpense } from '@/app/actions/expenses';
 import { toast } from 'sonner';
 import { ExpenseFormModal } from './ExpenseFormModal';
 import { EXPENSE_CATEGORIES } from '../constants';
 import type { Expense } from '@/types/expenses';
+
+function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
+  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+  return currentSortOrder === 'asc' ? (
+    <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
+  ) : (
+    <ArrowDown className="w-3 h-3 ml-1 inline text-foreground" />
+  );
+}
 
 interface ExpensesTableProps {
   expenses: Expense[];
@@ -34,16 +45,53 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
     });
   };
 
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createSortUrl = (column: string) => {
+    const params = new URLSearchParams(searchParams);
+    const currentSortBy = params.get('sortBy') || 'expense_date';
+    const currentSortOrder = params.get('sortOrder') || 'desc';
+    
+    if (currentSortBy === column) {
+      params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      params.set('sortBy', column);
+      params.set('sortOrder', 'asc');
+    }
+    
+    return `${pathname}?${params.toString()}`;
+  };
+
+  const currentSortBy = searchParams.get('sortBy') || 'expense_date';
+  const currentSortOrder = searchParams.get('sortOrder') || 'desc';
+
   return (
     <>
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left whitespace-nowrap min-w-200">
           <thead>
             <tr className="text-xs font-semibold  bg-surface-elevated/30 border-b border-separator">
-              <th className="px-6 py-4">Date</th>
-              <th className="px-6 py-4">Category</th>
-              <th className="px-6 py-4">Description</th>
-              <th className="px-6 py-4 text-right">Amount</th>
+              <th className="px-6 py-4">
+                <Link href={createSortUrl('expense_date')} className="flex items-center group cursor-pointer">
+                  Date <SortIcon column="expense_date" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
+              <th className="px-6 py-4">
+                <Link href={createSortUrl('category')} className="flex items-center group cursor-pointer">
+                  Category <SortIcon column="category" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
+              <th className="px-6 py-4">
+                <Link href={createSortUrl('description')} className="flex items-center group cursor-pointer">
+                  Description <SortIcon column="description" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
+              <th className="px-6 py-4 text-right">
+                <Link href={createSortUrl('amount')} className="flex items-center justify-end group cursor-pointer">
+                  Amount <SortIcon column="amount" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>

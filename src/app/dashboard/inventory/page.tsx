@@ -19,8 +19,11 @@ export default async function InventoryPage({
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const pageSize = 15;
 
+  const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'product_name';
+  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'asc';
+
   const [{ data, count, categories }, metrics] = await Promise.all([
-    getInventory(query, categoryFilter, statusFilter, page, pageSize),
+    getInventory(query, categoryFilter, statusFilter, page, pageSize, sortBy, sortOrder),
     getInventoryMetrics()
   ]);
 

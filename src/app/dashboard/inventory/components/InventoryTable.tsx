@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Package } from 'lucide-react';
+import { Package, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 import Image from 'next/image';
 import { AdjustStockModal } from './AdjustStockModal';
@@ -20,6 +20,15 @@ export interface InventoryRowData {
   quantity: number;
   storeId: string | null;
   storeName: string;
+}
+
+function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
+  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+  return currentSortOrder === 'asc' ? (
+    <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
+  ) : (
+    <ArrowDown className="w-3 h-3 ml-1 inline text-foreground" />
+  );
 }
 
 export function InventoryTable({ 
@@ -43,17 +52,51 @@ export function InventoryTable({
     return `${pathname}?${params.toString()}`;
   };
 
+  const createSortUrl = (column: string) => {
+    const params = new URLSearchParams(searchParams);
+    const currentSortBy = params.get('sortBy') || 'product_name';
+    const currentSortOrder = params.get('sortOrder') || 'asc';
+    
+    if (currentSortBy === column) {
+      params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      params.set('sortBy', column);
+      params.set('sortOrder', 'asc');
+    }
+    
+    return `${pathname}?${params.toString()}`;
+  };
+
+  const currentSortBy = searchParams.get('sortBy') || 'product_name';
+  const currentSortOrder = searchParams.get('sortOrder') || 'asc';
+
   return (
     <>
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left whitespace-nowrap min-w-200">
           <thead>
             <tr className="text-xs font-semibold  bg-surface-elevated/30 border-b border-separator">
-              <th className="px-6 py-4">Product</th>
-              <th className="px-6 py-4">Category</th>
-              <th className="px-6 py-4">Stock</th>
+              <th className="px-6 py-4">
+                <Link href={createSortUrl('product_name')} className="flex items-center group cursor-pointer">
+                  Product <SortIcon column="product_name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
+              <th className="px-6 py-4">
+                <Link href={createSortUrl('category_name')} className="flex items-center group cursor-pointer">
+                  Category <SortIcon column="category_name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
+              <th className="px-6 py-4">
+                <Link href={createSortUrl('quantity')} className="flex items-center group cursor-pointer">
+                  Stock <SortIcon column="quantity" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
               <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4 text-right">Inventory value</th>
+              <th className="px-6 py-4 text-right">
+                <Link href={createSortUrl('price')} className="flex items-center justify-end group cursor-pointer">
+                  Inventory value <SortIcon column="price" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                </Link>
+              </th>
               <th className="px-6 py-4 text-right">Action</th>
             </tr>
           </thead>

@@ -17,7 +17,7 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
       </div>
       <h2 className="text-2xl font-bold  mb-2 font-display">Something went wrong!</h2>
       <p className="mb-8 max-w-md">
-        An unexpected error occurred in this section of the dashboard. Our team has been notified.
+        An unexpected error occurred in this section of the dashboard. Kindky <a href="mailto:[EMAIL_ADDRESS]" className='text-brand-primary hover:underline font-medium'>contact support</a> if this error persists.
       </p>
       <div className="flex gap-4">
         <Button variant="outline" onClick={() => window.location.reload()}>

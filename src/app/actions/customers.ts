@@ -20,7 +20,9 @@ export interface CustomerStats {
 export async function getCustomers(
   query?: string,
   page: number = 1,
-  pageSize: number = 10
+  pageSize: number = 10,
+  sortBy: string = 'created_at',
+  sortOrder: 'asc' | 'desc' = 'desc'
 ): Promise<{ data: CustomerStats[]; count: number }> {
   const supabase = await createClient();
 
@@ -33,7 +35,7 @@ export async function getCustomers(
   let queryBuilder = supabase
     .from('customer_stats_view')
     .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false });
+    .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (query) {
     queryBuilder = queryBuilder.or(`name.ilike.%${query}%,phone.ilike.%${query}%,email.ilike.%${query}%`);
