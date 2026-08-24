@@ -1,0 +1,1 @@
+alter function public.handle_updated_at() set search_path = ''; alter function public.decrement_inventory_batch(jsonb, uuid) security invoker; alter function public.get_customer_page_metrics() security invoker; alter function public.get_dashboard_metrics(integer) security invoker; alter function public.get_inventory_metrics() security invoker;
