@@ -1,9 +1,9 @@
 ﻿/* eslint-disable @next/next/no-img-element */
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { cn } from "@/utils/cn";
+import React from 'react';
+import Link from 'next/link';
+import { cn } from '@/utils/cn';
 
 export interface FooterLinkItem {
   /** Text label */
@@ -51,8 +51,8 @@ export interface FooterProps {
  * Responsive application footer with brand info, grouped links, social shortcuts, and copyright notice.
  */
 export const Footer: React.FC<FooterProps> = ({
-  brandName = "SHERO Core",
-  tagline = "Universal Project Scaffolding System by SHERO Technology Studio",
+  brandName = 'SHERO Core',
+  tagline = 'Universal Project Scaffolding System by SHERO Technology Studio',
   linkGroups = [],
   socialLinks = [],
   copyright,
@@ -65,7 +65,7 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <footer
       className={cn(
-        "w-full border-t border-separator bg-surface text-secondary transition-colors duration-[var(--duration-fast,150ms)]",
+        'w-full border-t border-separator bg-surface text-secondary transition-colors duration-[var(--duration-fast,150ms)]',
         className
       )}
     >
@@ -74,20 +74,10 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Brand Info */}
           <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-5">
             <div className="flex items-center gap-2 mb-2">
-              <img 
-                src="/merchander.png" 
-                alt={brandName} 
-                className="h-8 w-auto dark:invert-0" 
-              />
-                <span className="text-xl font-bold tracking-tight text-primary font-display">
-                  Merchander
-                </span>
+              <img src="/merchander.png" alt={brandName} className="h-8 w-auto dark:invert-0" />
+              <span className="text-xl font-bold tracking-tight text-primary font-display">Merchander</span>
             </div>
-            {tagline && (
-              <p className="max-w-sm text-sm leading-relaxed text-secondary">
-                {tagline}
-              </p>
-            )}
+            {tagline && <p className="max-w-sm text-sm leading-relaxed text-secondary">{tagline}</p>}
 
             {socialLinks.length > 0 && (
               <div className="mt-3 flex items-center gap-3">
@@ -115,9 +105,7 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:col-span-8 lg:col-span-7">
               {linkGroups.map((group) => (
                 <div key={group.title} className="flex flex-col gap-3">
-                  <h3 className="text-xs font-semibold tracking-wider text-primary uppercase">
-                    {group.title}
-                  </h3>
+                  <h3 className="text-xs font-semibold tracking-wider text-primary uppercase">{group.title}</h3>
                   <ul className="flex flex-col gap-2">
                     {group.items.map((item) => (
                       <li key={item.label}>
@@ -153,7 +141,15 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="flex items-center gap-4">
             {extraBottom}
             <span className="font-medium tracking-wide">
-              Product of <a href="https://sherohq.com" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline transition-colors">SHERO</a>
+              Product of{' '}
+              <a
+                href="https://sherohq.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-primary hover:underline transition-colors"
+              >
+                SHERO
+              </a>
             </span>
           </div>
         </div>
@@ -161,4 +157,3 @@ export const Footer: React.FC<FooterProps> = ({
     </footer>
   );
 };
-

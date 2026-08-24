@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 
-export type ThemeMode = "light" | "dark" | "system";
-export type ResolvedTheme = "light" | "dark";
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type ResolvedTheme = 'light' | 'dark';
 
 export interface ThemeContextValue {
   /** Current theme setting (light, dark, or system) */
@@ -23,13 +23,13 @@ export interface ThemeProviderProps {
   storageKey?: string;
 }
 
-const STORAGE_KEY_DEFAULT = "merchander-theme";
+const STORAGE_KEY_DEFAULT = 'merchander-theme';
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 /**
@@ -37,11 +37,11 @@ function getSystemTheme(): ResolvedTheme {
  */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
-  defaultTheme = "system",
+  defaultTheme = 'system',
   storageKey = STORAGE_KEY_DEFAULT,
 }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return defaultTheme;
+    if (typeof window === 'undefined') return defaultTheme;
     try {
       const stored = localStorage.getItem(storageKey) as ThemeMode | null;
       return stored || defaultTheme;
@@ -51,22 +51,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
-    if (typeof window === "undefined") return "light";
-    if (theme === "system") return getSystemTheme();
+    if (typeof window === 'undefined') return 'light';
+    if (theme === 'system') return getSystemTheme();
     return theme;
   });
 
   // Synchronize class on documentElement and local storage
   useEffect(() => {
     const root = document.documentElement;
-    const computed = theme === "system" ? getSystemTheme() : theme;
+    const computed = theme === 'system' ? getSystemTheme() : theme;
 
     setResolvedTheme(computed);
 
-    if (computed === "dark") {
-      root.classList.add("dark");
+    if (computed === 'dark') {
+      root.classList.add('dark');
     } else {
-      root.classList.remove("dark");
+      root.classList.remove('dark');
     }
 
     try {
@@ -78,21 +78,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   // Listen to OS system color scheme changes when theme is set to 'system'
   useEffect(() => {
-    if (theme !== "system" || typeof window === "undefined") return;
+    if (theme !== 'system' || typeof window === 'undefined') return;
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent): void => {
-      const newResolved = e.matches ? "dark" : "light";
+      const newResolved = e.matches ? 'dark' : 'light';
       setResolvedTheme(newResolved);
-      if (newResolved === "dark") {
-        document.documentElement.classList.add("dark");
+      if (newResolved === 'dark') {
+        document.documentElement.classList.add('dark');
       } else {
-        document.documentElement.classList.remove("dark");
+        document.documentElement.classList.remove('dark');
       }
     };
 
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
   const setTheme = (newTheme: ThemeMode): void => {
@@ -101,8 +101,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   const toggleTheme = (): void => {
     setThemeState((current) => {
-      const active = current === "system" ? getSystemTheme() : current;
-      return active === "dark" ? "light" : "dark";
+      const active = current === 'system' ? getSystemTheme() : current;
+      return active === 'dark' ? 'light' : 'dark';
     });
   };
 
@@ -125,8 +125,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }
-

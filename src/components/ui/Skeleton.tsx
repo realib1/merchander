@@ -1,7 +1,7 @@
-﻿import React from "react";
-import { cn } from "@/utils/cn";
+﻿import React from 'react';
+import { cn } from '@/utils/cn';
 
-export type SkeletonVariant = "rect" | "circle" | "text";
+export type SkeletonVariant = 'rect' | 'circle' | 'text';
 
 export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Shape variant */
@@ -15,16 +15,16 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const VARIANT_STYLES: Record<SkeletonVariant, string> = {
-  rect: "rounded-md",
-  circle: "rounded-full",
-  text: "rounded-sm h-4 my-1",
+  rect: 'rounded-md',
+  circle: 'rounded-full',
+  text: 'rounded-sm h-4 my-1',
 };
 
 /**
  * Loading placeholder placeholder with animated shimmer/pulse.
  */
 export const Skeleton: React.FC<SkeletonProps> = ({
-  variant = "rect",
+  variant = 'rect',
   width,
   height,
   count = 1,
@@ -34,30 +34,19 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 }) => {
   const customStyles: React.CSSProperties = {
     ...style,
-    ...(width !== undefined ? { width: typeof width === "number" ? `${width}px` : width } : {}),
-    ...(height !== undefined
-      ? { height: typeof height === "number" ? `${height}px` : height }
-      : {}),
+    ...(width !== undefined ? { width: typeof width === 'number' ? `${width}px` : width } : {}),
+    ...(height !== undefined ? { height: typeof height === 'number' ? `${height}px` : height } : {}),
   };
 
-  const baseClasses = cn(
-    "animate-pulse bg-separator/60 select-none",
-    VARIANT_STYLES[variant],
-    className
-  );
+  const baseClasses = cn('animate-pulse bg-separator/60 select-none', VARIANT_STYLES[variant], className);
 
-  if (variant === "text" && count > 1) {
+  if (variant === 'text' && count > 1) {
     return (
-      <div
-        role="status"
-        aria-busy="true"
-        aria-label="Loading content"
-        className="flex w-full flex-col"
-      >
+      <div role="status" aria-busy="true" aria-label="Loading content" className="flex w-full flex-col">
         {Array.from({ length: count }).map((_, index) => (
           <div
             key={index}
-            className={cn(baseClasses, index === count - 1 && count > 1 ? "w-3/4" : "w-full")}
+            className={cn(baseClasses, index === count - 1 && count > 1 ? 'w-3/4' : 'w-full')}
             style={customStyles}
             {...props}
           />

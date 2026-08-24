@@ -1,8 +1,8 @@
-﻿"use client";
+﻿'use client';
 
-import React from "react";
-import { Modal } from "./Modal";
-import { Button } from "./Button";
+import React from 'react';
+import { Modal } from './Modal';
+import { Button } from './Button';
 
 export interface ConfirmDialogProps {
   /** Visibility state */
@@ -34,8 +34,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   title,
   description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   isDestructive = false,
   isLoading = false,
 }) => {
@@ -52,19 +52,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <Button variant="ghost" onClick={onClose} disabled={isLoading}>
             {cancelText}
           </Button>
-          <Button
-            variant={isDestructive ? "destructive" : "primary"}
-            onClick={onConfirm}
-            isLoading={isLoading}
-          >
+          <Button variant={isDestructive ? 'destructive' : 'primary'} onClick={onConfirm} isLoading={isLoading}>
             {confirmText}
           </Button>
         </>
       }
     >
-      <div className="text-sm text-secondary">
-        {description || "Are you sure you want to proceed?"}
-      </div>
+      <div className="text-sm text-secondary">{description || 'Are you sure you want to proceed?'}</div>
     </Modal>
   );
 };

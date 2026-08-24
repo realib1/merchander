@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import React from "react";
-import { motion, type HTMLMotionProps } from "motion/react";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useDevicePerformance } from "@/hooks/useDevicePerformance";
-import { cn } from "@/utils/cn";
+import React from 'react';
+import { motion, type HTMLMotionProps } from 'motion/react';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useDevicePerformance } from '@/hooks/useDevicePerformance';
+import { cn } from '@/utils/cn';
 
-export interface StaggerContainerProps extends Omit<HTMLMotionProps<"div">, "children"> {
+export interface StaggerContainerProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
   /** React children */
   children?: React.ReactNode;
   /** Stagger interval between child items in seconds (defaults to 0.08s) */

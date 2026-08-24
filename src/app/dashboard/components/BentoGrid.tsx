@@ -6,10 +6,7 @@ interface BentoGridProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function BentoGrid({ children, className = '', ...props }: BentoGridProps) {
   return (
-    <div
-      className={`grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto w-full ${className}`}
-      {...props}
-    >
+    <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto w-full ${className}`} {...props}>
       {children}
     </div>
   );

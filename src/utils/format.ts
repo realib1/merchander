@@ -10,22 +10,22 @@
  * @param locale - BCP 47 language tag (defaults to "en-GH").
  * @returns Formatted currency string (e.g. "GHS 1,500.00").
  */
-export function formatCurrency(
-  amount: number,
-  currency: string = "GHS",
-  locale: string = "en-GH"
-): string {
+export function formatCurrency(amount: number, currency: string = 'GHS', locale: string = 'en-GH'): string {
   if (isNaN(amount)) return `${currency} 0.00`;
   try {
     const formatter = new Intl.NumberFormat(locale, {
-      style: "currency",
+      style: 'currency',
       currency,
-      currencyDisplay: "code",
+      currencyDisplay: 'code',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
     const parts = formatter.formatToParts(amount);
-    return parts.map(p => p.type === 'currency' ? p.value + ' ' : p.value).join('').replace(/\s+/g, ' ').trim();
+    return parts
+      .map((p) => (p.type === 'currency' ? p.value + ' ' : p.value))
+      .join('')
+      .replace(/\s+/g, ' ')
+      .trim();
   } catch {
     return `${currency} ${amount.toFixed(2)}`;
   }
@@ -45,13 +45,13 @@ export interface FormatNumberOptions {
  * @returns Formatted numeric string.
  */
 export function formatNumber(value: number, options: FormatNumberOptions = {}): string {
-  const { decimals, compact = false, locale = "en-US" } = options;
+  const { decimals, compact = false, locale = 'en-US' } = options;
 
-  if (isNaN(value)) return "0";
+  if (isNaN(value)) return '0';
 
   try {
     return new Intl.NumberFormat(locale, {
-      notation: compact ? "compact" : "standard",
+      notation: compact ? 'compact' : 'standard',
       maximumFractionDigits: decimals ?? (compact ? 1 : 2),
       minimumFractionDigits: decimals ?? 0,
     }).format(value);
@@ -71,14 +71,14 @@ export function formatNumber(value: number, options: FormatNumberOptions = {}): 
 export function formatDate(
   date: Date | string | number,
   options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   },
-  locale: string = "en-US"
+  locale: string = 'en-US'
 ): string {
   const parsed = date instanceof Date ? date : new Date(date);
-  if (isNaN(parsed.getTime())) return "";
+  if (isNaN(parsed.getTime())) return '';
 
   try {
     return new Intl.DateTimeFormat(locale, options).format(parsed);
@@ -94,19 +94,16 @@ export function formatDate(
  * @param baseDate - Reference date (defaults to new Date()).
  * @returns Short human-readable relative time string.
  */
-export function formatRelativeTime(
-  date: Date | string | number,
-  baseDate: Date = new Date()
-): string {
+export function formatRelativeTime(date: Date | string | number, baseDate: Date = new Date()): string {
   const parsed = date instanceof Date ? date : new Date(date);
-  if (isNaN(parsed.getTime())) return "";
+  if (isNaN(parsed.getTime())) return '';
 
   const diffMs = baseDate.getTime() - parsed.getTime();
   const diffSec = Math.floor(diffMs / 1000);
 
-  if (diffSec < 0) return "in the future";
-  if (diffSec < 45) return "just now";
-  if (diffSec < 90) return "1m ago";
+  if (diffSec < 0) return 'in the future';
+  if (diffSec < 45) return 'just now';
+  if (diffSec < 90) return '1m ago';
 
   const diffMin = Math.floor(diffSec / 60);
   if (diffMin < 60) return `${diffMin}m ago`;
@@ -131,19 +128,19 @@ export function formatRelativeTime(
  * @param defaultCountryCode - Country calling code without + (defaults to "233").
  * @returns Cleaned and formatted phone number string.
  */
-export function formatPhoneNumber(phone: string, defaultCountryCode: string = "233"): string {
-  if (!phone) return "";
+export function formatPhoneNumber(phone: string, defaultCountryCode: string = '233'): string {
+  if (!phone) return '';
   const trimmed = phone.trim();
 
   // If already formatted with spaces and leading +
-  if (trimmed.startsWith("+") && trimmed.includes(" ")) {
+  if (trimmed.startsWith('+') && trimmed.includes(' ')) {
     return trimmed;
   }
 
-  const cleaned = trimmed.replace(/[^0-9+]/g, "");
+  const cleaned = trimmed.replace(/[^0-9+]/g, '');
 
   // If local Ghana number starting with 0 (e.g. 0241234567 -> +233 24 123 4567)
-  if (cleaned.startsWith("0") && cleaned.length === 10 && defaultCountryCode === "233") {
+  if (cleaned.startsWith('0') && cleaned.length === 10 && defaultCountryCode === '233') {
     const withoutZero = cleaned.substring(1);
     return `+233 ${withoutZero.slice(0, 2)} ${withoutZero.slice(2, 5)} ${withoutZero.slice(5)}`;
   }

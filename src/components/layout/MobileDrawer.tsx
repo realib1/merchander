@@ -1,10 +1,10 @@
-﻿"use client";
+﻿'use client';
 
-import React, { useEffect, useRef } from "react";
-import { X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { cn } from "@/utils/cn";
+import React, { useEffect, useRef } from 'react';
+import { X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { cn } from '@/utils/cn';
 
 export interface MobileDrawerProps {
   /** Controls drawer open/closed state */
@@ -18,7 +18,7 @@ export interface MobileDrawerProps {
   /** Optional drawer footer content (status, theme toggle, logout) */
   footer?: React.ReactNode;
   /** Slide-in direction */
-  position?: "left" | "right";
+  position?: 'left' | 'right';
   /** Additional CSS class names for the drawer panel */
   className?: string;
 }
@@ -32,7 +32,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   title,
   children,
   footer,
-  position = "left",
+  position = 'left',
   className,
 }) => {
   const isReducedMotion = useReducedMotion();
@@ -41,23 +41,23 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   // Close on ESC and lock body scroll
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
-  const slideOffset = position === "left" ? "-100%" : "100%";
+  const slideOffset = position === 'left' ? '-100%' : '100%';
 
   return (
     <AnimatePresence>
@@ -65,7 +65,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         <div
           role="presentation"
           className="fixed inset-0 z-50 flex"
-          style={{ justifyContent: position === "right" ? "flex-end" : "flex-start" }}
+          style={{ justifyContent: position === 'right' ? 'flex-end' : 'flex-start' }}
         >
           {/* Backdrop */}
           <motion.div
@@ -83,27 +83,25 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             ref={drawerRef}
             role="dialog"
             aria-modal="true"
-            aria-label={typeof title === "string" ? title : "Mobile navigation menu"}
+            aria-label={typeof title === 'string' ? title : 'Mobile navigation menu'}
             initial={isReducedMotion ? { opacity: 0 } : { x: slideOffset }}
             animate={isReducedMotion ? { opacity: 1 } : { x: 0 }}
             exit={isReducedMotion ? { opacity: 0 } : { x: slideOffset }}
             transition={{
-              type: "spring",
+              type: 'spring',
               damping: 30,
               stiffness: 300,
               duration: isReducedMotion ? 0 : 0.25,
             }}
             className={cn(
-              "relative z-10 flex h-full w-4/5 max-w-sm flex-col border-r border-separator bg-surface text-primary shadow-2xl",
-              position === "right" && "border-r-0 border-l",
+              'relative z-10 flex h-full w-4/5 max-w-sm flex-col border-r border-separator bg-surface text-primary shadow-2xl',
+              position === 'right' && 'border-r-0 border-l',
               className
             )}
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-separator px-5 py-4">
-              <div className="text-base font-semibold tracking-tight text-primary">
-                {title || "Menu"}
-              </div>
+              <div className="text-base font-semibold tracking-tight text-primary">{title || 'Menu'}</div>
               <button
                 type="button"
                 onClick={onClose}
@@ -118,11 +116,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
 
             {/* Footer */}
-            {footer && (
-              <div className="border-t border-separator bg-surface-elevated/50 px-5 py-4">
-                {footer}
-              </div>
-            )}
+            {footer && <div className="border-t border-separator bg-surface-elevated/50 px-5 py-4">{footer}</div>}
           </motion.div>
         </div>
       )}

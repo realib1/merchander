@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardBody, CardDescription } from '@/compon
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
 import { createOrderAction } from '@/app/actions/create-order';
-import { Plus, Trash2, User, Package, MapPin, Search, Barcode } from 'lucide-react';
+import { Trash2, User, Package, MapPin, Search, Barcode } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/format';
 import { useFormStatus } from 'react-dom';
@@ -34,6 +34,7 @@ interface Customer {
   id: string;
   name: string;
   phone: string;
+  address?: string;
 }
 
 function SubmitButtons({ paymentMethod }: { paymentMethod: string }) {
@@ -41,10 +42,24 @@ function SubmitButtons({ paymentMethod }: { paymentMethod: string }) {
   const isDirectConfirm = paymentMethod === 'cash_payment' || paymentMethod === 'cash_on_delivery';
   return (
     <>
-      <Button variant="primary" type="submit" name="action" value="create" disabled={pending} className="w-full shadow-sm shadow-brand-primary/20">
-        {pending ? 'Creating...' : (isDirectConfirm ? 'Confirm Order' : 'Create Order & Request Pay')}
+      <Button
+        variant="primary"
+        type="submit"
+        name="action"
+        value="create"
+        disabled={pending}
+        className="w-full shadow-sm shadow-brand-primary/20"
+      >
+        {pending ? 'Creating...' : isDirectConfirm ? 'Confirm Order' : 'Create Order & Request Pay'}
       </Button>
-      <Button variant="secondary" type="submit" name="action" value="draft" disabled={pending} className="w-full bg-surface-elevated hover:bg-surface-elevated/80">
+      <Button
+        variant="secondary"
+        type="submit"
+        name="action"
+        value="draft"
+        disabled={pending}
+        className="w-full bg-surface-elevated hover:bg-surface-elevated/80"
+      >
         {pending ? 'Saving...' : 'Save as Draft'}
       </Button>
     </>
@@ -53,7 +68,7 @@ function SubmitButtons({ paymentMethod }: { paymentMethod: string }) {
 
 function CustomerAutocomplete({
   customers,
-  onSelect
+  onSelect,
 }: {
   customers: Customer[];
   onSelect: (customer: Customer) => void;
@@ -61,22 +76,20 @@ function CustomerAutocomplete({
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const filtered = search.length > 1
-    ? customers.filter(c =>
-      c.phone.includes(search) ||
-      c.name.toLowerCase().includes(search.toLowerCase())
-    )
-    : [];
+  const filtered =
+    search.length > 1
+      ? customers.filter((c) => c.phone.includes(search) || c.name.toLowerCase().includes(search.toLowerCase()))
+      : [];
 
   return (
     <div className="relative w-full">
       <div className="mb-1.5 flex justify-between items-end">
-        <label className="block text-sm font-medium text-primary">Search Existing Customer</label>
+        <label className="block text-sm font-medium">Search Existing Customer</label>
       </div>
       <div className="relative">
         <input
           type="text"
-          className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow placeholder:text-muted"
+          className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 focus:ring-brand-primary outline-none transition-shadow placeholder:text-muted"
           placeholder="Search by name or phone..."
           value={search}
           onChange={(e) => {
@@ -102,18 +115,19 @@ function CustomerAutocomplete({
           <>
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
             <div className="absolute z-50 w-full mt-1 bg-surface-elevated border border-separator rounded-xl shadow-lg overflow-hidden max-h-48 overflow-y-auto">
-              {filtered.map(c => (
+              {filtered.map((c) => (
                 <div
                   key={c.id}
                   className="px-4 py-3 text-sm border-b border-separator/50 hover:bg-surface cursor-pointer last:border-0"
-                  onClick={() => {
+                  onPointerDown={(e) => {
+                    e.preventDefault();
                     onSelect(c);
                     setIsOpen(false);
                     setSearch('');
                   }}
                 >
-                  <div className="font-semibold text-primary">{c.name}</div>
-                  <div className="text-secondary text-xs">{c.phone}</div>
+                  <div className="font-semibold">{c.name}</div>
+                  <div className="text-xs">{c.phone}</div>
                 </div>
               ))}
             </div>
@@ -124,23 +138,18 @@ function CustomerAutocomplete({
   );
 }
 
-function GlobalProductSearch({
-  variants,
-  onSelect
-}: {
-  variants: Variant[];
-  onSelect: (variantId: string) => void;
-}) {
+function GlobalProductSearch({ variants, onSelect }: { variants: Variant[]; onSelect: (variantId: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const filtered = search.length > 0
-    ? variants.filter(v => {
-        const target = `${v.product_name} ${v.name || ''} ${v.sku}`.toLowerCase();
-        const searchTerms = search.toLowerCase().trim().split(/\\s+/);
-        return searchTerms.every(term => target.includes(term));
-      })
-    : [];
+  const filtered =
+    search.length > 0
+      ? variants.filter((v) => {
+          const target = `${v.product_name} ${v.name || ''} ${v.sku}`.toLowerCase();
+          const searchTerms = search.toLowerCase().trim().split(/\\s+/);
+          return searchTerms.every((term) => target.includes(term));
+        })
+      : [];
 
   return (
     <div className="relative w-full">
@@ -150,7 +159,7 @@ function GlobalProductSearch({
         </div>
         <input
           type="text"
-          className="w-full rounded-xl border border-separator bg-surface text-sm pl-10 pr-10 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow placeholder:text-muted"
+          className="w-full rounded-xl border border-separator bg-surface text-sm pl-10 pr-10 py-2.5 focus:ring-brand-primary outline-none transition-shadow placeholder:text-muted"
           placeholder="Search or scan barcode..."
           value={search}
           onChange={(e) => {
@@ -182,11 +191,12 @@ function GlobalProductSearch({
               {filtered.length === 0 ? (
                 <div className="p-4 text-sm text-muted text-center">No products found</div>
               ) : (
-                filtered.map(v => (
+                filtered.map((v) => (
                   <div
                     key={v.id}
                     className="px-4 py-3 border-b border-separator/50 hover:bg-surface cursor-pointer flex items-center gap-3 last:border-0"
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.preventDefault();
                       onSelect(v.id);
                       setIsOpen(false);
                       setSearch('');
@@ -196,8 +206,10 @@ function GlobalProductSearch({
                       <Package className="w-4 h-4 text-muted opacity-50" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-primary truncate">{v.product_name} {v.name ? `- ${v.name}` : ''}</div>
-                      <div className="text-xs text-secondary">{formatCurrency(v.price)}</div>
+                      <div className="text-sm font-semibold  truncate">
+                        {v.product_name} {v.name ? `- ${v.name}` : ''}
+                      </div>
+                      <div className="text-xs">{formatCurrency(v.price)}</div>
                     </div>
                   </div>
                 ))
@@ -210,48 +222,64 @@ function GlobalProductSearch({
   );
 }
 
-export function CreateOrderForm({ variants, stores, userRole, customers }: { variants: Variant[], stores: Store[], userRole: string, customers: Customer[] }) {
+export function CreateOrderForm({
+  variants,
+  stores,
+  userRole,
+  customers,
+}: {
+  variants: Variant[];
+  stores: Store[];
+  userRole: string;
+  customers: Customer[];
+}) {
   const [items, setItems] = useState<LineItem[]>([]);
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
   const [custPhone, setCustPhone] = useState('');
   const [custName, setCustName] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('momo');
 
   const handleAddProduct = (variantId: string) => {
-    const variant = variants.find(v => v.id === variantId);
+    const variant = variants.find((v) => v.id === variantId);
     if (!variant) return;
-    
+
     // Check if variant already exists in order
-    const existing = items.find(i => i.variantId === variantId);
+    const existing = items.find((i) => i.variantId === variantId);
     if (existing) {
-      setItems(items.map(i => i.variantId === variantId ? { ...i, quantity: i.quantity + 1 } : i));
+      setItems(items.map((i) => (i.variantId === variantId ? { ...i, quantity: i.quantity + 1 } : i)));
     } else {
-      setItems([...items, {
-        id: Math.random().toString(36).substring(7),
-        variantId: variantId,
-        quantity: 1,
-        unitPrice: variant.price
-      }]);
+      setItems([
+        ...items,
+        {
+          id: Math.random().toString(36).substring(7),
+          variantId: variantId,
+          quantity: 1,
+          unitPrice: variant.price,
+        },
+      ]);
     }
   };
 
   const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+    setItems(items.filter((item) => item.id !== id));
   };
 
   const updateItem = (id: string, field: keyof LineItem, value: unknown) => {
-    setItems(items.map(item => {
-      if (item.id === id) {
-        const updated = { ...item, [field]: value };
-        // If variant changes, update unit price
-        if (field === 'variantId') {
-          const variant = variants.find(v => v.id === value);
-          if (variant) updated.unitPrice = variant.price;
+    setItems(
+      items.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, [field]: value };
+          // If variant changes, update unit price
+          if (field === 'variantId') {
+            const variant = variants.find((v) => v.id === value);
+            if (variant) updated.unitPrice = variant.price;
+          }
+          return updated;
         }
-        return updated;
-      }
-      return item;
-    }));
+        return item;
+      })
+    );
   };
 
   const [error, setError] = useState<string | null>(null);
@@ -264,7 +292,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
     }
   };
 
-  const subtotal = items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+  const subtotal = items.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
   const total = subtotal + deliveryFee;
 
   return (
@@ -278,7 +306,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
 
       {/* Main Content (Left Column) */}
       <div className="lg:col-span-2 space-y-6">
-        <Card className='relative z-20'>
+        <Card className="relative z-20">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -294,7 +322,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           </CardHeader>
           <CardBody className="space-y-4">
             <GlobalProductSearch variants={variants} onSelect={handleAddProduct} />
-            
+
             <div className="space-y-3 mt-2">
               {items.length === 0 ? (
                 <div className="text-center p-8 bg-surface-elevated rounded-xl border border-dashed border-separator">
@@ -302,9 +330,12 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
                 </div>
               ) : (
                 items.map((item) => {
-                  const variant = variants.find(v => v.id === item.variantId);
+                  const variant = variants.find((v) => v.id === item.variantId);
                   return (
-                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-surface-elevated rounded-xl border border-separator">
+                    <div
+                      key={item.id}
+                      className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-surface-elevated rounded-xl border border-separator"
+                    >
                       <div className="flex items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
                         {/* Image Placeholder */}
                         <div className="w-12 h-12 shrink-0 bg-surface rounded-lg border border-separator flex items-center justify-center overflow-hidden">
@@ -313,10 +344,10 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
 
                         {/* Name & Price */}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-primary truncate">
+                          <h4 className="text-sm font-semibold  truncate">
                             {variant?.product_name} {variant?.name ? `- ${variant.name}` : ''}
                           </h4>
-                          <p className="text-xs text-secondary mt-0.5">{formatCurrency(item.unitPrice)}</p>
+                          <p className="text-xs  mt-0.5">{formatCurrency(item.unitPrice)}</p>
                         </div>
                       </div>
 
@@ -328,17 +359,21 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
                             min="1"
                             value={item.quantity}
                             onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
-                            className="w-full rounded-lg border border-separator bg-surface text-sm px-3 py-2 text-primary focus:border-brand-primary outline-none text-center"
+                            className="w-full rounded-lg border border-separator bg-surface text-sm px-3 py-2 outline-none text-center"
                           />
                         </div>
 
                         {/* Line Total */}
                         <div className="flex-1 sm:w-24 text-right">
-                          <span className="font-semibold text-primary">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                          <span className="font-semibold">{formatCurrency(item.unitPrice * item.quantity)}</span>
                         </div>
 
                         {/* Delete */}
-                        <button type="button" onClick={() => removeItem(item.id)} className="p-2 -mr-2 text-muted hover:text-red-500 transition-colors shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.id)}
+                          className="p-2 -mr-2 text-muted hover:text-red-500 transition-colors shrink-0"
+                        >
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -349,7 +384,6 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
             </div>
           </CardBody>
         </Card>
-
       </div>
 
       {/* Sidebar Content (Right Column) */}
@@ -374,6 +408,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
                   onSelect={(c) => {
                     setCustPhone(c.phone);
                     setCustName(c.name);
+                    setDeliveryAddress(c.address || '');
                   }}
                 />
               </div>
@@ -416,6 +451,8 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
               placeholder="e.g. Jisonayili, Near Central Mosque"
               isTextarea
               rows={2}
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
             />
           </CardBody>
         </Card>
@@ -425,21 +462,23 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           </CardHeader>
           <CardBody className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-primary mb-1.5">Fulfillment Branch</label>
-              {(userRole === 'admin' || userRole === 'owner') ? (
+              <label className="block text-sm font-medium  mb-1.5">Fulfillment Branch</label>
+              {userRole === 'admin' || userRole === 'owner' ? (
                 <select
                   name="storeId"
-                  className="w-full rounded-xl border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow"
+                  className="w-full rounded-xl border-separator bg-surface text-sm px-4 py-2.5 focus:ring-brand-primary outline-none transition-shadow"
                   required
                 >
-                  {stores.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
+                  {stores.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
                   ))}
                 </select>
               ) : (
                 <>
                   <input type="hidden" name="storeId" value={stores[0]?.id || ''} />
-                  <div className="w-full rounded-xl border border-separator bg-surface-elevated/50 text-sm px-4 py-2.5 text-secondary cursor-not-allowed">
+                  <div className="w-full rounded-xl border border-separator bg-surface-elevated/50 text-sm px-4 py-2.5  cursor-not-allowed">
                     {stores[0]?.name || 'No Branch Available'}
                   </div>
                 </>
@@ -464,7 +503,7 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           <CardBody>
             <select
               name="paymentMethod"
-              className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 text-primary focus:border-brand-primary focus:ring-brand-primary outline-none transition-shadow"
+              className="w-full rounded-xl border border-separator bg-surface text-sm px-4 py-2.5 focus:ring-brand-primary outline-none transition-shadow"
               required
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
@@ -473,7 +512,6 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
               <option value="card_payment">Card Payment</option>
               <option value="cash_payment">Cash Payment</option>
               <option value="cash_on_delivery">Cash on Delivery</option>
-
             </select>
           </CardBody>
         </Card>
@@ -485,16 +523,16 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
           <CardBody>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-secondary">Subtotal</span>
-                <span className="font-medium text-primary">{formatCurrency(subtotal)}</span>
+                <span className="">Subtotal</span>
+                <span className="font-medium">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm pb-3 border-b border-separator">
-                <span className="text-secondary">Delivery</span>
-                <span className="font-medium text-primary">{formatCurrency(deliveryFee)}</span>
+                <span className="">Delivery</span>
+                <span className="font-medium">{formatCurrency(deliveryFee)}</span>
               </div>
               <div className="flex justify-between items-center pt-1">
-                <span className="font-semibold text-primary">Total: </span>
-                <span className="text-lg font-bold text-primary">{formatCurrency(total)}</span>
+                <span className="font-semibold">Total: </span>
+                <span className="text-lg font-bold">{formatCurrency(total)}</span>
               </div>
             </div>
           </CardBody>
@@ -503,7 +541,9 @@ export function CreateOrderForm({ variants, stores, userRole, customers }: { var
         <div className="flex flex-col gap-3 sticky top-6">
           <SubmitButtons paymentMethod={paymentMethod} />
           <Link href="/dashboard/orders" className="w-full">
-            <Button variant="outline" type="button" className="w-full border-separator text-secondary hover:text-brand-primary">Cancel</Button>
+            <Button variant="outline" type="button" className="w-full border-separator  hover:text-brand-primary">
+              Cancel
+            </Button>
           </Link>
         </div>
       </div>

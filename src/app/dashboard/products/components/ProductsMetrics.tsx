@@ -15,18 +15,14 @@ function MetricCard({ title, value, subtitle, subtitleColor, icon: Icon, iconBg 
   return (
     <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-32">
       <div className="flex justify-between w-full p-4">
-        <h3 className="text-body font-medium text-secondary">{title}</h3>
+        <h3 className="text-body font-medium">{title}</h3>
         <div className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
           <Icon size={14} strokeWidth={2.5} />
         </div>
       </div>
       <div className="rounded-xl w-full p-4 border-t border-t-separator shadow-md">
-        <div className="text-h3 font-bold text-primary leading-none mb-3 tabular-nums">
-          {value}
-        </div>
-        <div className={`text-xs font-medium ${subtitleColor}`}>
-          {subtitle}
-        </div>
+        <div className="text-h3 font-bold  leading-none mb-3 tabular-nums">{value}</div>
+        <div className={`text-xs font-medium ${subtitleColor}`}>{subtitle}</div>
       </div>
     </div>
   );
@@ -34,30 +30,32 @@ function MetricCard({ title, value, subtitle, subtitleColor, icon: Icon, iconBg 
 
 export function ProductsMetrics({ products }: { products: Product[] }) {
   const totalProducts = products.length;
-  const activeProducts = products.filter(p => p.is_active).length;
-  
+  const activeProducts = products.filter((p) => p.is_active).length;
+
   let totalStock = 0;
   let lowStockVariants = 0;
   let catalogValue = 0;
   let totalUnitsSold = 0;
 
-  products.forEach(product => {
+  products.forEach((product) => {
     product.variants?.forEach((variant: ProductVariant) => {
-      const variantStock = variant.inventory?.reduce((acc: number, inv: { quantity: number }) => acc + (inv.quantity || 0), 0) || 0;
+      const variantStock =
+        variant.inventory?.reduce((acc: number, inv: { quantity: number }) => acc + (inv.quantity || 0), 0) || 0;
       totalStock += variantStock;
       catalogValue += variantStock * (variant.price || 0);
-      
+
       if (variantStock < 10) {
         lowStockVariants++;
       }
 
-      const sold = variant.order_items?.reduce((acc: number, item: OrderItem) => {
-        const status = item.order?.status || item.orders?.status;
-        if (status !== 'draft' && status !== 'cancelled') {
-          return acc + (item.quantity || 0);
-        }
-        return acc;
-      }, 0) || 0;
+      const sold =
+        variant.order_items?.reduce((acc: number, item: OrderItem) => {
+          const status = item.order?.status || item.orders?.status;
+          if (status !== 'draft' && status !== 'cancelled') {
+            return acc + (item.quantity || 0);
+          }
+          return acc;
+        }, 0) || 0;
       totalUnitsSold += sold;
     });
   });
@@ -69,7 +67,7 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: Package,
       subtitle: `${activeProducts} active products`,
       trend: 'neutral',
-      iconBg: 'bg-brand-primary/10 text-brand-primary'
+      iconBg: 'bg-brand-primary/10 text-brand-primary',
     },
     {
       title: 'Inventory units',
@@ -77,7 +75,7 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: Box,
       subtitle: lowStockVariants > 0 ? `${lowStockVariants} products low on stock` : 'Stock levels healthy',
       trend: lowStockVariants > 0 ? 'warning' : 'neutral',
-      iconBg: 'bg-warning/10 text-warning'
+      iconBg: 'bg-warning/10 text-warning',
     },
     {
       title: 'Catalog value',
@@ -85,7 +83,7 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: DollarSign,
       subtitle: 'Based on current stock',
       trend: 'neutral',
-      iconBg: 'bg-success/10 text-success'
+      iconBg: 'bg-success/10 text-success',
     },
     {
       title: 'Units sold',
@@ -93,7 +91,7 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
       icon: ShoppingBag,
       subtitle: 'All-time completed orders',
       trend: 'neutral',
-      iconBg: 'bg-info/10 text-info'
+      iconBg: 'bg-info/10 text-info',
     },
   ];
 
@@ -106,9 +104,11 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
           value={metric.value}
           subtitle={metric.subtitle}
           subtitleColor={
-            metric.trend === 'warning' ? 'text-orange-500' :
-            metric.trend === 'positive' ? 'text-emerald-500' :
-            'text-muted'
+            metric.trend === 'warning'
+              ? 'text-orange-500'
+              : metric.trend === 'positive'
+                ? 'text-emerald-500'
+                : 'text-muted'
           }
           icon={metric.icon}
           iconBg={metric.iconBg}

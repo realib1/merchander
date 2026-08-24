@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 export function OrdersHeader() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const currentStatus = searchParams.get('status') || 'all';
   const currentSearch = searchParams.get('q') || '';
 
@@ -38,7 +38,7 @@ export function OrdersHeader() {
 
   const handleExport = () => {
     // Simple stub for export
-    alert("Export functionality will generate a CSV of the current view.");
+    alert('Export functionality will generate a CSV of the current view.');
   };
 
   const tabs = [
@@ -47,7 +47,7 @@ export function OrdersHeader() {
     { id: 'pending_payment', label: 'Awaiting Payment' },
     { id: 'paid', label: 'Paid / To Pack' },
     { id: 'dispatched', label: 'Dispatched' },
-    { id: 'cancelled', label: 'Cancelled' }
+    { id: 'cancelled', label: 'Cancelled' },
   ];
 
   return (
@@ -56,12 +56,15 @@ export function OrdersHeader() {
       <div className="block sm:hidden relative">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="w-full flex items-center justify-between px-4 py-2.5 bg-surface border border-separator rounded-lg text-body font-medium text-primary"
+          className="w-full flex items-center justify-between px-4 py-2.5 bg-surface border border-separator rounded-lg text-body font-medium"
         >
-          <span>{tabs.find(t => t.id === currentStatus)?.label || 'All'}</span>
-          <ChevronDown size={16} className={`text-muted transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
+          <span>{tabs.find((t) => t.id === currentStatus)?.label || 'All'}</span>
+          <ChevronDown
+            size={16}
+            className={`text-muted transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`}
+          />
         </button>
-        
+
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
@@ -74,14 +77,14 @@ export function OrdersHeader() {
                 className="absolute top-full left-0 right-0 mt-2 bg-surface border border-separator rounded-lg shadow-lg z-20 overflow-hidden"
               >
                 <div className="p-1">
-                  {tabs.map(tab => (
+                  {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setStatus(tab.id)}
                       className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${
                         currentStatus === tab.id
                           ? 'bg-brand-primary/10 text-brand-primary font-semibold'
-                          : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
+                          : ' hover:bg-surface-elevated hover:text-brand-primary'
                       }`}
                     >
                       {tab.label}
@@ -97,14 +100,14 @@ export function OrdersHeader() {
 
       {/* Desktop Tabs Row */}
       <div className="hidden sm:flex gap-6 border-b border-separator overflow-x-auto hide-scrollbar">
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setStatus(tab.id)}
             className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${
               currentStatus === tab.id
                 ? 'border-brand-primary text-brand-primary'
-                : 'border-transparent text-secondary hover:text-brand-primary'
+                : 'border-transparent  hover:text-brand-primary'
             }`}
           >
             {tab.label}
@@ -117,21 +120,35 @@ export function OrdersHeader() {
         {/* Search */}
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
-          <input 
+          <input
             type="text"
             placeholder="Search order, customer or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-primary placeholder:text-muted transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary  placeholder:text-muted transition-all"
           />
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <button 
+          <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium text-primary hover:bg-surface-elevated transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium  hover:bg-surface-elevated transition-colors"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-muted"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
             Export
           </button>
 
@@ -139,7 +156,7 @@ export function OrdersHeader() {
 
           {/* View Toggles */}
           <div className="hidden sm:flex bg-surface border border-separator rounded-lg p-1">
-            <button 
+            <button
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.delete('view');
@@ -150,7 +167,7 @@ export function OrdersHeader() {
             >
               <LayoutList size={14} />
             </button>
-            <button 
+            <button
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set('view', 'kanban');
@@ -163,7 +180,10 @@ export function OrdersHeader() {
             </button>
           </div>
 
-          <Link href="/dashboard/orders/new" className="flex justify-center items-center gap-1.5 bg-brand-primary hover:bg-brand-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <Link
+            href="/dashboard/orders/new"
+            className="flex justify-center items-center gap-1.5 bg-brand-primary hover:bg-brand-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
             <Plus size={16} />
             Create order
           </Link>

@@ -16,19 +16,28 @@ interface Order {
   status: OrderStatus;
   created_at: string;
   customer?: { name: string; phone: string } | null;
-  items?: { id: string; quantity: number; variant?: { name: string } | null }[] | null;
+  items?:
+    | {
+        id: string;
+        quantity: number;
+        variant?: { name: string; product?: { name: string } } | null;
+        unit_price?: number;
+      }[]
+    | null;
+  delivery_address?: string;
+  delivery_fee?: number;
 }
 
-export function OrdersTable({ 
-  initialOrders, 
-  currentPage = 1, 
-  totalPages = 1, 
-  totalCount = 0 
-}: { 
-  initialOrders: Order[],
-  currentPage?: number,
-  totalPages?: number,
-  totalCount?: number
+export function OrdersTable({
+  initialOrders,
+  currentPage = 1,
+  totalPages = 1,
+  totalCount = 0,
+}: {
+  initialOrders: Order[];
+  currentPage?: number;
+  totalPages?: number;
+  totalCount?: number;
 }) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const router = useRouter();
@@ -49,7 +58,7 @@ export function OrdersTable({
 
   const toggleAll = (checked: boolean) => {
     if (checked) {
-      setSelectedOrderIds(new Set(orders.map(o => o.id)));
+      setSelectedOrderIds(new Set(orders.map((o) => o.id)));
     } else {
       setSelectedOrderIds(new Set());
     }
@@ -77,8 +86,8 @@ export function OrdersTable({
     setIsUpdating(true);
     setActiveMenuId(null);
     // Optimistic UI update
-    setOrders((prev) => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-    
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+
     try {
       await updateOrderStatus(orderId, newStatus);
     } catch (e) {
@@ -98,18 +107,13 @@ export function OrdersTable({
   const handleReconcile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reconciliationOrder || !smsText) return;
-    
+
     setIsUpdating(true);
     try {
-      await processMoMoPayment(
-        reconciliationOrder.id, 
-        smsText, 
-        reconciliationOrder.total_amount, 
-        'mtn_momo'
-      );
+      await processMoMoPayment(reconciliationOrder.id, smsText, reconciliationOrder.total_amount, 'mtn_momo');
       toast.success('Payment successfully verified!');
       // Optimistic update
-      setOrders((prev) => prev.map(o => o.id === reconciliationOrder.id ? { ...o, status: 'paid' } : o));
+      setOrders((prev) => prev.map((o) => (o.id === reconciliationOrder.id ? { ...o, status: 'paid' } : o)));
       setReconciliationOrder(null);
       setSmsText('');
     } catch (e) {
@@ -123,14 +127,22 @@ export function OrdersTable({
 
   const handleBulkExport = () => {
     if (selectedOrderIds.size === 0) return;
-    
-    const selectedOrders = orders.filter(o => selectedOrderIds.has(o.id));
+
+    const selectedOrders = orders.filter((o) => selectedOrderIds.has(o.id));
     const csvHeader = 'Order ID,Customer Name,Customer Phone,Date,Total Amount,Status\n';
-    const csvRows = selectedOrders.map(o => {
-      const date = new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      return `${o.id},"${o.customer?.name || 'Unknown'}","${o.customer?.phone || ''}","${date}",${o.total_amount},${o.status}`;
-    }).join('\n');
-    
+    const csvRows = selectedOrders
+      .map((o) => {
+        const date = new Date(o.created_at).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        return `${o.id},"${o.customer?.name || 'Unknown'}","${o.customer?.phone || ''}","${date}",${o.total_amount},${o.status}`;
+      })
+      .join('\n');
+
     const blob = new Blob([csvHeader + csvRows], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -138,24 +150,24 @@ export function OrdersTable({
     a.download = `orders-export-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    
+
     toast.success(`Exported ${selectedOrderIds.size} orders to CSV`);
     setSelectedOrderIds(new Set());
   };
 
   const confirmCancel = async () => {
     if (!orderToCancel) return;
-    
+
     setIsUpdating(true);
     const idsToCancel = orderToCancel === 'bulk' ? Array.from(selectedOrderIds) : [orderToCancel];
-    
+
     try {
       for (const id of idsToCancel) {
         await updateOrderStatus(id, 'cancelled');
       }
-      setOrders((prev) => prev.map(o => idsToCancel.includes(o.id) ? { ...o, status: 'cancelled' } : o));
+      setOrders((prev) => prev.map((o) => (idsToCancel.includes(o.id) ? { ...o, status: 'cancelled' } : o)));
       toast.success(`Successfully cancelled ${idsToCancel.length} order${idsToCancel.length > 1 ? 's' : ''}`);
-      
+
       if (orderToCancel === 'bulk') {
         setSelectedOrderIds(new Set());
       } else {
@@ -173,12 +185,31 @@ export function OrdersTable({
   };
 
   const getStatusBadge = (status: OrderStatus) => {
-    switch(status) {
-      case 'draft': return <span className="bg-surface-elevated text-secondary border border-separator px-3 py-1 rounded-full text-xs font-medium">Draft</span>;
-      case 'pending_payment': return <span className="bg-warning/10 text-warning px-3 py-1 rounded-full text-xs font-medium">Awaiting Pay</span>;
-      case 'paid': return <span className="bg-success/10 text-success px-3 py-1 rounded-full text-xs font-medium">Paid</span>;
-      case 'dispatched': return <span className="bg-brand-secondary/10 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">Dispatched</span>;
-      default: return <span className="bg-surface-elevated text-secondary border border-separator px-3 py-1 rounded-full text-xs font-medium capitalize">{status.replace('_', ' ')}</span>;
+    switch (status) {
+      case 'draft':
+        return (
+          <span className="bg-surface-elevated  border border-separator px-3 py-1 rounded-full text-xs font-medium">
+            Draft
+          </span>
+        );
+      case 'pending_payment':
+        return (
+          <span className="bg-warning/10 text-warning px-3 py-1 rounded-full text-xs font-medium">Awaiting Pay</span>
+        );
+      case 'paid':
+        return <span className="bg-success/10 text-success px-3 py-1 rounded-full text-xs font-medium">Paid</span>;
+      case 'dispatched':
+        return (
+          <span className="bg-brand-secondary/10 text-brand-secondary px-3 py-1 rounded-full text-xs font-medium">
+            Dispatched
+          </span>
+        );
+      default:
+        return (
+          <span className="bg-surface-elevated  border border-separator px-3 py-1 rounded-full text-xs font-medium capitalize">
+            {status.replace('_', ' ')}
+          </span>
+        );
     }
   };
 
@@ -187,14 +218,14 @@ export function OrdersTable({
       <div className="flex-1 flex flex-col bg-surface border border-separator rounded-2xl overflow-hidden min-h-125">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-surface-elevated border-b border-separator text-secondary text-xs uppercase tracking-wider">
+            <thead className="bg-surface-elevated border-b border-separator  text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 font-semibold w-12 text-center">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={orders.length > 0 && selectedOrderIds.size === orders.length}
                     onChange={(e) => toggleAll(e.target.checked)}
-                    className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5" 
+                    className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5"
                   />
                 </th>
                 <th className="px-6 py-4 font-semibold">Order</th>
@@ -214,14 +245,14 @@ export function OrdersTable({
                   </td>
                 </tr>
               ) : (
-                orders.map(order => (
+                orders.map((order) => (
                   <tr key={order.id} className="hover:bg-surface-elevated/50 transition-colors group">
                     <td className="px-6 py-4 text-center">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={selectedOrderIds.has(order.id)}
                         onChange={(e) => toggleOrder(order.id, e.target.checked)}
-                        className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5" 
+                        className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5"
                       />
                     </td>
                     <td className="px-6 py-4">
@@ -230,23 +261,24 @@ export function OrdersTable({
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-primary">{order.customer?.name || 'Unknown'}</div>
+                      <div className="font-semibold">{order.customer?.name || 'Unknown'}</div>
                       <div className="text-xs text-muted">{formatGhanaLocalDisplay(order.customer?.phone || '')}</div>
                     </td>
-                    <td className="px-6 py-4 text-secondary text-xs">
-                      {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    <td className="px-6 py-4  text-xs">
+                      {new Date(order.created_at).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </td>
-                    <td className="px-6 py-4 text-secondary text-xs">
-                      {order.items?.length || 0} items
+                    <td className="px-6 py-4  text-xs">{order.items?.length || 0} items</td>
+                    <td className="px-6 py-4 font-bold  text-right">
+                      {formatCurrency(order.total_amount - (order.delivery_fee || 0))}
                     </td>
-                    <td className="px-6 py-4 font-bold text-primary text-right">
-                      {formatCurrency(order.total_amount)}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {getStatusBadge(order.status)}
-                    </td>
+                    <td className="px-6 py-4 text-center">{getStatusBadge(order.status)}</td>
                     <td className="px-6 py-4 text-right relative action-menu-container">
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === order.id ? null : order.id);
@@ -267,19 +299,20 @@ export function OrdersTable({
                             className="absolute right-6 top-12 w-48 bg-surface border border-separator rounded-xl shadow-lg z-10 overflow-hidden text-left"
                           >
                             <div className="p-1">
-                              <button 
-                                onClick={() => {
+                              <button
+                                onPointerDown={(e) => {
+                                  e.preventDefault();
                                   setSelectedOrder(order);
                                   setActiveMenuId(null);
                                 }}
-                                className="w-full px-3 py-2 text-sm text-secondary hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                                className="w-full px-3 py-2 text-sm  hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
                               >
                                 <Eye size={14} />
                                 View Details
                               </button>
-                              
+
                               {order.status === 'draft' && (
-                                <button 
+                                <button
                                   onClick={() => handleMove(order.id, 'pending_payment')}
                                   disabled={isUpdating}
                                   className="w-full px-3 py-2 text-sm text-warning hover:bg-warning/10 rounded-lg flex items-center gap-2 transition-colors mt-1"
@@ -288,9 +321,9 @@ export function OrdersTable({
                                   Request Pay
                                 </button>
                               )}
-                              
+
                               {order.status === 'pending_payment' && (
-                                <button 
+                                <button
                                   onClick={() => {
                                     setReconciliationOrder(order);
                                     setActiveMenuId(null);
@@ -302,9 +335,9 @@ export function OrdersTable({
                                   Mark Paid
                                 </button>
                               )}
-                              
+
                               {order.status === 'paid' && (
-                                <button 
+                                <button
                                   onClick={() => handleMove(order.id, 'dispatched')}
                                   disabled={isUpdating}
                                   className="w-full px-3 py-2 text-sm text-info hover:bg-info/10 rounded-lg flex items-center gap-2 transition-colors mt-1"
@@ -317,12 +350,16 @@ export function OrdersTable({
                               {['draft', 'pending_payment', 'paid'].includes(order.status) && (
                                 <>
                                   <div className="h-px bg-separator my-1" />
-                                  <button 
+                                  <button
                                     onClick={() => handleCancel(order.id)}
                                     disabled={isUpdating}
                                     className="w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg flex items-center gap-2 transition-colors"
                                   >
-                                    {isUpdating ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
+                                    {isUpdating ? (
+                                      <Loader2 size={14} className="animate-spin" />
+                                    ) : (
+                                      <XCircle size={14} />
+                                    )}
                                     Cancel Order
                                   </button>
                                 </>
@@ -338,13 +375,15 @@ export function OrdersTable({
             </tbody>
           </table>
         </div>
-        
-        <div className="mt-auto p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm text-secondary">
+
+        <div className="mt-auto p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm">
           <div>
-            Showing <span className="font-medium text-primary">{totalCount === 0 ? 0 : (currentPage - 1) * 10 + 1}</span> to <span className="font-medium text-primary">{Math.min(currentPage * 10, totalCount)}</span> of <span className="font-medium text-primary">{totalCount}</span> orders
+            Showing <span className="font-medium">{totalCount === 0 ? 0 : (currentPage - 1) * 10 + 1}</span> to{' '}
+            <span className="font-medium">{Math.min(currentPage * 10, totalCount)}</span> of{' '}
+            <span className="font-medium">{totalCount}</span> orders
           </div>
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set('page', (currentPage - 1).toString());
@@ -355,7 +394,7 @@ export function OrdersTable({
             >
               Previous
             </button>
-            <button 
+            <button
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set('page', (currentPage + 1).toString());
@@ -369,17 +408,13 @@ export function OrdersTable({
           </div>
         </div>
       </div>
-      
-      <OrderDetailsSheet 
-        isOpen={selectedOrder !== null} 
-        onClose={() => setSelectedOrder(null)} 
-        order={selectedOrder} 
-      />
+
+      <OrderDetailsSheet isOpen={selectedOrder !== null} onClose={() => setSelectedOrder(null)} order={selectedOrder} />
 
       {/* Bulk Actions Floating Bar */}
       <AnimatePresence>
         {selectedOrderIds.size > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
@@ -389,21 +424,21 @@ export function OrdersTable({
               <div className="flex items-center justify-center bg-brand-primary text-white text-xs font-bold w-6 h-6 rounded-full tabular-nums">
                 {selectedOrderIds.size}
               </div>
-              <span className="hidden sm:inline text-sm font-semibold text-primary">Selected</span>
+              <span className="hidden sm:inline text-sm font-semibold">Selected</span>
             </div>
-            
+
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              <button 
+              <button
                 onClick={() => setSelectedOrderIds(new Set())}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold text-secondary hover:text-primary hover:bg-surface/50 rounded-full transition-colors"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold  hover:text-primary hover:bg-surface/50 rounded-full transition-colors"
                 title="Deselect"
               >
                 <XCircle size={14} />
                 <span className="hidden sm:inline">Deselect</span>
               </button>
-              <button 
+              <button
                 onClick={handleBulkExport}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold text-secondary hover:text-primary hover:bg-surface/50 rounded-full transition-colors"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold  hover:text-primary hover:bg-surface/50 rounded-full transition-colors"
                 title="Export"
               >
                 <FileText size={14} />
@@ -425,15 +460,16 @@ export function OrdersTable({
               className="bg-surface rounded-2xl border border-separator shadow-xl w-full max-w-md overflow-hidden"
             >
               <div className="p-5 border-b border-separator">
-                <h3 className="text-lg font-bold text-primary">Verify Mobile Money Payment</h3>
-                <p className="text-sm text-secondary mt-1">
-                  Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} • {formatCurrency(reconciliationOrder.total_amount)}
+                <h3 className="text-lg font-bold">Verify Mobile Money Payment</h3>
+                <p className="text-sm  mt-1">
+                  Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
+                  {formatCurrency(reconciliationOrder.total_amount)}
                 </p>
               </div>
-              
+
               <form onSubmit={handleReconcile} className="p-5 space-y-4">
                 <div>
-                  <label htmlFor="smsText" className="block text-sm font-medium text-primary mb-1.5">
+                  <label htmlFor="smsText" className="block text-sm font-medium  mb-1.5">
                     Paste Payment SMS
                   </label>
                   <textarea
@@ -442,14 +478,14 @@ export function OrdersTable({
                     value={smsText}
                     onChange={(e) => setSmsText(e.target.value)}
                     placeholder="e.g. Payment received for GHS 450.00 from Kwame Mensah. Ref: 18273918239"
-                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 text-primary focus:border-brand-primary focus:ring-brand-primary placeholder:text-muted resize-none"
+                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 focus:ring-brand-primary placeholder:text-muted resize-none"
                     required
                   />
                   <p className="text-xs text-muted mt-2">
                     The system will securely extract the transaction reference and prevent duplicate entries.
                   </p>
                 </div>
-                
+
                 <div className="flex justify-end gap-3 pt-2">
                   <button
                     type="button"
@@ -457,7 +493,7 @@ export function OrdersTable({
                       setReconciliationOrder(null);
                       setSmsText('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-secondary hover:text-brand-primary transition-colors"
+                    className="px-4 py-2 text-sm font-medium  hover:text-brand-primary transition-colors"
                   >
                     Cancel
                   </button>
@@ -487,20 +523,21 @@ export function OrdersTable({
               className="bg-surface rounded-2xl border border-separator shadow-xl w-full max-w-sm overflow-hidden"
             >
               <div className="p-5 border-b border-separator">
-                <h3 className="text-lg font-bold text-primary">Confirm Cancellation</h3>
-                <p className="text-sm text-secondary mt-1">
-                  {orderToCancel === 'bulk' 
-                    ? `Are you sure you want to cancel ${selectedOrderIds.size} orders?` 
-                    : `Are you sure you want to cancel this order?`} This action cannot be undone.
+                <h3 className="text-lg font-bold">Confirm Cancellation</h3>
+                <p className="text-sm  mt-1">
+                  {orderToCancel === 'bulk'
+                    ? `Are you sure you want to cancel ${selectedOrderIds.size} orders?`
+                    : `Are you sure you want to cancel this order?`}{' '}
+                  This action cannot be undone.
                 </p>
               </div>
-              
+
               <div className="p-5 flex justify-end gap-3 bg-surface-elevated/30">
                 <button
                   type="button"
                   onClick={() => setOrderToCancel(null)}
                   disabled={isUpdating}
-                  className="px-4 py-2 text-sm font-medium text-secondary hover:text-primary transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium  hover:text-primary transition-colors disabled:opacity-50"
                 >
                   Keep Order
                 </button>

@@ -16,7 +16,9 @@ export default async function ExpensesPage({
 }) {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
   const resolvedParams = await searchParams;
@@ -37,11 +39,10 @@ export default async function ExpensesPage({
   if (categoryFilter && categoryFilter !== 'all') {
     queryBuilder = queryBuilder.eq('category', categoryFilter);
   }
-  
+
   if (monthFilter) {
     const startDate = `${monthFilter}-01`;
-    queryBuilder = queryBuilder.gte('expense_date', startDate)
-                               .lt('expense_date', `${monthFilter}-31`); // simple approximation
+    queryBuilder = queryBuilder.gte('expense_date', startDate).lt('expense_date', `${monthFilter}-31`); // simple approximation
   }
 
   const { data: expenses, error } = await queryBuilder;
@@ -51,14 +52,14 @@ export default async function ExpensesPage({
   }
 
   const fetchedExpenses = (expenses as Expense[]) || [];
-  
+
   const totalAmount = fetchedExpenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
-  
+
   const categoryTotals: Record<string, number> = {};
-  fetchedExpenses.forEach(exp => {
+  fetchedExpenses.forEach((exp) => {
     categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + Number(exp.amount);
   });
-  
+
   let topCategory = 'None';
   let topCategoryAmount = 0;
   for (const [cat, amt] of Object.entries(categoryTotals)) {
@@ -72,11 +73,7 @@ export default async function ExpensesPage({
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full min-h-full">
-      <ExpensesTopMetrics
-        totalAmount={totalAmount}
-        topCategory={topCategory}
-        expenseCount={expenseCount}
-      />
+      <ExpensesTopMetrics totalAmount={totalAmount} topCategory={topCategory} expenseCount={expenseCount} />
       <div className="bg-surface border border-separator rounded-xl flex-1 flex flex-col overflow-hidden shadow-sm min-h-150">
         <ExpensesToolbar />
         <ExpensesTable expenses={fetchedExpenses} />

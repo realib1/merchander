@@ -1,6 +1,3 @@
-/* eslint-disable @next/next/no-before-interactive-script-outside-document */
-import Script from "next/script";
-
 export const ThemeScript = () => {
   const scriptContent = `
     (function() {
@@ -25,4 +22,3 @@ export const ThemeScript = () => {
   `;
   return <script id="theme-script" dangerouslySetInnerHTML={{ __html: scriptContent }} suppressHydrationWarning />;
 };
-

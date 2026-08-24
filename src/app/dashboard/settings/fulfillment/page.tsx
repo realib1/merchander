@@ -7,10 +7,8 @@ export default function FulfillmentSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Fulfillment</h1>
-        <p className="text-sm text-secondary mt-1">
-          Configure how orders are packed and processed by your team.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Fulfillment</h1>
+        <p className="text-sm  mt-1">Configure how orders are packed and processed by your team.</p>
       </div>
 
       <Card>
@@ -28,20 +26,20 @@ export default function FulfillmentSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Automatic Fulfillment</h4>
-              <p className="text-sm text-secondary max-w-lg">
+              <h4 className="text-sm font-medium">Automatic Fulfillment</h4>
+              <p className="text-sm  max-w-lg">
                 Automatically mark digital products or gift cards as fulfilled upon payment.
               </p>
             </div>
             <Switch defaultChecked={true} />
           </div>
-          
+
           <div className="w-full h-px bg-separator opacity-50" />
-          
+
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Require Scanning</h4>
-              <p className="text-sm text-secondary max-w-lg">
+              <h4 className="text-sm font-medium">Require Scanning</h4>
+              <p className="text-sm  max-w-lg">
                 Require staff to scan product barcodes before an order can be marked as packed.
               </p>
             </div>
@@ -65,18 +63,16 @@ export default function FulfillmentSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Show Prices</h4>
-              <p className="text-sm text-secondary max-w-lg">
-                Include product prices and order totals on the printed packing slip.
-              </p>
+              <h4 className="text-sm font-medium">Show Prices</h4>
+              <p className="text-sm  max-w-lg">Include product prices and order totals on the printed packing slip.</p>
             </div>
             <Switch defaultChecked={false} />
           </div>
-          
+
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Include Return Instructions</h4>
-              <p className="text-sm text-secondary max-w-lg">
+              <h4 className="text-sm font-medium">Include Return Instructions</h4>
+              <p className="text-sm  max-w-lg">
                 Print your store&apos;s default return policy at the bottom of every slip.
               </p>
             </div>
@@ -102,14 +98,14 @@ export default function FulfillmentSettingsPage() {
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-primary">Expected Processing Time</label>
-            <select className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <label className="text-sm font-medium">Expected Processing Time</label>
+            <select className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary">
               <option>Same business day</option>
               <option>1 business day</option>
               <option>1-2 business days</option>
               <option>2-3 business days</option>
             </select>
-            <p className="text-xs text-secondary mt-1">This expectation is shown to customers at checkout.</p>
+            <p className="text-xs  mt-1">This expectation is shown to customers at checkout.</p>
           </div>
         </CardBody>
         <CardFooter className="justify-end border-t border-separator/50 mt-4">

@@ -1,9 +1,9 @@
-﻿"use client";
+﻿'use client';
 
-import React, { useEffect, useRef } from "react";
-import { cn } from "@/utils/cn";
+import React, { useEffect, useRef } from 'react';
+import { cn } from '@/utils/cn';
 
-export type ModalSize = "sm" | "md" | "lg" | "fullscreen";
+export type ModalSize = 'sm' | 'md' | 'lg' | 'fullscreen';
 
 export interface ModalProps {
   /** Controls open/closed visibility */
@@ -29,10 +29,10 @@ export interface ModalProps {
 }
 
 const SIZE_STYLES: Record<ModalSize, string> = {
-  sm: "max-w-md w-full rounded-lg",
-  md: "max-w-lg w-full rounded-lg",
-  lg: "max-w-2xl w-full rounded-lg",
-  fullscreen: "w-screen h-screen max-w-none rounded-none",
+  sm: 'max-w-md w-full rounded-lg',
+  md: 'max-w-lg w-full rounded-lg',
+  lg: 'max-w-2xl w-full rounded-lg',
+  fullscreen: 'w-screen h-screen max-w-none rounded-none',
 };
 
 /**
@@ -45,7 +45,7 @@ export const Modal: React.FC<ModalProps> = ({
   description,
   children,
   footer,
-  size = "md",
+  size = 'md',
   showCloseButton = true,
   closeOnBackdropClick = true,
   className,
@@ -83,12 +83,12 @@ export const Modal: React.FC<ModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent): void => {
       if (!isOpen) return;
 
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onClose();
         return;
       }
 
-      if (e.key === "Tab" && dialogRef.current) {
+      if (e.key === 'Tab' && dialogRef.current) {
         const focusable = Array.from(
           dialogRef.current.querySelectorAll<HTMLElement>(
             'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -104,18 +104,12 @@ export const Modal: React.FC<ModalProps> = ({
         const lastElement = focusable[focusable.length - 1];
 
         if (e.shiftKey) {
-          if (
-            document.activeElement === firstElement ||
-            !dialogRef.current.contains(document.activeElement)
-          ) {
+          if (document.activeElement === firstElement || !dialogRef.current.contains(document.activeElement)) {
             e.preventDefault();
             lastElement?.focus();
           }
         } else {
-          if (
-            document.activeElement === lastElement ||
-            !dialogRef.current.contains(document.activeElement)
-          ) {
+          if (document.activeElement === lastElement || !dialogRef.current.contains(document.activeElement)) {
             e.preventDefault();
             firstElement?.focus();
           }
@@ -124,23 +118,20 @@ export const Modal: React.FC<ModalProps> = ({
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div
-      role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6"
-    >
+    <div role="presentation" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
@@ -153,11 +144,11 @@ export const Modal: React.FC<ModalProps> = ({
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? "modal-title" : undefined}
-        aria-describedby={description ? "modal-description" : undefined}
+        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-describedby={description ? 'modal-description' : undefined}
         className={cn(
-          "relative z-10 flex flex-col bg-surface-elevated text-primary",
-          "animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-xl duration-150",
+          'relative z-10 flex flex-col bg-surface-elevated text-primary',
+          'animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-xl duration-150',
           SIZE_STYLES[size],
           className
         )}
@@ -185,13 +176,7 @@ export const Modal: React.FC<ModalProps> = ({
                 aria-label="Close dialog"
                 className="rounded-sm p-1.5 text-muted transition-colors hover:bg-surface hover:text-brand-primary"
               >
-                <svg
-                  className="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>

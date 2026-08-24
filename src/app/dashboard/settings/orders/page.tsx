@@ -8,10 +8,8 @@ export default function OrdersSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Order Settings</h1>
-        <p className="text-sm text-secondary mt-1">
-          Manage how orders are processed, formatted, and communicated to customers.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Order Settings</h1>
+        <p className="text-sm  mt-1">Manage how orders are processed, formatted, and communicated to customers.</p>
       </div>
 
       <Card>
@@ -29,22 +27,18 @@ export default function OrdersSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Order Confirmation Emails</h4>
-              <p className="text-sm text-secondary">
-                Automatically send a receipt to the customer when they complete an order.
-              </p>
+              <h4 className="text-sm font-medium">Order Confirmation Emails</h4>
+              <p className="text-sm">Automatically send a receipt to the customer when they complete an order.</p>
             </div>
             <Switch defaultChecked={true} />
           </div>
-          
+
           <div className="w-full h-px bg-separator opacity-50" />
-          
+
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Staff Order Notifications</h4>
-              <p className="text-sm text-secondary">
-                Notify assigned staff members immediately when a new order arrives.
-              </p>
+              <h4 className="text-sm font-medium">Staff Order Notifications</h4>
+              <p className="text-sm">Notify assigned staff members immediately when a new order arrives.</p>
             </div>
             <Switch defaultChecked={true} />
           </div>
@@ -69,8 +63,8 @@ export default function OrdersSettingsPage() {
             <FormField label="Order Suffix" hint="Appears after the number (Optional)." />
           </div>
           <div className="p-4 bg-surface-elevated rounded-md border border-separator text-sm">
-            <span className="text-secondary">Your next order number will look like: </span>
-            <span className="font-semibold text-primary">#ORD-1042</span>
+            <span className="">Your next order number will look like: </span>
+            <span className="font-semibold">#ORD-1042</span>
           </div>
         </CardBody>
         <CardFooter className="justify-end border-t border-separator/50 mt-4">
@@ -93,17 +87,18 @@ export default function OrdersSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Send Recovery Emails</h4>
-              <p className="text-sm text-secondary">
-                Automatically send a reminder to customers who leave without purchasing.
-              </p>
+              <h4 className="text-sm font-medium">Send Recovery Emails</h4>
+              <p className="text-sm">Automatically send a reminder to customers who leave without purchasing.</p>
             </div>
             <Switch defaultChecked={false} />
           </div>
-          
+
           <div className="space-y-1.5 opacity-50 pointer-events-none">
-            <label className="text-sm font-medium text-primary">Send after</label>
-            <select disabled className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <label className="text-sm font-medium">Send after</label>
+            <select
+              disabled
+              className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            >
               <option>10 hours</option>
               <option>12 hours</option>
               <option>24 hours</option>

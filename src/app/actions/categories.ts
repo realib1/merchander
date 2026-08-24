@@ -12,7 +12,9 @@ const categorySchema = z.object({
 
 export async function createCategory(formData: FormData) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return { error: 'Not authenticated' };
@@ -20,7 +22,7 @@ export async function createCategory(formData: FormData) {
 
   const rawData = {
     name: formData.get('name') as string,
-    description: formData.get('description') as string || undefined,
+    description: (formData.get('description') as string) || undefined,
     is_active: formData.get('is_active') === 'true',
   };
 
@@ -30,11 +32,7 @@ export async function createCategory(formData: FormData) {
     return { error: validation.error.errors[0].message };
   }
 
-  const { data: tenantUser } = await supabase
-    .from('tenant_users')
-    .select('tenant_id')
-    .eq('user_id', user.id)
-    .single();
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
 
   if (!tenantUser) {
     return { error: 'Tenant not found' };
@@ -58,7 +56,9 @@ export async function createCategory(formData: FormData) {
 
 export async function updateCategory(id: string, formData: FormData) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return { error: 'Not authenticated' };
@@ -66,7 +66,7 @@ export async function updateCategory(id: string, formData: FormData) {
 
   const rawData = {
     name: formData.get('name') as string,
-    description: formData.get('description') as string || undefined,
+    description: (formData.get('description') as string) || undefined,
     is_active: formData.get('is_active') === 'true',
   };
 
@@ -96,16 +96,15 @@ export async function updateCategory(id: string, formData: FormData) {
 
 export async function deleteCategory(id: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return { error: 'Not authenticated' };
   }
 
-  const { error } = await supabase
-    .from('product_categories')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('product_categories').delete().eq('id', id);
 
   if (error) {
     console.error('Error deleting category:', error);

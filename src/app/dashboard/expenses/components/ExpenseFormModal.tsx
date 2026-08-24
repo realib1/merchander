@@ -12,12 +12,7 @@ interface ExpenseFormModalProps {
   categories: string[];
 }
 
-export function ExpenseFormModal({
-  isOpen,
-  onClose,
-  expense,
-  categories,
-}: ExpenseFormModalProps) {
+export function ExpenseFormModal({ isOpen, onClose, expense, categories }: ExpenseFormModalProps) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(categories[0]);
   const [description, setDescription] = useState('');
@@ -96,7 +91,7 @@ export function ExpenseFormModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="amount" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="amount" className="text-body-sm font-semibold">
             Amount (GHS)
           </label>
           <input
@@ -107,21 +102,21 @@ export function ExpenseFormModal({
             required
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
             placeholder="e.g. 150.00"
             autoFocus
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="category" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="category" className="text-body-sm font-semibold">
             Category
           </label>
           <select
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -132,7 +127,7 @@ export function ExpenseFormModal({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="expense_date" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="expense_date" className="text-body-sm font-semibold">
             Date
           </label>
           <input
@@ -141,12 +136,12 @@ export function ExpenseFormModal({
             required
             value={expenseDate}
             onChange={(e) => setExpenseDate(e.target.value)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
           />
         </div>
-        
+
         <div className="space-y-2">
-          <label htmlFor="description" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="description" className="text-body-sm font-semibold">
             Description <span className="text-muted font-normal">(Optional)</span>
           </label>
           <textarea
@@ -154,7 +149,7 @@ export function ExpenseFormModal({
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
             placeholder="What was this expense for?"
           />
         </div>

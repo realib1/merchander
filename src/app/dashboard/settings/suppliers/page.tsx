@@ -8,10 +8,8 @@ export default function SuppliersSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Suppliers</h1>
-        <p className="text-sm text-secondary mt-1">
-          Manage procurement defaults and supplier communications.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Suppliers</h1>
+        <p className="text-sm  mt-1">Manage procurement defaults and supplier communications.</p>
       </div>
 
       <Card>
@@ -54,8 +52,8 @@ export default function SuppliersSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2 mb-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Enable Auto-POs</h4>
-              <p className="text-sm text-secondary max-w-md">
+              <h4 className="text-sm font-medium">Enable Auto-POs</h4>
+              <p className="text-sm  max-w-md">
                 Automatically draft purchase orders to the default supplier when a product hits its low stock threshold.
               </p>
             </div>

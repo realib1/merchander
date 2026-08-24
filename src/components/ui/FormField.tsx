@@ -1,11 +1,9 @@
-﻿"use client";
+﻿'use client';
 
-import React, { useId } from "react";
-import { cn } from "@/utils/cn";
+import React, { useId } from 'react';
+import { cn } from '@/utils/cn';
 
-export interface FormFieldProps extends React.InputHTMLAttributes<
-  HTMLInputElement | HTMLTextAreaElement
-> {
+export interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   /** Field label text */
   label?: string;
   /** Helper/hint text rendered below input */
@@ -49,26 +47,21 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
     const hintId = `${id}-hint`;
 
     const baseInputStyles = cn(
-      "w-full rounded-md border bg-surface px-3.5 py-2 text-sm",
-      "text-primary placeholder:text-muted",
-      "transition-colors duration-150 outline-none",
-      "focus-visible:ring-2",
-      leftIcon && "pl-10",
-      rightIcon && "pr-10",
-      error
-        ? "border-destructive focus-visible:ring-destructive"
-        : "border-separator focus-visible:ring-brand-primary",
-      disabled && "opacity-50 cursor-not-allowed bg-surface-elevated",
+      'w-full rounded-md border bg-surface px-3.5 py-2 text-sm',
+      'text-primary placeholder:text-muted',
+      'transition-colors duration-150 outline-none',
+      'focus-visible:ring-2',
+      leftIcon && 'pl-10',
+      rightIcon && 'pr-10',
+      error ? 'border-destructive focus-visible:ring-destructive' : 'border-separator focus-visible:ring-brand-primary',
+      disabled && 'opacity-50 cursor-not-allowed bg-surface-elevated',
       className
     );
 
     return (
       <div className="flex w-full flex-col gap-1.5 text-left">
         {label && (
-          <label
-            htmlFor={id}
-            className="flex items-center gap-1 text-xs font-semibold text-primary select-none"
-          >
+          <label htmlFor={id} className="flex items-center gap-1 text-xs font-semibold text-primary select-none">
             {label}
             {required && (
               <span className="text-destructive" aria-hidden="true">
@@ -80,9 +73,7 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
 
         <div className="relative flex w-full items-center">
           {leftIcon && (
-            <div className="pointer-events-none absolute left-3 flex items-center text-muted">
-              {leftIcon}
-            </div>
+            <div className="pointer-events-none absolute left-3 flex items-center text-muted">{leftIcon}</div>
           )}
 
           {isTextarea ? (
@@ -111,18 +102,12 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
           )}
 
           {rightIcon && (
-            <div className="pointer-events-none absolute right-3 flex items-center text-muted">
-              {rightIcon}
-            </div>
+            <div className="pointer-events-none absolute right-3 flex items-center text-muted">{rightIcon}</div>
           )}
         </div>
 
         {error && (
-          <p
-            id={errorId}
-            role="alert"
-            className="animate-fadeIn text-xs font-medium text-destructive"
-          >
+          <p id={errorId} role="alert" className="animate-fadeIn text-xs font-medium text-destructive">
             {error}
           </p>
         )}
@@ -137,4 +122,4 @@ export const FormField = React.forwardRef<HTMLInputElement & HTMLTextAreaElement
   }
 );
 
-FormField.displayName = "FormField";
+FormField.displayName = 'FormField';

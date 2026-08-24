@@ -12,10 +12,12 @@ export default async function SuperadminPage() {
   // RLS is bypassed because the auth user has is_superadmin claim
   const { data: tenants, error } = await supabase
     .from('tenants')
-    .select(`
+    .select(
+      `
       *,
       stores(id, name)
-    `)
+    `
+    )
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -56,11 +58,14 @@ export default async function SuperadminPage() {
             const date = new Date(tenant.created_at).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'short',
-              day: 'numeric'
+              day: 'numeric',
             });
 
             return (
-              <div key={tenant.id} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-slate-800/80 transition-colors group">
+              <div
+                key={tenant.id}
+                className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-slate-800/80 transition-colors group"
+              >
                 <div className="col-span-4 flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300 group-hover:border-blue-500 group-hover:text-blue-400 transition-colors shadow-inner">
                     <Building2 size={20} />
@@ -70,7 +75,7 @@ export default async function SuperadminPage() {
                     <div className="text-xs text-slate-500 font-mono mt-0.5">{tenant.id}</div>
                   </div>
                 </div>
-                
+
                 <div className="col-span-3 flex items-center gap-2 text-sm text-slate-300">
                   <Store size={16} className="text-slate-500" />
                   {storeCount} {storeCount === 1 ? 'branch' : 'branches'}

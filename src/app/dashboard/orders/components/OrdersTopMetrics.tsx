@@ -7,38 +7,11 @@ export interface OrdersMetricsProps {
     pendingPayment: number;
     toDispatch: number;
     cancelled: number;
+    ordersChange?: number;
   };
 }
 
-interface MetricCardProps {
-  title: string;
-  value: string;
-  subtitle: string;
-  subtitleColor: string;
-  icon: React.ReactNode;
-  iconBg: string;
-}
-
-function MetricCard({ title, value, subtitle, subtitleColor, icon, iconBg }: MetricCardProps) {
-  return (
-    <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-32">
-      <div className="flex justify-between w-full p-4">
-        <h3 className="text-body font-medium text-secondary">{title}</h3>
-        <div className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
-          {icon}
-        </div>
-      </div>
-      <div className="rounded-xl w-full p-4 border-t border-t-separator shadow-md">
-        <div className="text-h3 font-bold text-primary leading-none mb-3 tabular-nums">
-          {value}
-        </div>
-        <div className={`text-xs font-medium ${subtitleColor}`}>
-          {subtitle}
-        </div>
-      </div>
-    </div>
-  );
-}
+import { MetricCard } from '../../components/MetricCard';
 
 export function OrdersTopMetrics({ metrics }: OrdersMetricsProps) {
   return (
@@ -46,8 +19,7 @@ export function OrdersTopMetrics({ metrics }: OrdersMetricsProps) {
       <MetricCard
         title="Total orders"
         value={metrics.total.toLocaleString()}
-        subtitle="+12.4% this month"
-        subtitleColor="text-success"
+        change={metrics.ordersChange}
         icon={<ShoppingCart size={14} />}
         iconBg="bg-brand-primary/10 text-brand-primary"
       />

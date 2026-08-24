@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { updateOrderStatus, processMoMoPayment, OrderStatus } from '@/app/actions/orders';
+import { updateOrderStatus, processMoMoPayment, getKanbanOrders, OrderStatus } from '@/app/actions/orders';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency } from '@/utils/format';
@@ -16,13 +16,18 @@ interface Order {
 }
 
 const COLUMNS: { id: OrderStatus; title: string; bg: string; text: string }[] = [
-  { id: 'draft', title: 'New (AI Draft)', bg: 'bg-surface-elevated border-separator', text: 'text-secondary' },
+  { id: 'draft', title: 'New (AI Draft)', bg: 'bg-surface-elevated border-separator', text: '' },
   { id: 'pending_payment', title: 'Awaiting Payment', bg: 'bg-warning/10 border-warning/20', text: 'text-warning' },
   { id: 'paid', title: 'Paid (To Pack)', bg: 'bg-success/10 border-success/20', text: 'text-success' },
-  { id: 'dispatched', title: 'Dispatched', bg: 'bg-brand-secondary/10 border-brand-secondary/20', text: 'text-brand-secondary' },
+  {
+    id: 'dispatched',
+    title: 'Dispatched',
+    bg: 'bg-brand-secondary/10 border-brand-secondary/20',
+    text: 'text-brand-secondary',
+  },
 ];
 
-export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
+export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Order[], searchQuery?: string }) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
 
   // Sync state when URL search parameters trigger a server re-fetch
@@ -34,11 +39,36 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
   const [reconciliationOrder, setReconciliationOrder] = useState<Order | null>(null);
   const [smsText, setSmsText] = useState('');
 
+  const handleLoadMore = async (status: OrderStatus, currentCount: number) => {
+    setIsUpdating(true);
+    try {
+      const moreOrders = await getKanbanOrders(status, currentCount, 10, searchQuery);
+      if (moreOrders && moreOrders.length > 0) {
+        setOrders((prev) => {
+          const newOrders = [...prev];
+          for (const order of moreOrders) {
+            if (!newOrders.find(o => o.id === order.id)) {
+              newOrders.push(order as any);
+            }
+          }
+          return newOrders;
+        });
+      } else {
+        toast.info('No more orders in this status');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to load more orders');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleMove = async (orderId: string, newStatus: OrderStatus) => {
     setIsUpdating(true);
     // Optimistic UI update
-    setOrders((prev) => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-    
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+
     try {
       await updateOrderStatus(orderId, newStatus);
     } catch (e) {
@@ -54,7 +84,7 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
     setIsUpdating(true);
     try {
       await updateOrderStatus(orderId, 'cancelled');
-      setOrders((prev) => prev.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o)));
       toast.success('Order cancelled successfully');
     } catch (e) {
       console.error(e);
@@ -67,18 +97,13 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
   const handleReconcile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reconciliationOrder || !smsText) return;
-    
+
     setIsUpdating(true);
     try {
-      await processMoMoPayment(
-        reconciliationOrder.id, 
-        smsText, 
-        reconciliationOrder.total_amount, 
-        'mtn_momo'
-      );
+      await processMoMoPayment(reconciliationOrder.id, smsText, reconciliationOrder.total_amount, 'mtn_momo');
       toast.success('Payment successfully verified!');
       // Optimistic update
-      setOrders((prev) => prev.map(o => o.id === reconciliationOrder.id ? { ...o, status: 'paid' } : o));
+      setOrders((prev) => prev.map((o) => (o.id === reconciliationOrder.id ? { ...o, status: 'paid' } : o)));
       setReconciliationOrder(null);
       setSmsText('');
     } catch (e) {
@@ -92,114 +117,139 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
 
   return (
     <>
-    <div className="flex-1 flex gap-6 overflow-x-auto pb-4 min-h-125">
-      {COLUMNS.map((col) => {
-        const colOrders = orders.filter((o) => o.status === col.id);
-        
-        return (
-          <div 
-            key={col.id} 
-            className={`shrink-0 w-80 rounded-2xl border border-separator flex flex-col bg-surface shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden h-full`}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              const orderId = e.dataTransfer.getData('orderId');
-              if (orderId) handleMove(orderId, col.id as OrderStatus);
-            }}
-          >
-            <div className={`p-4 border-b ${col.bg}`}>
-              <div className="flex justify-between items-center">
-                <h3 className={`font-semibold ${col.text}`}>{col.title}</h3>
-                <span className="bg-surface/80 text-secondary text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                  {colOrders.length}
-                </span>
+      <div className="flex-1 flex gap-6 overflow-x-auto pb-4 min-h-125">
+        {COLUMNS.map((col) => {
+          const colOrders = orders.filter((o) => o.status === col.id);
+
+          return (
+            <div
+              key={col.id}
+              className={`shrink-0 w-80 rounded-2xl border border-separator flex flex-col bg-surface shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden h-full`}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const orderId = e.dataTransfer.getData('orderId');
+                if (orderId) handleMove(orderId, col.id as OrderStatus);
+              }}
+            >
+              <div className={`p-4 border-b ${col.bg}`}>
+                <div className="flex justify-between items-center">
+                  <h3 className={`font-semibold ${col.text}`}>{col.title}</h3>
+                  <span className="bg-surface/80  text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                    {colOrders.length}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-surface-elevated/30">
+                <AnimatePresence>
+                  {colOrders.map((order) => (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      key={order.id}
+                      draggable={true}
+
+                      onDragStart={(e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
+                        e.dataTransfer.setData('orderId', order.id);
+                      }}
+                      className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab active:cursor-grabbing"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-xs font-mono text-muted">#{order.id.substring(0, 6).toUpperCase()}</span>
+                        <span className="text-sm font-bold">{formatCurrency(order.total_amount)}</span>
+                      </div>
+
+                      <div className="font-medium  text-sm">{order.customer?.name || 'Unknown Customer'}</div>
+                      <div className="text-xs  mt-0.5">{formatGhanaLocalDisplay(order.customer?.phone || '')}</div>
+
+                      <div className="mt-3 space-y-1">
+                        {order.items?.map((item) => (
+                          <div key={item.id} className="text-xs  flex justify-between">
+                            <span className="truncate pr-2">
+                              {item.quantity}x {item.variant?.name || 'Item'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 pt-3 border-t border-separator flex flex-wrap justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {col.id === 'draft' && (
+                          <button
+                            onClick={() => handleMove(order.id, 'pending_payment')}
+                            disabled={isUpdating}
+                            className="flex-1 text-xs bg-warning/10 text-warning px-3 py-1.5 rounded-lg font-medium hover:bg-warning/20 transition-colors text-center"
+                          >
+                            Request Pay
+                          </button>
+                        )}
+                        {col.id === 'pending_payment' && (
+                          <button
+                            onClick={() => setReconciliationOrder(order)}
+                            disabled={isUpdating}
+                            className="flex-1 text-xs bg-success/10 text-success px-3 py-1.5 rounded-lg font-medium hover:bg-success/20 transition-colors text-center"
+                          >
+                            Mark Paid
+                          </button>
+                        )}
+                        {col.id === 'paid' && (
+                          <button
+                            onClick={() => handleMove(order.id, 'dispatched')}
+                            disabled={isUpdating}
+                            className="flex-1 text-xs bg-brand-secondary/10 text-brand-secondary px-3 py-1.5 rounded-lg font-medium hover:bg-brand-secondary/20 transition-colors text-center"
+                          >
+                            Dispatch
+                          </button>
+                        )}
+                        {['draft', 'pending_payment', 'paid'].includes(col.id) && (
+                          <button
+                            onClick={() => handleCancel(order.id)}
+                            disabled={isUpdating}
+                            className="flex-1 text-xs bg-destructive/10 text-destructive px-3 py-1.5 rounded-lg font-medium hover:bg-destructive/20 transition-colors text-center"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {colOrders.length === 0 && (
+                  <div className="h-full flex items-center justify-center text-sm text-muted italic text-center p-4">
+                    No orders in this state
+                  </div>
+                )}
+                
+                {colOrders.length > 0 && colOrders.length % 10 === 0 && (
+                  <button 
+                    onClick={() => handleLoadMore(col.id as OrderStatus, colOrders.length)}
+                    disabled={isUpdating}
+                    className="w-full py-2 mt-2 text-xs font-medium border border-separator rounded-xl text-muted hover:text-foreground hover:bg-surface transition-colors"
+                  >
+                    Load More
+                  </button>
+                )}
               </div>
             </div>
-            
-            <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-surface-elevated/30">
-              <AnimatePresence>
-                {colOrders.map((order) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    key={order.id}
-                    draggable={true}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onDragStart={(e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-                      e.dataTransfer.setData('orderId', order.id);
-                    }}
-                    className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab active:cursor-grabbing"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-mono text-muted">
-                        #{order.id.substring(0, 6).toUpperCase()}
-                      </span>
-                      <span className="text-sm font-bold text-primary">
-                        {formatCurrency(order.total_amount)}
-                      </span>
-                    </div>
-                    
-                    <div className="font-medium text-primary text-sm">
-                      {order.customer?.name || 'Unknown Customer'}
-                    </div>
-                    <div className="text-xs text-secondary mt-0.5">
-                      {formatGhanaLocalDisplay(order.customer?.phone || '')}
-                    </div>
-
-                    <div className="mt-3 space-y-1">
-                      {order.items?.map((item) => (
-                        <div key={item.id} className="text-xs text-secondary flex justify-between">
-                          <span className="truncate pr-2">{item.quantity}x {item.variant?.name || 'Item'}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="mt-4 pt-3 border-t border-separator flex flex-wrap justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {col.id === 'draft' && (
-                        <button onClick={() => handleMove(order.id, 'pending_payment')} disabled={isUpdating} className="flex-1 text-xs bg-warning/10 text-warning px-3 py-1.5 rounded-lg font-medium hover:bg-warning/20 transition-colors text-center">
-                          Request Pay
-                        </button>
-                      )}
-                      {col.id === 'pending_payment' && (
-                        <button onClick={() => setReconciliationOrder(order)} disabled={isUpdating} className="flex-1 text-xs bg-success/10 text-success px-3 py-1.5 rounded-lg font-medium hover:bg-success/20 transition-colors text-center">
-                          Mark Paid
-                        </button>
-                      )}
-                      {col.id === 'paid' && (
-                        <button onClick={() => handleMove(order.id, 'dispatched')} disabled={isUpdating} className="flex-1 text-xs bg-brand-secondary/10 text-brand-secondary px-3 py-1.5 rounded-lg font-medium hover:bg-brand-secondary/20 transition-colors text-center">
-                          Dispatch
-                        </button>
-                      )}
-                      {['draft', 'pending_payment', 'paid'].includes(col.id) && (
-                        <button onClick={() => handleCancel(order.id)} disabled={isUpdating} className="flex-1 text-xs bg-destructive/10 text-destructive px-3 py-1.5 rounded-lg font-medium hover:bg-destructive/20 transition-colors text-center">
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              
-              {colOrders.length === 0 && (
-                <div className="h-full flex items-center justify-center text-sm text-muted italic text-center p-4">
-                  No orders in this state
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
       {/* MoMo Reconciliation Modal */}
       <AnimatePresence>
         {reconciliationOrder && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" 
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             role="presentation"
-            onKeyDown={(e) => { if (e.key === 'Escape') { setReconciliationOrder(null); setSmsText(''); } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setReconciliationOrder(null);
+                setSmsText('');
+              }
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -211,15 +261,18 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
               className="bg-surface rounded-2xl border border-separator shadow-xl w-full max-w-md overflow-hidden"
             >
               <div className="p-5 border-b border-separator">
-                <h3 id="momo-modal-title" className="text-lg font-bold text-primary">Verify Mobile Money Payment</h3>
-                <p className="text-sm text-secondary mt-1">
-                  Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} • {formatCurrency(reconciliationOrder.total_amount)}
+                <h3 id="momo-modal-title" className="text-lg font-bold">
+                  Verify Mobile Money Payment
+                </h3>
+                <p className="text-sm  mt-1">
+                  Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
+                  {formatCurrency(reconciliationOrder.total_amount)}
                 </p>
               </div>
-              
+
               <form onSubmit={handleReconcile} className="p-5 space-y-4">
                 <div>
-                  <label htmlFor="smsText" className="block text-sm font-medium text-primary mb-1.5">
+                  <label htmlFor="smsText" className="block text-sm font-medium  mb-1.5">
                     Paste Payment SMS
                   </label>
                   <textarea
@@ -228,14 +281,14 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
                     value={smsText}
                     onChange={(e) => setSmsText(e.target.value)}
                     placeholder="e.g. Payment received for GHS 450.00 from Kwame Mensah. Ref: 18273918239"
-                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 text-primary focus:border-brand-primary focus:ring-brand-primary placeholder:text-muted resize-none"
+                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3  focus:border-brand-primary focus:ring-brand-primary placeholder:text-muted resize-none"
                     required
                   />
                   <p className="text-xs text-muted mt-2">
                     The system will securely extract the transaction reference and prevent duplicate entries.
                   </p>
                 </div>
-                
+
                 <div className="flex justify-end gap-3 pt-2">
                   <button
                     type="button"
@@ -243,7 +296,7 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
                       setReconciliationOrder(null);
                       setSmsText('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-secondary hover:text-primary transition-colors"
+                    className="px-4 py-2 text-sm font-medium  hover:text-primary transition-colors"
                   >
                     Cancel
                   </button>
@@ -263,4 +316,3 @@ export function KanbanBoard({ initialOrders }: { initialOrders: Order[] }) {
     </>
   );
 }
-

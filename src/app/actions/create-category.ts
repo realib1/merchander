@@ -5,19 +5,21 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z.string().min(1, 'Category name is required'),
 });
 
 export async function createCategoryAction(formData: FormData) {
   const name = formData.get('name');
-  
+
   const validation = createCategorySchema.safeParse({ name });
   if (!validation.success) {
     return { error: validation.error.errors[0].message };
   }
-  
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { error: 'Not authenticated' };
 

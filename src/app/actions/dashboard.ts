@@ -46,217 +46,181 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   const supabase = await createClient();
 
   // Dual-layer security: explicit auth check + RLS
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const now = new Date();
-  
+
   let days = 30;
   if (period === '7d') days = 7;
   if (period === '90d') days = 90;
 
-  const currentPeriodStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
-  const previousPeriodStart = new Date(now.getTime() - (days * 2) * 24 * 60 * 60 * 1000).toISOString();
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  const { data: settings } = await supabase.from('tenant_settings').select('low_stock_threshold').eq('tenant_id', tenantUser?.tenant_id).single();
+  const lowStockThreshold = settings?.low_stock_threshold || 10;
 
-  // 1. Fetch Orders (with items and costs for margin calculation)
-  const { data: recentOrdersData } = await supabase
-    .from('orders')
-    .select(`
-      id, total_amount, created_at, status,
-      order_items (
-        quantity, unit_price,
-        product_variants ( cost_price )
-      )
-    `)
-    .in('status', ['paid', 'dispatched', 'delivered'])
-    .gte('created_at', previousPeriodStart);
-
-  const orders = recentOrdersData || [];
-  const currentPeriodOrders = orders.filter(o => o.created_at >= currentPeriodStart);
-  const previousPeriodOrders = orders.filter(o => o.created_at < currentPeriodStart);
-
-  // Sales & Orders calculations
-  const currentSales = currentPeriodOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
-  const previousSales = previousPeriodOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
-  const salesChange = previousSales === 0 ? 100 : ((currentSales - previousSales) / previousSales) * 100;
-
-  const currentOrderCount = currentPeriodOrders.length;
-  const previousOrderCount = previousPeriodOrders.length;
-  const orderChange = previousOrderCount === 0 ? 100 : ((currentOrderCount - previousOrderCount) / previousOrderCount) * 100;
-
-  // Margin calculation (Sales - Cost)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const calculateCost = (orderList: any /* eslint-disable-line @typescript-eslint/no-explicit-any */[]) => {
-    return orderList.reduce((sum, order) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itemsCost = (order.order_items || []).reduce((itemSum: number, item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-        const costPrice = item.product_variants?.cost_price || (item.unit_price * 0.6); // fallback to 60% of price if missing
-        return itemSum + (Number(item.quantity) * Number(costPrice));
-      }, 0);
-      return sum + itemsCost;
-    }, 0);
-  };
-
-  const currentCost = calculateCost(currentPeriodOrders);
-  const previousCost = calculateCost(previousPeriodOrders);
-  
-  const currentMargin = currentSales - currentCost;
-  const previousMargin = previousSales - previousCost;
-  const marginChange = previousMargin === 0 ? 100 : ((currentMargin - previousMargin) / previousMargin) * 100;
-
-  // 2–5. Run independent queries in parallel for performance
-  const [
-    { count: currentCustomers },
-    { count: totalCustomers },
-    { data: topProductsData },
-    { data: shipmentsData },
-    { data: lowStockData },
-    { data: suppliersBal }
-  ] = await Promise.all([
-    // 2a. New customers in current period
-    supabase
-      .from('customers')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', currentPeriodStart),
-    // 2b. Total customers
-    supabase
-      .from('customers')
-      .select('*', { count: 'exact', head: true }),
-    // 4. Top Products (ordered by newest — TODO: order by sales volume when available)
-    supabase
-      .from('products')
-      .select('id, name, base_price, image_url')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(4),
-    // 5A. Incoming Shipments
-    supabase
-      .from('shipments')
-      .select('id, tracking_number, eta, suppliers(name, country), shipment_items(quantity)')
-      .eq('status', 'in_transit')
-      .order('eta', { ascending: true })
-      .limit(3),
-    // 5B. Low Stock Alerts
-    supabase
-      .from('inventory_levels')
-      .select('quantity, product_variants(id, sku, name, products(name))')
-      .lt('quantity', 10)
-      .limit(3),
-    // 5C. Supplier Balances
-    supabase
-      .from('suppliers')
-      .select('id, name, outstanding_balance')
-      .gt('outstanding_balance', 0)
-      .limit(3),
-  ]);
-
-  // Process customer stats
-  const totalCust = totalCustomers || 0;
-  const customerChange = totalCust === 0 ? 0 : ((currentCustomers || 0) / totalCust) * 100;
-
-  // 3. Sales Chart (computed from already-fetched orders, no extra query needed)
-  const salesChartMap = new Map<string, number>();
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    salesChartMap.set(d.toISOString().split('T')[0], 0);
-  }
-  
-  currentPeriodOrders.forEach(o => {
-    const dateKey = o.created_at.split('T')[0];
-    if (salesChartMap.has(dateKey)) {
-      salesChartMap.set(dateKey, salesChartMap.get(dateKey)! + Number(o.total_amount));
-    }
+  // Call the new RPC for aggregated metrics
+  const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', {
+    p_days: days
   });
 
-  const salesChart = Array.from(salesChartMap.entries()).map(([date, sales]) => ({ date, sales }));
+  if (metricsError) {
+    console.error('Error fetching dashboard metrics RPC:', metricsError);
+    throw new Error('Failed to load dashboard metrics');
+  }
 
-  // Process shipments data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shipmentsList = (shipmentsData || []).map((s: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalUnits = (s.shipment_items || []).reduce((sum: number, item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => sum + item.quantity, 0);
+  const {
+    current_sales, previous_sales,
+    current_orders, previous_orders,
+    current_cost, previous_cost,
+    current_customers, total_customers,
+    sales_chart, top_products
+  } = metricsData as any;
+
+  const salesChange = previous_sales === 0 ? 100 : ((current_sales - previous_sales) / previous_sales) * 100;
+  const orderChange = previous_orders === 0 ? 100 : ((current_orders - previous_orders) / previous_orders) * 100;
+  
+  const currentMargin = current_sales - current_cost;
+  const previousMargin = previous_sales - previous_cost;
+  const marginChange = previousMargin === 0 ? 100 : ((currentMargin - previousMargin) / previousMargin) * 100;
+  
+  const customerChange = total_customers === 0 ? 0 : (current_customers / total_customers) * 100;
+
+  // 2. Fetch Attention Items
+  // 5A. Incoming Shipments
+  const { data: shipmentsData } = await supabase
+    .from('shipments')
+    .select('id, tracking_number, eta, suppliers(name, country), shipment_items(quantity)')
+    .eq('status', 'in_transit')
+    .order('eta', { ascending: true })
+    .limit(3);
+
+  // 5B. Low Stock Alerts
+  const { data: lowStockData } = await supabase
+    .from('inventory_levels')
+    .select('quantity, product_variants(id, sku, name, products(name))')
+    .lt('quantity', lowStockThreshold)
+    .limit(3);
+
+  // 5C. Supplier Balances
+  const { data: suppliersBal } = await supabase
+    .from('suppliers')
+    .select('id, name, outstanding_balance')
+    .gt('outstanding_balance', 0)
+    .limit(3);
+
+  interface DashboardShipment {
+    id: string;
+    tracking_number?: string;
+    status?: string;
+    eta?: string;
+    shipment_items?: { quantity?: number }[];
+    suppliers?: { name?: string; country?: string }[] | { name?: string; country?: string };
+  }
+
+  const shipmentsList = ((shipmentsData as unknown as DashboardShipment[]) || []).map((s) => {
+    const totalUnits = (s.shipment_items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const suppName = Array.isArray(s.suppliers) ? s.suppliers[0]?.name : s.suppliers?.name;
+    const suppOrigin = Array.isArray(s.suppliers) ? s.suppliers[0]?.country : s.suppliers?.country;
+
     return {
       id: s.tracking_number || s.id.substring(0, 8).toUpperCase(),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      supplierName: Array.isArray(s.suppliers) ? (s.suppliers[0] as any)?.name : (s.suppliers as any)?.name || 'Unknown',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      origin: Array.isArray(s.suppliers) ? (s.suppliers[0] as any)?.country : (s.suppliers as any)?.country || 'Unknown',
+      supplierName: (suppName || 'Unknown') as string,
+      status: s.status as 'Received' | 'In Transit' | 'Delayed',
+      origin: (suppOrigin || 'Unknown') as string,
       units: totalUnits,
-      preOrders: Math.floor(totalUnits * 0.2), // Mock pre-orders as 20% of shipment for now
-      eta: s.eta ? new Date(s.eta).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Unknown'
+      preOrders: 0, 
+      eta: s.eta ? new Date(s.eta).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Unknown',
     };
   });
 
   const nextShipment = shipmentsList.length > 0 ? shipmentsList[0] : null;
 
-  // Process low stock data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lowStockList = (lowStockData || []).map((ls: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-    const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
-    const prod = variant?.products ? (Array.isArray(variant.products) ? variant.products[0] : variant.products) : null;
-    return {
-      id: variant?.id || 'unknown',
-      name: prod?.name || 'Unknown Product',
-      size: variant?.name || 'Default',
-      remaining: ls.quantity,
-      avgWeeklySales: Math.floor(Math.random() * 20) + 5 // Placeholder for real velocity calculation
-    };
-  });
+  // Process low stock data and compute velocity (sales in last 30 days)
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  
+  const lowStockList = await Promise.all(
+    (lowStockData || []).map(async (ls: any) => {
+      const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
+      const prod = variant?.products
+        ? Array.isArray(variant.products)
+          ? variant.products[0]
+          : variant.products
+        : null;
 
-  // Process supplier balances
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supplierBalancesList = (suppliersBal || []).map((s: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => ({
-    id: s.id,
-    supplierName: s.name,
-    balance: Number(s.outstanding_balance)
-  }));
+      // Compute velocity dynamically for this variant
+      const { data: salesData } = await supabase
+        .from('order_items')
+        .select('quantity, orders!inner(created_at, status)')
+        .eq('variant_id', variant?.id)
+        .gte('orders.created_at', thirtyDaysAgo)
+        .in('orders.status', ['paid', 'dispatched', 'delivered']);
+        
+      const totalSoldLast30Days = (salesData || []).reduce((acc, item) => acc + (item.quantity || 0), 0);
+      const avgWeeklySales = Math.max(1, Math.round(totalSoldLast30Days / 4.33)); // 4.33 weeks in a month
+
+      return {
+        id: variant?.id || 'unknown',
+        name: prod?.name || 'Unknown Product',
+        size: variant?.name || 'Default',
+        remaining: ls.quantity,
+        avgWeeklySales,
+      };
+    })
+  );
+
+  const supplierBalancesList = (suppliersBal || []).map(
+    (s: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => ({
+      id: s.id,
+      supplierName: s.name,
+      balance: Number(s.outstanding_balance),
+    })
+  );
 
   // D. Intelligence Engine
-  // Generate insights based on the real data we pulled
   const intelligence = {
-    velocityInsight: "No immediate trends detected in your recent sales data.",
-    supplyInsight: ["• Stock levels are generally stable.", "• No major shipments in transit."],
-    recommendation: "Maintain current reorder strategies."
+    velocityInsight: 'No immediate trends detected in your recent sales data.',
+    supplyInsight: ['• Stock levels are generally stable.', '• No major shipments in transit.'],
+    recommendation: 'Maintain current reorder strategies.',
   };
 
   if (lowStockList.length > 0) {
     const topLow = lowStockList[0];
     const daysRemaining = Math.max(1, Math.floor((topLow.remaining / topLow.avgWeeklySales) * 7));
-    
+
     intelligence.velocityInsight = `Your ${topLow.name} (${topLow.size}) is moving fast. At the current rate of ${topLow.avgWeeklySales} units/week, it will likely sell out in ${daysRemaining} days.`;
-    
+
     if (nextShipment) {
       intelligence.supplyInsight = [
         `• Incoming shipment (${nextShipment.id}) contains ${nextShipment.units} units total.`,
         `• Based on current momentum, ${nextShipment.preOrders} are spoken for.`,
-        `• Net available after delivery: ${nextShipment.units - nextShipment.preOrders} units.`
+        `• Net available after delivery: ${nextShipment.units - nextShipment.preOrders} units.`,
       ];
       intelligence.recommendation = `Do not place another restock order yet. The incoming shipment from ${nextShipment.origin} provides a solid buffer. Re-evaluate after delivery.`;
     } else {
       intelligence.supplyInsight = [
         `• No active shipments contain this product.`,
-        `• ${topLow.remaining} units left in the warehouse.`
+        `• ${topLow.remaining} units left in the warehouse.`,
       ];
       intelligence.recommendation = `Place a purchase order for ${topLow.name} immediately to prevent a stockout event.`;
     }
   }
 
   return {
-    totalSales: { value: currentSales, change: salesChange },
-    totalOrders: { value: currentOrderCount, change: orderChange },
-    totalCustomers: { value: totalCustomers || 0, change: customerChange },
+    totalSales: { value: current_sales, change: salesChange },
+    totalOrders: { value: current_orders, change: orderChange },
+    totalCustomers: { value: total_customers || 0, change: customerChange },
     grossMargin: { value: currentMargin, change: marginChange },
-    topProducts: (topProductsData || []).map(p => ({
-      id: p.id, name: p.name, price: p.base_price, image_url: p.image_url
-    })),
-    salesChart,
+    topProducts: top_products || [],
+    salesChart: sales_chart || [],
     attention: {
       shipments: shipmentsList,
       lowStock: lowStockList,
-      supplierBalances: supplierBalancesList
+      supplierBalances: supplierBalancesList,
     },
     intelligence,
-    incoming: nextShipment
+    incoming: nextShipment,
   };
 }
-

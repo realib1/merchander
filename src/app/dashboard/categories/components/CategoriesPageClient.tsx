@@ -17,8 +17,8 @@ export function CategoriesPageClient({ categories }: { categories: CategoryData[
           setIsModalOpen(true);
         }}
       />
-      <CategoriesTable 
-        categories={categories} 
+      <CategoriesTable
+        categories={categories}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         editingCategory={editingCategory}

@@ -17,10 +17,8 @@ export default function BusinessHoursSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Business Hours</h1>
-        <p className="text-sm text-secondary mt-1">
-          Configure when your store is open for business and accepting orders.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Business Hours</h1>
+        <p className="text-sm  mt-1">Configure when your store is open for business and accepting orders.</p>
       </div>
 
       <Card>
@@ -41,20 +39,18 @@ export default function BusinessHoursSettingsPage() {
               <div key={day.id} className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-4 w-40">
                   <Switch defaultChecked={day.defaultOpen} />
-                  <span className={`text-sm font-medium ${day.defaultOpen ? 'text-primary' : 'text-muted'}`}>
-                    {day.name}
-                  </span>
+                  <span className={`text-sm font-medium ${day.defaultOpen ? '' : 'text-muted'}`}>{day.name}</span>
                 </div>
 
                 {day.defaultOpen ? (
                   <div className="flex items-center gap-3 flex-1 justify-end sm:justify-start">
-                    <select className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    <select className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary">
                       <option>09:00 AM</option>
                       <option>08:00 AM</option>
                       <option>10:00 AM</option>
                     </select>
                     <span className="text-muted text-sm">to</span>
-                    <select className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    <select className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary">
                       <option>05:00 PM</option>
                       <option>06:00 PM</option>
                       <option>04:00 PM</option>

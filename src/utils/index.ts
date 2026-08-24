@@ -1,4 +1,4 @@
-export { cn } from "./cn";
+export { cn } from './cn';
 export {
   formatCurrency,
   formatNumber,
@@ -6,5 +6,5 @@ export {
   formatRelativeTime,
   formatPhoneNumber,
   type FormatNumberOptions,
-} from "./format";
-export { escapeHtml, sanitizeInput, slugify, truncate, sanitizeNumeric } from "./sanitize";
+} from './format';
+export { escapeHtml, sanitizeInput, slugify, truncate, sanitizeNumeric } from './sanitize';

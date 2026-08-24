@@ -29,7 +29,7 @@ export function AdjustStockModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     const formData = new FormData();
     formData.append('variantId', variantId);
     formData.append('storeId', storeId || '');
@@ -39,7 +39,7 @@ export function AdjustStockModal({
       await updateStock(formData);
       toast.success('Stock updated');
       onClose();
-    } catch (error) {
+    } catch {
       toast.error('Failed to update stock');
     } finally {
       setIsSubmitting(false);
@@ -66,11 +66,11 @@ export function AdjustStockModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center justify-between p-3 bg-surface-elevated/50 border border-separator rounded-lg mb-4">
-          <span className="text-sm font-medium text-secondary">Existing units</span>
-          <span className="text-sm font-bold text-primary">{currentQuantity}</span>
+          <span className="text-sm font-medium">Existing units</span>
+          <span className="text-sm font-bold">{currentQuantity}</span>
         </div>
         <div className="space-y-2">
-          <label htmlFor="quantity" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="quantity" className="text-body-sm font-semibold">
             New Quantity
           </label>
           <input
@@ -79,7 +79,7 @@ export function AdjustStockModal({
             min="0"
             value={quantity}
             onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
             autoFocus
           />
         </div>

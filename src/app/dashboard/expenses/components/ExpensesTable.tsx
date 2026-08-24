@@ -17,7 +17,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this expense?')) return;
-    
+
     try {
       await deleteExpense(id);
       toast.success('Expense deleted successfully');
@@ -30,7 +30,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
     return new Date(dateStr).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -39,7 +39,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left whitespace-nowrap min-w-200">
           <thead>
-            <tr className="text-xs font-semibold text-secondary bg-surface-elevated/30 border-b border-separator">
+            <tr className="text-xs font-semibold  bg-surface-elevated/30 border-b border-separator">
               <th className="px-6 py-4">Date</th>
               <th className="px-6 py-4">Category</th>
               <th className="px-6 py-4">Description</th>
@@ -54,40 +54,42 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
                   <tr key={expense.id} className="hover:bg-surface-elevated/20 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-surface-elevated text-secondary flex items-center justify-center shrink-0">
+                        <div className="h-10 w-10 rounded-xl bg-surface-elevated  flex items-center justify-center shrink-0">
                           <Calendar size={18} />
                         </div>
-                        <div className="font-medium text-primary text-sm">
-                          {formatDate(expense.expense_date)}
-                        </div>
+                        <div className="font-medium  text-sm">{formatDate(expense.expense_date)}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-surface-elevated text-secondary border border-separator">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-surface-elevated  border border-separator">
                         {expense.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-secondary truncate max-w-62.5">
+                    <td className="px-6 py-4 text-sm  truncate max-w-62.5">
                       {expense.description || <span className="text-muted italic">No description</span>}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="text-sm font-bold text-primary">
-                        {expense.currency} {Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <div className="text-sm font-bold">
+                        {expense.currency}{' '}
+                        {Number(expense.amount).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
+                        <button
                           onClick={() => setEditingExpense(expense)}
-                          className="p-2 text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                          className="p-2  hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                           title="Edit"
                           aria-label="Edit expense"
                         >
                           <Edit3 size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(expense.id)}
-                          className="p-2 text-secondary hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                          className="p-2  hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                           title="Delete"
                           aria-label="Delete expense"
                         >
@@ -100,7 +102,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
               })
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-16 text-center text-secondary">
+                <td colSpan={5} className="px-6 py-16 text-center">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-surface-elevated flex items-center justify-center text-muted">
                       <DollarSign size={24} />
@@ -114,7 +116,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
           </tbody>
         </table>
       </div>
-      
+
       <ExpenseFormModal
         isOpen={!!editingExpense}
         onClose={() => setEditingExpense(null)}

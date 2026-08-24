@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import React from "react";
-import { motion, type HTMLMotionProps } from "motion/react";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useDevicePerformance } from "@/hooks/useDevicePerformance";
-import { cn } from "@/utils/cn";
+import React from 'react';
+import { motion, type HTMLMotionProps } from 'motion/react';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useDevicePerformance } from '@/hooks/useDevicePerformance';
+import { cn } from '@/utils/cn';
 
-export type RevealDirection = "up" | "down" | "left" | "right";
+export type RevealDirection = 'up' | 'down' | 'left' | 'right';
 
-export interface RevealProps extends Omit<HTMLMotionProps<"div">, "children"> {
+export interface RevealProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
   /** React children */
   children?: React.ReactNode;
   /** Direction from which the content slides into view */
@@ -28,7 +28,7 @@ export interface RevealProps extends Omit<HTMLMotionProps<"div">, "children"> {
  */
 export const Reveal: React.FC<RevealProps> = ({
   children,
-  direction = "up",
+  direction = 'up',
   distance = 24,
   duration = 0.45,
   delay = 0,
@@ -45,13 +45,13 @@ export const Reveal: React.FC<RevealProps> = ({
 
   const getInitialOffsets = (): { x: number; y: number } => {
     switch (direction) {
-      case "up":
+      case 'up':
         return { x: 0, y: distance };
-      case "down":
+      case 'down':
         return { x: 0, y: -distance };
-      case "left":
+      case 'left':
         return { x: distance, y: 0 };
-      case "right":
+      case 'right':
         return { x: -distance, y: 0 };
       default:
         return { x: 0, y: distance };

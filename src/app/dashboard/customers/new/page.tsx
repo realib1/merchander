@@ -13,13 +13,13 @@ export default function NewCustomerPage() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: ''
+    email: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       await createCustomer(formData);
       toast.success('Customer added successfully!');
@@ -35,29 +35,36 @@ export default function NewCustomerPage() {
   return (
     <div className="max-w-2xl mx-auto py-8">
       <div className="mb-6">
-        <Link href="/dashboard/customers" className="inline-flex items-center gap-2 text-sm text-secondary hover:text-brand-primary transition-colors mb-4">
+        <Link
+          href="/dashboard/customers"
+          className="inline-flex items-center gap-2 text-sm  hover:text-brand-primary transition-colors mb-4"
+        >
           <ArrowLeft size={16} />
           Back to Customers
         </Link>
-        <h1 className="text-3xl font-bold text-primary tracking-tight font-display">Add Customer</h1>
-        <p className="text-secondary mt-1 font-medium">Create a new customer profile.</p>
+        <h1 className="text-3xl font-bold  tracking-tight font-display">Add Customer</h1>
+        <p className="mt-1 font-medium">Create a new customer profile.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-surface border border-separator rounded-2xl p-6 shadow-sm space-y-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-primary mb-1.5">Full Name</label>
+          <label htmlFor="name" className="block text-sm font-medium  mb-1.5">
+            Full Name
+          </label>
           <input
             id="name"
             type="text"
             placeholder="e.g. Kwame Mensah"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors text-primary"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors"
           />
         </div>
 
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-primary mb-1.5">Phone Number <span className="text-brand-primary">*</span></label>
+          <label htmlFor="phone" className="block text-sm font-medium  mb-1.5">
+            Phone Number <span className="text-brand-primary">*</span>
+          </label>
           <input
             id="phone"
             type="tel"
@@ -65,24 +72,29 @@ export default function NewCustomerPage() {
             placeholder="e.g. 0241234567"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors text-primary"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-primary mb-1.5">Email Address</label>
+          <label htmlFor="email" className="block text-sm font-medium  mb-1.5">
+            Email Address
+          </label>
           <input
             id="email"
             type="email"
             placeholder="e.g. kwame@example.com"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors text-primary"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-colors"
           />
         </div>
 
         <div className="pt-4 border-t border-separator flex justify-end gap-3">
-          <Link href="/dashboard/customers" className="px-5 py-2.5 text-sm font-medium text-secondary hover:text-brand-primary transition-colors">
+          <Link
+            href="/dashboard/customers"
+            className="px-5 py-2.5 text-sm font-medium  hover:text-brand-primary transition-colors"
+          >
             Cancel
           </Link>
           <button

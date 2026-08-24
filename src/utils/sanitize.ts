@@ -3,12 +3,12 @@
  */
 
 const HTML_ENTITY_MAP: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#x27;",
-  "/": "&#x2F;",
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#x27;',
+  '/': '&#x2F;',
 };
 
 /**
@@ -18,7 +18,7 @@ const HTML_ENTITY_MAP: Record<string, string> = {
  * @returns Sanitized string safe for rendering.
  */
 export function escapeHtml(str: string): string {
-  if (!str) return "";
+  if (!str) return '';
   return str.replace(/[&<>"'/]/g, (match) => HTML_ENTITY_MAP[match] || match);
 }
 
@@ -29,9 +29,9 @@ export function escapeHtml(str: string): string {
  * @returns Cleaned input string.
  */
 export function sanitizeInput(input: string): string {
-  if (!input) return "";
+  if (!input) return '';
   // Removes control characters (ASCII 0-31, 127) except standard newline and tab
-  return input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
+  return input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').trim();
 }
 
 /**
@@ -41,15 +41,15 @@ export function sanitizeInput(input: string): string {
  * @returns Normalized slug (e.g. "smart-boutique-accra").
  */
 export function slugify(str: string): string {
-  if (!str) return "";
+  if (!str) return '';
   return str
     .toLowerCase()
     .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove accents
-    .replace(/[^a-z0-9\s-]/g, "") // Remove invalid characters
-    .replace(/[\s_-]+/g, "-") // Replace multiple spaces/underscores with single hyphen
-    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9\s-]/g, '') // Remove invalid characters
+    .replace(/[\s_-]+/g, '-') // Replace multiple spaces/underscores with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 }
 
 /**
@@ -60,13 +60,13 @@ export function slugify(str: string): string {
  * @param suffix - Ellipsis or suffix (defaults to "...").
  * @returns Truncated string.
  */
-export function truncate(str: string, maxLength: number, suffix: string = "..."): string {
-  if (!str || str.length <= maxLength) return str || "";
+export function truncate(str: string, maxLength: number, suffix: string = '...'): string {
+  if (!str || str.length <= maxLength) return str || '';
   if (maxLength <= suffix.length) return str.slice(0, maxLength);
 
   const targetLength = maxLength - suffix.length;
   const sliced = str.slice(0, targetLength);
-  const lastSpace = sliced.lastIndexOf(" ");
+  const lastSpace = sliced.lastIndexOf(' ');
 
   // If there's a space within the last 30% of the slice, break on word boundary
   if (lastSpace > targetLength * 0.7) {
@@ -84,12 +84,12 @@ export function truncate(str: string, maxLength: number, suffix: string = "...")
  * @returns Parsed number or fallback.
  */
 export function sanitizeNumeric(value: string | number, fallback: number = 0): number {
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return Number.isFinite(value) ? value : fallback;
   }
-  if (!value || typeof value !== "string") return fallback;
+  if (!value || typeof value !== 'string') return fallback;
 
-  const cleaned = value.replace(/[^0-9.-]/g, "");
+  const cleaned = value.replace(/[^0-9.-]/g, '');
   const parsed = parseFloat(cleaned);
   return Number.isFinite(parsed) ? parsed : fallback;
 }

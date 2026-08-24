@@ -1,10 +1,10 @@
-﻿"use client";
+﻿'use client';
 
-import React from "react";
-import { cn } from "@/utils/cn";
+import React from 'react';
+import { cn } from '@/utils/cn';
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive" | "outline";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual style variant */
@@ -20,22 +20,17 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
-  primary:
-    "bg-brand-primary text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
-  secondary:
-    "bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
-  outline:
-    "border border-separator bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]",
-  ghost:
-    "bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]",
-  destructive:
-    "bg-destructive text-white hover:opacity-90 active:scale-[0.98] shadow-sm",
+  primary: 'bg-brand-primary text-white hover:opacity-90 active:scale-[0.98] shadow-sm',
+  secondary: 'bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98] shadow-sm',
+  outline: 'border border-separator bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]',
+  ghost: 'bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]',
+  destructive: 'bg-destructive text-white hover:opacity-90 active:scale-[0.98] shadow-sm',
 };
 
 const SIZE_STYLES: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-xs gap-1.5 min-h-[36px]",
-  md: "h-10 px-4 text-sm gap-2 min-h-[44px]",
-  lg: "h-12 px-6 text-base gap-2.5 min-h-[48px]",
+  sm: 'h-8 px-3 text-xs gap-1.5 min-h-[36px]',
+  md: 'h-10 px-4 text-sm gap-2 min-h-[44px]',
+  lg: 'h-12 px-6 text-base gap-2.5 min-h-[48px]',
 };
 
 /**
@@ -45,14 +40,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,
-      variant = "primary",
-      size = "md",
+      variant = 'primary',
+      size = 'md',
       isLoading = false,
       leftIcon,
       rightIcon,
       disabled,
       className,
-      type = "button",
+      type = 'button',
       ...props
     },
     ref
@@ -66,9 +61,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-busy={isLoading}
         className={cn(
-          "inline-flex items-center justify-center font-medium transition-all duration-150 select-none",
-          "cursor-pointer rounded-md disabled:cursor-not-allowed disabled:opacity-50",
-          "focus-visible:ring-3 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:outline-none",
+          'inline-flex items-center justify-center font-medium transition-all duration-150 select-none',
+          'cursor-pointer rounded-md disabled:cursor-not-allowed disabled:opacity-50',
+          'focus-visible:ring-3 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:outline-none',
           VARIANT_STYLES[variant],
           SIZE_STYLES[size],
           className
@@ -85,14 +80,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               data-testid="loading-spinner"
               aria-hidden="true"
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path
                 className="opacity-75"
                 fill="currentColor"
@@ -113,4 +101,4 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-Button.displayName = "Button";
+Button.displayName = 'Button';

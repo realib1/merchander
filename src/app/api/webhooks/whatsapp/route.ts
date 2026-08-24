@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
       if (message && message.type === 'text') {
         const rawPhone = contact?.wa_id || message.from;
-        
+
         // 2. Normalize Phone Number
         const senderId = normalizeGhanaPhone(rawPhone) || `+${rawPhone}`;
 
@@ -49,12 +49,12 @@ export async function POST(request: NextRequest) {
           external_id: message.id,
           sender_id: senderId,
           text: message.text.body,
-          timestamp: new Date(parseInt(message.timestamp) * 1000).toISOString()
+          timestamp: new Date(parseInt(message.timestamp) * 1000).toISOString(),
         };
 
         // 4. Pass to the Intelligence Brain Interface
         const extractedCart = await extractCartFromChat(normalizedMsg);
-        
+
         // 5. TODO: Trigger order state machine (Ticket 4)
         console.log('[WhatsApp Webhook] Extracted cart:', extractedCart);
       }

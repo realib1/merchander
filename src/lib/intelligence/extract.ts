@@ -2,7 +2,7 @@ import { NormalizedMessage, ExtractedCart } from '@/types/messaging';
 
 /**
  * Sends a normalized message to the Python Intelligence Brain to extract structured cart intent.
- * 
+ *
  * In the future, this will hit our FastAPI endpoint.
  * For now, this is a placeholder/stub that simulates the extraction.
  */
@@ -19,9 +19,7 @@ export async function extractCartFromChat(message: NormalizedMessage): Promise<E
 
   // Simulated Stub Response for testing the commerce pipeline
   return {
-    items: [
-      { sku: 'FAKE-SKU-123', quantity: 1 }
-    ],
-    confidence: 0.85
+    items: [{ sku: 'FAKE-SKU-123', quantity: 1 }],
+    confidence: 0.85,
   };
 }

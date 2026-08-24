@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-export type PerformanceTier = "low" | "medium" | "high";
+export type PerformanceTier = 'low' | 'medium' | 'high';
 
 export interface DevicePerformanceState {
   /** Computed performance category based on hardware/network indicators */
@@ -28,36 +28,34 @@ interface NavigatorExtended extends Navigator {
  */
 export function useDevicePerformance(): DevicePerformanceState {
   const [performance, setPerformance] = useState<DevicePerformanceState>(() => ({
-    tier: "high",
+    tier: 'high',
     isLowEnd: false,
     isHighEnd: true,
   }));
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const nav = navigator as NavigatorExtended;
     const cores = nav.hardwareConcurrency ?? 4;
     const memory = nav.deviceMemory ?? 4;
     const isSaveData = nav.connection?.saveData ?? false;
-    const isSlowConnection =
-      nav.connection?.effectiveType === "2g" || nav.connection?.effectiveType === "slow-2g";
+    const isSlowConnection = nav.connection?.effectiveType === '2g' || nav.connection?.effectiveType === 'slow-2g';
 
-    let tier: PerformanceTier = "medium";
+    let tier: PerformanceTier = 'medium';
 
     if (isSaveData || isSlowConnection || cores <= 2 || memory <= 2) {
-      tier = "low";
+      tier = 'low';
     } else if (cores >= 8 && memory >= 8) {
-      tier = "high";
+      tier = 'high';
     }
 
     setPerformance({
       tier,
-      isLowEnd: tier === "low",
-      isHighEnd: tier === "high",
+      isLowEnd: tier === 'low',
+      isHighEnd: tier === 'high',
     });
   }, []);
 
   return performance;
 }
-

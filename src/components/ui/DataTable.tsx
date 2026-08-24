@@ -1,8 +1,8 @@
-﻿"use client";
+﻿'use client';
 
-import React, { useState, useMemo } from "react";
-import { cn } from "@/utils/cn";
-import { Skeleton } from "./Skeleton";
+import React, { useState, useMemo } from 'react';
+import { cn } from '@/utils/cn';
+import { Skeleton } from './Skeleton';
 
 export interface Column<T> {
   key: string;
@@ -25,7 +25,7 @@ export interface DataTableProps<T> {
   className?: string;
 }
 
-type SortOrder = "asc" | "desc";
+type SortOrder = 'asc' | 'desc';
 
 /**
  * Type-safe DataTable component supporting sortable headers, pagination, row selection, and empty/loading states.
@@ -35,7 +35,7 @@ export function DataTable<T extends Record<string, unknown>>({
   data,
   keyExtractor,
   isLoading = false,
-  emptyMessage = "No records found.",
+  emptyMessage = 'No records found.',
   pageSize = 10,
   selectable = false,
   selectedKeys: controlledSelectedKeys,
@@ -44,7 +44,7 @@ export function DataTable<T extends Record<string, unknown>>({
 }: DataTableProps<T>): React.JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [internalSelectedKeys, setInternalSelectedKeys] = useState<Set<string | number>>(new Set());
 
   const selectedKeysSet = useMemo(() => {
@@ -63,10 +63,10 @@ export function DataTable<T extends Record<string, unknown>>({
 
   const handleSort = (key: string): void => {
     if (sortKey === key) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
-      setSortOrder("asc");
+      setSortOrder('asc');
     }
   };
 
@@ -78,8 +78,8 @@ export function DataTable<T extends Record<string, unknown>>({
       if (valA === valB) return 0;
       if (valA === undefined || valA === null) return 1;
       if (valB === undefined || valB === null) return -1;
-      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
-      return sortOrder === "asc" ? 1 : -1;
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === 'asc' ? 1 : -1;
     });
   }, [data, sortKey, sortOrder]);
 
@@ -119,10 +119,7 @@ export function DataTable<T extends Record<string, unknown>>({
 
   return (
     <div
-      className={cn(
-        "flex w-full flex-col overflow-hidden rounded-lg border border-separator bg-surface",
-        className
-      )}
+      className={cn('flex w-full flex-col overflow-hidden rounded-lg border border-separator bg-surface', className)}
     >
       <div className="w-full overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
@@ -144,8 +141,8 @@ export function DataTable<T extends Record<string, unknown>>({
                   key={col.key}
                   onClick={() => col.sortable && handleSort(col.key)}
                   className={cn(
-                    "px-4 py-3 text-xs font-semibold select-none",
-                    col.sortable && "cursor-pointer hover:text-brand-primary",
+                    'px-4 py-3 text-xs font-semibold select-none',
+                    col.sortable && 'cursor-pointer hover:text-brand-primary',
                     col.className
                   )}
                 >
@@ -153,7 +150,7 @@ export function DataTable<T extends Record<string, unknown>>({
                     <span>{col.header}</span>
                     {col.sortable && (
                       <span className="text-caption opacity-70">
-                        {sortKey === col.key ? (sortOrder === "asc" ? "▲" : "▼") : "↕"}
+                        {sortKey === col.key ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
                       </span>
                     )}
                   </div>
@@ -179,10 +176,7 @@ export function DataTable<T extends Record<string, unknown>>({
               ))
             ) : paginatedData.length === 0 ? (
               <tr>
-                <td
-                  colSpan={totalColCount}
-                  className="px-4 py-8 text-center text-sm text-muted"
-                >
+                <td colSpan={totalColCount} className="px-4 py-8 text-center text-sm text-muted">
                   {emptyMessage}
                 </td>
               </tr>
@@ -194,10 +188,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 return (
                   <tr
                     key={rowKey}
-                    className={cn(
-                      "transition-colors hover:bg-surface-elevated/50",
-                      isSelected && "bg-brand-primary/5"
-                    )}
+                    className={cn('transition-colors hover:bg-surface-elevated/50', isSelected && 'bg-brand-primary/5')}
                   >
                     {selectable && (
                       <td className="w-10 px-4 py-3 text-center">
@@ -211,8 +202,8 @@ export function DataTable<T extends Record<string, unknown>>({
                       </td>
                     )}
                     {columns.map((col) => (
-                      <td key={col.key} className={cn("px-4 py-3", col.className)}>
-                        {col.render ? col.render(item, index) : String(item[col.key] ?? "")}
+                      <td key={col.key} className={cn('px-4 py-3', col.className)}>
+                        {col.render ? col.render(item, index) : String(item[col.key] ?? '')}
                       </td>
                     ))}
                   </tr>

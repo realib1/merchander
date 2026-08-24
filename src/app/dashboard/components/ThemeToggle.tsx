@@ -24,11 +24,7 @@ export function ThemeToggle() {
       className="relative w-8 h-8 rounded-full bg-surface-elevated border border-separator flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-brand-primary/50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer"
       aria-label="Toggle theme"
     >
-      {resolvedTheme === 'dark' ? (
-        <Sun size={18} />
-      ) : (
-        <Moon size={18} />
-      )}
+      {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }

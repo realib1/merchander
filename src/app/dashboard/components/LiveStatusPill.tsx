@@ -13,20 +13,20 @@ export function LiveStatusPill({ status }: LiveStatusPillProps) {
       color: 'bg-green-500/10 text-green-700 border-green-500/20',
       dot: 'bg-green-500',
       label: 'Bot Online',
-      icon: <Wifi size={14} className="mr-1.5" />
+      icon: <Wifi size={14} className="mr-1.5" />,
     },
     offline: {
       color: 'bg-red-500/10 text-red-700 border-red-500/20',
       dot: 'bg-red-500',
       label: 'Bot Offline',
-      icon: <WifiOff size={14} className="mr-1.5" />
+      icon: <WifiOff size={14} className="mr-1.5" />,
     },
     connecting: {
       color: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
       dot: 'bg-yellow-500 animate-pulse',
       label: 'Connecting...',
-      icon: <Activity size={14} className="mr-1.5 animate-pulse" />
-    }
+      icon: <Activity size={14} className="mr-1.5 animate-pulse" />,
+    },
   };
 
   const config = statusConfig[status];

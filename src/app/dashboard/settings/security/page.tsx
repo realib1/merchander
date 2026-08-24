@@ -8,10 +8,8 @@ export default function SecuritySettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Security Settings</h1>
-        <p className="text-sm text-secondary mt-1">
-          Manage your password, authentication, and active sessions.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Security Settings</h1>
+        <p className="text-sm  mt-1">Manage your password, authentication, and active sessions.</p>
       </div>
 
       {/* Password Section */}
@@ -58,25 +56,21 @@ export default function SecuritySettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Authenticator App</h4>
-              <p className="text-sm text-secondary">
-                Use an app like Google Authenticator or Authy to generate verification codes.
-              </p>
+              <h4 className="text-sm font-medium">Authenticator App</h4>
+              <p className="text-sm">Use an app like Google Authenticator or Authy to generate verification codes.</p>
             </div>
             <Switch defaultChecked={false} />
           </div>
-          
+
           <div className="w-full h-px bg-separator opacity-50" />
-          
+
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary flex items-center gap-2">
+              <h4 className="text-sm font-medium  flex items-center gap-2">
                 <Smartphone className="h-4 w-4 text-muted" />
                 SMS Recovery
               </h4>
-              <p className="text-sm text-secondary">
-                Receive a code via SMS if you lose access to your authenticator app.
-              </p>
+              <p className="text-sm">Receive a code via SMS if you lose access to your authenticator app.</p>
             </div>
             <Switch defaultChecked={true} />
           </div>
@@ -96,7 +90,11 @@ export default function SecuritySettingsPage() {
                 <CardDescription>Devices that are currently logged into your account.</CardDescription>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="text-destructive border-destructive/50 hover:bg-destructive/10">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive border-destructive/50 hover:bg-destructive/10"
+            >
               Sign out all devices
             </Button>
           </div>
@@ -108,13 +106,13 @@ export default function SecuritySettingsPage() {
               <div className="flex items-start gap-4">
                 <MonitorSmartphone className="h-8 w-8 text-muted mt-1" />
                 <div>
-                  <h4 className="text-sm font-medium text-primary flex items-center gap-2">
+                  <h4 className="text-sm font-medium  flex items-center gap-2">
                     MacBook Pro - Accra, Ghana
                     <span className="px-2 py-0.5 rounded text-caption font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                       Current Session
                     </span>
                   </h4>
-                  <p className="text-xs text-secondary mt-1">Chrome on macOS 14.2 • IP: 197.210.64.12</p>
+                  <p className="text-xs  mt-1">Chrome on macOS 14.2 • IP: 197.210.64.12</p>
                   <p className="text-xs text-muted mt-0.5">Active now</p>
                 </div>
               </div>
@@ -125,12 +123,14 @@ export default function SecuritySettingsPage() {
               <div className="flex items-start gap-4">
                 <Smartphone className="h-8 w-8 text-muted mt-1" />
                 <div>
-                  <h4 className="text-sm font-medium text-primary">iPhone 14 Pro - Accra, Ghana</h4>
-                  <p className="text-xs text-secondary mt-1">Safari on iOS 17.1 • IP: 154.160.10.4</p>
+                  <h4 className="text-sm font-medium">iPhone 14 Pro - Accra, Ghana</h4>
+                  <p className="text-xs  mt-1">Safari on iOS 17.1 • IP: 154.160.10.4</p>
                   <p className="text-xs text-muted mt-0.5">Last active: 2 hours ago</p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-secondary">Revoke</Button>
+              <Button variant="ghost" size="sm" className="">
+                Revoke
+              </Button>
             </div>
           </div>
         </CardBody>

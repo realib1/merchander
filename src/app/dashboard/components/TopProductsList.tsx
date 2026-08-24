@@ -23,21 +23,19 @@ export function TopProductsList({ products }: { products: TopProduct[] }) {
   return (
     <div className="divide-y divide-separator">
       {products.map((product) => (
-        <div key={product.id} className="flex items-center gap-3 py-3 px-4 hover:bg-surface-elevated/50 transition-colors">
+        <div
+          key={product.id}
+          className="flex items-center gap-3 py-3 px-4 hover:bg-surface-elevated/50 transition-colors"
+        >
           <div className="w-10 h-10 rounded bg-surface-elevated border border-separator overflow-hidden shrink-0 flex items-center justify-center relative">
             {product.image_url ? (
-              <Image 
-                src={product.image_url} 
-                alt={product.name} 
-                fill 
-                className="object-cover" 
-              />
+              <Image src={product.image_url} alt={product.name} fill className="object-cover" />
             ) : (
               <Package size={16} className="text-muted" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-primary truncate">{product.name}</h4>
+            <h4 className="text-sm font-semibold  truncate">{product.name}</h4>
             <p className="text-xs text-muted">{formatCurrency(product.price)}</p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MessageCircle, Camera, MessageSquare } from 'lucide-react';
 
@@ -6,17 +6,15 @@ export default function ChannelsSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Connected Channels</h1>
-        <p className="text-sm text-secondary mt-1">
-          Connect your social media accounts to sync messages and orders into Merchander.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Connected Channels</h1>
+        <p className="text-sm  mt-1">Connect your social media accounts to sync messages and orders into Merchander.</p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#25D366]/10 text-[#25D366]">
+              <div className="p-2 rounded-lg bg-brand-whatsapp/10 text-brand-whatsapp">
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div>
@@ -32,12 +30,14 @@ export default function ChannelsSettingsPage() {
         <CardBody className="space-y-4">
           <div className="p-4 bg-surface-elevated rounded-md border border-separator flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-primary">Official WhatsApp Number</p>
-              <p className="text-xs text-secondary mt-1">+233 24 123 4567</p>
+              <p className="text-sm font-medium">Official WhatsApp Number</p>
+              <p className="text-xs  mt-1">+233 24 123 4567</p>
             </div>
-            <Button variant="outline" size="sm">Manage Number</Button>
+            <Button variant="outline" size="sm">
+              Manage Number
+            </Button>
           </div>
-          <p className="text-xs text-secondary">
+          <p className="text-xs">
             Your WhatsApp Business account is active. Auto-replies and anti-ban safeguards are automatically enforced.
           </p>
         </CardBody>
@@ -47,7 +47,7 @@ export default function ChannelsSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#E1306C]/10 text-[#E1306C]">
+              <div className="p-2 rounded-lg bg-brand-instagram/10 text-brand-instagram">
                 <Camera className="h-5 w-5" />
               </div>
               <div>
@@ -55,7 +55,9 @@ export default function ChannelsSettingsPage() {
                 <CardDescription>Reply to DMs and story replies directly from your inbox.</CardDescription>
               </div>
             </div>
-            <Button variant="outline" size="sm">Connect Account</Button>
+            <Button variant="outline" size="sm">
+              Connect Account
+            </Button>
           </div>
         </CardHeader>
       </Card>
@@ -64,7 +66,7 @@ export default function ChannelsSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#1877F2]/10 text-[#1877F2]">
+              <div className="p-2 rounded-lg bg-brand-facebook/10 text-brand-facebook">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div>
@@ -72,7 +74,9 @@ export default function ChannelsSettingsPage() {
                 <CardDescription>Sync messages from your Facebook Page.</CardDescription>
               </div>
             </div>
-            <Button variant="outline" size="sm">Connect Page</Button>
+            <Button variant="outline" size="sm">
+              Connect Page
+            </Button>
           </div>
         </CardHeader>
       </Card>

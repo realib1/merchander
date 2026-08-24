@@ -10,15 +10,19 @@ import { z } from 'zod';
 const createOrderSchema = z.object({
   customerName: z.string().optional().nullable(),
   customerPhone: z.string().optional().nullable(),
-  storeId: z.string().uuid("Invalid store ID"),
+  storeId: z.string().uuid('Invalid store ID'),
   deliveryAddress: z.string().optional(),
   deliveryFee: z.number().min(0).default(0),
   paymentMethod: z.enum(['momo', 'card_payment', 'cash_payment', 'cash_on_delivery']),
-  items: z.array(z.object({
-    variantId: z.string().uuid("Invalid variant ID"),
-    quantity: z.number().int().positive("Quantity must be positive"),
-    unitPrice: z.number().positive("Unit price must be positive")
-  })).min(1, "Order must contain at least one item")
+  items: z
+    .array(
+      z.object({
+        variantId: z.string().uuid('Invalid variant ID'),
+        quantity: z.number().int().positive('Quantity must be positive'),
+        unitPrice: z.number().positive('Unit price must be positive'),
+      })
+    )
+    .min(1, 'Order must contain at least one item'),
 });
 
 export async function createOrderAction(formData: FormData) {
@@ -28,7 +32,7 @@ export async function createOrderAction(formData: FormData) {
     if (itemsJson) {
       parsedItems = JSON.parse(itemsJson);
     }
-  } catch (_e) {
+  } catch {
     return { error: 'Invalid items format' };
   }
 
@@ -39,7 +43,7 @@ export async function createOrderAction(formData: FormData) {
     deliveryAddress: formData.get('deliveryAddress'),
     deliveryFee: parseFloat(formData.get('deliveryFee') as string) || 0,
     paymentMethod: formData.get('paymentMethod'),
-    items: parsedItems
+    items: parsedItems,
   };
 
   const validation = createOrderSchema.safeParse(rawData);
@@ -50,15 +54,13 @@ export async function createOrderAction(formData: FormData) {
   const data = validation.data;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { error: 'Not authenticated' };
 
-  const { data: tenantUser } = await supabase
-    .from('tenant_users')
-    .select('tenant_id')
-    .eq('user_id', user.id)
-    .single();
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
 
   if (!tenantUser) return { error: 'Tenant not found' };
   const tenantId = tenantUser.tenant_id;
@@ -68,7 +70,7 @@ export async function createOrderAction(formData: FormData) {
   const rawPhone = data.customerPhone && data.customerPhone.trim() !== '' ? data.customerPhone : '0000000000';
   const rawName = data.customerName && data.customerName.trim() !== '' ? data.customerName : 'Walk-in Customer';
   const normalizedPhone = normalizeGhanaPhone(rawPhone) || rawPhone; // Fallback to raw if parsing fails
-  
+
   // Find existing customer
   let customerId = '';
   const { data: existingCustomer } = await supabase
@@ -86,17 +88,17 @@ export async function createOrderAction(formData: FormData) {
       .insert({
         tenant_id: tenantId,
         name: rawName,
-        phone: normalizedPhone
+        phone: normalizedPhone,
       })
       .select('id')
       .single();
-      
+
     if (custError || !newCustomer) return { error: 'Failed to create customer' };
     customerId = newCustomer.id;
   }
 
   // 2. Calculate Total
-  const itemsTotal = data.items.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+  const itemsTotal = data.items.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
   const totalAmount = itemsTotal + data.deliveryFee;
 
   const actionType = formData.get('action') as string;
@@ -112,7 +114,7 @@ export async function createOrderAction(formData: FormData) {
       status: initialStatus,
       total_amount: totalAmount,
       delivery_address: data.deliveryAddress,
-      delivery_fee: data.deliveryFee
+      delivery_fee: data.deliveryFee,
     })
     .select('id')
     .single();
@@ -120,31 +122,28 @@ export async function createOrderAction(formData: FormData) {
   if (orderError || !order) return { error: 'Failed to create order' };
 
   // 4. Insert Order Items
-  const orderItemsInsert = data.items.map(item => ({
+  const orderItemsInsert = data.items.map((item) => ({
     order_id: order.id,
     variant_id: item.variantId,
     quantity: item.quantity,
-    unit_price: item.unitPrice
+    unit_price: item.unitPrice,
   }));
 
-  const { error: itemsError } = await supabase
-    .from('order_items')
-    .insert(orderItemsInsert);
+  const { error: itemsError } = await supabase.from('order_items').insert(orderItemsInsert);
 
   if (itemsError) return { error: 'Failed to add items to order' };
 
   // 5. Insert Payment Record
   if (data.paymentMethod) {
-    const paymentStatus = (data.paymentMethod === 'cash_payment' || data.paymentMethod === 'card_payment') ? 'completed' : 'pending';
-    const { error: paymentError } = await supabase
-      .from('payments')
-      .insert({
-        tenant_id: tenantId,
-        order_id: order.id,
-        provider: data.paymentMethod,
-        amount: totalAmount,
-        status: paymentStatus
-      });
+    const paymentStatus =
+      data.paymentMethod === 'cash_payment' || data.paymentMethod === 'card_payment' ? 'completed' : 'pending';
+    const { error: paymentError } = await supabase.from('payments').insert({
+      tenant_id: tenantId,
+      order_id: order.id,
+      provider: data.paymentMethod,
+      amount: totalAmount,
+      status: paymentStatus,
+    });
     if (paymentError) return { error: 'Failed to create payment record' };
   }
 

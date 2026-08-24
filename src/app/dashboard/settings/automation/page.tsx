@@ -8,10 +8,8 @@ export default function AutomationSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Automation & Bots</h1>
-        <p className="text-sm text-secondary mt-1">
-          Configure automated replies, greeting messages, and AI responses.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Automation & Bots</h1>
+        <p className="text-sm  mt-1">Configure automated replies, greeting messages, and AI responses.</p>
       </div>
 
       <Card>
@@ -37,9 +35,9 @@ export default function AutomationSettingsPage() {
             defaultValue="Hi there! 👋 Welcome to Merchander Official. How can we help you today?"
             hint="Sent automatically when a customer messages you for the first time."
           />
-          
+
           <div className="w-full h-px bg-separator opacity-50" />
-          
+
           <FormField
             label="Away Message"
             isTextarea
@@ -70,15 +68,19 @@ export default function AutomationSettingsPage() {
             <div className="flex items-center justify-between p-4 bg-surface-elevated border-b border-separator/50">
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-medium text-primary">Store Location</h4>
-                  <span className="px-1.5 py-0.5 rounded bg-surface border border-separator text-caption text-muted">location, where are you</span>
+                  <h4 className="text-sm font-medium">Store Location</h4>
+                  <span className="px-1.5 py-0.5 rounded bg-surface border border-separator text-caption text-muted">
+                    location, where are you
+                  </span>
                 </div>
-                <p className="text-xs text-secondary mt-1 line-clamp-1">We are located at 14 Independence Avenue, Accra.</p>
+                <p className="text-xs  mt-1 line-clamp-1">We are located at 14 Independence Avenue, Accra.</p>
               </div>
               <Switch defaultChecked={true} />
             </div>
             <div className="p-3 bg-surface text-center">
-              <Button variant="outline" size="sm" className="w-full text-xs">Add New Keyword Rule</Button>
+              <Button variant="outline" size="sm" className="w-full text-xs">
+                Add New Keyword Rule
+              </Button>
             </div>
           </div>
         </CardBody>
@@ -97,8 +99,9 @@ export default function AutomationSettingsPage() {
           </div>
         </CardHeader>
         <CardBody className="space-y-6">
-          <div className="p-4 bg-surface-elevated rounded-md border border-separator text-sm text-secondary">
-            Merchander automatically enforces messaging limits, applies human-like typing delays for bots, and implements session recovery to protect your account. These safeguards are permanently active.
+          <div className="p-4 bg-surface-elevated rounded-md border border-separator text-sm">
+            Merchander automatically enforces messaging limits, applies human-like typing delays for bots, and
+            implements session recovery to protect your account. These safeguards are permanently active.
           </div>
         </CardBody>
       </Card>

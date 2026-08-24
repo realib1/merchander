@@ -11,9 +11,7 @@ export async function joinWaitlist(formData: FormData) {
 
   const supabase = await createClient();
 
-  const { error } = await supabase
-    .from('waitlist')
-    .insert({ email });
+  const { error } = await supabase.from('waitlist').insert({ email });
 
   if (error) {
     // Unique violation error code in Postgres is 23505

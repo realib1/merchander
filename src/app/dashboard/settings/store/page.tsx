@@ -1,16 +1,14 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
-import { Store, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Store } from 'lucide-react';
 
 export default function StoreSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Store Settings</h1>
-        <p className="text-sm text-secondary mt-1">
-          Customize how your store appears to customers on the storefront.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Store Settings</h1>
+        <p className="text-sm  mt-1">Customize how your store appears to customers on the storefront.</p>
       </div>
 
       <Card>
@@ -31,19 +29,23 @@ export default function StoreSettingsPage() {
               <Store className="h-6 w-6 text-muted" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-sm font-medium text-primary">Store Logo</h4>
-              <p className="text-xs text-secondary">Recommended size: 512x512px. Max 2MB.</p>
+              <h4 className="text-sm font-medium">Store Logo</h4>
+              <p className="text-xs">Recommended size: 512x512px. Max 2MB.</p>
               <div className="flex gap-3 mt-2">
-                <Button variant="outline" size="sm">Upload Logo</Button>
+                <Button variant="outline" size="sm">
+                  Upload Logo
+                </Button>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <FormField label="Store Name" defaultValue="Merchander Official Store" />
-            
+
             <div className="space-y-1.5">
-              <label htmlFor="storeUrl" className="text-sm font-medium text-primary">Store URL</label>
+              <label htmlFor="storeUrl" className="text-sm font-medium">
+                Store URL
+              </label>
               <div className="flex shadow-sm rounded-md overflow-hidden">
                 <span className="inline-flex items-center px-3 border border-r-0 border-separator bg-surface-elevated text-muted text-sm rounded-l-md">
                   merchander.com/
@@ -52,10 +54,10 @@ export default function StoreSettingsPage() {
                   id="storeUrl"
                   type="text"
                   defaultValue="official"
-                  className="flex-1 w-full border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-r-md"
+                  className="flex-1 w-full border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-r-md"
                 />
               </div>
-              <p className="text-xs text-secondary mt-1">Your unique store link for customers.</p>
+              <p className="text-xs  mt-1">Your unique store link for customers.</p>
             </div>
 
             <FormField
@@ -77,8 +79,13 @@ export default function StoreSettingsPage() {
         <CardBody className="space-y-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label htmlFor="currency" className="text-sm font-medium text-primary">Default Currency</label>
-              <select id="currency" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              <label htmlFor="currency" className="text-sm font-medium">
+                Default Currency
+              </label>
+              <select
+                id="currency"
+                className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
                 <option>GHS (Ghana Cedi)</option>
                 <option>NGN (Nigerian Naira)</option>
                 <option>USD (US Dollar)</option>
@@ -86,8 +93,13 @@ export default function StoreSettingsPage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label htmlFor="weight" className="text-sm font-medium text-primary">Weight Unit</label>
-              <select id="weight" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              <label htmlFor="weight" className="text-sm font-medium">
+                Weight Unit
+              </label>
+              <select
+                id="weight"
+                className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
                 <option>Kilograms (kg)</option>
                 <option>Grams (g)</option>
                 <option>Pounds (lb)</option>

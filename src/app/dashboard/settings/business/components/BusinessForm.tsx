@@ -38,17 +38,23 @@ export function BusinessForm({ initialTenantName }: { initialTenantName: string 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <FormField name="tenantName" label="Legal Business Name" defaultValue={initialTenantName} />
           <FormField name="tradingName" label="Trading Name (DBA)" defaultValue="" hint="Optional" />
-          
+
           <div className="space-y-1.5">
-            <label htmlFor="industry" className="text-sm font-medium text-primary">Industry / Business Type</label>
-            <select id="industry" name="industry" className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <label htmlFor="industry" className="text-sm font-medium">
+              Industry / Business Type
+            </label>
+            <select
+              id="industry"
+              name="industry"
+              className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            >
               <option>Retail & E-commerce</option>
               <option>Wholesale & Distribution</option>
               <option>Fashion & Apparel</option>
               <option>Electronics</option>
             </select>
           </div>
-          
+
           <FormField name="taxId" label="Registration Number / Tax ID" defaultValue="TIN-987654321" />
         </div>
       </CardBody>

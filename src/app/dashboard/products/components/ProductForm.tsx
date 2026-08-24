@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/Button';
 import { createProductAction } from '@/app/actions/create-product';
 import { updateProductAction } from '@/app/actions/update-product';
 import { createCategoryAction } from '@/app/actions/create-category';
-import { UploadCloud, Plus, Trash2, Settings, ArrowLeft, X } from 'lucide-react';
+import { UploadCloud, Plus, Trash2, ArrowLeft, X } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { saveFilesToDraft, getFilesFromDraft, clearFilesFromDraft } from '@/lib/draft';
@@ -66,7 +67,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   const [stockUnit, setStockUnit] = useState<string>(initialData?.stockUnit ?? 'pcs');
   const [files, setFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(initialData?.imageUrls ?? []);
-  
+
   // Category UI State
   const [categories, setCategories] = useState<Category[]>(initialCategories);
 
@@ -82,14 +83,18 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   const [isSavingCategory, setIsSavingCategory] = useState(false);
 
   // Variants State - initialize with one default variant
-  const [variants, setVariants] = useState<VariantState[]>(initialData?.variants ?? [{
-    id: 'default',
-    sku: '',
-    name: 'Default',
-    price: '',
-    costPrice: '',
-    inventory: {}
-  }]);
+  const [variants, setVariants] = useState<VariantState[]>(
+    initialData?.variants ?? [
+      {
+        id: 'default',
+        sku: '',
+        name: 'Default',
+        price: '',
+        costPrice: '',
+        inventory: {},
+      },
+    ]
+  );
 
   const [basePrice, setBasePrice] = useState<number | ''>(initialData?.basePrice ?? '');
   const [baseCostPrice, setBaseCostPrice] = useState<number | ''>(initialData?.baseCostPrice ?? '');
@@ -113,21 +118,23 @@ export function ProductForm({ stores, categories: initialCategories, initialData
         if (parsed.variants !== undefined) setVariants(parsed.variants);
         if (parsed.basePrice !== undefined) setBasePrice(parsed.basePrice);
         if (parsed.baseCostPrice !== undefined) setBaseCostPrice(parsed.baseCostPrice);
-      } catch (e) {
+      } catch {
         // ignore parse errors
       }
     }
-    
+
     // Load files from IndexedDB draft
-    getFilesFromDraft('product-images').then(draftFiles => {
-      if (draftFiles && draftFiles.length > 0) {
-        setFiles(draftFiles);
-      }
-      setIsLoaded(true);
-    }).catch(e => {
-      console.error('Failed to load drafted files', e);
-      setIsLoaded(true);
-    });
+    getFilesFromDraft('product-images')
+      .then((draftFiles) => {
+        if (draftFiles && draftFiles.length > 0) {
+          setFiles(draftFiles);
+        }
+        setIsLoaded(true);
+      })
+      .catch((e) => {
+        console.error('Failed to load drafted files', e);
+        setIsLoaded(true);
+      });
   }, [initialData]);
 
   // Save draft on change (only if NOT editing)
@@ -140,46 +147,49 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   }, [name, description, isActive, categoryId, vendor, stockUnit, variants, basePrice, baseCostPrice, files, isLoaded]);
 
   const handleAddVariant = () => {
-    setVariants([...variants, {
-      id: Math.random().toString(36).substr(2, 9),
-      sku: '',
-      name: '',
-      price: '',
-      costPrice: '',
-      inventory: {}
-    }]);
+    setVariants([
+      ...variants,
+      {
+        id: Math.random().toString(36).substr(2, 9),
+        sku: '',
+        name: '',
+        price: '',
+        costPrice: '',
+        inventory: {},
+      },
+    ]);
   };
 
   const removeVariant = (id: string) => {
     if (variants.length === 1) return; // Prevent removing last variant
-    setVariants(variants.filter(v => v.id !== id));
+    setVariants(variants.filter((v) => v.id !== id));
   };
 
   const updateVariant = (id: string, field: keyof VariantState, value: VariantState[keyof VariantState]) => {
-    setVariants(variants.map(v => 
-      v.id === id ? { ...v, [field]: value } : v
-    ));
+    setVariants(variants.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
   };
 
   const updateVariantInventory = (variantId: string, storeId: string, quantity: number) => {
-    setVariants(variants.map(v => {
-      if (v.id === variantId) {
-        return {
-          ...v,
-          inventory: {
-            ...v.inventory,
-            [storeId]: quantity
-          }
-        };
-      }
-      return v;
-    }));
+    setVariants(
+      variants.map((v) => {
+        if (v.id === variantId) {
+          return {
+            ...v,
+            inventory: {
+              ...v.inventory,
+              [storeId]: quantity,
+            },
+          };
+        }
+        return v;
+      })
+    );
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files || []);
     if (newFiles.length > 0) {
-      setFiles(prev => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...newFiles]);
     }
     // Reset input so the same files can be selected again if removed
     e.target.value = '';
@@ -190,7 +200,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   };
 
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSaveCategory = async () => {
@@ -212,29 +222,29 @@ export function ProductForm({ stores, categories: initialCategories, initialData
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     startTransition(async () => {
       const uploadedUrls: string[] = [];
-      
+
       if (files.length > 0) {
         const supabase = createClient();
         for (const file of files) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Math.random().toString(36).substr(2, 9)}_${Date.now()}.${fileExt}`;
-          
+
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('product-images')
             .upload(fileName, file, { cacheControl: '3600', upsert: false });
-            
+
           if (uploadError) {
             toast.error(`Failed to upload ${file.name}`);
             return;
           }
-          
+
           if (uploadData) {
-            const { data: { publicUrl } } = supabase.storage
-              .from('product-images')
-              .getPublicUrl(fileName);
+            const {
+              data: { publicUrl },
+            } = supabase.storage.from('product-images').getPublicUrl(fileName);
             uploadedUrls.push(publicUrl);
           }
         }
@@ -246,21 +256,22 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       formData.append('isActive', isActive.toString());
       const finalVariants = variants.map((v, idx) => {
         const parsedPrice = v.price === '' ? (basePrice === '' ? 0 : basePrice) : v.price;
-        const parsedCostPrice = v.costPrice === '' || v.costPrice === undefined ? (baseCostPrice === '' ? null : baseCostPrice) : v.costPrice;
+        const parsedCostPrice =
+          v.costPrice === '' || v.costPrice === undefined ? (baseCostPrice === '' ? null : baseCostPrice) : v.costPrice;
         return {
           ...v,
           name: v.name || (idx === 0 && variants.length === 1 ? 'Default' : `Variant ${idx + 1}`),
           price: parsedPrice,
-          costPrice: parsedCostPrice
+          costPrice: parsedCostPrice,
         };
       });
-      
+
       formData.append('variants', JSON.stringify(finalVariants));
       if (categoryId) formData.append('categoryId', categoryId);
       if (vendor) formData.append('vendor', vendor);
       formData.append('stockUnit', stockUnit);
       if (initialData) formData.append('id', initialData.id);
-      
+
       const allImageUrls = [...existingImages, ...uploadedUrls];
       if (allImageUrls.length > 0) formData.append('imageUrls', JSON.stringify(allImageUrls));
 
@@ -270,7 +281,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       } else {
         result = await createProductAction(formData);
       }
-      
+
       if (result?.error) {
         toast.error(result.error);
       } else {
@@ -289,7 +300,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       sessionStorage.removeItem('product-form-draft');
       await clearFilesFromDraft('product-images').catch(console.error);
     }
-    
+
     // Reset local state just in case
     setName('');
     setDescription('');
@@ -298,16 +309,18 @@ export function ProductForm({ stores, categories: initialCategories, initialData
     setCategoryId('');
     setVendor('');
     setStockUnit('pcs');
-    setVariants([{
-      id: 'default',
-      sku: '',
-      name: 'Default',
-      price: '',
-      costPrice: '',
-      inventory: {}
-    }]);
+    setVariants([
+      {
+        id: 'default',
+        sku: '',
+        name: 'Default',
+        price: '',
+        costPrice: '',
+        inventory: {},
+      },
+    ]);
     setFiles([]);
-    
+
     router.push('/dashboard/products');
   };
 
@@ -316,32 +329,36 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <Link 
-            href="/dashboard/products" 
+          <Link
+            href="/dashboard/products"
             className="inline-flex items-center text-sm font-medium text-muted hover:text-brand-primary transition-colors mb-2"
           >
             <ArrowLeft size={16} className="mr-1.5" />
             Back to Catalog
           </Link>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">
-            {initialData ? 'Edit Product' : 'Add New Product'}
-          </h1>
+          <h1 className="text-3xl font-bold  tracking-tight">{initialData ? 'Edit Product' : 'Add New Product'}</h1>
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <Button variant="outline" type="button" disabled={isPending} onClick={handleDiscard}>Discard</Button>
+          <Button variant="outline" type="button" disabled={isPending} onClick={handleDiscard}>
+            Discard
+          </Button>
           <Button variant="primary" type="submit" disabled={isPending}>
-            {isPending ? (initialData ? 'Saving...' : 'Publishing...') : (initialData ? 'Save Changes' : 'Publish Product')}
+            {isPending
+              ? initialData
+                ? 'Saving...'
+                : 'Publishing...'
+              : initialData
+                ? 'Save Changes'
+                : 'Publish Product'}
           </Button>
         </div>
       </div>
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
         {/* LEFT COLUMN - Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          
           {/* Details Card */}
           <Card>
             <CardHeader>
@@ -350,27 +367,34 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             </CardHeader>
             <CardBody className="space-y-5">
               <div className="space-y-2">
-                <label htmlFor="product-name" className="text-body-sm font-semibold text-primary">Name <span className="text-destructive" aria-hidden="true">*</span></label>
-                <input 
+                <label htmlFor="product-name" className="text-body-sm font-semibold">
+                  Name{' '}
+                  <span className="text-destructive" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <input
                   id="product-name"
                   type="text"
                   required
                   aria-required="true"
                   value={name}
-                  onChange={e => setName(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Authentic Kente Cloth"
-                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-description" className="text-body-sm font-semibold text-primary">Description</label>
-                <textarea 
+                <label htmlFor="product-description" className="text-body-sm font-semibold">
+                  Description
+                </label>
+                <textarea
                   id="product-description"
                   rows={5}
                   value={description}
-                  onChange={e => setDescription(e.target.value)}
+                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Provide a detailed description..."
-                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted resize-y"
+                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted resize-y"
                 />
               </div>
             </CardBody>
@@ -385,36 +409,37 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody>
               {files.length === 0 && existingImages.length === 0 ? (
                 <div className="border-2 border-dashed border-separator rounded-xl p-10 flex flex-col items-center justify-center text-center hover:bg-surface-elevated transition-colors cursor-pointer relative overflow-hidden group">
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-                    onChange={handleFileChange} 
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    onChange={handleFileChange}
                   />
                   <div className="w-16 h-16 bg-surface border border-separator rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                     <UploadCloud className="w-8 h-8 text-brand-primary" />
                   </div>
-                  <p className="text-sm font-semibold text-primary">Click or drag images to upload</p>
+                  <p className="text-sm font-semibold">Click or drag images to upload</p>
                   <p className="text-xs text-muted mt-2">SVG, PNG, JPG or GIF (max. 5MB)</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {/* Existing Images */}
                   {existingImages.map((url, index) => (
-                    <div 
-                      key={`existing-${index}`} 
+                    <div
+                      key={`existing-${index}`}
                       className={`relative group rounded-xl overflow-hidden border border-separator bg-surface-elevated ${index === 0 ? 'col-span-2 row-span-2 aspect-square sm:aspect-auto' : 'col-span-1 aspect-square'}`}
                     >
-                      <img 
-                        src={url} 
-                        alt="existing preview" 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                      <Image
+                        src={url}
+                        alt="existing preview"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                        <button 
-                          type="button" 
-                          onClick={() => removeExistingImage(index)} 
+                        <button
+                          type="button"
+                          onClick={() => removeExistingImage(index)}
                           className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg transform hover:scale-110 transition-all"
                           title="Remove image"
                         >
@@ -433,19 +458,20 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                   {files.map((file, index) => {
                     const globalIndex = existingImages.length + index;
                     return (
-                      <div 
-                        key={`new-${index}`} 
+                      <div
+                        key={`new-${index}`}
                         className={`relative group rounded-xl overflow-hidden border border-separator bg-surface-elevated ${globalIndex === 0 ? 'col-span-2 row-span-2 aspect-square sm:aspect-auto' : 'col-span-1 aspect-square'}`}
                       >
-                        <img 
-                          src={URL.createObjectURL(file)} 
-                          alt="preview" 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt="preview"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                          <button 
-                            type="button" 
-                            onClick={() => removeFile(index)} 
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
                             className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg transform hover:scale-110 transition-all"
                             title="Remove image"
                           >
@@ -460,20 +486,22 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       </div>
                     );
                   })}
-                  
-                  {(files.length + existingImages.length) < 5 && (
+
+                  {files.length + existingImages.length < 5 && (
                     <div className="col-span-1 aspect-square border-2 border-dashed border-separator rounded-xl flex flex-col items-center justify-center text-center hover:bg-surface-elevated transition-colors cursor-pointer relative group">
-                      <input 
-                        type="file" 
-                        multiple 
-                        accept="image/*" 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-                        onChange={handleFileChange} 
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        onChange={handleFileChange}
                       />
                       <div className="w-10 h-10 bg-surface rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm border border-separator mb-2">
                         <Plus className="w-5 h-5 text-muted group-hover:text-brand-primary transition-colors" />
                       </div>
-                      <span className="text-xs font-medium text-muted group-hover:text-brand-primary transition-colors">Add Image</span>
+                      <span className="text-xs font-medium text-muted group-hover:text-brand-primary transition-colors">
+                        Add Image
+                      </span>
                     </div>
                   )}
                 </div>
@@ -486,7 +514,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardHeader>
               <CardTitle>{variants.length === 1 ? 'Pricing & Inventory' : 'Variants'}</CardTitle>
               <CardDescription>
-                {variants.length === 1 
+                {variants.length === 1
                   ? 'Set the base price, SKU, and available stock across your branches.'
                   : 'Manage pricing and inventory for each product variation.'}
               </CardDescription>
@@ -494,12 +522,15 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody>
               <div className="space-y-6">
                 {variants.map((variant, index) => (
-                  <div key={variant.id} className={`relative transition-all ${variants.length > 1 ? 'p-5 bg-surface-elevated border border-separator rounded-xl group hover:border-brand-primary' : ''}`}>
+                  <div
+                    key={variant.id}
+                    className={`relative transition-all ${variants.length > 1 ? 'p-5 bg-surface-elevated border border-separator rounded-xl group hover:border-brand-primary' : ''}`}
+                  >
                     {variants.length > 1 && (
                       <div className="flex justify-between items-center mb-5">
-                        <h4 className="text-sm font-semibold text-primary">Variant {index + 1}</h4>
-                        <button 
-                          type="button" 
+                        <h4 className="text-sm font-semibold">Variant {index + 1}</h4>
+                        <button
+                          type="button"
                           onClick={() => removeVariant(variant.id)}
                           className="text-muted hover:text-red-500 p-1.5 rounded-md hover:bg-red-500/10 transition-colors"
                         >
@@ -507,19 +538,21 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                         </button>
                       </div>
                     )}
-                    
-                    <div className={`grid grid-cols-1 md:grid-cols-2 ${variants.length > 1 ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-5 mb-6`}>
+
+                    <div
+                      className={`grid grid-cols-1 md:grid-cols-2 ${variants.length > 1 ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-5 mb-6`}
+                    >
                       {/* Name (Only show if multiple variants) */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-body-sm font-medium text-secondary">Option Name</label>
-                          <input 
+                          <label className="text-body-sm font-medium">Option Name</label>
+                          <input
                             type="text"
                             required
                             value={variant.name}
-                            onChange={e => updateVariant(variant.id, 'name', e.target.value)}
+                            onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
                             placeholder="e.g. Large"
-                            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                           />
                         </div>
                       )}
@@ -527,17 +560,25 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Price (Only show if multiple variants, else base price is used) */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-body-sm font-medium text-secondary">Price (GHS)</label>
+                          <label className="text-body-sm font-medium">Price (GHS)</label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
-                            <input 
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">
+                              ₵
+                            </span>
+                            <input
                               type="number"
                               min="0"
                               step="0.01"
                               value={variant.price === '' ? '' : variant.price}
-                              onChange={e => updateVariant(variant.id, 'price', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                              placeholder={basePrice === '' ? "0.00" : `Base: ₵${basePrice}`}
-                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                              onChange={(e) =>
+                                updateVariant(
+                                  variant.id,
+                                  'price',
+                                  e.target.value === '' ? '' : parseFloat(e.target.value)
+                                )
+                              }
+                              placeholder={basePrice === '' ? '0.00' : `Base: ₵${basePrice}`}
+                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                             />
                           </div>
                         </div>
@@ -546,17 +587,27 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                       {/* Cost Price */}
                       {variants.length > 1 && (
                         <div className="space-y-2 lg:col-span-1">
-                          <label className="text-body-sm font-medium text-secondary">Cost Price</label>
+                          <label className="text-body-sm font-medium">Cost Price</label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
-                            <input 
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">
+                              ₵
+                            </span>
+                            <input
                               type="number"
                               min="0"
                               step="0.01"
-                              value={variant.costPrice === '' || variant.costPrice === undefined ? '' : variant.costPrice}
-                              onChange={e => updateVariant(variant.id, 'costPrice', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                              placeholder={baseCostPrice === '' ? "0.00" : `Base: ₵${baseCostPrice}`}
-                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                              value={
+                                variant.costPrice === '' || variant.costPrice === undefined ? '' : variant.costPrice
+                              }
+                              onChange={(e) =>
+                                updateVariant(
+                                  variant.id,
+                                  'costPrice',
+                                  e.target.value === '' ? '' : parseFloat(e.target.value)
+                                )
+                              }
+                              placeholder={baseCostPrice === '' ? '0.00' : `Base: ₵${baseCostPrice}`}
+                              className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                             />
                           </div>
                         </div>
@@ -564,30 +615,35 @@ export function ProductForm({ stores, categories: initialCategories, initialData
 
                       {/* SKU */}
                       <div className={`space-y-2 lg:col-span-1`}>
-                        <label className="text-body-sm font-medium text-secondary">SKU (Stock Keeping Unit)</label>
-                        <input 
+                        <label className="text-body-sm font-medium">SKU (Stock Keeping Unit)</label>
+                        <input
                           type="text"
                           value={variant.sku}
-                          onChange={e => updateVariant(variant.id, 'sku', e.target.value)}
+                          onChange={(e) => updateVariant(variant.id, 'sku', e.target.value)}
                           placeholder="e.g. KENTE-RED-L"
-                          className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase"
+                          className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase"
                         />
                       </div>
                     </div>
-                    
+
                     <div className={`${variants.length > 1 ? 'border-t border-separator pt-5' : ''}`}>
-                      <h5 className="text-body-sm font-medium text-secondary mb-3">Available Inventory</h5>
+                      <h5 className="text-body-sm font-medium  mb-3">Available Inventory</h5>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {stores.map(store => (
-                          <div key={store.id} className="flex items-center justify-between p-3 bg-surface-elevated border border-separator rounded-lg">
-                            <span className="text-sm font-medium text-primary truncate mr-3">{store.name}</span>
-                            <input 
+                        {stores.map((store) => (
+                          <div
+                            key={store.id}
+                            className="flex items-center justify-between p-3 bg-surface-elevated border border-separator rounded-lg"
+                          >
+                            <span className="text-sm font-medium  truncate mr-3">{store.name}</span>
+                            <input
                               type="number"
                               min="0"
                               placeholder="0"
                               value={variant.inventory[store.id] || ''}
-                              onChange={e => updateVariantInventory(variant.id, store.id, parseInt(e.target.value) || 0)}
-                              className="w-20 px-2 py-1 bg-surface border border-separator rounded text-sm text-primary text-center focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                              onChange={(e) =>
+                                updateVariantInventory(variant.id, store.id, parseInt(e.target.value) || 0)
+                              }
+                              className="w-20 px-2 py-1 bg-surface border border-separator rounded text-sm  text-center focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                             />
                           </div>
                         ))}
@@ -595,12 +651,12 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                     </div>
                   </div>
                 ))}
-                
-                <Button 
-                  type="button" 
-                  variant="outline" 
+
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={handleAddVariant}
-                  className="w-full h-11 border-dashed border-2 hover:bg-surface-elevated transition-colors text-secondary hover:text-brand-primary"
+                  className="w-full h-11 border-dashed border-2 hover:bg-surface-elevated transition-colors  hover:text-brand-primary"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {variants.length === 1 ? 'Add Options like Size or Color' : 'Add Another Variant'}
@@ -608,12 +664,10 @@ export function ProductForm({ stores, categories: initialCategories, initialData
               </div>
             </CardBody>
           </Card>
-
         </div>
 
         {/* RIGHT COLUMN - Sidebar */}
         <div className="space-y-8">
-          
           {/* Base Pricing Card */}
           <Card>
             <CardHeader>
@@ -623,34 +677,34 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-body-sm font-semibold text-primary">Selling Price (GHS)</label>
+                  <label className="text-body-sm font-semibold">Selling Price (GHS)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
-                    <input 
+                    <input
                       type="number"
                       min="0"
                       step="0.01"
                       required
                       value={basePrice === '' ? '' : basePrice}
-                      onChange={e => setBasePrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                      onChange={(e) => setBasePrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
                       placeholder="0.00"
-                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-body-sm font-semibold text-primary">Cost Price (GHS)</label>
+                  <label className="text-body-sm font-semibold">Cost Price (GHS)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm font-medium">₵</span>
-                    <input 
+                    <input
                       type="number"
                       min="0"
                       step="0.01"
                       value={baseCostPrice === '' ? '' : baseCostPrice}
-                      onChange={e => setBaseCostPrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                      onChange={(e) => setBaseCostPrice(e.target.value === '' ? '' : parseFloat(e.target.value))}
                       placeholder="0.00"
-                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                      className="w-full pl-8 pr-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                     />
                   </div>
                   <p className="text-xs text-muted">Used for profit calculation (not visible to customers).</p>
@@ -665,12 +719,14 @@ export function ProductForm({ stores, categories: initialCategories, initialData
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardBody>
-              <label htmlFor="product-status" className="sr-only">Product Status</label>
-              <select 
+              <label htmlFor="product-status" className="sr-only">
+                Product Status
+              </label>
+              <select
                 id="product-status"
                 value={isActive ? 'active' : 'draft'}
-                onChange={e => setIsActive(e.target.value === 'active')}
-                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+                onChange={(e) => setIsActive(e.target.value === 'active')}
+                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
               >
                 <option value="active">Active (Published)</option>
                 <option value="draft">Draft (Hidden)</option>
@@ -686,25 +742,27 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             <CardBody className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="product-category" className="text-body-sm font-semibold text-primary">Category</label>
-                  <button 
-                    type="button" 
-                    onClick={() => setIsCreatingCategory(!isCreatingCategory)} 
+                  <label htmlFor="product-category" className="text-body-sm font-semibold">
+                    Category
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCreatingCategory(!isCreatingCategory)}
                     className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     {isCreatingCategory ? <X size={12} /> : <Plus size={12} />}
                     {isCreatingCategory ? 'Cancel' : 'Add Category'}
                   </button>
                 </div>
-                
+
                 {isCreatingCategory ? (
                   <div className="flex gap-2">
-                    <input 
+                    <input
                       type="text"
                       value={newCategoryName}
-                      onChange={e => setNewCategoryName(e.target.value)}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
                       placeholder="Category name"
-                      className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                      className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -712,9 +770,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                         }
                       }}
                     />
-                    <Button 
-                      type="button" 
-                      onClick={handleSaveCategory} 
+                    <Button
+                      type="button"
+                      onClick={handleSaveCategory}
                       disabled={isSavingCategory || !newCategoryName.trim()}
                       className="text-xs px-3"
                     >
@@ -722,39 +780,45 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                     </Button>
                   </div>
                 ) : (
-                  <select 
+                  <select
                     id="product-category"
                     value={categoryId}
-                    onChange={e => setCategoryId(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
                   >
                     <option value="">Select Category...</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 )}
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-vendor" className="text-body-sm font-semibold text-primary">Vendor</label>
-                <input 
+                <label htmlFor="product-vendor" className="text-body-sm font-semibold">
+                  Vendor
+                </label>
+                <input
                   id="product-vendor"
-                  type="text" 
+                  type="text"
                   value={vendor}
-                  onChange={e => setVendor(e.target.value)}
+                  onChange={(e) => setVendor(e.target.value)}
                   placeholder="e.g. Merchander"
-                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
+                  className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted"
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="product-stock-unit" className="text-body-sm font-semibold text-primary">Stock Unit</label>
+                <label htmlFor="product-stock-unit" className="text-body-sm font-semibold">
+                  Stock Unit
+                </label>
                 <div className="relative">
-                  <select 
+                  <select
                     id="product-stock-unit"
                     value={stockUnit}
-                    onChange={e => setStockUnit(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all appearance-none cursor-pointer"
+                    onChange={(e) => setStockUnit(e.target.value)}
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all appearance-none cursor-pointer"
                   >
                     <option value="pcs">Pieces (pcs)</option>
                     <option value="kg">Kilograms (kg)</option>
@@ -768,15 +832,24 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                     <option value="pack">Packs</option>
                   </select>
                   <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
                   </div>
                 </div>
               </div>
             </CardBody>
           </Card>
-
         </div>
-
       </div>
     </form>
   );

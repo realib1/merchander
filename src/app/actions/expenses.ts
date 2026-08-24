@@ -1,4 +1,4 @@
-'use server'
+'use server';
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -39,12 +39,10 @@ export async function createExpense(data: CreateExpenseInput) {
     throw new Error('No tenant found for user');
   }
 
-  const { error } = await supabase
-    .from('expenses')
-    .insert({
-      ...parsed.data,
-      tenant_id: tenantUsers.tenant_id,
-    });
+  const { error } = await supabase.from('expenses').insert({
+    ...parsed.data,
+    tenant_id: tenantUsers.tenant_id,
+  });
 
   if (error) {
     console.error('Error creating expense:', error);
@@ -64,10 +62,7 @@ export async function updateExpense(id: string, data: UpdateExpenseInput) {
 
   const supabase = await createClient();
 
-  const { error } = await supabase
-    .from('expenses')
-    .update(parsed.data)
-    .eq('id', id);
+  const { error } = await supabase.from('expenses').update(parsed.data).eq('id', id);
 
   if (error) {
     console.error('Error updating expense:', error);
@@ -85,10 +80,7 @@ export async function deleteExpense(id: string) {
 
   const supabase = await createClient();
 
-  const { error } = await supabase
-    .from('expenses')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('expenses').delete().eq('id', id);
 
   if (error) {
     console.error('Error deleting expense:', error);

@@ -2,10 +2,27 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  User, Shield, Bell, Building2, Store, Clock, 
-  ShoppingCart, Package, CreditCard, Users, Truck, Box,
-  Share2, MessageSquare, Zap, UsersRound, Lock, FileText, Download, Gem
+import {
+  User,
+  Shield,
+  Bell,
+  Building2,
+  Store,
+  Clock,
+  ShoppingCart,
+  Package,
+  CreditCard,
+  Users,
+  Truck,
+  Box,
+  Share2,
+  MessageSquare,
+  Zap,
+  UsersRound,
+  Lock,
+  FileText,
+  Download,
+  Gem,
 } from 'lucide-react';
 
 const settingsGroups = [
@@ -51,9 +68,7 @@ const settingsGroups = [
   },
   {
     title: 'Team',
-    items: [
-      { name: 'Staff & Permissions', href: '/dashboard/settings/staff', icon: UsersRound },
-    ],
+    items: [{ name: 'Staff & Permissions', href: '/dashboard/settings/staff', icon: UsersRound }],
   },
   {
     title: 'Data & Security',
@@ -65,9 +80,7 @@ const settingsGroups = [
   },
   {
     title: 'System',
-    items: [
-      { name: 'Subscription', href: '/dashboard/settings/subscription', icon: Gem },
-    ],
+    items: [{ name: 'Subscription', href: '/dashboard/settings/subscription', icon: Gem }],
   },
 ];
 
@@ -78,14 +91,12 @@ export function SettingsSidebar() {
     <nav className="space-y-8 pb-10 h-full overflow-y-auto pr-4 custom-scrollbar">
       {settingsGroups.map((group) => (
         <div key={group.title} className="space-y-1">
-          <h2 className="px-3 text-xs font-semibold uppercase tracking-wider text-muted mb-3">
-            {group.title}
-          </h2>
+          <h2 className="px-3 text-xs font-semibold uppercase tracking-wider text-muted mb-3">{group.title}</h2>
           <ul className="space-y-1">
             {group.items.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
-              
+
               return (
                 <li key={item.name}>
                   <Link
@@ -93,7 +104,7 @@ export function SettingsSidebar() {
                     className={`group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-brand-primary/10 text-brand-primary'
-                        : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
+                        : ' hover:bg-surface-elevated hover:text-brand-primary'
                     }`}
                   >
                     <Icon

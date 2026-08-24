@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 /**
  * Custom hook that runs an interval callback only while the document/tab is actively visible.
@@ -17,7 +17,7 @@ export function useVisibleInterval(callback: () => void, delay: number | null): 
   }, [callback]);
 
   useEffect(() => {
-    if (delay === null || typeof window === "undefined") return;
+    if (delay === null || typeof window === 'undefined') return;
 
     let intervalId: NodeJS.Timeout | null = null;
 
@@ -26,7 +26,7 @@ export function useVisibleInterval(callback: () => void, delay: number | null): 
     };
 
     const startInterval = (): void => {
-      if (document.visibilityState === "visible" && intervalId === null) {
+      if (document.visibilityState === 'visible' && intervalId === null) {
         intervalId = setInterval(tick, delay);
       }
     };
@@ -39,7 +39,7 @@ export function useVisibleInterval(callback: () => void, delay: number | null): 
     };
 
     const handleVisibilityChange = (): void => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === 'visible') {
         startInterval();
       } else {
         stopInterval();
@@ -47,11 +47,11 @@ export function useVisibleInterval(callback: () => void, delay: number | null): 
     };
 
     startInterval();
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       stopInterval();
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [delay]);
 }

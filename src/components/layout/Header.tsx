@@ -1,12 +1,12 @@
 ﻿/* eslint-disable @next/next/no-img-element */
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { Menu } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
-import { MobileDrawer } from "./MobileDrawer";
-import { cn } from "@/utils/cn";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { Menu } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
+import { MobileDrawer } from './MobileDrawer';
+import { cn } from '@/utils/cn';
 
 export interface NavItem {
   /** Label for the navigation link */
@@ -51,8 +51,8 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header
         className={cn(
-          "z-40 w-full border-b border-separator bg-surface/80 backdrop-blur-md transition-colors duration-[var(--duration-fast,150ms)]",
-          sticky && "sticky top-0",
+          'z-40 w-full border-b border-separator bg-surface/80 backdrop-blur-md transition-colors duration-[var(--duration-fast,150ms)]',
+          sticky && 'sticky top-0',
           className
         )}
       >
@@ -66,11 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
                 href="/"
                 className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-brand-primary"
               >
-                <img 
-                  src="/merchander.png" 
-                  alt="Merchander Logo" 
-                  className="h-8 w-auto dark:invert-0" 
-                />
+                <img src="/merchander.png" alt="Merchander Logo" className="h-8 w-auto dark:invert-0" />
                 <span className="hidden text-xl font-bold tracking-tight text-primary font-display sm:inline-block">
                   Merchander
                 </span>
@@ -89,12 +85,12 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       key={item.href}
                       href={item.href}
-                      aria-current={item.active ? "page" : undefined}
+                      aria-current={item.active ? 'page' : undefined}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-[var(--radius-md,6px)] px-3 py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast,150ms)]",
+                        'inline-flex items-center gap-1.5 rounded-[var(--radius-md,6px)] px-3 py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast,150ms)]',
                         item.active
-                          ? "bg-brand-primary/10 font-semibold text-brand-primary"
-                          : "text-secondary hover:bg-surface-elevated hover:text-brand-primary"
+                          ? 'bg-brand-primary/10 font-semibold text-brand-primary'
+                          : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
                       )}
                     >
                       {Icon && <Icon className="h-4 w-4" />}
@@ -106,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {actions && <div className="hidden items-center gap-2 sm:flex">{actions}</div>}
-            
+
             {showThemeToggle && <ThemeToggle variant="toggle" className="cursor-pointer" />}
 
             {/* Mobile Hamburger Button */}
@@ -131,14 +127,8 @@ export const Header: React.FC<HeaderProps> = ({
         title={
           logo || (
             <div className="flex items-center gap-2">
-              <img 
-                src="/merchander.png" 
-                alt="Merchander Logo" 
-                className="h-6 w-auto dark:invert-0" 
-              />
-              <span className="text-lg font-bold tracking-tight text-primary font-display">
-                Merchander
-              </span>
+              <img src="/merchander.png" alt="Merchander Logo" className="h-6 w-auto dark:invert-0" />
+              <span className="text-lg font-bold tracking-tight text-primary font-display">Merchander</span>
             </div>
           )
         }
@@ -152,12 +142,12 @@ export const Header: React.FC<HeaderProps> = ({
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                aria-current={item.active ? "page" : undefined}
+                aria-current={item.active ? 'page' : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-[var(--radius-md,6px)] px-3 py-2.5 text-sm font-medium transition-colors",
+                  'flex items-center gap-3 rounded-[var(--radius-md,6px)] px-3 py-2.5 text-sm font-medium transition-colors',
                   item.active
-                    ? "bg-brand-primary font-semibold text-white shadow-xs"
-                    : "text-secondary hover:bg-surface-elevated hover:text-brand-primary"
+                    ? 'bg-brand-primary font-semibold text-white shadow-xs'
+                    : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
                 )}
               >
                 {Icon && <Icon className="h-4 w-4" />}
@@ -170,4 +160,3 @@ export const Header: React.FC<HeaderProps> = ({
     </>
   );
 };
-

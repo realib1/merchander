@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getCustomers } from '@/app/actions/customers';
+import { getCustomers, getCustomerPageMetrics } from '@/app/actions/customers';
 import { CustomersHeader } from './components/CustomersHeader';
 import { CustomersTopMetrics } from './components/CustomersTopMetrics';
 import { CustomersTable } from './components/CustomersTable';
@@ -17,37 +17,37 @@ export default async function CustomersPage({
 }) {
   const resolvedParams = await searchParams;
   const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
+  
+  const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
+  const pageSize = 10;
 
-  const customers = await getCustomers(query);
+  const [{ data: customers, count }, metrics] = await Promise.all([
+    getCustomers(query, page, pageSize),
+    getCustomerPageMetrics()
+  ]);
 
-  const totalCustomers = customers.length;
-  
-  // Calculate periods
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const sixtyDaysAgo = new Date();
-  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+  const {
+    totalCustomers,
+    currentNewCustomers,
+    previousNewCustomers,
+    activeCustomers,
+    totalOrders,
+    currentOrders,
+    previousOrders,
+    totalRevenue
+  } = metrics;
 
-  const currentNewCustomers = customers.filter(c => new Date(c.created_at) >= thirtyDaysAgo).length;
-  const previousNewCustomers = customers.filter(c => new Date(c.created_at) >= sixtyDaysAgo && new Date(c.created_at) < thirtyDaysAgo).length;
-  const customersChange = previousNewCustomers === 0 ? 100 : ((currentNewCustomers - previousNewCustomers) / previousNewCustomers) * 100;
-  
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-  
-  const activeCustomers = customers.filter(c => c.lastOrderDate && new Date(c.lastOrderDate) >= ninetyDaysAgo).length;
-  const totalOrders = customers.reduce((sum, c) => sum + (c.totalOrders || 0), 0);
-  
-  const currentOrders = customers.reduce((sum, c) => sum + (c.currentOrders || 0), 0);
-  const previousOrders = customers.reduce((sum, c) => sum + (c.previousOrders || 0), 0);
+  const customersChange =
+    previousNewCustomers === 0 ? 100 : ((currentNewCustomers - previousNewCustomers) / previousNewCustomers) * 100;
+    
   const ordersChange = previousOrders === 0 ? 100 : ((currentOrders - previousOrders) / previousOrders) * 100;
-
-  const totalRevenue = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+  
+  const totalPages = Math.ceil(count / pageSize);
 
   return (
     <div className="min-h-full flex flex-col relative">
       <CustomersHeader />
-      <CustomersTopMetrics 
+      <CustomersTopMetrics
         totalCustomers={totalCustomers}
         customersChange={customersChange}
         activeCustomers={activeCustomers}
@@ -56,13 +56,20 @@ export default async function CustomersPage({
         totalRevenue={totalRevenue}
       />
 
-      <Suspense fallback={
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex-1 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+          </div>
+        }
+      >
         <div className="flex-1 pb-6 mt-6">
-          <CustomersTable initialCustomers={customers} />
+          <CustomersTable 
+            initialCustomers={customers} 
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={count}
+          />
         </div>
       </Suspense>
     </div>

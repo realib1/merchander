@@ -22,7 +22,7 @@ export function generateDispatchSlip(order: WaybillOrder): string {
   const doubleLine = '==========================================';
 
   let itemsText = '';
-  order.items.forEach(item => {
+  order.items.forEach((item) => {
     const itemName = item.variantName ? `${item.name} (${item.variantName})` : item.name;
     const priceStr = formatCurrency(item.price).padStart(15);
     itemsText += `${item.quantity}x ${itemName.padEnd(25)} ${priceStr}\n`;
@@ -30,7 +30,7 @@ export function generateDispatchSlip(order: WaybillOrder): string {
 
   const deliveryFeeStr = formatCurrency(order.deliveryFee).padStart(15);
   const totalStr = formatCurrency(order.totalAmount).padStart(15);
-  
+
   let paymentText = order.paymentStatus === 'paid' ? 'PAID' : 'PENDING CASH ON DELIVERY';
   if (order.transactionRef) {
     paymentText += ` (Ref: ${order.transactionRef})`;

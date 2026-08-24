@@ -7,18 +7,18 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const variantSchema = z.object({
-  sku: z.string().min(1, "SKU is required"),
+  sku: z.string().min(1, 'SKU is required'),
   name: z.string().optional(), // Variant name like 'Red / Large'
-  price: z.number().min(0, "Price must be non-negative"),
-  costPrice: z.number().min(0, "Cost Price must be non-negative").optional().nullable(),
+  price: z.number().min(0, 'Price must be non-negative'),
+  costPrice: z.number().min(0, 'Cost Price must be non-negative').optional().nullable(),
   inventory: z.record(z.number()).optional(), // store_id -> quantity
 });
 
 const createProductSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
+  name: z.string().min(1, 'Product name is required'),
   description: z.string().optional(),
   isActive: z.boolean(),
-  variants: z.array(variantSchema).min(1, "At least one variant is required"),
+  variants: z.array(variantSchema).min(1, 'At least one variant is required'),
   categoryId: z.string().uuid().optional().nullable(),
   vendor: z.string().optional().nullable(),
   stockUnit: z.string().optional().nullable(),
@@ -32,13 +32,13 @@ export async function createProductAction(formData: FormData) {
       name: formData.get('name'),
       description: formData.get('description') || '',
       isActive: formData.get('isActive') === 'true',
-      variants: JSON.parse(formData.get('variants') as string || '[]'),
+      variants: JSON.parse((formData.get('variants') as string) || '[]'),
       categoryId: formData.get('categoryId') || null,
       vendor: formData.get('vendor') || null,
       stockUnit: formData.get('stockUnit') || 'pcs',
-      imageUrls: JSON.parse(formData.get('imageUrls') as string || '[]'),
+      imageUrls: JSON.parse((formData.get('imageUrls') as string) || '[]'),
     };
-  } catch (_e) {
+  } catch {
     return { error: 'Invalid product data format' };
   }
 
@@ -49,7 +49,9 @@ export async function createProductAction(formData: FormData) {
   const data = validation.data;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return { error: 'Not authenticated' };
 
@@ -75,7 +77,7 @@ export async function createProductAction(formData: FormData) {
       category_id: data.categoryId,
       vendor: data.vendor,
       stock_unit: data.stockUnit,
-      image_urls: data.imageUrls || []
+      image_urls: data.imageUrls || [],
     })
     .select('id')
     .single();
@@ -86,12 +88,12 @@ export async function createProductAction(formData: FormData) {
   }
 
   // 2. Insert Variants
-  const variantInserts = data.variants.map(v => ({
+  const variantInserts = data.variants.map((v) => ({
     product_id: product.id,
     sku: v.sku,
     name: v.name || null,
     price: v.price,
-    cost_price: v.costPrice || null
+    cost_price: v.costPrice || null,
   }));
 
   const { data: variants, error: variantsError } = await supabase
@@ -106,17 +108,17 @@ export async function createProductAction(formData: FormData) {
 
   // 3. Insert Initial Inventory Levels
   const inventoryInserts: unknown[] = [];
-  data.variants.forEach(v => {
+  data.variants.forEach((v) => {
     if (v.inventory) {
       // Find the created variant ID
-      const createdVariant = variants.find(cv => cv.sku === v.sku);
+      const createdVariant = variants.find((cv) => cv.sku === v.sku);
       if (createdVariant) {
         Object.entries(v.inventory).forEach(([storeId, quantity]) => {
           if (quantity > 0) {
             inventoryInserts.push({
               variant_id: createdVariant.id,
               store_id: storeId,
-              quantity: quantity
+              quantity: quantity,
             });
           }
         });
@@ -125,9 +127,7 @@ export async function createProductAction(formData: FormData) {
   });
 
   if (inventoryInserts.length > 0) {
-    const { error: invError } = await supabase
-      .from('inventory_levels')
-      .insert(inventoryInserts);
+    const { error: invError } = await supabase.from('inventory_levels').insert(inventoryInserts);
 
     if (invError) {
       console.error('Failed to set initial inventory:', invError);

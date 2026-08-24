@@ -1,14 +1,14 @@
 ﻿/* eslint-disable react-hooks/set-state-in-effect */
-"use client";
+'use client';
 
-import React, { useState, useRef, useEffect } from "react";
-import { Sun, Moon, Monitor } from "lucide-react";
-import { useTheme, type ThemeMode } from "@/context/ThemeContext";
-import { cn } from "@/utils/cn";
+import React, { useState, useRef, useEffect } from 'react';
+import { Sun, Moon, Monitor } from 'lucide-react';
+import { useTheme, type ThemeMode } from '@/context/ThemeContext';
+import { cn } from '@/utils/cn';
 
 export interface ThemeToggleProps {
   /** Visual variant: simple toggle button, compact icon button, or 3-way dropdown/segmented control */
-  variant?: "toggle" | "segmented" | "dropdown";
+  variant?: 'toggle' | 'segmented' | 'dropdown';
   /** Whether to show a text label alongside the icon */
   showLabel?: boolean;
   /** Additional CSS class names */
@@ -20,19 +20,15 @@ const THEME_OPTIONS: Array<{
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'System', icon: Monitor },
 ];
 
 /**
  * Accessible theme switcher component supporting light, dark, and system preference modes.
  */
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({
-  variant = "toggle",
-  showLabel = false,
-  className,
-}) => {
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'toggle', showLabel = false, className }) => {
   const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -53,26 +49,26 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     };
 
     const handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
 
-  if (variant === "segmented") {
+  if (variant === 'segmented') {
     return (
       <div
         role="group"
         aria-label="Select theme"
         className={cn(
-          "inline-flex items-center rounded-[var(--radius-md,6px)] border border-separator bg-surface p-1 shadow-xs",
+          'inline-flex items-center rounded-[var(--radius-md,6px)] border border-separator bg-surface p-1 shadow-xs',
           className
         )}
       >
@@ -85,10 +81,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               onClick={() => setTheme(value)}
               aria-pressed={isActive}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-[var(--radius-sm,4px)] px-2.5 py-1 text-xs font-medium transition-all duration-[var(--duration-fast,150ms)] focus-visible:outline-2 focus-visible:outline-brand-primary",
+                'inline-flex items-center gap-1.5 rounded-[var(--radius-sm,4px)] px-2.5 py-1 text-xs font-medium transition-all duration-[var(--duration-fast,150ms)] focus-visible:outline-2 focus-visible:outline-brand-primary',
                 isActive
-                  ? "bg-brand-primary text-white shadow-xs"
-                  : "text-secondary hover:bg-surface-elevated hover:text-brand-primary"
+                  ? 'bg-brand-primary text-white shadow-xs'
+                  : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -100,9 +96,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     );
   }
 
-  if (variant === "dropdown") {
+  if (variant === 'dropdown') {
     return (
-      <div className={cn("relative inline-block text-left", className)} ref={dropdownRef}>
+      <div className={cn('relative inline-block text-left', className)} ref={dropdownRef}>
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
@@ -113,17 +109,15 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         >
           {!mounted ? (
             <div className="h-4 w-4" />
-          ) : theme === "system" ? (
+          ) : theme === 'system' ? (
             <Monitor className="h-4 w-4 text-secondary" />
-          ) : resolvedTheme === "dark" ? (
+          ) : resolvedTheme === 'dark' ? (
             <Moon className="h-4 w-4 text-secondary" />
           ) : (
             <Sun className="h-4 w-4 text-brand-primary" />
           )}
           {showLabel && (
-            <span className="capitalize">
-              {!mounted ? "" : theme === "system" ? `Auto (${resolvedTheme})` : theme}
-            </span>
+            <span className="capitalize">{!mounted ? '' : theme === 'system' ? `Auto (${resolvedTheme})` : theme}</span>
           )}
         </button>
 
@@ -145,10 +139,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
                     setIsOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-[var(--radius-sm,4px)] px-2.5 py-1.5 text-left text-xs font-medium transition-colors",
+                    'flex w-full items-center gap-2 rounded-[var(--radius-sm,4px)] px-2.5 py-1.5 text-left text-xs font-medium transition-colors',
                     isSelected
-                      ? "bg-brand-primary text-white"
-                      : "text-primary hover:bg-surface hover:text-brand-primary"
+                      ? 'bg-brand-primary text-white'
+                      : 'text-primary hover:bg-surface hover:text-brand-primary'
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -167,15 +161,15 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={!mounted ? "Toggle theme" : resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={!mounted ? 'Toggle theme' : resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-separator bg-surface text-primary shadow-xs transition-all duration-[var(--duration-fast,150ms)] hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary",
+        'inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-separator bg-surface text-primary shadow-xs transition-all duration-[var(--duration-fast,150ms)] hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary',
         className
       )}
     >
       {!mounted ? (
         <div className="h-4 w-4" />
-      ) : resolvedTheme === "dark" ? (
+      ) : resolvedTheme === 'dark' ? (
         <Sun className="h-4 w-4 transition-transform duration-[var(--duration-fast,150ms)] hover:rotate-45" />
       ) : (
         <Moon className="h-4 w-4 transition-transform duration-[var(--duration-fast,150ms)] hover:-rotate-12" />
@@ -183,4 +177,3 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     </button>
   );
 };
-

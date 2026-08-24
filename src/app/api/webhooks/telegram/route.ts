@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     if (update.message && update.message.text) {
       const message = update.message;
-      
+
       // 2. Convert to Merchander NormalizedMessage
       const normalizedMsg: NormalizedMessage = {
         platform: 'telegram',
@@ -28,12 +28,12 @@ export async function POST(request: NextRequest) {
         // Telegram IDs are typically numeric user IDs, not phone numbers.
         sender_id: message.from.id.toString(),
         text: message.text,
-        timestamp: new Date(message.date * 1000).toISOString()
+        timestamp: new Date(message.date * 1000).toISOString(),
       };
 
       // 3. Pass to the Intelligence Brain Interface
       const extractedCart = await extractCartFromChat(normalizedMsg);
-      
+
       // 4. TODO: Trigger order state machine (Ticket 4)
       console.log('[Telegram Webhook] Extracted cart:', extractedCart);
     }

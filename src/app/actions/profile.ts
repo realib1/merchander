@@ -6,9 +6,9 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const updateProfileSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  phone: z.string().min(8, "Phone number is invalid"),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phone: z.string().min(8, 'Phone number is invalid'),
 });
 
 export async function updateProfile(formData: FormData) {
@@ -26,18 +26,20 @@ export async function updateProfile(formData: FormData) {
   // Note: we don't update email here as it requires a secure flow, just metadata for now.
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return { error: 'Not authenticated' };
   }
 
   const { error } = await supabase.auth.updateUser({
-    data: { 
-      first_name: firstName, 
+    data: {
+      first_name: firstName,
       last_name: lastName,
-      phone: phone
-    }
+      phone: phone,
+    },
   });
 
   if (error) {

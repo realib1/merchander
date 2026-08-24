@@ -17,11 +17,7 @@ interface CategoryFormModalProps {
   category?: Category | null; // null/undefined means we are creating a new category
 }
 
-export function CategoryFormModal({
-  isOpen,
-  onClose,
-  category,
-}: CategoryFormModalProps) {
+export function CategoryFormModal({ isOpen, onClose, category }: CategoryFormModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -87,7 +83,7 @@ export function CategoryFormModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="name" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="name" className="text-body-sm font-semibold">
             Name
           </label>
           <input
@@ -96,14 +92,14 @@ export function CategoryFormModal({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
             placeholder="e.g. Electronics, Clothing"
             autoFocus
           />
         </div>
-        
+
         <div className="space-y-2">
-          <label htmlFor="description" className="text-body-sm font-semibold text-primary">
+          <label htmlFor="description" className="text-body-sm font-semibold">
             Description <span className="text-muted font-normal">(Optional)</span>
           </label>
           <textarea
@@ -111,7 +107,7 @@ export function CategoryFormModal({
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm text-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+            className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
             placeholder="Brief description of the category..."
           />
         </div>
@@ -124,7 +120,7 @@ export function CategoryFormModal({
             onChange={(e) => setIsActive(e.target.checked)}
             className="w-4 h-4 rounded border-separator text-brand-primary focus:ring-brand-primary"
           />
-          <label htmlFor="is_active" className="text-sm font-medium text-primary cursor-pointer">
+          <label htmlFor="is_active" className="text-sm font-medium  cursor-pointer">
             Active
           </label>
         </div>
@@ -132,4 +128,3 @@ export function CategoryFormModal({
     </Modal>
   );
 }
-

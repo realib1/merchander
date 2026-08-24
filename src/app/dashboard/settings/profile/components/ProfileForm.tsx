@@ -13,7 +13,7 @@ export function ProfileForm({
   firstName,
   lastName,
   email,
-  phone
+  phone,
 }: {
   initials: string;
   firstName: string;
@@ -42,17 +42,29 @@ export function ProfileForm({
       <CardBody className="space-y-6">
         <div className="flex items-center gap-6">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-surface-elevated border border-separator flex items-center justify-center">
-            <span className="text-2xl font-semibold text-secondary">{initials}</span>
-            <button type="button" className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-pointer">
+            <span className="text-2xl font-semibold">{initials}</span>
+            <button
+              type="button"
+              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-pointer"
+            >
               <Camera className="h-6 w-6 text-white" />
             </button>
           </div>
           <div className="space-y-1">
-            <h4 className="text-sm font-medium text-primary">Profile Photo</h4>
-            <p className="text-xs text-secondary">JPG, GIF or PNG. Max size of 5MB.</p>
+            <h4 className="text-sm font-medium">Profile Photo</h4>
+            <p className="text-xs">JPG, GIF or PNG. Max size of 5MB.</p>
             <div className="flex gap-3 mt-2">
-              <Button variant="outline" size="sm" type="button">Change</Button>
-              <Button variant="ghost" size="sm" type="button" className="text-destructive hover:bg-destructive/10 hover:text-destructive">Remove</Button>
+              <Button variant="outline" size="sm" type="button">
+                Change
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                Remove
+              </Button>
             </div>
           </div>
         </div>
