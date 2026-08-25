@@ -27,7 +27,7 @@ const COLUMNS: { id: OrderStatus; title: string; bg: string; text: string }[] = 
   },
 ];
 
-export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Order[], searchQuery?: string }) {
+export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Order[]; searchQuery?: string }) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
 
   // Sync state when URL search parameters trigger a server re-fetch

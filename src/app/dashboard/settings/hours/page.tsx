@@ -1,4 +1,4 @@
-﻿import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
 import { Clock } from 'lucide-react';
@@ -17,15 +17,17 @@ export default function BusinessHoursSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Business Hours</h1>
-        <p className="text-sm  mt-1">Configure when your store is open for business and accepting orders.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Business Hours</h1>
+        <p className="text-sm text-secondary mt-1">
+          Configure when your store is open for business and accepting orders.
+        </p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-              <Clock className="h-5 w-5" />
+              <Clock className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <CardTitle>Operating Hours</CardTitle>
@@ -38,35 +40,48 @@ export default function BusinessHoursSettingsPage() {
             {DAYS_OF_WEEK.map((day) => (
               <div key={day.id} className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-4 w-40">
-                  <Switch defaultChecked={day.defaultOpen} />
-                  <span className={`text-sm font-medium ${day.defaultOpen ? '' : 'text-muted'}`}>{day.name}</span>
+                  <Switch defaultChecked={day.defaultOpen} aria-label={`Open on ${day.name}`} />
+                  <span className={`text-sm font-medium ${day.defaultOpen ? 'text-primary' : 'text-muted'}`}>
+                    {day.name}
+                  </span>
                 </div>
 
                 {day.defaultOpen ? (
                   <div className="flex items-center gap-3 flex-1 justify-end sm:justify-start">
-                    <select className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                      <option>09:00 AM</option>
-                      <option>08:00 AM</option>
-                      <option>10:00 AM</option>
+                    <select
+                      aria-label={`${day.name} opening time`}
+                      defaultValue="09:00 AM"
+                      className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    >
+                      <option value="08:00 AM">08:00 AM</option>
+                      <option value="09:00 AM">09:00 AM</option>
+                      <option value="10:00 AM">10:00 AM</option>
                     </select>
-                    <span className="text-muted text-sm">to</span>
-                    <select className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                      <option>05:00 PM</option>
-                      <option>06:00 PM</option>
-                      <option>04:00 PM</option>
+                    <span className="text-muted text-xs">to</span>
+                    <select
+                      aria-label={`${day.name} closing time`}
+                      defaultValue="05:00 PM"
+                      className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    >
+                      <option value="04:00 PM">04:00 PM</option>
+                      <option value="05:00 PM">05:00 PM</option>
+                      <option value="06:00 PM">06:00 PM</option>
                     </select>
                   </div>
                 ) : (
                   <div className="flex-1 text-right sm:text-left">
-                    <span className="text-sm text-muted italic px-3">Closed</span>
+                    <span className="text-xs text-muted italic px-3">Closed</span>
                   </div>
                 )}
               </div>
             ))}
           </div>
         </CardBody>
-        <CardFooter className="justify-end border-t border-separator/50 mt-4">
-          <Button variant="primary">Save Hours</Button>
+        <CardFooter className="justify-end">
+          <Button variant="outline" size="sm" disabled>
+            Save Hours
+            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-muted">Coming Soon</span>
+          </Button>
         </CardFooter>
       </Card>
     </div>

@@ -7,8 +7,8 @@ export default function SubscriptionSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Subscription</h1>
-        <p className="text-sm  mt-1">Manage your Merchander billing plan and payment methods.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Subscription</h1>
+        <p className="text-sm text-secondary mt-1">Manage your Merchander billing plan and payment methods.</p>
       </div>
 
       <Card className="border-brand-primary/20 bg-brand-primary/5 relative overflow-hidden">
@@ -17,40 +17,43 @@ export default function SubscriptionSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-brand-primary/20 text-brand-primary">
-                <Zap className="h-5 w-5" />
+                <Zap className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <CardTitle className="text-brand-primary">Merchander Pro Plan</CardTitle>
-                <CardDescription>Billed annually. Next charge on Jan 1, 2027.</CardDescription>
+                <CardDescription>Active Subscription</CardDescription>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold">
+              <p className="text-2xl font-bold text-primary">
                 {formatCurrency(250).replace('.00', '')}
-                <span className="text-sm font-normal">/mo</span>
+                <span className="text-sm font-normal text-secondary">/mo</span>
               </p>
             </div>
           </div>
         </CardHeader>
         <CardBody className="space-y-4">
-          <ul className="grid grid-cols-2 gap-3 mt-4">
-            <li className="flex items-center gap-2 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-brand-primary" /> Unlimited Products
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+            <li className="flex items-center gap-2 text-sm text-primary">
+              <CheckCircle2 className="w-4 h-4 text-brand-primary shrink-0" aria-hidden="true" /> Unlimited Products
             </li>
-            <li className="flex items-center gap-2 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-brand-primary" /> 5 Staff Accounts
+            <li className="flex items-center gap-2 text-sm text-primary">
+              <CheckCircle2 className="w-4 h-4 text-brand-primary shrink-0" aria-hidden="true" /> 5 Staff Accounts
             </li>
-            <li className="flex items-center gap-2 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-brand-primary" /> WhatsApp API Integration
+            <li className="flex items-center gap-2 text-sm text-primary">
+              <CheckCircle2 className="w-4 h-4 text-brand-primary shrink-0" aria-hidden="true" /> WhatsApp API
+              Integration
             </li>
-            <li className="flex items-center gap-2 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-brand-primary" /> Priority Support
+            <li className="flex items-center gap-2 text-sm text-primary">
+              <CheckCircle2 className="w-4 h-4 text-brand-primary shrink-0" aria-hidden="true" /> Priority Support
             </li>
           </ul>
         </CardBody>
-        <CardFooter className="justify-end border-t border-brand-primary/10 mt-6 gap-3">
-          <Button variant="outline">Cancel Subscription</Button>
-          <Button variant="primary">Upgrade Plan</Button>
+        <CardFooter className="justify-end gap-3">
+          <Button variant="outline" size="sm" disabled>
+            Manage Billing
+            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-muted">Soon</span>
+          </Button>
         </CardFooter>
       </Card>
 
@@ -58,27 +61,24 @@ export default function SubscriptionSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-surface-elevated  border border-separator">
-                <CreditCard className="h-5 w-5" />
+              <div className="p-2 rounded-lg bg-surface-elevated border border-separator">
+                <CreditCard className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <CardTitle>Payment Method</CardTitle>
-                <CardDescription>The card used for your monthly billing.</CardDescription>
+                <CardDescription>The card or mobile money account used for billing.</CardDescription>
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              Update Card
-            </Button>
           </div>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="flex items-center gap-4 p-4 border border-separator rounded-md bg-surface-elevated">
-            <div className="w-12 h-8 bg-white rounded border border-separator flex items-center justify-center font-bold text-caption text-blue-900 italic">
+            <div className="w-12 h-8 bg-white rounded border border-separator flex items-center justify-center font-bold text-xs text-blue-900 italic">
               VISA
             </div>
             <div>
-              <p className="text-sm font-medium">Visa ending in 4242</p>
-              <p className="text-xs">Expires 12/2028</p>
+              <p className="text-sm font-medium text-primary">Primary Card</p>
+              <p className="text-xs text-secondary">Managed via billing portal</p>
             </div>
           </div>
         </CardBody>

@@ -41,8 +41,7 @@ export async function getCustomers(
     queryBuilder = queryBuilder.or(`name.ilike.%${query}%,phone.ilike.%${query}%,email.ilike.%${query}%`);
   }
 
-  const { data, count, error } = await queryBuilder
-    .range((page - 1) * pageSize, page * pageSize - 1);
+  const { data, count, error } = await queryBuilder.range((page - 1) * pageSize, page * pageSize - 1);
 
   if (error) {
     console.error('Error fetching customers:', error);

@@ -51,19 +51,21 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
-
-
   let days = 30;
   if (period === '7d') days = 7;
   if (period === '90d') days = 90;
 
   const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
-  const { data: settings } = await supabase.from('tenant_settings').select('low_stock_threshold').eq('tenant_id', tenantUser?.tenant_id).single();
+  const { data: settings } = await supabase
+    .from('tenant_settings')
+    .select('low_stock_threshold')
+    .eq('tenant_id', tenantUser?.tenant_id)
+    .single();
   const lowStockThreshold = settings?.low_stock_threshold || 10;
 
   // Call the new RPC for aggregated metrics
   const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', {
-    p_days: days
+    p_days: days,
   });
 
   if (metricsError) {
@@ -72,21 +74,26 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   }
 
   const {
-    current_sales, previous_sales,
-    current_orders, previous_orders,
-    current_cost, previous_cost,
-    current_customers, total_customers,
-    sales_chart, top_products
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    current_sales,
+    previous_sales,
+    current_orders,
+    previous_orders,
+    current_cost,
+    previous_cost,
+    current_customers,
+    total_customers,
+    sales_chart,
+    top_products,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = metricsData as any;
 
   const salesChange = previous_sales === 0 ? 100 : ((current_sales - previous_sales) / previous_sales) * 100;
   const orderChange = previous_orders === 0 ? 100 : ((current_orders - previous_orders) / previous_orders) * 100;
-  
+
   const currentMargin = current_sales - current_cost;
   const previousMargin = previous_sales - previous_cost;
   const marginChange = previousMargin === 0 ? 100 : ((currentMargin - previousMargin) / previousMargin) * 100;
-  
+
   const customerChange = total_customers === 0 ? 0 : (current_customers / total_customers) * 100;
 
   // 2. Fetch Attention Items
@@ -132,7 +139,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
       status: s.status as 'Received' | 'In Transit' | 'Delayed',
       origin: (suppOrigin || 'Unknown') as string,
       units: totalUnits,
-      preOrders: 0, 
+      preOrders: 0,
       eta: s.eta ? new Date(s.eta).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Unknown',
     };
   });
@@ -141,10 +148,10 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
   // Process low stock data and compute velocity (sales in last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  
+
   const lowStockList = await Promise.all(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (lowStockData as any[] || []).map(async (ls) => {
+    ((lowStockData as any[]) || []).map(async (ls) => {
       const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
       const prod = variant?.products
         ? Array.isArray(variant.products)
@@ -159,7 +166,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
         .eq('variant_id', variant?.id)
         .gte('orders.created_at', thirtyDaysAgo)
         .in('orders.status', ['paid', 'dispatched', 'delivered']);
-        
+
       const totalSoldLast30Days = (salesData || []).reduce((acc, item) => acc + (item.quantity || 0), 0);
       const avgWeeklySales = Math.max(1, Math.round(totalSoldLast30Days / 4.33)); // 4.33 weeks in a month
 

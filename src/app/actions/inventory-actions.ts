@@ -122,8 +122,7 @@ export async function getInventory(
     }
   }
 
-  const { data, count, error } = await queryBuilder
-    .range((page - 1) * pageSize, page * pageSize - 1);
+  const { data, count, error } = await queryBuilder.range((page - 1) * pageSize, page * pageSize - 1);
 
   if (error) {
     console.error('Error fetching inventory:', error);
@@ -132,7 +131,7 @@ export async function getInventory(
 
   // Get distinct categories for the filter dropdown (ideally we should have a categories table query, but this works)
   const { data: categoriesData } = await supabase.from('product_categories').select('name');
-  const categories = ['All categories', ...(categoriesData?.map(c => c.name) || []), 'Uncategorized'];
-  
+  const categories = ['All categories', ...(categoriesData?.map((c) => c.name) || []), 'Uncategorized'];
+
   return { data, count: count || 0, categories };
 }

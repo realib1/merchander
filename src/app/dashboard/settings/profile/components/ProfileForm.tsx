@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
@@ -25,7 +25,12 @@ export function ProfileForm({
     return await updateProfile(formData);
   }, null);
 
+  const lastToastedState = useRef<typeof state>(null);
+
   useEffect(() => {
+    if (state === lastToastedState.current) return;
+    lastToastedState.current = state;
+
     if (state?.error) {
       toast.error(state.error);
     } else if (state?.success) {
@@ -42,26 +47,30 @@ export function ProfileForm({
       <CardBody className="space-y-6">
         <div className="flex items-center gap-6">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-surface-elevated border border-separator flex items-center justify-center">
-            <span className="text-2xl font-semibold">{initials}</span>
+            <span className="text-2xl font-semibold text-primary">{initials}</span>
             <button
               type="button"
-              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-pointer"
+              aria-label="Change profile photo (Coming Soon)"
+              disabled
+              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 cursor-not-allowed"
             >
-              <Camera className="h-6 w-6 text-white" />
+              <Camera className="h-6 w-6 text-white" aria-hidden="true" />
             </button>
           </div>
           <div className="space-y-1">
-            <h4 className="text-sm font-medium">Profile Photo</h4>
-            <p className="text-xs">JPG, GIF or PNG. Max size of 5MB.</p>
-            <div className="flex gap-3 mt-2">
-              <Button variant="outline" size="sm" type="button">
+            <p className="text-sm font-medium text-primary">Profile Photo</p>
+            <p className="text-xs text-secondary">JPG, GIF or PNG. Max size of 5MB.</p>
+            <div className="flex items-center gap-3 mt-2">
+              <Button variant="outline" size="sm" type="button" disabled>
                 Change
+                <span className="ml-1.5 text-[9px] px-1 py-0.2 rounded bg-surface-elevated text-muted">Soon</span>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 type="button"
-                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                disabled
+                className="text-destructive/60 hover:bg-destructive/10"
               >
                 Remove
               </Button>
@@ -70,8 +79,8 @@ export function ProfileForm({
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <FormField name="firstName" label="First Name" defaultValue={firstName} />
-          <FormField name="lastName" label="Last Name" defaultValue={lastName} />
+          <FormField name="firstName" label="First Name" defaultValue={firstName} required />
+          <FormField name="lastName" label="Last Name" defaultValue={lastName} required />
           <FormField
             name="email"
             label="Email Address"
@@ -84,7 +93,7 @@ export function ProfileForm({
           <FormField name="phone" label="Phone Number" type="tel" defaultValue={phone} />
         </div>
       </CardBody>
-      <CardFooter className="justify-end border-t border-separator/50 mt-4 pt-6">
+      <CardFooter className="justify-end">
         <Button variant="primary" type="submit" disabled={isPending}>
           {isPending ? 'Saving...' : 'Save Changes'}
         </Button>

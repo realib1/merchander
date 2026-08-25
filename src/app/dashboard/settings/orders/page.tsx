@@ -8,15 +8,17 @@ export default function OrdersSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Order Settings</h1>
-        <p className="text-sm  mt-1">Manage how orders are processed, formatted, and communicated to customers.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Order Settings</h1>
+        <p className="text-sm text-secondary mt-1">
+          Manage how orders are processed, formatted, and communicated to customers.
+        </p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-              <ShoppingBag className="h-5 w-5" />
+              <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <CardTitle>Order Processing</CardTitle>
@@ -27,20 +29,24 @@ export default function OrdersSettingsPage() {
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium">Order Confirmation Emails</h4>
-              <p className="text-sm">Automatically send a receipt to the customer when they complete an order.</p>
+              <p className="text-sm font-medium text-primary">Order Confirmation Emails</p>
+              <p className="text-xs text-secondary">
+                Automatically send a receipt to the customer when they complete an order.
+              </p>
             </div>
-            <Switch defaultChecked={true} />
+            <Switch defaultChecked={true} aria-label="Enable order confirmation emails" />
           </div>
 
-          <div className="w-full h-px bg-separator opacity-50" />
+          <div className="w-full h-px bg-separator/50" />
 
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium">Staff Order Notifications</h4>
-              <p className="text-sm">Notify assigned staff members immediately when a new order arrives.</p>
+              <p className="text-sm font-medium text-primary">Staff Order Notifications</p>
+              <p className="text-xs text-secondary">
+                Notify assigned staff members immediately when a new order arrives.
+              </p>
             </div>
-            <Switch defaultChecked={true} />
+            <Switch defaultChecked={true} aria-label="Enable staff order notifications" />
           </div>
         </CardBody>
       </Card>
@@ -49,7 +55,7 @@ export default function OrdersSettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-              <Hash className="h-5 w-5" />
+              <Hash className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <CardTitle>Order Formatting</CardTitle>
@@ -63,12 +69,15 @@ export default function OrdersSettingsPage() {
             <FormField label="Order Suffix" hint="Appears after the number (Optional)." />
           </div>
           <div className="p-4 bg-surface-elevated rounded-md border border-separator text-sm">
-            <span className="">Your next order number will look like: </span>
-            <span className="font-semibold">#ORD-1042</span>
+            <span className="text-secondary">Your next order number will look like: </span>
+            <span className="font-semibold text-primary">#ORD-1042</span>
           </div>
         </CardBody>
-        <CardFooter className="justify-end border-t border-separator/50 mt-4">
-          <Button variant="primary">Save Formatting</Button>
+        <CardFooter className="justify-end">
+          <Button variant="outline" size="sm" disabled>
+            Save Formatting
+            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-muted">Coming Soon</span>
+          </Button>
         </CardFooter>
       </Card>
 
@@ -76,32 +85,38 @@ export default function OrdersSettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-              <MailWarning className="h-5 w-5" />
+              <MailWarning className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <CardTitle>Abandoned Checkouts</CardTitle>
-              <CardDescription>Recover lost sales by automatically emailing customers.</CardDescription>
+              <CardDescription>Recover lost sales by automatically contacting customers.</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium">Send Recovery Emails</h4>
-              <p className="text-sm">Automatically send a reminder to customers who leave without purchasing.</p>
+              <p className="text-sm font-medium text-primary">Send Recovery Reminders</p>
+              <p className="text-xs text-secondary">
+                Automatically send a reminder to customers who leave without completing payment.
+              </p>
             </div>
-            <Switch defaultChecked={false} />
+            <Switch defaultChecked={false} aria-label="Enable abandoned checkout recovery reminders" />
           </div>
 
           <div className="space-y-1.5 opacity-50 pointer-events-none">
-            <label className="text-sm font-medium">Send after</label>
+            <label htmlFor="abandoned-send-after" className="text-xs font-semibold text-primary">
+              Send after
+            </label>
             <select
+              id="abandoned-send-after"
               disabled
-              className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              defaultValue="12 hours"
+              className="w-full rounded-md border border-separator bg-surface px-3.5 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
             >
-              <option>10 hours</option>
-              <option>12 hours</option>
-              <option>24 hours</option>
+              <option value="10 hours">10 hours</option>
+              <option value="12 hours">12 hours</option>
+              <option value="24 hours">24 hours</option>
             </select>
           </div>
         </CardBody>

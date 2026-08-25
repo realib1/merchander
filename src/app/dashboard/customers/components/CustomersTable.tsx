@@ -11,8 +11,19 @@ import Link from 'next/link';
 import { bulkDeleteCustomers } from '@/app/actions/customers';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
-  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+function SortIcon({
+  column,
+  currentSortBy,
+  currentSortOrder,
+}: {
+  column: string;
+  currentSortBy: string;
+  currentSortOrder: string;
+}) {
+  if (currentSortBy !== column)
+    return (
+      <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+    );
   return currentSortOrder === 'asc' ? (
     <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
   ) : (
@@ -20,12 +31,12 @@ function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string,
   );
 }
 
-export function CustomersTable({ 
+export function CustomersTable({
   initialCustomers,
   currentPage = 1,
   totalPages = 1,
-  totalCount = 0
-}: { 
+  totalCount = 0,
+}: {
   initialCustomers: CustomerStats[];
   currentPage?: number;
   totalPages?: number;
@@ -96,7 +107,7 @@ export function CustomersTable({
     window.addEventListener('click', handleClickOutside);
     return () => window.removeEventListener('click', handleClickOutside);
   }, []);
-  
+
   const createPageUrl = (pageNumber: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', pageNumber.toString());
@@ -107,14 +118,14 @@ export function CustomersTable({
     const params = new URLSearchParams(searchParams);
     const currentSortBy = params.get('sortBy') || 'created_at';
     const currentSortOrder = params.get('sortOrder') || 'desc';
-    
+
     if (currentSortBy === column) {
       params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       params.set('sortBy', column);
       params.set('sortOrder', 'asc');
     }
-    
+
     return `${pathname}?${params.toString()}`;
   };
 
@@ -138,27 +149,45 @@ export function CustomersTable({
                 </th>
                 <th className="px-6 py-4 font-semibold">
                   <Link href={createSortUrl('name')} className="flex items-center group cursor-pointer">
-                    Customer <SortIcon column="name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                    Customer{' '}
+                    <SortIcon column="name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold text-center">
-                  <Link href={createSortUrl('total_orders')} className="flex items-center justify-center group cursor-pointer">
-                    Orders <SortIcon column="total_orders" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  <Link
+                    href={createSortUrl('total_orders')}
+                    className="flex items-center justify-center group cursor-pointer"
+                  >
+                    Orders{' '}
+                    <SortIcon column="total_orders" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold text-right">
-                  <Link href={createSortUrl('total_spent')} className="flex items-center justify-end group cursor-pointer">
-                    Total spent <SortIcon column="total_spent" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  <Link
+                    href={createSortUrl('total_spent')}
+                    className="flex items-center justify-end group cursor-pointer"
+                  >
+                    Total spent{' '}
+                    <SortIcon column="total_spent" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold text-right">
                   <Link href={createSortUrl('aov')} className="flex items-center justify-end group cursor-pointer">
-                    Avg. order <SortIcon column="aov" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                    Avg. order{' '}
+                    <SortIcon column="aov" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold text-right">
-                  <Link href={createSortUrl('last_order_date')} className="flex items-center justify-end group cursor-pointer">
-                    Last order <SortIcon column="last_order_date" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  <Link
+                    href={createSortUrl('last_order_date')}
+                    className="flex items-center justify-end group cursor-pointer"
+                  >
+                    Last order{' '}
+                    <SortIcon
+                      column="last_order_date"
+                      currentSortBy={currentSortBy}
+                      currentSortOrder={currentSortOrder}
+                    />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold text-center">Status</th>
@@ -288,7 +317,8 @@ export function CustomersTable({
         {customers && customers.length > 0 && (
           <div className="p-4 border-t border-separator bg-surface-elevated/30 flex items-center justify-between text-sm shrink-0">
             <div>
-              Showing {Math.min((currentPage - 1) * 10 + 1, totalCount)}-{Math.min(currentPage * 10, totalCount)} of {totalCount} customers
+              Showing {Math.min((currentPage - 1) * 10 + 1, totalCount)}-{Math.min(currentPage * 10, totalCount)} of{' '}
+              {totalCount} customers
             </div>
             <div className="flex gap-2">
               {currentPage > 1 ? (
@@ -299,7 +329,10 @@ export function CustomersTable({
                   Previous
                 </Link>
               ) : (
-                <button disabled className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">
+                <button
+                  disabled
+                  className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
+                >
                   Previous
                 </button>
               )}
@@ -312,7 +345,10 @@ export function CustomersTable({
                   Next
                 </Link>
               ) : (
-                <button disabled className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">
+                <button
+                  disabled
+                  className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
+                >
                   Next
                 </button>
               )}

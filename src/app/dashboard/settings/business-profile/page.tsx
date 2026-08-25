@@ -1,43 +1,62 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
-import { FormField } from '@/components/ui/FormField';
-import { Button } from '@/components/ui/Button';
+import { createClient } from '@/lib/supabase/server';
+import { getTenantInfo, getTenantSettings } from '@/lib/supabase/queries';
+import { redirect } from 'next/navigation';
+import { BusinessForm } from './components/BusinessForm';
 
-export default function GeneralSettingsPage() {
+export default async function BusinessProfileSettingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  let tenantName = '';
+  let tenantSettings = null;
+
+  try {
+    const { tenantId } = await getTenantInfo(supabase, user.id);
+
+    const { data: tenant } = await supabase.from('tenants').select('name').eq('id', tenantId).single();
+    if (tenant) {
+      tenantName = tenant.name;
+    }
+
+    tenantSettings = await getTenantSettings(
+      supabase,
+      tenantId,
+      'trading_name, industry, tax_id, brand_primary_color, brand_secondary_color, business_street, business_city, business_state, business_zip, business_country'
+    );
+  } catch (error) {
+    console.error('Error fetching tenant business settings:', error);
+  }
+
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">General</h1>
-        <p className="text-sm  mt-1">Manage your store&apos;s basic information and identity.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Business Profile</h1>
+        <p className="text-sm text-secondary mt-1">
+          Manage your company&apos;s legal information, brand identity, and contact details.
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Store Details</CardTitle>
-          <CardDescription>Your store&apos;s name and contact information.</CardDescription>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <FormField
-            label="Store Name"
-            defaultValue="Northstar Commerce"
-            hint="This is the name that appears on your store and in emails."
-          />
-          <FormField
-            label="Store Contact Email"
-            type="email"
-            defaultValue="hello@northstar.com"
-            hint="This is the email address customers will contact you at."
-          />
-          <FormField
-            label="Store Currency"
-            defaultValue="Ghana Cedi (GHS)"
-            disabled
-            hint="Currency cannot be changed after your first order is processed."
-          />
-        </CardBody>
-        <CardFooter className="justify-end bg-surface-elevated/30">
-          <Button variant="primary">Save changes</Button>
-        </CardFooter>
-      </Card>
+      <div className="space-y-8">
+        <BusinessForm
+          initialTenantName={tenantName}
+          initialTradingName={tenantSettings?.trading_name ?? null}
+          initialIndustry={tenantSettings?.industry ?? null}
+          initialTaxId={tenantSettings?.tax_id ?? null}
+          initialBrandColor={tenantSettings?.brand_primary_color ?? null}
+          initialBrandSecondaryColor={tenantSettings?.brand_secondary_color ?? null}
+          initialStreet={tenantSettings?.business_street ?? null}
+          initialCity={tenantSettings?.business_city ?? null}
+          initialState={tenantSettings?.business_state ?? null}
+          initialZip={tenantSettings?.business_zip ?? null}
+          initialCountry={tenantSettings?.business_country ?? null}
+        />
+      </div>
     </div>
   );
 }

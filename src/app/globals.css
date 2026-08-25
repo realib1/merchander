@@ -82,17 +82,17 @@
   :root {
     /* OKLCH Color Palette - Light Mode */
     /* Gold / Orange */
-    --brand-primary: #ff6a00;
-    --brand-primary-50: #fff0e5;
-    --brand-primary-100: #ffdbc2;
-    --brand-primary-200: #ffb885;
-    --brand-primary-300: #ff8e47;
-    --brand-primary-400: #ff731a;
-    --brand-primary-500: #ff6a00;
-    --brand-primary-600: #cc5500;
-    --brand-primary-700: #993f00;
-    --brand-primary-800: #662a00;
-    --brand-primary-900: #331500;
+    --brand-primary: oklch(70.09% 0.20117 44.755);
+    --brand-primary-50: oklch(96.4% 0.02181 58.639);
+    --brand-primary-100: oklch(91.519% 0.05213 56.711);
+    --brand-primary-200: oklch(83.771% 0.10577 56.382);
+    --brand-primary-300: oklch(75.721% 0.16037 50.186);
+    --brand-primary-400: oklch(71.368% 0.19175 46.18);
+    --brand-primary-500: oklch(70.09% 0.20117 44.755);
+    --brand-primary-600: oklch(59.482% 0.16865 45.473);
+    --brand-primary-700: oklab(48.234% 0.09381 0.09752);
+    --brand-primary-800: oklch(36.447% 0.09893 48.195);
+    --brand-primary-900: oklch(23.641% 0.05909 54.198);
 
     /* Indigo / Purple */
     --brand-secondary: oklch(0.55 0.16 265);

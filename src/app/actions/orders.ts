@@ -52,13 +52,13 @@ export async function updateOrderStatus(orderId: string, newStatus: OrderStatus)
     const itemsToDecrement = order.items.map((item: { variant_id: string; quantity: number }) => ({
       variant_id: item.variant_id,
       store_id: order.store_id,
-      quantity: item.quantity
+      quantity: item.quantity,
     }));
 
     try {
       const { error: batchError } = await supabase.rpc('decrement_inventory_batch', {
         p_items: itemsToDecrement,
-        p_tenant_id: tenantUser.tenant_id
+        p_tenant_id: tenantUser.tenant_id,
       });
       if (batchError) throw batchError;
     } catch (err) {
@@ -124,13 +124,17 @@ export async function getKanbanOrders(status: OrderStatus, offset: number, limit
 
   if (!user) throw new Error('Not authenticated');
 
-  let queryBuilder = supabase.from('orders').select(
-    `
+  let queryBuilder = supabase
+    .from('orders')
+    .select(
+      `
       *,
       items:order_items(*, variant:product_variants(*, product:products(name))),
       customer:customers!left(name, phone)
     `
-  ).eq('status', status).order('created_at', { ascending: false });
+    )
+    .eq('status', status)
+    .order('created_at', { ascending: false });
 
   if (query) {
     // Basic search for Kanban Load More

@@ -1,4 +1,4 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState } from 'react';
@@ -51,12 +51,12 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header
         className={cn(
-          'z-40 w-full border-b border-separator bg-surface/80 backdrop-blur-md transition-colors duration-[var(--duration-fast,150ms)]',
+          'z-40 w-full border-b border-separator bg-surface/80 backdrop-blur-md transition-colors duration-(--duration-fast,150ms)',
           sticky && 'sticky top-0',
           className
         )}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo / Brand */}
           <div className="flex items-center gap-6">
             {logo ? (
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
                       href={item.href}
                       aria-current={item.active ? 'page' : undefined}
                       className={cn(
-                        'inline-flex items-center gap-1.5 rounded-[var(--radius-md,6px)] px-3 py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast,150ms)]',
+                        'inline-flex items-center gap-1.5 rounded-(--radius-md,6px) px-3 py-1.5 text-sm font-medium transition-colors duration-(--duration-fast,150ms)',
                         item.active
                           ? 'bg-brand-primary/10 font-semibold text-brand-primary'
                           : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'
@@ -111,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open navigation menu"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md,6px)] border border-separator bg-surface text-secondary hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary md:hidden cursor-pointer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-(--radius-md,6px) border border-separator bg-surface text-secondary hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary md:hidden cursor-pointer"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -144,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => setMobileMenuOpen(false)}
                 aria-current={item.active ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded-[var(--radius-md,6px)] px-3 py-2.5 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-(--radius-md,6px) px-3 py-2.5 text-sm font-medium transition-colors',
                   item.active
                     ? 'bg-brand-primary font-semibold text-white shadow-xs'
                     : 'text-secondary hover:bg-surface-elevated hover:text-brand-primary'

@@ -22,8 +22,19 @@ export interface InventoryRowData {
   storeName: string;
 }
 
-function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
-  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+function SortIcon({
+  column,
+  currentSortBy,
+  currentSortOrder,
+}: {
+  column: string;
+  currentSortBy: string;
+  currentSortOrder: string;
+}) {
+  if (currentSortBy !== column)
+    return (
+      <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+    );
   return currentSortOrder === 'asc' ? (
     <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
   ) : (
@@ -31,12 +42,12 @@ function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string,
   );
 }
 
-export function InventoryTable({ 
+export function InventoryTable({
   rows,
   currentPage = 1,
   totalPages = 1,
-  totalCount = 0
-}: { 
+  totalCount = 0,
+}: {
   rows: InventoryRowData[];
   currentPage?: number;
   totalPages?: number;
@@ -56,14 +67,14 @@ export function InventoryTable({
     const params = new URLSearchParams(searchParams);
     const currentSortBy = params.get('sortBy') || 'product_name';
     const currentSortOrder = params.get('sortOrder') || 'asc';
-    
+
     if (currentSortBy === column) {
       params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       params.set('sortBy', column);
       params.set('sortOrder', 'asc');
     }
-    
+
     return `${pathname}?${params.toString()}`;
   };
 
@@ -78,12 +89,14 @@ export function InventoryTable({
             <tr className="text-xs font-semibold  bg-surface-elevated/30 border-b border-separator">
               <th className="px-6 py-4">
                 <Link href={createSortUrl('product_name')} className="flex items-center group cursor-pointer">
-                  Product <SortIcon column="product_name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  Product{' '}
+                  <SortIcon column="product_name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
               <th className="px-6 py-4">
                 <Link href={createSortUrl('category_name')} className="flex items-center group cursor-pointer">
-                  Category <SortIcon column="category_name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  Category{' '}
+                  <SortIcon column="category_name" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
               <th className="px-6 py-4">
@@ -94,7 +107,8 @@ export function InventoryTable({
               <th className="px-6 py-4">Status</th>
               <th className="px-6 py-4 text-right">
                 <Link href={createSortUrl('price')} className="flex items-center justify-end group cursor-pointer">
-                  Inventory value <SortIcon column="price" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  Inventory value{' '}
+                  <SortIcon column="price" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
               <th className="px-6 py-4 text-right">Action</th>
@@ -184,7 +198,11 @@ export function InventoryTable({
       <div className="px-6 py-4 border-t border-separator bg-surface-elevated/20 flex items-center justify-between text-sm">
         <div className="flex items-center gap-4">
           <div>
-            Showing <span className="font-semibold">{Math.min((currentPage - 1) * 15 + 1, totalCount)}-{Math.min(currentPage * 15, totalCount)}</span> of <span className="font-semibold">{totalCount}</span> variants
+            Showing{' '}
+            <span className="font-semibold">
+              {Math.min((currentPage - 1) * 15 + 1, totalCount)}-{Math.min(currentPage * 15, totalCount)}
+            </span>{' '}
+            of <span className="font-semibold">{totalCount}</span> variants
           </div>
           <div className="text-muted border-l border-separator pl-4">
             Total page value:{' '}
@@ -193,7 +211,7 @@ export function InventoryTable({
             </span>
           </div>
         </div>
-        
+
         {totalCount > 0 && (
           <div className="flex gap-2">
             {currentPage > 1 ? (
@@ -204,7 +222,10 @@ export function InventoryTable({
                 Previous
               </Link>
             ) : (
-              <button disabled className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">
+              <button
+                disabled
+                className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
+              >
                 Previous
               </button>
             )}
@@ -217,7 +238,10 @@ export function InventoryTable({
                 Next
               </Link>
             ) : (
-              <button disabled className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50">
+              <button
+                disabled
+                className="px-3 py-1.5 border border-separator rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
+              >
                 Next
               </button>
             )}

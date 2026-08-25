@@ -6,8 +6,8 @@ export default function AuditLogSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Audit Log</h1>
-        <p className="text-sm  mt-1">Review a secure trail of all actions performed by your team.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Audit Log</h1>
+        <p className="text-sm text-secondary mt-1">Review a secure trail of all actions performed by your team.</p>
       </div>
 
       <Card>
@@ -15,54 +15,32 @@ export default function AuditLogSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-                <Activity className="h-5 w-5" />
+                <Activity className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <CardTitle>Recent Activity</CardTitle>
                 <CardDescription>The last 30 days of team activity.</CardDescription>
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" disabled>
+              <Download className="w-4 h-4 mr-2" aria-hidden="true" />
               Export CSV
+              <span className="ml-1.5 text-[9px] px-1 py-0.2 rounded bg-surface-elevated text-muted">Soon</span>
             </Button>
           </div>
         </CardHeader>
         <CardBody className="space-y-0">
-          <div className="rounded-md border border-separator overflow-hidden divide-y divide-separator">
+          <div className="rounded-md border overflow-hidden divide-y divide-separator">
             <div className="p-4 bg-surface hover:bg-surface-elevated transition-colors flex items-start gap-4">
               <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center shrink-0 border border-separator">
-                <span className="text-xs font-bold">AU</span>
+                <span className="text-xs font-bold text-primary">ME</span>
               </div>
               <div className="flex-1">
-                <p className="text-sm">
-                  <span className="font-medium">Admin User</span> updated the{' '}
-                  <span className="font-medium">Shipping Rates</span>.
+                <p className="text-sm text-primary">
+                  <span className="font-medium">Store Owner</span> updated the{' '}
+                  <span className="font-medium">Business Profile</span>.
                 </p>
-                <p className="text-xs  mt-1">Today at 10:42 AM • IP: 102.176.65.12</p>
-              </div>
-            </div>
-            <div className="p-4 bg-surface hover:bg-surface-elevated transition-colors flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center shrink-0 border border-separator">
-                <span className="text-xs font-bold">JD</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm">
-                  <span className="font-medium">John Doe</span> processed a refund for{' '}
-                  <span className="font-medium">#ORD-1041</span>.
-                </p>
-                <p className="text-xs  mt-1">Yesterday at 4:15 PM • IP: 154.160.22.45</p>
-              </div>
-            </div>
-            <div className="p-4 bg-surface hover:bg-surface-elevated transition-colors flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center shrink-0 border border-separator">
-                <span className="text-xs font-bold">AU</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm">
-                  <span className="font-medium">Admin User</span> logged in.
-                </p>
-                <p className="text-xs  mt-1">Yesterday at 9:00 AM • IP: 102.176.65.12</p>
+                <p className="text-xs text-secondary mt-1">Today</p>
               </div>
             </div>
           </div>

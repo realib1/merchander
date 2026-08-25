@@ -34,30 +34,31 @@ export function WaitlistForm() {
 
   return (
     <div className="w-full">
-      <form
-        className="mt-10 flex w-full max-w-lg flex-col gap-3 mx-auto sm:w-auto sm:flex-row"
-        onSubmit={handleJoinWaitlist}
-      >
+      <form className="flex w-full max-w-md flex-col gap-2 sm:flex-row" onSubmit={handleJoinWaitlist}>
         <input
           type="email"
           name="email"
-          placeholder="Enter your email address..."
+          placeholder="Enter your email address"
           required
           disabled={status === 'loading'}
-          className="flex h-11 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-surface px-4 py-2 text-base sm:text-sm shadow-sm transition-colors placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:opacity-50"
+          className="flex h-10 w-full rounded-md border border-separator bg-surface px-3.5 py-2 text-sm shadow-2xs transition-colors placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:opacity-50"
         />
         <Button
           type="submit"
           variant="primary"
           size="md"
-          className="h-11 w-full sm:w-auto shadow-[0_0_40px_rgba(245,158,11,0.2)] whitespace-nowrap"
+          className="h-10 w-full sm:w-auto shrink-0 font-medium px-4 text-sm whitespace-nowrap shadow-2xs"
           disabled={status === 'loading'}
         >
           {status === 'loading' ? 'Joining...' : 'Join Waitlist'}
         </Button>
       </form>
       {message && (
-        <div className={`mt-3 text-sm font-medium ${status === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
+        <div
+          className={`mt-2 text-xs font-medium ${
+            status === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+          }`}
+        >
           {message}
         </div>
       )}

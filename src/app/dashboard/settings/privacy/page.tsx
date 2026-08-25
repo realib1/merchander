@@ -7,41 +7,43 @@ export default function PrivacySettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Privacy & Data</h1>
-        <p className="text-sm  mt-1">Manage how customer data is handled on your storefront.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Privacy & Data</h1>
+        <p className="text-sm text-secondary mt-1">Manage how customer data is handled on your storefront.</p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-              <Cookie className="h-5 w-5" />
+              <Cookie className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <CardTitle>Customer Consent</CardTitle>
-              <CardDescription>Cookie banners and GDPR compliance.</CardDescription>
+              <CardDescription>Cookie banners and privacy compliance.</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium">Show Cookie Banner</h4>
-              <p className="text-sm  max-w-lg">
-                Require customers in the EU/UK to accept tracking cookies before analytics load.
+              <p className="text-sm font-medium text-primary">Show Cookie Banner</p>
+              <p className="text-xs text-secondary max-w-lg">
+                Require customers in regulated regions to accept tracking cookies before analytics load.
               </p>
             </div>
-            <Switch defaultChecked={false} />
+            <Switch defaultChecked={false} aria-label="Show cookie banner" />
           </div>
 
-          <div className="w-full h-px bg-separator opacity-50" />
+          <div className="w-full h-px bg-separator/50" />
 
           <div className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <h4 className="text-sm font-medium">Marketing Consent Checkbox</h4>
-              <p className="text-sm  max-w-lg">Add an opt-in checkbox at checkout for promotional emails.</p>
+              <p className="text-sm font-medium text-primary">Marketing Consent Checkbox</p>
+              <p className="text-xs text-secondary max-w-lg">
+                Add an opt-in checkbox at checkout for promotional updates.
+              </p>
             </div>
-            <Switch defaultChecked={true} />
+            <Switch defaultChecked={true} aria-label="Enable marketing consent checkbox" />
           </div>
         </CardBody>
       </Card>
@@ -50,7 +52,7 @@ export default function PrivacySettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-              <Trash2 className="h-5 w-5" />
+              <Trash2 className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <CardTitle>Data Retention</CardTitle>
@@ -60,16 +62,25 @@ export default function PrivacySettingsPage() {
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Delete Abandoned Checkouts</label>
-            <select className="w-full rounded-md border border-separator bg-surface px-3 py-2 text-sm  focus:outline-none focus:ring-2 focus:ring-brand-primary">
-              <option>After 30 days</option>
-              <option>After 90 days</option>
-              <option>Never</option>
+            <label htmlFor="data-retention-select" className="text-xs font-semibold text-primary">
+              Delete Abandoned Checkouts
+            </label>
+            <select
+              id="data-retention-select"
+              defaultValue="After 90 days"
+              className="w-full rounded-md border border-separator bg-surface px-3.5 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            >
+              <option value="After 30 days">After 30 days</option>
+              <option value="After 90 days">After 90 days</option>
+              <option value="Never">Never</option>
             </select>
           </div>
         </CardBody>
-        <CardFooter className="justify-end border-t border-separator/50 mt-4">
-          <Button variant="primary">Save Policies</Button>
+        <CardFooter className="justify-end">
+          <Button variant="outline" size="sm" disabled>
+            Save Policies
+            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-muted">Soon</span>
+          </Button>
         </CardFooter>
       </Card>
     </div>

@@ -5,14 +5,37 @@ import { updateOrderStatus, processMoMoPayment, OrderStatus } from '@/app/action
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency } from '@/utils/format';
 import { toast } from 'sonner';
-import { MoreHorizontal, FileText, CheckCircle, Truck, ArrowRight, Loader2, XCircle, Eye, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import {
+  MoreHorizontal,
+  FileText,
+  CheckCircle,
+  Truck,
+  ArrowRight,
+  Loader2,
+  XCircle,
+  Eye,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { OrderDetailsSheet } from './OrderDetailsSheet';
 
-function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
-  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+function SortIcon({
+  column,
+  currentSortBy,
+  currentSortOrder,
+}: {
+  column: string;
+  currentSortBy: string;
+  currentSortOrder: string;
+}) {
+  if (currentSortBy !== column)
+    return (
+      <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+    );
   return currentSortOrder === 'asc' ? (
     <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
   ) : (
@@ -224,24 +247,18 @@ export function OrdersTable({
     }
   };
 
-  const createPageUrl = (pageNumber: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('page', pageNumber.toString());
-    return `${pathname}?${params.toString()}`;
-  };
-
   const createSortUrl = (column: string) => {
     const params = new URLSearchParams(searchParams);
     const currentSortBy = params.get('sortBy') || 'created_at';
     const currentSortOrder = params.get('sortOrder') || 'desc';
-    
+
     if (currentSortBy === column) {
       params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       params.set('sortBy', column);
       params.set('sortOrder', 'asc');
     }
-    
+
     return `${pathname}?${params.toString()}`;
   };
 
@@ -271,13 +288,18 @@ export function OrdersTable({
                 <th className="px-6 py-4 font-semibold">Customer</th>
                 <th className="px-6 py-4 font-semibold">
                   <Link href={createSortUrl('created_at')} className="flex items-center group cursor-pointer">
-                    Date <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                    Date{' '}
+                    <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold">Items</th>
                 <th className="px-6 py-4 font-semibold text-right">
-                  <Link href={createSortUrl('total_amount')} className="flex items-center justify-end group cursor-pointer">
-                    Total <SortIcon column="total_amount" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  <Link
+                    href={createSortUrl('total_amount')}
+                    className="flex items-center justify-end group cursor-pointer"
+                  >
+                    Total{' '}
+                    <SortIcon column="total_amount" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                   </Link>
                 </th>
                 <th className="px-6 py-4 font-semibold text-center">Status</th>

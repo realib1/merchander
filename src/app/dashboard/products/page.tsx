@@ -34,7 +34,11 @@ export default async function CatalogPage({
   const statusFilter = typeof resolvedParams.status === 'string' ? resolvedParams.status : undefined;
   const view = typeof resolvedParams.view === 'string' ? resolvedParams.view : 'table';
   const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'created_at';
-  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'desc';
+  const sortOrder =
+    typeof resolvedParams.sortOrder === 'string' &&
+    (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc')
+      ? resolvedParams.sortOrder
+      : 'desc';
 
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const pageSize = 12; // 12 is good for grid layout (3x4 or 4x3)
@@ -50,19 +54,19 @@ export default async function CatalogPage({
 
       <div className="bg-surface border border-separator rounded-xl overflow-hidden min-h-125 flex flex-col min-w-0 w-full">
         {view === 'grid' ? (
-          <ProductGridView 
-            products={products as Product[]} 
-            currentPage={page} 
-            totalPages={totalPages} 
-            totalCount={count || 0} 
+          <ProductGridView
+            products={products as Product[]}
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={count || 0}
             searchParams={await searchParams}
           />
         ) : (
-          <ProductsTable 
-            initialProducts={products as Product[]} 
-            currentPage={page} 
-            totalPages={totalPages} 
-            totalCount={count || 0} 
+          <ProductsTable
+            initialProducts={products as Product[]}
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={count || 0}
           />
         )}
       </div>
@@ -70,13 +74,13 @@ export default async function CatalogPage({
   );
 }
 
-function ProductGridView({ 
+function ProductGridView({
   products,
   currentPage,
   totalPages,
   totalCount,
-  searchParams
-}: { 
+  searchParams,
+}: {
   products: Product[];
   currentPage: number;
   totalPages: number;
@@ -182,7 +186,9 @@ function ProductGridView({
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="tabular-nums">Page {currentPage} of {Math.max(1, totalPages)}</span>
+            <span className="tabular-nums">
+              Page {currentPage} of {Math.max(1, totalPages)}
+            </span>
             <div className="flex items-center gap-1">
               {currentPage > 1 ? (
                 <Link
@@ -201,7 +207,7 @@ function ProductGridView({
                   &lt;
                 </button>
               )}
-              
+
               <span
                 className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator tabular-nums"
                 aria-current="page"

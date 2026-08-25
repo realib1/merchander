@@ -81,10 +81,11 @@ export function OrdersHeader() {
                     <button
                       key={tab.id}
                       onClick={() => setStatus(tab.id)}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${currentStatus === tab.id
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-body rounded-md transition-colors ${
+                        currentStatus === tab.id
                           ? 'bg-brand-primary/10 text-brand-primary font-semibold'
                           : ' hover:bg-surface-elevated hover:text-brand-primary'
-                        }`}
+                      }`}
                     >
                       {tab.label}
                       {currentStatus === tab.id && <Check size={16} />}
@@ -103,10 +104,11 @@ export function OrdersHeader() {
           <button
             key={tab.id}
             onClick={() => setStatus(tab.id)}
-            className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${currentStatus === tab.id
+            className={`pb-3 text-body font-medium whitespace-nowrap border-b-2 transition-colors ${
+              currentStatus === tab.id
                 ? 'border-brand-primary text-brand-primary'
                 : 'border-transparent  hover:text-brand-primary'
-              }`}
+            }`}
           >
             {tab.label}
           </button>

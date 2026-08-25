@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -39,7 +39,7 @@ const settingsGroups = [
     items: [
       { name: 'Business Profile', href: '/dashboard/settings/business-profile', icon: Building2 },
       { name: 'Store', href: '/dashboard/settings/store', icon: Store },
-      { name: 'Business Hours', href: '/dashboard/settings/business-hours', icon: Clock },
+      { name: 'Business Hours', href: '/dashboard/settings/hours', icon: Clock },
     ],
   },
   {
@@ -88,38 +88,45 @@ export function SettingsSidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="space-y-8 pb-10 h-full overflow-y-auto pr-4 custom-scrollbar">
-      {settingsGroups.map((group) => (
-        <div key={group.title} className="space-y-1">
-          <h2 className="px-3 text-xs font-semibold uppercase tracking-wider text-muted mb-3">{group.title}</h2>
-          <ul className="space-y-1">
-            {group.items.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
+    <nav aria-label="Settings navigation" className="space-y-8 pb-10 h-full overflow-y-auto pr-4 custom-scrollbar">
+      {settingsGroups.map((group) => {
+        const groupId = `group-${group.title.toLowerCase().replace(/\s+/g, '-')}`;
+        return (
+          <div key={group.title} className="space-y-1">
+            <h2 id={groupId} className="px-3 text-xs font-semibold uppercase tracking-wider text-muted mb-3">
+              {group.title}
+            </h2>
+            <ul aria-labelledby={groupId} className="space-y-1">
+              {group.items.map((item) => {
+                const isActive = pathname === item.href;
+                const Icon = item.icon;
 
-              return (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={`group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-brand-primary/10 text-brand-primary'
-                        : ' hover:bg-surface-elevated hover:text-brand-primary'
-                    }`}
-                  >
-                    <Icon
-                      className={`h-4 w-4 shrink-0 transition-colors ${
-                        isActive ? 'text-brand-primary' : 'text-muted group-hover:text-brand-primary'
+                return (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-brand-primary/10 text-brand-primary'
+                          : ' hover:bg-surface-elevated hover:text-brand-primary'
                       }`}
-                    />
-                    {item.name}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+                    >
+                      <Icon
+                        className={`h-4 w-4 shrink-0 transition-colors ${
+                          isActive ? 'text-brand-primary' : 'text-muted group-hover:text-brand-primary'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span>{item.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
     </nav>
   );
 }

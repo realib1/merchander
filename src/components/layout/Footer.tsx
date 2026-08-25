@@ -1,4 +1,4 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React from 'react';
@@ -65,11 +65,11 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <footer
       className={cn(
-        'w-full border-t border-separator bg-surface text-secondary transition-colors duration-[var(--duration-fast,150ms)]',
+        'w-full border-t border-separator bg-surface text-secondary transition-colors duration-(--duration-fast,150ms)',
         className
       )}
     >
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
           {/* Brand Info */}
           <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-5">
@@ -90,7 +90,7 @@ export const Footer: React.FC<FooterProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm,4px)] text-muted transition-colors hover:bg-surface-elevated hover:text-brand-primary"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-(--radius-sm,4px) text-muted transition-colors hover:bg-surface-elevated hover:text-brand-primary"
                     >
                       <Icon className="h-4 w-4" />
                     </a>

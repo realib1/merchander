@@ -1,80 +1,78 @@
+import { createClient } from '@/lib/supabase/server';
+import { getTenantInfo, getTenantSettings } from '@/lib/supabase/queries';
+import { redirect } from 'next/navigation';
+import { SecurityForm } from './components/SecurityForm';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
-import { Switch } from '@/components/ui/Switch';
-import { ShieldCheck, Smartphone, KeyRound, MonitorSmartphone } from 'lucide-react';
+import { KeyRound, MonitorSmartphone, ShieldCheck } from 'lucide-react';
 
-export default function SecuritySettingsPage() {
+export default async function SecuritySettingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  let tenantSettings = null;
+
+  try {
+    const { tenantId } = await getTenantInfo(supabase, user.id);
+    tenantSettings = await getTenantSettings(supabase, tenantId, 'two_factor_enabled, sms_recovery_enabled');
+  } catch (error) {
+    console.error('Error fetching security settings:', error);
+  }
+
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Security Settings</h1>
-        <p className="text-sm  mt-1">Manage your password, authentication, and active sessions.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Security Settings</h1>
+        <p className="text-sm text-secondary mt-1">Manage your password, authentication, and active sessions.</p>
       </div>
 
       {/* Password Section */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-              <KeyRound className="h-5 w-5" />
+        <form>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+                <KeyRound className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <CardTitle>Change Password</CardTitle>
+                <CardDescription>Update your password to keep your account secure.</CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle>Change Password</CardTitle>
-              <CardDescription>Update your password to keep your account secure.</CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <FormField label="Current Password" type="password" name="currentPassword" disabled />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField label="New Password" type="password" name="newPassword" disabled />
+              <FormField label="Confirm New Password" type="password" name="confirmPassword" disabled />
             </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          <FormField label="Current Password" type="password" />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField label="New Password" type="password" />
-            <FormField label="Confirm New Password" type="password" />
-          </div>
-          <p className="text-xs text-muted mt-2">
-            Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and symbols.
-          </p>
-        </CardBody>
-        <CardFooter className="justify-end">
-          <Button variant="primary">Update Password</Button>
-        </CardFooter>
+            <p className="text-xs text-secondary mt-2">
+              Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and
+              symbols.
+            </p>
+          </CardBody>
+          <CardFooter className="justify-end">
+            <Button variant="primary" size="sm" type="button" disabled>
+              Update Password
+              <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-muted">Coming Soon</span>
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
 
       {/* Two-Factor Authentication */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <div>
-              <CardTitle>Two-Factor Authentication (2FA)</CardTitle>
-              <CardDescription>Add an extra layer of security to your account.</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <h4 className="text-sm font-medium">Authenticator App</h4>
-              <p className="text-sm">Use an app like Google Authenticator or Authy to generate verification codes.</p>
-            </div>
-            <Switch defaultChecked={false} />
-          </div>
-
-          <div className="w-full h-px bg-separator opacity-50" />
-
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <h4 className="text-sm font-medium  flex items-center gap-2">
-                <Smartphone className="h-4 w-4 text-muted" />
-                SMS Recovery
-              </h4>
-              <p className="text-sm">Receive a code via SMS if you lose access to your authenticator app.</p>
-            </div>
-            <Switch defaultChecked={true} />
-          </div>
-        </CardBody>
+        <SecurityForm
+          initialTwoFactor={Boolean(tenantSettings?.two_factor_enabled)}
+          initialSmsRecovery={Boolean(tenantSettings?.sms_recovery_enabled)}
+        />
       </Card>
 
       {/* Active Sessions */}
@@ -83,54 +81,31 @@ export default function SecuritySettingsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-                <MonitorSmartphone className="h-5 w-5" />
+                <MonitorSmartphone className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <CardTitle>Active Sessions</CardTitle>
-                <CardDescription>Devices that are currently logged into your account.</CardDescription>
+                <CardDescription>Devices and browsers currently authenticated.</CardDescription>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive border-destructive/50 hover:bg-destructive/10"
-            >
-              Sign out all devices
-            </Button>
           </div>
         </CardHeader>
-        <CardBody className="space-y-0 p-0">
-          <div className="divide-y divide-separator/50">
-            {/* Session 1 */}
-            <div className="flex items-center justify-between p-5">
-              <div className="flex items-start gap-4">
-                <MonitorSmartphone className="h-8 w-8 text-muted mt-1" />
-                <div>
-                  <h4 className="text-sm font-medium  flex items-center gap-2">
-                    MacBook Pro - Accra, Ghana
-                    <span className="px-2 py-0.5 rounded text-caption font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                      Current Session
-                    </span>
-                  </h4>
-                  <p className="text-xs  mt-1">Chrome on macOS 14.2 • IP: 197.210.64.12</p>
-                  <p className="text-xs text-muted mt-0.5">Active now</p>
-                </div>
+        <CardBody className="space-y-4">
+          <div className="flex items-start gap-4 p-4 rounded-lg bg-surface-elevated border border-separator">
+            <ShieldCheck className="h-6 w-6 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-primary">Current Web Session</p>
+                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  Active
+                </span>
               </div>
-            </div>
-
-            {/* Session 2 */}
-            <div className="flex items-center justify-between p-5">
-              <div className="flex items-start gap-4">
-                <Smartphone className="h-8 w-8 text-muted mt-1" />
-                <div>
-                  <h4 className="text-sm font-medium">iPhone 14 Pro - Accra, Ghana</h4>
-                  <p className="text-xs  mt-1">Safari on iOS 17.1 • IP: 154.160.10.4</p>
-                  <p className="text-xs text-muted mt-0.5">Last active: 2 hours ago</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="">
-                Revoke
-              </Button>
+              <p className="text-xs text-secondary">
+                Signed in as <span className="font-mono text-primary">{user.email}</span>
+              </p>
+              <p className="text-xs text-muted">
+                Multi-device revocation and remote sign-out controls are rolling out in the next platform update.
+              </p>
             </div>
           </div>
         </CardBody>

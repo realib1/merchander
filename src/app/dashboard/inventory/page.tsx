@@ -20,11 +20,15 @@ export default async function InventoryPage({
   const pageSize = 15;
 
   const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'product_name';
-  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'asc';
+  const sortOrder =
+    typeof resolvedParams.sortOrder === 'string' &&
+    (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc')
+      ? resolvedParams.sortOrder
+      : 'asc';
 
   const [{ data, count, categories }, metrics] = await Promise.all([
     getInventory(query, categoryFilter, statusFilter, page, pageSize, sortBy, sortOrder),
-    getInventoryMetrics()
+    getInventoryMetrics(),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,9 +58,9 @@ export default async function InventoryPage({
         lowStockCount={metrics.lowStockCount}
         outOfStockCount={metrics.outOfStockCount}
       />
-      <InventoryPageClient 
-        rows={rows} 
-        categories={categories} 
+      <InventoryPageClient
+        rows={rows}
+        categories={categories}
         statuses={statuses}
         currentPage={page}
         totalPages={totalPages}

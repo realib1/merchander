@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Package, Trash2, Archive, X, Loader2, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Package,
+  Trash2,
+  Archive,
+  X,
+  Loader2,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { bulkArchiveProducts, bulkDeleteProducts } from '@/app/actions/products-mutations';
@@ -13,8 +24,19 @@ import { calculateTotalStock, calculateTotalUnitsSold, getVariantPriceRange, gen
 import type { Product } from '@/types/product';
 import { ProductsActionMenu } from './ProductsActionMenu';
 
-function SortIcon({ column, currentSortBy, currentSortOrder }: { column: string, currentSortBy: string, currentSortOrder: string }) {
-  if (currentSortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />;
+function SortIcon({
+  column,
+  currentSortBy,
+  currentSortOrder,
+}: {
+  column: string;
+  currentSortBy: string;
+  currentSortOrder: string;
+}) {
+  if (currentSortBy !== column)
+    return (
+      <ArrowUpDown className="w-3 h-3 ml-1 inline text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+    );
   return currentSortOrder === 'asc' ? (
     <ArrowUp className="w-3 h-3 ml-1 inline text-foreground" />
   ) : (
@@ -45,12 +67,12 @@ export function StockBadge({ totalStock, stockUnit }: { totalStock: number; stoc
   );
 }
 
-export function ProductsTable({ 
+export function ProductsTable({
   initialProducts,
   currentPage = 1,
   totalPages = 1,
-  totalCount = 0
-}: { 
+  totalCount = 0,
+}: {
   initialProducts: Product[];
   currentPage?: number;
   totalPages?: number;
@@ -130,14 +152,14 @@ export function ProductsTable({
     const params = new URLSearchParams(searchParams);
     const currentSortBy = params.get('sortBy') || 'created_at';
     const currentSortOrder = params.get('sortOrder') || 'desc';
-    
+
     if (currentSortBy === column) {
       params.set('sortOrder', currentSortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       params.set('sortBy', column);
       params.set('sortOrder', 'asc');
     }
-    
+
     return `${pathname}?${params.toString()}`;
   };
 
@@ -167,7 +189,8 @@ export function ProductsTable({
               <th className="px-4 py-3 font-medium">Category</th>
               <th className="px-4 py-3 font-medium">
                 <Link href={createSortUrl('created_at')} className="flex items-center group cursor-pointer">
-                  Created Date <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                  Created Date{' '}
+                  <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
               <th className="px-4 py-3 font-medium">Status</th>
@@ -285,7 +308,9 @@ export function ProductsTable({
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="tabular-nums">Page {currentPage} of {Math.max(1, totalPages)}</span>
+              <span className="tabular-nums">
+                Page {currentPage} of {Math.max(1, totalPages)}
+              </span>
               <div className="flex items-center gap-1">
                 {currentPage > 1 ? (
                   <Link
@@ -304,7 +329,7 @@ export function ProductsTable({
                     <ChevronLeft size={16} />
                   </button>
                 )}
-                
+
                 <span
                   className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator tabular-nums"
                   aria-current="page"

@@ -17,15 +17,19 @@ export default async function CustomersPage({
 }) {
   const resolvedParams = await searchParams;
   const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
-  
+
   const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const pageSize = 10;
   const sortBy = typeof resolvedParams.sortBy === 'string' ? resolvedParams.sortBy : 'created_at';
-  const sortOrder = typeof resolvedParams.sortOrder === 'string' && (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc') ? resolvedParams.sortOrder : 'desc';
+  const sortOrder =
+    typeof resolvedParams.sortOrder === 'string' &&
+    (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc')
+      ? resolvedParams.sortOrder
+      : 'desc';
 
   const [{ data: customers, count }, metrics] = await Promise.all([
     getCustomers(query, page, pageSize, sortBy, sortOrder),
-    getCustomerPageMetrics()
+    getCustomerPageMetrics(),
   ]);
 
   const {
@@ -36,14 +40,14 @@ export default async function CustomersPage({
     totalOrders,
     currentOrders,
     previousOrders,
-    totalRevenue
+    totalRevenue,
   } = metrics;
 
   const customersChange =
     previousNewCustomers === 0 ? 100 : ((currentNewCustomers - previousNewCustomers) / previousNewCustomers) * 100;
-    
+
   const ordersChange = previousOrders === 0 ? 100 : ((currentOrders - previousOrders) / previousOrders) * 100;
-  
+
   const totalPages = Math.ceil(count / pageSize);
 
   return (
@@ -66,12 +70,7 @@ export default async function CustomersPage({
         }
       >
         <div className="flex-1 pb-6 mt-6">
-          <CustomersTable 
-            initialCustomers={customers} 
-            currentPage={page}
-            totalPages={totalPages}
-            totalCount={count}
-          />
+          <CustomersTable initialCustomers={customers} currentPage={page} totalPages={totalPages} totalCount={count} />
         </div>
       </Suspense>
     </div>

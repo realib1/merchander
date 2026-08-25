@@ -44,20 +44,20 @@ export async function getProducts(
       `
       *,
       variants:product_variants(*, inventory_levels(*))
-    `, { count: 'exact' }
+    `,
+      { count: 'exact' }
     )
     .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (query) {
     queryBuilder = queryBuilder.ilike('name', `%${query}%`);
   }
-  
+
   if (statusFilter && statusFilter !== 'all') {
     queryBuilder = queryBuilder.eq('is_active', statusFilter === 'active');
   }
 
-  const { data, count, error } = await queryBuilder
-    .range((page - 1) * pageSize, page * pageSize - 1);
+  const { data, count, error } = await queryBuilder.range((page - 1) * pageSize, page * pageSize - 1);
 
   if (error) {
     console.error('Error fetching products:', error);
