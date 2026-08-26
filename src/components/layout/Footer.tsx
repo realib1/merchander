@@ -51,8 +51,8 @@ export interface FooterProps {
  * Responsive application footer with brand info, grouped links, social shortcuts, and copyright notice.
  */
 export const Footer: React.FC<FooterProps> = ({
-  brandName = 'SHERO Core',
-  tagline = 'Universal Project Scaffolding System by SHERO Technology Studio',
+  brandName = 'Merchander',
+  tagline = 'The operating system for ambitious merchants in Africa and beyond.',
   linkGroups = [],
   socialLinks = [],
   copyright,

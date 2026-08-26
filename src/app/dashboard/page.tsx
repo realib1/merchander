@@ -14,17 +14,17 @@ export const metadata = {
 export default async function DashboardOverview({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: '7d' | '30d' | '90d' }>;
+  searchParams: Promise<{ period?: 'today' | '7d' | '30d' | '90d' }>;
 }) {
   const params = await searchParams;
-  const period = params?.period || '30d';
+  const period = params?.period || 'today';
 
   const supabase = await createClient();
 
   // Fetch all real metrics using the selected period
   const metrics = await getDashboardMetrics(period);
 
-  // Keep existing fetch for recent orders table
+  // Keep existing fetch for recent orders table (display 5 most recent)
   const { data: recentOrders } = await supabase
     .from('orders')
     .select(
@@ -38,67 +38,81 @@ export default async function DashboardOverview({
     `
     )
     .order('created_at', { ascending: false })
-    .limit(3);
+    .limit(5);
 
   return (
-    <div className="min-h-full flex flex-col space-y-10 pb-10">
+    <div className="min-h-full flex flex-col space-y-8 pb-10">
       <h1 className="sr-only">Dashboard Overview</h1>
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold  mr-2">Quick status:</span>
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider mr-1">Quick status:</span>
 
           {metrics.attention.lowStock.length > 0 && (
             <Link
               href="/dashboard/inventory"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warning/10 text-warning border border-warning/20 rounded-full text-xs font-medium hover:bg-warning/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning border border-warning/20 rounded-full text-xs font-medium hover:bg-warning/20 transition-colors"
             >
-              <AlertTriangle size={14} /> {metrics.attention.lowStock.length} products running low
+              <AlertTriangle size={13} /> {metrics.attention.lowStock.length} products low
             </Link>
           )}
 
           {metrics.attention.supplierBalances.length > 0 && (
             <Link
               href="/dashboard/payments"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warning/10 text-warning border border-warning/20 rounded-full text-xs font-medium hover:bg-warning/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning border border-warning/20 rounded-full text-xs font-medium hover:bg-warning/20 transition-colors"
             >
-              <AlertTriangle size={14} /> {metrics.attention.supplierBalances.length} supplier balances due
+              <AlertTriangle size={13} /> {metrics.attention.supplierBalances.length} balances due
             </Link>
           )}
 
           {metrics.incoming && (
             <Link
-              href="/dashboard/shipments"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-elevated  border border-separator rounded-full text-xs font-medium hover:bg-surface transition-colors"
+              href="/dashboard/purchasing"
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-elevated text-foreground border border-separator rounded-full text-xs font-medium hover:bg-surface transition-colors"
             >
-              <Ship size={14} className="text-brand-primary" /> {metrics.incoming.id} arriving soon
+              <Ship size={13} className="text-brand-primary" /> {metrics.incoming.id} arriving soon
             </Link>
           )}
 
           {/* Always show a positive pill if there's no severe attention items or just as a balance */}
           <Link
             href="/dashboard/payments"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success/10 text-success border border-success/20 rounded-full text-xs font-medium hover:bg-success/20 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1 bg-success/10 text-success border border-success/20 rounded-full text-xs font-medium hover:bg-success/20 transition-colors"
           >
-            <CheckCircle2 size={14} /> All systems operational
+            <CheckCircle2 size={13} /> All systems operational
           </Link>
         </div>
 
-        <div className="flex items-center bg-surface-elevated border border-separator rounded-lg overflow-hidden text-body-sm font-medium shrink-0">
+        <div className="flex items-center bg-surface-elevated border border-separator rounded-lg overflow-hidden text-xs sm:text-sm font-medium shrink-0 shadow-xs">
+          <Link
+            href="?period=today"
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
+              period === 'today' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
+            }`}
+          >
+            Today
+          </Link>
           <Link
             href="?period=7d"
-            className={`px-4 py-2 transition-colors ${period === '7d' ? 'bg-brand-primary text-white' : ' hover:text-brand-primary'}`}
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
+              period === '7d' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
+            }`}
           >
             7 days
           </Link>
           <Link
             href="?period=30d"
-            className={`px-4 py-2 transition-colors ${period === '30d' ? 'bg-brand-primary text-white' : ' hover:text-brand-primary'}`}
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
+              period === '30d' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
+            }`}
           >
             30 days
           </Link>
           <Link
             href="?period=90d"
-            className={`px-4 py-2 transition-colors ${period === '90d' ? 'bg-brand-primary text-white' : ' hover:text-brand-primary'}`}
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
+              period === '90d' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
+            }`}
           >
             90 days
           </Link>
@@ -112,11 +126,11 @@ export default async function DashboardOverview({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* ROW 2: Chart & Insight */}
         {/* Sales Chart (lg:col-span-8) */}
-        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] p-6 flex flex-col min-h-100">
+        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs p-6 flex flex-col min-h-100">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-bold">Sales Overview</h2>
-              <p className="text-sm  mt-1">Gross revenue across all sales channels.</p>
+              <h2 className="text-lg font-bold text-foreground">Sales Overview</h2>
+              <p className="text-sm text-muted mt-0.5">Gross revenue across all sales channels.</p>
             </div>
           </div>
           <div className="flex-1 min-h-87.5">
@@ -125,22 +139,22 @@ export default async function DashboardOverview({
         </div>
 
         {/* Merchander Intelligence (lg:col-span-4) */}
-        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] flex flex-col min-h-100">
+        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs flex flex-col min-h-100">
           <div className="px-6 py-4 border-b border-separator bg-surface-elevated rounded-t-2xl flex items-center justify-between">
-            <h2 className="text-sm font-bold  uppercase tracking-wider flex items-center gap-2">
+            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Lightbulb size={16} className="text-brand-secondary" /> Merchander Intelligence
             </h2>
           </div>
           <div className="p-6 flex-1 flex flex-col">
-            <div className="text-sm  font-medium mb-3">What Merchander sees:</div>
-            <p className="text-sm  leading-relaxed mb-4">{metrics.intelligence.velocityInsight}</p>
+            <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">What Merchander sees:</div>
+            <p className="text-sm text-foreground leading-relaxed mb-4">{metrics.intelligence.velocityInsight}</p>
 
-            <div className="bg-surface-elevated rounded-xl p-4 border border-separator mb-6 flex-1">
+            <div className="bg-surface-elevated rounded-xl p-4 border border-separator mb-4 flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse"></div>
-                <div className="text-xs font-semibold  uppercase tracking-wider">Analysis Engine</div>
+                <div className="text-xs font-semibold text-muted uppercase tracking-wider">Analysis Engine</div>
               </div>
-              <div className="text-sm  space-y-2">
+              <div className="text-sm text-muted space-y-2">
                 {metrics.intelligence.supplyInsight.map((insight, idx) => (
                   <p key={idx}>{insight}</p>
                 ))}
@@ -149,26 +163,26 @@ export default async function DashboardOverview({
 
             <div className="text-sm bg-brand-primary/10 border border-brand-primary/20 rounded-xl p-4">
               <span className="font-semibold text-brand-primary block mb-1">Recommendation:</span>
-              <span className="">{metrics.intelligence.recommendation}</span>
+              <span className="text-foreground">{metrics.intelligence.recommendation}</span>
             </div>
           </div>
         </div>
 
         {/* ROW 3: Orders & Attention Center */}
         {/* Orders Stream (lg:col-span-8) */}
-        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col min-h-87.5">
+        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-87.5">
           <div className="px-6 py-4 border-b border-separator bg-surface-elevated flex items-center justify-between">
-            <h2 className="text-sm font-bold  uppercase tracking-wider">Recent Orders</h2>
+            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">Recent Orders</h2>
             <Link
               href="/dashboard/orders"
-              className="text-sm font-medium text-brand-primary hover:text-brand-primary-600 flex items-center gap-1"
+              className="text-xs sm:text-sm font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-1 transition-colors"
             >
-              View all orders <ArrowRight size={16} />
+              View all orders <ArrowRight size={14} />
             </Link>
           </div>
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="text-xs text-muted uppercase bg-surface border-b border-separator">
+              <thead className="text-xs text-muted uppercase bg-surface-elevated/40 border-b border-separator">
                 <tr>
                   <th className="px-6 py-3">Order</th>
                   <th className="px-6 py-3">Customer</th>
@@ -181,28 +195,38 @@ export default async function DashboardOverview({
                 {recentOrders && recentOrders.length > 0 ? (
                   recentOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-surface-elevated/50 transition-colors">
-                      <td className="px-6 py-3 font-medium">#{order.id.substring(0, 6).toUpperCase()}</td>
-                      <td className="px-6 py-3">
+                      <td className="px-6 py-3.5">
+                        <Link
+                          href="/dashboard/orders"
+                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface-elevated border border-separator font-mono text-xs font-semibold text-foreground hover:border-brand-primary transition-colors"
+                        >
+                          #{order.id.substring(0, 6).toUpperCase()}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-3.5 font-medium text-foreground">
                         {Array.isArray(order.customer)
                           ? order.customer[0]?.name
-                          : (order.customer as { name?: string })?.name || 'Walk-in'}
+                          : (order.customer as { name?: string })?.name || 'Walk-in Customer'}
                       </td>
-                      <td className="px-6 py-3 text-muted tabular-nums">
-                        {Array.isArray(order.order_items)
-                          ? order.order_items[0]?.count || 0
-                          : (order.order_items as { count?: number })?.count || 0}
+                      <td className="px-6 py-3.5 text-muted tabular-nums text-xs">
+                        {(() => {
+                          const count = Array.isArray(order.order_items)
+                            ? order.order_items[0]?.count || 0
+                            : (order.order_items as { count?: number })?.count || 0;
+                          return `${count} ${count === 1 ? 'item' : 'items'}`;
+                        })()}
                       </td>
-                      <td className="px-6 py-3 font-medium tabular-nums">
+                      <td className="px-6 py-3.5 font-semibold text-foreground tabular-nums">
                         {formatCurrency(Number(order.total_amount))}
                       </td>
-                      <td className="px-6 py-3">
+                      <td className="px-6 py-3.5">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize ${
                             order.status === 'paid' || order.status === 'dispatched' || order.status === 'delivered'
                               ? 'bg-success/10 text-success'
                               : order.status === 'pending_payment'
                                 ? 'bg-warning/10 text-warning'
-                                : 'bg-surface-elevated '
+                                : 'bg-surface-elevated text-muted'
                           }`}
                         >
                           {order.status.replace('_', ' ')}
@@ -212,7 +236,7 @@ export default async function DashboardOverview({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-6 py-6 text-center text-muted">
+                    <td colSpan={5} className="px-6 py-8 text-center text-muted text-sm">
                       No recent orders found.
                     </td>
                   </tr>
@@ -223,37 +247,37 @@ export default async function DashboardOverview({
         </div>
 
         {/* Attention Center (lg:col-span-4) */}
-        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col min-h-87.5">
+        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-87.5">
           <div className="px-6 py-4 border-b border-separator bg-surface-elevated">
-            <h2 className="text-sm font-bold  uppercase tracking-wider flex items-center gap-2">
-              <AlertTriangle size={16} className="text-warning" /> Needs your attention
+            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+              <AlertTriangle size={15} className="text-warning" /> Needs your attention
             </h2>
           </div>
           <div className="divide-y divide-separator overflow-y-auto flex-1">
-            {metrics.attention.shipments.map((shipment) => (
+            {metrics.attention.purchaseOrders.map((po) => (
               <div
-                key={shipment.id}
+                key={po.id}
                 className="px-6 py-4 flex items-center justify-between hover:bg-surface-elevated/50 transition-colors"
               >
                 <div>
-                  <div className="font-semibold">Shipment arriving {shipment.eta}</div>
-                  <div className="text-sm  mt-0.5">
-                    {shipment.id} — {shipment.supplierName}
+                  <div className="font-semibold text-sm text-foreground">Purchase order arriving {po.eta}</div>
+                  <div className="text-xs text-muted mt-0.5">
+                    {po.id} — {po.supplierName}
                   </div>
-                  <div className="text-xs text-muted mt-1 flex items-center gap-2">
-                    <span className="bg-surface-elevated px-2 py-0.5 rounded  border border-separator">
-                      {shipment.units} units
+                  <div className="text-xs text-muted mt-1.5 flex items-center gap-2">
+                    <span className="bg-surface-elevated px-2 py-0.5 rounded border border-separator text-foreground tabular-nums">
+                      {po.units} units
                     </span>
-                    <span className="bg-brand-primary/10 text-brand-primary px-2 py-0.5 rounded">
-                      {shipment.preOrders} pre-orders
+                    <span className="bg-brand-primary/10 text-brand-primary font-medium px-2 py-0.5 rounded tabular-nums">
+                      {po.preOrders} pre-orders
                     </span>
                   </div>
                 </div>
                 <Link
-                  href="/dashboard/shipments"
-                  className="text-sm font-medium text-brand-primary hover:text-brand-primary-600 flex items-center gap-1"
+                  href="/dashboard/purchasing"
+                  className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-0.5 transition-colors"
                 >
-                  View <ChevronRight size={16} />
+                  View <ChevronRight size={14} />
                 </Link>
               </div>
             ))}
@@ -264,23 +288,23 @@ export default async function DashboardOverview({
                 className="px-6 py-4 flex items-center justify-between hover:bg-surface-elevated/50 transition-colors"
               >
                 <div>
-                  <div className="font-semibold  flex items-center gap-2">
+                  <div className="font-semibold text-sm text-foreground flex items-center gap-1.5">
                     Low stock <span className="w-2 h-2 rounded-full bg-destructive animate-pulse"></span>
                   </div>
-                  <div className="text-sm  mt-0.5">
+                  <div className="text-xs text-muted mt-0.5">
                     {stock.name} — {stock.size}
                   </div>
-                  <div className="text-xs text-muted mt-1 flex items-center gap-2">
-                    <span className="bg-destructive/10 text-destructive px-2 py-0.5 rounded">
+                  <div className="text-xs text-muted mt-1.5 flex items-center gap-2">
+                    <span className="bg-destructive/10 text-destructive font-medium px-2 py-0.5 rounded tabular-nums">
                       {stock.remaining} units remaining
                     </span>
                   </div>
                 </div>
                 <Link
                   href="/dashboard/inventory"
-                  className="text-sm font-medium text-brand-primary hover:text-brand-primary-600 flex items-center gap-1"
+                  className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-0.5 transition-colors"
                 >
-                  Restock <ChevronRight size={16} />
+                  Restock <ChevronRight size={14} />
                 </Link>
               </div>
             ))}
@@ -291,27 +315,27 @@ export default async function DashboardOverview({
                 className="px-6 py-4 flex items-center justify-between hover:bg-surface-elevated/50 transition-colors"
               >
                 <div>
-                  <div className="font-semibold">Supplier balance</div>
-                  <div className="text-sm  mt-0.5">{bal.supplierName}</div>
-                  <div className="text-xs text-warning mt-1 font-medium">
+                  <div className="font-semibold text-sm text-foreground">Supplier balance</div>
+                  <div className="text-xs text-muted mt-0.5">{bal.supplierName}</div>
+                  <div className="text-xs text-warning mt-1.5 font-medium tabular-nums">
                     {formatCurrency(bal.balance, 'USD', 'en-US')} outstanding
                   </div>
                 </div>
                 <Link
                   href="/dashboard/suppliers"
-                  className="text-sm font-medium text-brand-primary hover:text-brand-primary-600 flex items-center gap-1"
+                  className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-0.5 transition-colors"
                 >
-                  View <ChevronRight size={16} />
+                  View <ChevronRight size={14} />
                 </Link>
               </div>
             ))}
 
-            {metrics.attention.shipments.length === 0 &&
+            {metrics.attention.purchaseOrders.length === 0 &&
               metrics.attention.lowStock.length === 0 &&
               metrics.attention.supplierBalances.length === 0 && (
                 <div className="px-6 py-8 text-center">
-                  <CheckCircle2 size={32} className="text-success mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">You&apos;re all caught up!</p>
+                  <CheckCircle2 size={28} className="text-success mx-auto mb-2 opacity-60" />
+                  <p className="text-sm text-muted">You&apos;re all caught up!</p>
                 </div>
               )}
           </div>
@@ -319,19 +343,25 @@ export default async function DashboardOverview({
 
         {/* ROW 4: Products & Incoming */}
         {/* Top Products (lg:col-span-8) */}
-        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col min-h-75">
-          <div className="px-6 py-4 border-b border-separator bg-surface-elevated">
-            <h2 className="text-sm font-bold  uppercase tracking-wider">Top Products</h2>
+        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-75">
+          <div className="px-6 py-4 border-b border-separator bg-surface-elevated flex items-center justify-between">
+            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">Top Products</h2>
+            <Link
+              href="/dashboard/products"
+              className="text-xs sm:text-sm font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-1 transition-colors"
+            >
+              View all products <ArrowRight size={14} />
+            </Link>
           </div>
           <div className="flex-1 overflow-y-auto">
             <TopProductsList products={metrics.topProducts} />
           </div>
         </div>
 
-        {/* Incoming Shipments (lg:col-span-4) */}
-        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] p-6 flex flex-col min-h-75">
-          <h2 className="text-sm font-bold  uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Ship size={16} /> Incoming
+        {/* Incoming Purchase Orders (lg:col-span-4) */}
+        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs p-6 flex flex-col min-h-75">
+          <h2 className="text-xs font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Ship size={15} className="text-brand-primary" /> Incoming Purchase Orders
           </h2>
 
           {metrics.incoming ? (
@@ -355,7 +385,7 @@ export default async function DashboardOverview({
               <div className="text-muted mb-3">
                 <Ship size={32} className="opacity-20 mx-auto" />
               </div>
-              <div className="text-sm">No active shipments in transit.</div>
+              <div className="text-sm">No active purchase orders in transit.</div>
             </div>
           )}
         </div>

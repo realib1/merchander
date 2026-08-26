@@ -7,6 +7,7 @@ export interface MetricCardProps {
   subtitle?: string;
   subtitleColor?: string;
   change?: number;
+  diffText?: string;
   periodText?: string;
   icon: React.ReactNode;
   iconBg: string;
@@ -18,31 +19,47 @@ export function MetricCard({
   subtitle,
   subtitleColor = 'text-muted',
   change,
+  diffText,
   periodText,
   icon,
   iconBg,
 }: MetricCardProps) {
-  const isPositive = change !== undefined ? change >= 0 : true;
+  const isZero = change === 0;
+  const isPositive = change !== undefined && change > 0;
+  const isNegative = change !== undefined && change < 0;
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-32">
-      <div className="flex justify-between w-full p-4">
-        <h3 className="text-body font-medium">{title}</h3>
-        <div className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>{icon}</div>
+    <div className="bg-surface border border-separator rounded-2xl flex flex-col justify-between items-start min-h-32 shadow-xs transition hover:border-separator/80">
+      <div className="flex justify-between items-center w-full p-4 pb-2">
+        <h3 className="text-sm font-medium text-muted">{title}</h3>
+        <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>{icon}</div>
       </div>
-      <div className="rounded-xl w-full p-4 border-t border-t-separator shadow-md">
-        <div className="text-h3 font-bold  leading-none mb-3 tabular-nums">{value}</div>
+      <div className="w-full p-4 mt-2 border-t border-separator rounded-2xl">
+        <div className="text-2xl font-bold leading-tight mb-2.5 tabular-nums text-foreground">{value}</div>
 
         {change !== undefined ? (
-          <div className="text-xs font-medium">
+          <div className="text-xs font-medium flex flex-wrap items-center gap-1.5">
             <span
-              className={`inline-flex items-center gap-1 font-semibold ${isPositive ? 'text-success' : 'text-destructive'}`}
+              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-semibold text-[11px] ${
+                isZero
+                  ? 'bg-surface-elevated text-muted border border-separator/40'
+                  : isPositive
+                    ? 'bg-success/10 text-success'
+                    : 'bg-destructive/10 text-destructive'
+              }`}
             >
-              {isPositive ? <TrendingUp size={12} aria-hidden="true" /> : <TrendingDown size={14} aria-hidden="true" />}
+              {isPositive && <TrendingUp size={11} aria-hidden="true" />}
+              {isNegative && <TrendingDown size={11} aria-hidden="true" />}
               {isPositive ? '+' : ''}
               {change.toFixed(1)}%
             </span>
-            {periodText && <span className="text-muted ml-1.5">vs. {periodText}</span>}
+            {diffText && <span className="font-semibold text-foreground tabular-nums">{diffText}</span>}
+            {periodText && <span className="text-muted text-[11px]">vs. {periodText}</span>}
+          </div>
+        ) : diffText ? (
+          <div className="text-xs font-medium flex flex-wrap items-center gap-1.5">
+            <span className="font-semibold text-foreground tabular-nums">{diffText}</span>
+            {periodText && <span className="text-muted text-[11px]">vs. {periodText}</span>}
           </div>
         ) : subtitle ? (
           <div className={`text-xs font-medium ${subtitleColor}`}>{subtitle}</div>

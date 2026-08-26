@@ -43,7 +43,11 @@ export async function getProducts(
     .select(
       `
       *,
-      variants:product_variants(*, inventory_levels(*))
+      variants:product_variants(
+        *, 
+        inventory:inventory_levels(*),
+        order_items(quantity, orders(status))
+      )
     `,
       { count: 'exact' }
     )

@@ -12,11 +12,19 @@ export interface SalesOverviewChartProps {
 }
 
 export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
-  // Format dates for the X-axis (e.g. 'Aug 14')
-  const formattedData = data.map((item) => ({
-    ...item,
-    formattedDate: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-  }));
+  // Determine if data spans multiple days or is within a single day
+  const isSingleDay = data.length > 0 && data.every(d => new Date(d.date).toDateString() === new Date(data[0].date).toDateString());
+
+  // Format dates for the X-axis
+  const formattedData = data.map((item) => {
+    const d = new Date(item.date);
+    return {
+      ...item,
+      formattedDate: isSingleDay 
+        ? d.toLocaleTimeString('en-US', { hour: 'numeric' })
+        : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    };
+  });
 
   const strokeColor = 'var(--color-brand-primary)';
   const fillColor = 'var(--color-brand-primary)';

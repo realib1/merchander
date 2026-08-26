@@ -24,6 +24,8 @@ const updateProductSchema = z.object({
   vendor: z.string().optional().nullable(),
   stockUnit: z.string().optional().nullable(),
   imageUrls: z.array(z.string()).optional(),
+  availabilityStatus: z.string().optional(),
+  preorderShippingMode: z.enum(['included', 'tbd']).optional().default('included'),
 });
 
 export async function updateProductAction(formData: FormData) {
@@ -39,6 +41,8 @@ export async function updateProductAction(formData: FormData) {
       vendor: formData.get('vendor') || null,
       stockUnit: formData.get('stockUnit') || 'pcs',
       imageUrls: JSON.parse((formData.get('imageUrls') as string) || '[]'),
+      availabilityStatus: formData.get('availabilityStatus') || 'in_stock',
+      preorderShippingMode: formData.get('preorderShippingMode') || 'included',
     };
   } catch {
     return { error: 'Invalid product data format' };
@@ -79,6 +83,8 @@ export async function updateProductAction(formData: FormData) {
       vendor: data.vendor,
       stock_unit: data.stockUnit,
       image_urls: data.imageUrls || [],
+      availability_status: data.availabilityStatus,
+      preorder_shipping_mode: data.preorderShippingMode,
     })
     .eq('id', data.id)
     .eq('tenant_id', tenantId); // ensure tenant isolation

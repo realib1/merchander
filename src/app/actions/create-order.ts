@@ -104,7 +104,23 @@ export async function createOrderAction(formData: FormData) {
   const actionType = formData.get('action') as string;
   const initialStatus = actionType === 'draft' ? 'draft' : 'pending_payment';
 
-  // 3. Insert Order
+  // 3. Check for TBD Shipping
+  const variantIds = data.items.map((item) => item.variantId);
+  const { data: variantsData } = await supabase
+    .from('product_variants')
+    .select('products(availability_status, preorder_shipping_mode)')
+    .in('id', variantIds);
+
+  let shippingTbd = false;
+  if (variantsData) {
+    shippingTbd = variantsData.some((v) => {
+      // Products join returns an object or array of objects depending on relation
+      const product = Array.isArray(v.products) ? v.products[0] : v.products;
+      return product?.availability_status === 'pre_order' && product?.preorder_shipping_mode === 'tbd';
+    });
+  }
+
+  // 4. Insert Order
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
@@ -115,13 +131,14 @@ export async function createOrderAction(formData: FormData) {
       total_amount: totalAmount,
       delivery_address: data.deliveryAddress,
       delivery_fee: data.deliveryFee,
+      shipping_tbd: shippingTbd,
     })
     .select('id')
     .single();
 
   if (orderError || !order) return { error: 'Failed to create order' };
 
-  // 4. Insert Order Items
+  // 5. Insert Order Items
   const orderItemsInsert = data.items.map((item) => ({
     order_id: order.id,
     variant_id: item.variantId,
@@ -133,7 +150,7 @@ export async function createOrderAction(formData: FormData) {
 
   if (itemsError) return { error: 'Failed to add items to order' };
 
-  // 5. Insert Payment Record
+  // 6. Insert Payment Record
   if (data.paymentMethod) {
     const paymentStatus =
       data.paymentMethod === 'cash_payment' || data.paymentMethod === 'card_payment' ? 'completed' : 'pending';

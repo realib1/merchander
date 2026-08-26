@@ -14,7 +14,7 @@ export function CtaSection() {
           <div className="max-w-xl mx-auto text-center">
             <Reveal direction="up">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-primary font-display leading-tight text-balance">
-                This is how your business should actually feel.
+                Be among the first merchants to run their entire business from one connected system.
               </h2>
             </Reveal>
 

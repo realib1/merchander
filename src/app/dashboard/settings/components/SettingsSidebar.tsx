@@ -68,7 +68,10 @@ const settingsGroups = [
   },
   {
     title: 'Team',
-    items: [{ name: 'Staff & Permissions', href: '/dashboard/settings/staff', icon: UsersRound }],
+    items: [
+      { name: 'Staff Management', href: '/dashboard/staff', icon: UsersRound },
+      { name: 'Roles & Permissions', href: '/dashboard/settings/permissions', icon: Shield },
+    ],
   },
   {
     title: 'Data & Security',

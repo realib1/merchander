@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 interface Order {
   id: string;
+  short_id?: string;
   total_amount: number;
   status: OrderStatus;
   customer?: { name: string; phone: string } | null;
@@ -21,9 +22,15 @@ const COLUMNS: { id: OrderStatus; title: string; bg: string; text: string }[] = 
   { id: 'paid', title: 'Paid (To Pack)', bg: 'bg-success/10 border-success/20', text: 'text-success' },
   {
     id: 'dispatched',
-    title: 'Dispatched',
+    title: 'Dispatched (In Transit)',
     bg: 'bg-brand-secondary/10 border-brand-secondary/20',
     text: 'text-brand-secondary',
+  },
+  {
+    id: 'delivered',
+    title: 'Delivered (Completed)',
+    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    text: 'text-emerald-500',
   },
 ];
 
@@ -131,7 +138,16 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
               onDrop={(e) => {
                 e.preventDefault();
                 const orderId = e.dataTransfer.getData('orderId');
-                if (orderId) handleMove(orderId, col.id as OrderStatus);
+                if (orderId) {
+                  if (col.id === 'paid') {
+                    const orderToReconcile = orders.find(o => o.id === orderId);
+                    if (orderToReconcile && orderToReconcile.status !== 'paid') {
+                      setReconciliationOrder(orderToReconcile);
+                    }
+                  } else {
+                    handleMove(orderId, col.id as OrderStatus);
+                  }
+                }
               }}
             >
               <div className={`p-4 border-b ${col.bg}`}>
@@ -160,7 +176,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                       className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab"
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs font-mono text-muted">#{order.id.substring(0, 6).toUpperCase()}</span>
+                        <span className="text-xs font-mono text-muted">#{order.short_id ? order.short_id : order.id.substring(0, 6).toUpperCase()}</span>
                         <span className="text-sm font-bold">{formatCurrency(order.total_amount)}</span>
                       </div>
 
@@ -204,6 +220,15 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                             className="flex-1 text-xs bg-brand-secondary/10 text-brand-secondary px-3 py-1.5 rounded-lg font-medium hover:bg-brand-secondary/20 transition-colors text-center"
                           >
                             Dispatch
+                          </button>
+                        )}
+                        {col.id === 'dispatched' && (
+                          <button
+                            onClick={() => handleMove(order.id, 'delivered')}
+                            disabled={isUpdating}
+                            className="flex-1 text-xs bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-500/20 transition-colors text-center"
+                          >
+                            Mark Delivered
                           </button>
                         )}
                         {['draft', 'pending_payment', 'paid'].includes(col.id) && (
@@ -267,7 +292,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                   Verify Mobile Money Payment
                 </h3>
                 <p className="text-sm  mt-1">
-                  Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
+                  Order #{reconciliationOrder.short_id ? reconciliationOrder.short_id : reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
                   {formatCurrency(reconciliationOrder.total_amount)}
                 </p>
               </div>

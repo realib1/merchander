@@ -247,15 +247,51 @@ export function ProductsTable({
 
                   <td className="px-4 py-3 text-body-sm  truncate">{product.category?.name || 'Uncategorized'}</td>
 
-                  <td className="px-4 py-3">
-                    {product.is_active ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-emerald-500/10 text-emerald-600">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-orange-500/10 text-orange-600">
-                        Archived
-                      </span>
+                  <td className="px-4 py-3 text-body-sm text-muted tabular-nums">
+                    {product.created_at
+                      ? new Date(product.created_at).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })
+                      : '-'}
+                  </td>
+
+                  <td className="px-4 py-3 space-y-1.5">
+                    <div>
+                      {product.is_active ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-emerald-500/10 text-emerald-600">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-orange-500/10 text-orange-600">
+                          Archived
+                        </span>
+                      )}
+                    </div>
+                    {product.availability_status && (
+                      <div>
+                        {product.availability_status === 'AVAILABLE' && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-brand-primary/10 text-brand-primary">
+                            Available
+                          </span>
+                        )}
+                        {product.availability_status === 'PRE_ORDER' && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-indigo-500/10 text-indigo-600">
+                            Pre-Order
+                          </span>
+                        )}
+                        {product.availability_status === 'OUT_OF_STOCK' && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-red-500/10 text-red-600">
+                            Out of Stock
+                          </span>
+                        )}
+                        {product.availability_status === 'PRE_ORDER' && product.preorder_shipping_mode === 'tbd' && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-orange-500/10 text-orange-600 mt-1.5">
+                            + TBD Shipping Fee
+                          </span>
+                        )}
+                      </div>
                     )}
                   </td>
 

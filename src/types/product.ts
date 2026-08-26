@@ -30,7 +30,10 @@ export interface Product {
   id: string;
   name: string;
   description?: string | null;
+  created_at?: string;
   is_active: boolean;
+  availability_status?: 'AVAILABLE' | 'PRE_ORDER' | 'OUT_OF_STOCK';
+  preorder_shipping_mode?: 'included' | 'tbd';
   category_id?: string | null;
   category?: ProductCategory | null;
   vendor?: string | null;

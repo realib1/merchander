@@ -19,7 +19,7 @@ export function CustomerCreditWidget() {
         <div className="mt-1 flex items-center justify-between text-xs text-secondary">
           <span>Oldest: 12 days ago</span>
           <span className="inline-flex items-center text-xs font-semibold text-brand-primary group-hover:underline">
-            View ledger <ChevronRight className="h-3 w-3" />
+            View <ChevronRight className="h-3 w-3" />
           </span>
         </div>
       </div>

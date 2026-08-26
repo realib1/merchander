@@ -45,6 +45,7 @@ function SortIcon({
 
 interface Order {
   id: string;
+  short_id?: string;
   total_amount: number;
   status: OrderStatus;
   created_at: string;
@@ -59,6 +60,7 @@ interface Order {
     | null;
   delivery_address?: string;
   delivery_fee?: number;
+  shipping_tbd?: boolean;
 }
 
 export function OrdersTable({
@@ -238,6 +240,12 @@ export function OrdersTable({
             Dispatched
           </span>
         );
+      case 'delivered':
+        return (
+          <span className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-xs font-medium">
+            Delivered
+          </span>
+        );
       default:
         return (
           <span className="bg-surface-elevated  border border-separator px-3 py-1 rounded-full text-xs font-medium capitalize">
@@ -326,7 +334,7 @@ export function OrdersTable({
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-mono font-medium text-brand-primary group-hover:text-brand-secondary transition-colors">
-                        #{order.id.substring(0, 6).toUpperCase()}
+                        #{order.short_id ? order.short_id : order.id.substring(0, 6).toUpperCase()}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -344,6 +352,11 @@ export function OrdersTable({
                     <td className="px-6 py-4  text-xs">{order.items?.length || 0} items</td>
                     <td className="px-6 py-4 font-bold  text-right">
                       {formatCurrency(order.total_amount - (order.delivery_fee || 0))}
+                      {order.shipping_tbd && (
+                        <div className="text-[10px] text-orange-500 font-normal mt-0.5 whitespace-nowrap">
+                          + TBD Shipping
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-center">{getStatusBadge(order.status)}</td>
                     <td className="px-6 py-4 text-right relative action-menu-container">
@@ -531,7 +544,7 @@ export function OrdersTable({
               <div className="p-5 border-b border-separator">
                 <h3 className="text-lg font-bold">Verify Mobile Money Payment</h3>
                 <p className="text-sm  mt-1">
-                  Order #{reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
+                  Order #{reconciliationOrder.short_id ? reconciliationOrder.short_id : reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
                   {formatCurrency(reconciliationOrder.total_amount)}
                 </p>
               </div>

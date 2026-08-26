@@ -1,0 +1,3 @@
+ALTER TABLE products 
+ADD COLUMN IF NOT EXISTS availability_status VARCHAR(50) DEFAULT 'AVAILABLE' 
+CHECK (availability_status IN ('AVAILABLE', 'PRE_ORDER', 'OUT_OF_STOCK'));

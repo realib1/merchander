@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Share2, Package, Wallet, Users } from 'lucide-react';
+import { Package, Wallet, Users, BadgeCent } from 'lucide-react';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { Reveal } from '@/components/motion/Reveal';
 
@@ -13,7 +13,7 @@ interface FrictionPoint {
 
 const frictionPoints: FrictionPoint[] = [
   {
-    icon: Share2,
+    icon: BadgeCent,
     title: 'Sales in Different Places',
     detail: 'Orders and customer requests scattered across social DMs, phone calls, and the counter.',
   },
@@ -46,7 +46,7 @@ export function ProblemSection() {
           <div className="lg:col-span-5 flex flex-col items-start text-left">
             <Reveal direction="up">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-primary font-display leading-tight">
-                Your business is moving. But the picture is scattered.
+                Your business is moving. But the picture is <span className="text-brand-primary">scattered</span>
               </h2>
             </Reveal>
 
@@ -58,7 +58,7 @@ export function ProblemSection() {
             </FadeInView>
 
             <FadeInView delay={0.2} className="mt-6 w-full">
-              <div className="rounded-xl border border-separator bg-surface p-5 shadow-2xs">
+              <div className="border-l-[3px] border-brand-primary pl-5">
                 <p className="text-base sm:text-lg font-bold text-primary font-display leading-snug">
                   &ldquo;The problem isn&apos;t having data.
                   <br />
@@ -71,19 +71,21 @@ export function ProblemSection() {
           {/* Right Column: 4 Everyday Friction Cards */}
           <div className="lg:col-span-7 w-full">
             <FadeInView delay={0.18}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="flex flex-col divide-y divide-separator">
                 {frictionPoints.map((item) => {
                   const Icon = item.icon;
                   return (
                     <div
                       key={item.title}
-                      className="rounded-2xl border border-separator bg-surface p-4 sm:p-5 shadow-2xs transition-all duration-150 hover:border-separator/80"
+                      className="flex gap-4 items-start py-6 sm:py-8 first:pt-0 last:pb-0"
                     >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary mb-3">
-                        <Icon className="h-4 w-4" />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary mt-1">
+                        <Icon className="h-6 w-6" />
                       </div>
-                      <h3 className="text-sm font-bold text-primary font-display">{item.title}</h3>
-                      <p className="mt-1 text-xs text-secondary leading-relaxed">{item.detail}</p>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-primary font-display">{item.title}</h3>
+                        <p className="mt-2 text-sm sm:text-base text-secondary leading-relaxed">{item.detail}</p>
+                      </div>
                     </div>
                   );
                 })}

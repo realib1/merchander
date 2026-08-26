@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
 import { MobileNavProvider } from './components/MobileNavContext';
+import { getUnreadNotifications } from '@/app/actions/notifications';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -18,9 +20,43 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // Fetch tenant name for sidebar display and tenant_id for settings
   const { data: tenantUser } = await supabase
     .from('tenant_users')
-    .select('tenant_id, tenants(name)')
+    .select('tenant_id, role, tenants(name), tenant_roles(permissions)')
     .eq('user_id', user.id)
     .single();
+
+  const userRole = tenantUser?.role || 'member';
+  const tenantRoles = tenantUser?.tenant_roles as unknown as { permissions: string[] } | null;
+  const permissions = tenantRoles?.permissions || [];
+  const canSwitchBranch = userRole === 'owner' || userRole === 'admin' || permissions.includes('stores.switch');
+
+  let stores: { id: string; name: string }[] = [];
+  let initialActiveStoreId: string | null = null;
+  
+  if (tenantUser?.tenant_id) {
+    const { data: storesData } = await supabase
+      .from('stores')
+      .select('id, name')
+      .eq('tenant_id', tenantUser.tenant_id)
+      .order('name');
+    
+    if (storesData && storesData.length > 0) {
+      stores = storesData;
+      
+      // Determine active store from cookie
+      const cookieStore = await cookies();
+      const storeCookie = cookieStore.get('merchander_active_store')?.value;
+      
+      if (storeCookie && stores.some(s => s.id === storeCookie)) {
+        initialActiveStoreId = storeCookie;
+      } else {
+        initialActiveStoreId = stores[0].id;
+      }
+    }
+  }
+
+  // Fetch unread notifications
+  const { data: notificationsData } = await getUnreadNotifications();
+  const notifications = notificationsData || [];
 
   const tenantData = tenantUser?.tenants as unknown as { name: string } | null;
   const businessName = tenantData?.name || 'My Business';
@@ -88,7 +124,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 bg-background relative z-10 transition-all overflow-hidden">
-          <Topbar />
+          <Topbar
+            user={{
+              email: user.email || '',
+              fullName: user.user_metadata?.full_name || 'User',
+              avatarUrl: user.user_metadata?.avatar_url,
+              role: userRole,
+            }}
+            stores={stores}
+            canSwitchBranch={canSwitchBranch}
+            initialActiveStoreId={initialActiveStoreId}
+            initialNotifications={notifications}
+          />
 
           <div className="flex-1 overflow-auto p-4 md:p-8 pb-20 md:pb-24 max-w-7xl mx-auto w-full">{children}</div>
         </main>

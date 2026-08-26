@@ -3,21 +3,11 @@
 import React from 'react';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { Reveal } from '@/components/motion/Reveal';
-import {
-  SellMiniWidget,
-  StockMiniWidget,
-  CustomerMiniWidget,
-  SupplierMiniWidget,
-  MoneyMiniWidget,
-  BusinessMiniWidget,
-} from './ui-widgets/PillarWidgets';
-
 interface PillarCard {
   id: string;
   verb: string;
   tagline: string;
   description: string;
-  widget: React.ReactNode;
 }
 
 const pillars: PillarCard[] = [
@@ -26,42 +16,36 @@ const pillars: PillarCard[] = [
     verb: 'Sell',
     tagline: "Know what you're selling.",
     description: 'See every order from social DMs, your online store, and the counter in one clean stream.',
-    widget: <SellMiniWidget />,
   },
   {
     id: 'stock',
     verb: 'Stock',
     tagline: 'Know what you have before you run out.',
     description: 'Live inventory counts and reorder warnings before your fastest-moving items run dry.',
-    widget: <StockMiniWidget />,
   },
   {
     id: 'customers',
     verb: 'Customers',
     tagline: 'Know who buys from you and who still owes you.',
     description: 'Customer purchase histories and credit balances that protect your daily cash flow.',
-    widget: <CustomerMiniWidget />,
   },
   {
     id: 'suppliers',
     verb: 'Suppliers',
     tagline: 'Know what you bought, what you owe and what you need next.',
     description: 'Supplier invoices, balance owed, and incoming shipment timelines in one place.',
-    widget: <SupplierMiniWidget />,
   },
   {
     id: 'money',
     verb: 'Money',
     tagline: 'Know where your money is going.',
     description: 'Reconcile Mobile Money wallets, cash drawers, and store expenses by closing time.',
-    widget: <MoneyMiniWidget />,
   },
   {
     id: 'business',
     verb: 'Business',
     tagline: "Know what's really happening.",
     description: 'See your true landed-cost profit margins, top items, and real business performance.',
-    widget: <BusinessMiniWidget />,
   },
 ];
 
@@ -87,22 +71,20 @@ export function PillarsSection() {
         </div>
 
         {/* 6 Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-separator border border-separator sm:rounded-2xl overflow-hidden">
           {pillars.map((pillar, idx) => (
-            <FadeInView key={pillar.id} delay={0.04 * idx} className="flex flex-col">
-              <div className="group flex h-full flex-col justify-between rounded-2xl border border-separator bg-surface p-5 shadow-2xs transition-all duration-150 hover:border-separator/80">
+            <FadeInView key={pillar.id} delay={0.04 * idx} className="flex flex-col bg-surface hover:bg-surface-elevated transition-colors">
+              <div className="group flex h-full flex-col justify-start p-6 sm:p-8">
                 <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold font-display text-primary">{pillar.verb}</h3>
-                    <span className="text-xs font-mono font-bold text-muted">0{idx + 1}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl sm:text-2xl font-bold font-display text-primary">{pillar.verb}</h3>
+                    <span className="text-sm font-mono font-bold text-muted/60">0{idx + 1}</span>
                   </div>
-                  <p className="mt-1 text-xs sm:text-sm font-semibold text-brand-primary leading-snug">
+                  <p className="mt-1 text-sm sm:text-base font-semibold text-brand-primary leading-snug">
                     {pillar.tagline}
                   </p>
-                  <p className="mt-2 text-xs sm:text-sm text-secondary leading-relaxed">{pillar.description}</p>
+                  <p className="mt-3 text-sm text-secondary leading-relaxed">{pillar.description}</p>
                 </div>
-
-                <div className="mt-4 pt-3 border-t border-separator/60">{pillar.widget}</div>
               </div>
             </FadeInView>
           ))}

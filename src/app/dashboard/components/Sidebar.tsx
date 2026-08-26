@@ -8,7 +8,6 @@ import {
   Users,
   Package,
   Boxes,
-  Truck,
   Container,
   Ship,
   Wallet,
@@ -21,6 +20,8 @@ import {
   Settings,
   LogOut,
   FolderTree,
+  ShoppingCart,
+  Store,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -53,9 +54,10 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
         { name: 'Products', href: '/dashboard/products', icon: Package },
         { name: 'Categories', href: '/dashboard/categories', icon: FolderTree },
         { name: 'Inventory', href: '/dashboard/inventory', icon: Boxes },
-        { name: 'Procurement', href: '/dashboard/procurement', icon: Truck },
+        { name: 'Purchasing', href: '/dashboard/purchasing', icon: ShoppingCart },
         { name: 'Suppliers', href: '/dashboard/suppliers', icon: Container },
         { name: 'Shipments', href: '/dashboard/shipments', icon: Ship },
+        { name: 'Online Store', href: '/dashboard/online-store', icon: Store },
       ],
     },
     {

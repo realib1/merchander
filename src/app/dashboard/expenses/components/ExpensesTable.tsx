@@ -85,7 +85,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
             <tr className="text-xs font-semibold  bg-surface-elevated/30 border-b border-separator">
               <th className="px-6 py-4">
                 <Link href={createSortUrl('expense_date')} className="flex items-center group cursor-pointer">
-                  Date{' '}
+                  ID / Date{' '}
                   <SortIcon column="expense_date" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
@@ -116,10 +116,13 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
                   <tr key={expense.id} className="hover:bg-surface-elevated/20 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-surface-elevated  flex items-center justify-center shrink-0">
+                        <div className="h-10 w-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0">
                           <Calendar size={18} />
                         </div>
-                        <div className="font-medium  text-sm">{formatDate(expense.expense_date)}</div>
+                        <div>
+                          <div className="font-semibold text-sm">#{expense.short_id || 'EXP-XXXX'}</div>
+                          <div className="font-medium text-muted text-xs">{formatDate(expense.expense_date)}</div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">

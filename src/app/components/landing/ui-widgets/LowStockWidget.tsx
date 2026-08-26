@@ -11,9 +11,15 @@ export function LowStockWidget() {
         <span className="flex h-2 w-2 rounded-full bg-amber-500" />
       </div>
 
-      <div className="mt-2.5">
-        <div className="text-sm sm:text-base font-bold text-primary">Golden Penny 1kg</div>
-        <div className="mt-1 flex items-center justify-between text-xs">
+      <div className="mt-3">
+        <div className="text-sm sm:text-base font-bold text-primary">Men&apos;s Smock</div>
+        
+        {/* Progress Bar */}
+        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-separator/50">
+          <div className="h-full w-[15%] rounded-full bg-amber-500" />
+        </div>
+
+        <div className="mt-2.5 flex items-center justify-between text-xs">
           <span className="text-amber-600 dark:text-amber-400 font-medium">8 units left</span>
           <span className="inline-flex items-center gap-1 font-semibold text-brand-primary group-hover:underline">
             Reorder <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />

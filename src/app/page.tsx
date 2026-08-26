@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { HeroSection } from './components/landing/HeroSection';
 import { ProblemSection } from './components/landing/ProblemSection';
 import { ConnectionFlowSection } from './components/landing/ConnectionFlowSection';
+import { MerchantJourneySection } from './components/landing/MerchantJourneySection';
 import { PillarsSection } from './components/landing/PillarsSection';
-import { IntelligenceSection } from './components/landing/IntelligenceSection';
-import { BusinessTypesSection } from './components/landing/BusinessTypesSection';
 import { AfricanRootsSection } from './components/landing/AfricanRootsSection';
 import { TrustSection } from './components/landing/TrustSection';
 import { CtaSection } from './components/landing/CtaSection';
@@ -16,8 +15,6 @@ export default function LandingPage() {
   const navItems = [
     { label: 'How it works', href: '#how-it-works' },
     { label: 'Areas', href: '#areas' },
-    { label: 'Intelligence', href: '#intelligence' },
-    { label: 'Businesses', href: '#businesses' },
   ];
 
   const headerActions = (
@@ -30,30 +27,17 @@ export default function LandingPage() {
 
   const footerLinkGroups = [
     {
-      title: 'Operations',
+      title: 'Platform',
       items: [
-        { label: 'Sell & Checkout', href: '#areas' },
-        { label: 'Connected Stock', href: '#areas' },
-        { label: 'Customer Credit', href: '#areas' },
-        { label: 'Suppliers', href: '#areas' },
-        { label: 'Money & Reconciliations', href: '#areas' },
-      ],
-    },
-    {
-      title: 'Realities',
-      items: [
-        { label: 'Mobile Money Integration', href: '#businesses' },
-        { label: 'WhatsApp Commerce', href: '#businesses' },
-        { label: 'Retail & Wholesale', href: '#businesses' },
-        { label: 'Boutique & Fashion', href: '#businesses' },
+        { label: 'How it works', href: '#how-it-works' },
+        { label: 'Get Early Access', href: '#waitlist' },
       ],
     },
     {
       title: 'Company',
       items: [
-        { label: 'About Merchander', href: '#how-it-works' },
-        { label: 'Early Access Waitlist', href: '#waitlist' },
-        { label: 'SHERO HQ', href: 'https://sherohq.com', external: true },
+        { label: 'About SHERO', href: 'https://sherohq.com', external: true },
+        { label: 'Contact Us', href: 'mailto:hello@sherohq.com' },
       ],
     },
   ];
@@ -72,14 +56,11 @@ export default function LandingPage() {
         {/* 3. Transaction Cascade Flow: "Merchander makes the picture clear." */}
         <ConnectionFlowSection />
 
-        {/* 4. Six Pillars: Sell, Stock, Customers, Suppliers, Money, Business */}
+        {/* 4. The Real Journey: Pre-order to Landed Cost */}
+        <MerchantJourneySection />
+
+        {/* 5. Six Pillars: Sell, Stock, Customers, Suppliers, Money, Business */}
         <PillarsSection />
-
-        {/* 5. Business Intelligence / Aha Section: "Merchander understands your business." */}
-        <IntelligenceSection />
-
-        {/* 6. Real Businesses: "Built around the way businesses actually work." */}
-        <BusinessTypesSection />
 
         {/* 7. African Roots, Global Quality */}
         <AfricanRootsSection />
@@ -93,7 +74,7 @@ export default function LandingPage() {
 
       <Footer
         brandName="Merchander"
-        tagline="Open Path. More Possibilities. For Every Business."
+        tagline="Open Path. More Possibilities. For the ambitious merchant."
         linkGroups={footerLinkGroups}
       />
     </div>

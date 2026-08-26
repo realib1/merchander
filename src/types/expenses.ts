@@ -1,5 +1,6 @@
 export interface Expense {
   id: string;
+  short_id: string;
   tenant_id: string;
   store_id: string | null;
   amount: number;
@@ -12,5 +13,5 @@ export interface Expense {
   updated_at: string;
 }
 
-export type CreateExpenseInput = Omit<Expense, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>;
+export type CreateExpenseInput = Omit<Expense, 'id' | 'short_id' | 'tenant_id' | 'created_at' | 'updated_at'>;
 export type UpdateExpenseInput = Partial<CreateExpenseInput>;

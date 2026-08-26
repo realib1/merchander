@@ -32,9 +32,13 @@ export async function getCustomers(
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  if (!tenantUser) throw new Error('Tenant not found');
+
   let queryBuilder = supabase
     .from('customer_stats_view')
     .select('*', { count: 'exact' })
+    .eq('tenant_id', tenantUser.tenant_id)
     .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (query) {
@@ -168,12 +172,15 @@ export async function createCustomer(data: { name: string; phone: string; email:
 
   if (!tenantUser) throw new Error('Tenant not found');
 
+  const { normalizeGhanaPhone } = await import('@/utils/phone');
+  const normalizedPhone = normalizeGhanaPhone(data.phone) || data.phone;
+
   const { data: newCustomer, error } = await supabase
     .from('customers')
     .insert({
       tenant_id: tenantUser.tenant_id,
       name: data.name || null,
-      phone: data.phone,
+      phone: normalizedPhone,
       email: data.email || null,
     })
     .select()

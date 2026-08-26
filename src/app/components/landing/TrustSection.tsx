@@ -57,15 +57,15 @@ export function TrustSection() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-separator bg-surface p-5 sm:p-6 shadow-2xs transition-all duration-150 hover:border-separator/80"
+                  className="flex gap-5 py-4"
                 >
-                  <div className="flex items-center gap-3 mb-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <h3 className="text-base font-bold font-display text-primary">{item.title}</h3>
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-elevated text-primary border border-separator shadow-xs">
+                    <Icon className="h-6 w-6" />
                   </div>
-                  <p className="text-xs sm:text-sm text-secondary leading-relaxed">{item.description}</p>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold font-display text-primary">{item.title}</h3>
+                    <p className="mt-1 text-sm sm:text-base text-secondary leading-relaxed">{item.description}</p>
+                  </div>
                 </div>
               );
             })}

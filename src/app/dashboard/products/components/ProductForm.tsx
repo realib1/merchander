@@ -39,12 +39,14 @@ export interface InitialProductData {
   name: string;
   description: string;
   isActive: boolean;
+  availabilityStatus: 'AVAILABLE' | 'PRE_ORDER' | 'OUT_OF_STOCK';
   categoryId: string | null;
   vendor: string | null;
   stockUnit: string | null;
   imageUrls: string[];
   basePrice: number | '';
   baseCostPrice: number | '';
+  preorderShippingMode: 'included' | 'tbd';
   variants: VariantState[];
 }
 
@@ -62,6 +64,8 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   const [name, setName] = useState(initialData?.name ?? '');
   const [description, setDescription] = useState(initialData?.description ?? '');
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'AVAILABLE' | 'PRE_ORDER' | 'OUT_OF_STOCK'>(initialData?.availabilityStatus ?? 'AVAILABLE');
+  const [preorderShippingMode, setPreorderShippingMode] = useState<'included' | 'tbd'>(initialData?.preorderShippingMode ?? 'included');
   const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId ?? '');
   const [vendor, setVendor] = useState<string>(initialData?.vendor ?? '');
   const [stockUnit, setStockUnit] = useState<string>(initialData?.stockUnit ?? 'pcs');
@@ -112,6 +116,8 @@ export function ProductForm({ stores, categories: initialCategories, initialData
         if (parsed.name !== undefined) setName(parsed.name);
         if (parsed.description !== undefined) setDescription(parsed.description);
         if (parsed.isActive !== undefined) setIsActive(parsed.isActive);
+        if (parsed.availabilityStatus !== undefined) setAvailabilityStatus(parsed.availabilityStatus);
+        if (parsed.preorderShippingMode !== undefined) setPreorderShippingMode(parsed.preorderShippingMode);
         if (parsed.categoryId !== undefined) setCategoryId(parsed.categoryId);
         if (parsed.vendor !== undefined) setVendor(parsed.vendor);
         if (parsed.stockUnit !== undefined) setStockUnit(parsed.stockUnit);
@@ -137,14 +143,13 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       });
   }, [initialData]);
 
-  // Save draft on change (only if NOT editing)
   useEffect(() => {
     if (!isLoaded || initialData) return;
-    const draft = { name, description, isActive, categoryId, vendor, stockUnit, variants, basePrice, baseCostPrice };
+    const draft = { name, description, isActive, availabilityStatus, preorderShippingMode, categoryId, vendor, stockUnit, variants, basePrice, baseCostPrice };
     sessionStorage.setItem('product-form-draft', JSON.stringify(draft));
     saveFilesToDraft('product-images', files).catch(console.error);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, description, isActive, categoryId, vendor, stockUnit, variants, basePrice, baseCostPrice, files, isLoaded]);
+  }, [name, description, isActive, availabilityStatus, preorderShippingMode, categoryId, vendor, stockUnit, variants, basePrice, baseCostPrice, files, isLoaded]);
 
   const handleAddVariant = () => {
     setVariants([
@@ -254,6 +259,8 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       formData.append('name', name);
       formData.append('description', description);
       formData.append('isActive', isActive.toString());
+      formData.append('availabilityStatus', availabilityStatus);
+      formData.append('preorderShippingMode', preorderShippingMode);
       const finalVariants = variants.map((v, idx) => {
         const parsedPrice = v.price === '' ? (basePrice === '' ? 0 : basePrice) : v.price;
         const parsedCostPrice =
@@ -726,11 +733,44 @@ export function ProductForm({ stores, categories: initialCategories, initialData
                 id="product-status"
                 value={isActive ? 'active' : 'draft'}
                 onChange={(e) => setIsActive(e.target.value === 'active')}
-                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all mb-4"
               >
                 <option value="active">Active (Published)</option>
                 <option value="draft">Draft (Hidden)</option>
               </select>
+
+              <label htmlFor="availability-status" className="text-body-sm font-semibold mb-2 block">
+                Availability
+              </label>
+              <select
+                id="availability-status"
+                value={availabilityStatus}
+                onChange={(e) => setAvailabilityStatus(e.target.value as 'AVAILABLE' | 'PRE_ORDER' | 'OUT_OF_STOCK')}
+                className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm  focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+              >
+                <option value="AVAILABLE">Available</option>
+                <option value="PRE_ORDER">Pre-Order</option>
+              </select>
+
+              {availabilityStatus === 'PRE_ORDER' && (
+                <div className="mt-4">
+                  <label htmlFor="preorder-shipping-mode" className="text-body-sm font-semibold mb-2 block">
+                    Pre-Order Shipping
+                  </label>
+                  <select
+                    id="preorder-shipping-mode"
+                    value={preorderShippingMode}
+                    onChange={(e) => setPreorderShippingMode(e.target.value as 'included' | 'tbd')}
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
+                  >
+                    <option value="included">Shipping Included in Price</option>
+                    <option value="tbd">TBD (Calculated on Arrival)</option>
+                  </select>
+                  <p className="text-xs text-muted mt-1.5">
+                    If TBD, customer pays shipping fee when goods arrive.
+                  </p>
+                </div>
+              )}
             </CardBody>
           </Card>
 

@@ -2,27 +2,22 @@
 
 import { createClient } from '@/lib/supabase/server';
 
+export interface MetricValue {
+  value: number;
+  change?: number;
+  diff: number;
+}
+
 export interface DashboardMetrics {
-  totalSales: {
-    value: number;
-    change: number;
-  };
-  totalOrders: {
-    value: number;
-    change: number;
-  };
-  totalCustomers: {
-    value: number;
-    change: number;
-  };
-  grossMargin: {
-    value: number;
-    change: number;
-  };
+  totalSales: MetricValue;
+  totalOrders: MetricValue;
+  totalCustomers: MetricValue;
+  grossMargin: MetricValue;
   topProducts: {
     id: string;
     name: string;
     price: number;
+    quantitySold?: number;
     image_url: string | null;
   }[];
   salesChart: {
@@ -30,7 +25,7 @@ export interface DashboardMetrics {
     sales: number;
   }[];
   attention: {
-    shipments: { id: string; supplierName: string; units: number; preOrders: number; eta: string }[];
+    purchaseOrders: { id: string; supplierName: string; units: number; preOrders: number; eta: string }[];
     lowStock: { id: string; name: string; size: string; remaining: number; avgWeeklySales: number }[];
     supplierBalances: { id: string; supplierName: string; balance: number }[];
   };
@@ -42,7 +37,9 @@ export interface DashboardMetrics {
   incoming: { origin: string; id: string; units: number; eta: string; preOrders: number } | null;
 }
 
-export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'): Promise<DashboardMetrics> {
+export async function getDashboardMetrics(
+  period: 'today' | '7d' | '30d' | '90d' = 'today'
+): Promise<DashboardMetrics> {
   const supabase = await createClient();
 
   // Dual-layer security: explicit auth check + RLS
@@ -52,6 +49,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   if (!user) throw new Error('Not authenticated');
 
   let days = 30;
+  if (period === 'today') days = 1;
   if (period === '7d') days = 7;
   if (period === '90d') days = 90;
 
@@ -61,7 +59,8 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     .select('low_stock_threshold')
     .eq('tenant_id', tenantUser?.tenant_id)
     .single();
-  const lowStockThreshold = settings?.low_stock_threshold || 10;
+
+  const lowStockThreshold = (settings as Record<string, unknown>)?.low_stock_threshold as number ?? 10;
 
   // Call the new RPC for aggregated metrics
   const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', {
@@ -87,21 +86,46 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = metricsData as any;
 
-  const salesChange = previous_sales === 0 ? 100 : ((current_sales - previous_sales) / previous_sales) * 100;
-  const orderChange = previous_orders === 0 ? 100 : ((current_orders - previous_orders) / previous_orders) * 100;
+  const salesDiff = current_sales - previous_sales;
+  const salesChange =
+    previous_sales === 0
+      ? current_sales > 0
+        ? undefined
+        : 0
+      : (salesDiff / previous_sales) * 100;
+
+  const orderDiff = current_orders - previous_orders;
+  const orderChange =
+    previous_orders === 0
+      ? current_orders > 0
+        ? undefined
+        : 0
+      : (orderDiff / previous_orders) * 100;
 
   const currentMargin = current_sales - current_cost;
   const previousMargin = previous_sales - previous_cost;
-  const marginChange = previousMargin === 0 ? 100 : ((currentMargin - previousMargin) / previousMargin) * 100;
+  const marginDiff = currentMargin - previousMargin;
+  const marginChange =
+    previousMargin === 0
+      ? currentMargin > 0
+        ? undefined
+        : 0
+      : (marginDiff / previousMargin) * 100;
 
-  const customerChange = total_customers === 0 ? 0 : (current_customers / total_customers) * 100;
+  const customerDiff = current_customers;
+  const customerChange =
+    total_customers === 0
+      ? 0
+      : current_customers === 0
+        ? 0
+        : (current_customers / total_customers) * 100;
 
   // 2. Fetch Attention Items
-  // 5A. Incoming Shipments
-  const { data: shipmentsData } = await supabase
-    .from('shipments')
-    .select('id, tracking_number, eta, suppliers(name, country), shipment_items(quantity)')
-    .eq('status', 'in_transit')
+  // 5A. Incoming Purchase Orders
+  const { data: purchaseOrdersData } = await supabase
+    .from('purchase_orders')
+    .select('id, po_number, tracking_number, eta, suppliers(name, country), purchase_order_items(quantity)')
+    .in('status', ['ordered', 'partially_received'])
     .order('eta', { ascending: true })
     .limit(3);
 
@@ -119,22 +143,23 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     .gt('outstanding_balance', 0)
     .limit(3);
 
-  interface DashboardShipment {
+  interface DashboardPurchaseOrder {
     id: string;
+    po_number?: string;
     tracking_number?: string;
     status?: string;
     eta?: string;
-    shipment_items?: { quantity?: number }[];
+    purchase_order_items?: { quantity?: number }[];
     suppliers?: { name?: string; country?: string }[] | { name?: string; country?: string };
   }
 
-  const shipmentsList = ((shipmentsData as unknown as DashboardShipment[]) || []).map((s) => {
-    const totalUnits = (s.shipment_items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const purchaseOrdersList = ((purchaseOrdersData as unknown as DashboardPurchaseOrder[]) || []).map((s) => {
+    const totalUnits = (s.purchase_order_items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
     const suppName = Array.isArray(s.suppliers) ? s.suppliers[0]?.name : s.suppliers?.name;
     const suppOrigin = Array.isArray(s.suppliers) ? s.suppliers[0]?.country : s.suppliers?.country;
 
     return {
-      id: s.tracking_number || s.id.substring(0, 8).toUpperCase(),
+      id: s.po_number || s.id.substring(0, 8).toUpperCase(),
       supplierName: (suppName || 'Unknown') as string,
       status: s.status as 'Received' | 'In Transit' | 'Delayed',
       origin: (suppOrigin || 'Unknown') as string,
@@ -144,7 +169,7 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
     };
   });
 
-  const nextShipment = shipmentsList.length > 0 ? shipmentsList[0] : null;
+  const nextPurchaseOrder = purchaseOrdersList.length > 0 ? purchaseOrdersList[0] : null;
 
   // Process low stock data and compute velocity (sales in last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -201,16 +226,16 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
 
     intelligence.velocityInsight = `Your ${topLow.name} (${topLow.size}) is moving fast. At the current rate of ${topLow.avgWeeklySales} units/week, it will likely sell out in ${daysRemaining} days.`;
 
-    if (nextShipment) {
+    if (nextPurchaseOrder) {
       intelligence.supplyInsight = [
-        `• Incoming shipment (${nextShipment.id}) contains ${nextShipment.units} units total.`,
-        `• Based on current momentum, ${nextShipment.preOrders} are spoken for.`,
-        `• Net available after delivery: ${nextShipment.units - nextShipment.preOrders} units.`,
+        `• Incoming purchase order (${nextPurchaseOrder.id}) contains ${nextPurchaseOrder.units} units total.`,
+        `• Based on current momentum, ${nextPurchaseOrder.preOrders} are spoken for.`,
+        `• Net available after delivery: ${nextPurchaseOrder.units - nextPurchaseOrder.preOrders} units.`,
       ];
-      intelligence.recommendation = `Do not place another restock order yet. The incoming shipment from ${nextShipment.origin} provides a solid buffer. Re-evaluate after delivery.`;
+      intelligence.recommendation = `Do not place another restock order yet. The incoming purchase order from ${nextPurchaseOrder.origin} provides a solid buffer. Re-evaluate after delivery.`;
     } else {
       intelligence.supplyInsight = [
-        `• No active shipments contain this product.`,
+        `• No active purchase orders contain this product.`,
         `• ${topLow.remaining} units left in the warehouse.`,
       ];
       intelligence.recommendation = `Place a purchase order for ${topLow.name} immediately to prevent a stockout event.`;
@@ -218,18 +243,18 @@ export async function getDashboardMetrics(period: '7d' | '30d' | '90d' = '30d'):
   }
 
   return {
-    totalSales: { value: current_sales, change: salesChange },
-    totalOrders: { value: current_orders, change: orderChange },
-    totalCustomers: { value: total_customers || 0, change: customerChange },
-    grossMargin: { value: currentMargin, change: marginChange },
+    totalSales: { value: current_sales, change: salesChange, diff: salesDiff },
+    totalOrders: { value: current_orders, change: orderChange, diff: orderDiff },
+    totalCustomers: { value: total_customers || 0, change: customerChange, diff: customerDiff },
+    grossMargin: { value: currentMargin, change: marginChange, diff: marginDiff },
     topProducts: top_products || [],
     salesChart: sales_chart || [],
     attention: {
-      shipments: shipmentsList,
+      purchaseOrders: purchaseOrdersList,
       lowStock: lowStockList,
       supplierBalances: supplierBalancesList,
     },
     intelligence,
-    incoming: nextShipment,
+    incoming: nextPurchaseOrder,
   };
 }
