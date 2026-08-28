@@ -14,13 +14,23 @@ export default async function ProfileSettingsPage() {
     redirect('/login');
   }
 
-  const firstName = user.user_metadata?.first_name || '';
-  const lastName = user.user_metadata?.last_name || '';
+  let firstName = user.user_metadata?.first_name || '';
+  let lastName = user.user_metadata?.last_name || '';
+  const fullName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+  if ((!firstName || !lastName) && fullName) {
+    const parts = fullName.split(' ');
+    firstName = firstName || parts[0] || '';
+    lastName = lastName || parts.slice(1).join(' ') || '';
+  }
   const phone = user.user_metadata?.phone || '';
 
   // Use first initial of first and last name for avatar fallback, or email initial
   const initials =
-    firstName && lastName ? `${firstName[0]}${lastName[0]}`.toUpperCase() : user.email?.[0]?.toUpperCase() || 'U';
+    firstName && lastName
+      ? `${firstName[0]}${lastName[0]}`.toUpperCase()
+      : firstName
+        ? firstName[0].toUpperCase()
+        : user.email?.[0]?.toUpperCase() || 'U';
 
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">

@@ -1,11 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import { ArrowRight, AlertTriangle, CheckCircle2, Ship, ChevronRight, Lightbulb } from 'lucide-react';
 import { getDashboardMetrics } from '@/app/actions/dashboard';
-import { formatCurrency } from '@/utils/format';
 import { DashboardTopMetrics } from './components/DashboardTopMetrics';
 import { SalesOverviewChart } from './components/SalesOverviewChart';
 import { TopProductsList } from './components/TopProductsList';
+import { DashboardQuickStatusHeader } from './components/DashboardQuickStatusHeader';
+import { DashboardIntelligenceCard } from './components/DashboardIntelligenceCard';
+import { DashboardRecentOrders } from './components/DashboardRecentOrders';
+import { DashboardAttentionCenter } from './components/DashboardAttentionCenter';
+import { DashboardIncomingCard } from './components/DashboardIncomingCard';
 
 export const metadata = {
   title: 'Overview | Merchander',
@@ -41,91 +43,18 @@ export default async function DashboardOverview({
     .limit(5);
 
   return (
-    <div className="min-h-full flex flex-col space-y-8 pb-10">
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-8">
       <h1 className="sr-only">Dashboard Overview</h1>
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span className="text-xs font-semibold text-muted uppercase tracking-wider mr-1">Quick status:</span>
 
-          {metrics.attention.lowStock.length > 0 && (
-            <Link
-              href="/dashboard/inventory"
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning border border-warning/20 rounded-full text-xs font-medium hover:bg-warning/20 transition-colors"
-            >
-              <AlertTriangle size={13} /> {metrics.attention.lowStock.length} products low
-            </Link>
-          )}
-
-          {metrics.attention.supplierBalances.length > 0 && (
-            <Link
-              href="/dashboard/payments"
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning border border-warning/20 rounded-full text-xs font-medium hover:bg-warning/20 transition-colors"
-            >
-              <AlertTriangle size={13} /> {metrics.attention.supplierBalances.length} balances due
-            </Link>
-          )}
-
-          {metrics.incoming && (
-            <Link
-              href="/dashboard/purchasing"
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-elevated text-foreground border border-separator rounded-full text-xs font-medium hover:bg-surface transition-colors"
-            >
-              <Ship size={13} className="text-brand-primary" /> {metrics.incoming.id} arriving soon
-            </Link>
-          )}
-
-          {/* Always show a positive pill if there's no severe attention items or just as a balance */}
-          <Link
-            href="/dashboard/payments"
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-success/10 text-success border border-success/20 rounded-full text-xs font-medium hover:bg-success/20 transition-colors"
-          >
-            <CheckCircle2 size={13} /> All systems operational
-          </Link>
-        </div>
-
-        <div className="flex items-center bg-surface-elevated border border-separator rounded-lg overflow-hidden text-xs sm:text-sm font-medium shrink-0 shadow-xs">
-          <Link
-            href="?period=today"
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
-              period === 'today' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
-            }`}
-          >
-            Today
-          </Link>
-          <Link
-            href="?period=7d"
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
-              period === '7d' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
-            }`}
-          >
-            7 days
-          </Link>
-          <Link
-            href="?period=30d"
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
-              period === '30d' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
-            }`}
-          >
-            30 days
-          </Link>
-          <Link
-            href="?period=90d"
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 transition-colors ${
-              period === '90d' ? 'bg-brand-primary text-white font-semibold' : 'text-muted hover:text-foreground'
-            }`}
-          >
-            90 days
-          </Link>
-        </div>
-      </header>
+      {/* Quick Status Bar & Period Filter */}
+      <DashboardQuickStatusHeader metrics={metrics} period={period} />
 
       {/* Top Metrics (Sales, Orders, Customers, Profit) */}
       <DashboardTopMetrics metrics={metrics} period={period} />
 
-      {/* Main Content Grid: 12-column layout matching reference */}
+      {/* Main Content Grid: 12-column Bento Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* ROW 2: Chart & Insight */}
-        {/* Sales Chart (lg:col-span-8) */}
+        {/* ROW 2: Chart & Intelligence */}
         <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs p-6 flex flex-col min-h-100">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -138,257 +67,23 @@ export default async function DashboardOverview({
           </div>
         </div>
 
-        {/* Merchander Intelligence (lg:col-span-4) */}
-        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs flex flex-col min-h-100">
-          <div className="px-6 py-4 border-b border-separator bg-surface-elevated rounded-t-2xl flex items-center justify-between">
-            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
-              <Lightbulb size={16} className="text-brand-secondary" /> Merchander Intelligence
-            </h2>
-          </div>
-          <div className="p-6 flex-1 flex flex-col">
-            <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">What Merchander sees:</div>
-            <p className="text-sm text-foreground leading-relaxed mb-4">{metrics.intelligence.velocityInsight}</p>
+        <DashboardIntelligenceCard intelligence={metrics.intelligence} />
 
-            <div className="bg-surface-elevated rounded-xl p-4 border border-separator mb-4 flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse"></div>
-                <div className="text-xs font-semibold text-muted uppercase tracking-wider">Analysis Engine</div>
-              </div>
-              <div className="text-sm text-muted space-y-2">
-                {metrics.intelligence.supplyInsight.map((insight, idx) => (
-                  <p key={idx}>{insight}</p>
-                ))}
-              </div>
-            </div>
+        {/* ROW 3: Orders Stream & Attention Center */}
+        <DashboardRecentOrders orders={recentOrders} />
+        <DashboardAttentionCenter attention={metrics.attention} />
 
-            <div className="text-sm bg-brand-primary/10 border border-brand-primary/20 rounded-xl p-4">
-              <span className="font-semibold text-brand-primary block mb-1">Recommendation:</span>
-              <span className="text-foreground">{metrics.intelligence.recommendation}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ROW 3: Orders & Attention Center */}
-        {/* Orders Stream (lg:col-span-8) */}
-        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-87.5">
-          <div className="px-6 py-4 border-b border-separator bg-surface-elevated flex items-center justify-between">
-            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">Recent Orders</h2>
-            <Link
-              href="/dashboard/orders"
-              className="text-xs sm:text-sm font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-1 transition-colors"
-            >
-              View all orders <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="overflow-x-auto flex-1">
-            <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="text-xs text-muted uppercase bg-surface-elevated/40 border-b border-separator">
-                <tr>
-                  <th className="px-6 py-3">Order</th>
-                  <th className="px-6 py-3">Customer</th>
-                  <th className="px-6 py-3">Items</th>
-                  <th className="px-6 py-3">Amount</th>
-                  <th className="px-6 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-separator">
-                {recentOrders && recentOrders.length > 0 ? (
-                  recentOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-surface-elevated/50 transition-colors">
-                      <td className="px-6 py-3.5">
-                        <Link
-                          href="/dashboard/orders"
-                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface-elevated border border-separator font-mono text-xs font-semibold text-foreground hover:border-brand-primary transition-colors"
-                        >
-                          #{order.id.substring(0, 6).toUpperCase()}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-3.5 font-medium text-foreground">
-                        {Array.isArray(order.customer)
-                          ? order.customer[0]?.name
-                          : (order.customer as { name?: string })?.name || 'Walk-in Customer'}
-                      </td>
-                      <td className="px-6 py-3.5 text-muted tabular-nums text-xs">
-                        {(() => {
-                          const count = Array.isArray(order.order_items)
-                            ? order.order_items[0]?.count || 0
-                            : (order.order_items as { count?: number })?.count || 0;
-                          return `${count} ${count === 1 ? 'item' : 'items'}`;
-                        })()}
-                      </td>
-                      <td className="px-6 py-3.5 font-semibold text-foreground tabular-nums">
-                        {formatCurrency(Number(order.total_amount))}
-                      </td>
-                      <td className="px-6 py-3.5">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize ${
-                            order.status === 'paid' || order.status === 'dispatched' || order.status === 'delivered'
-                              ? 'bg-success/10 text-success'
-                              : order.status === 'pending_payment'
-                                ? 'bg-warning/10 text-warning'
-                                : 'bg-surface-elevated text-muted'
-                          }`}
-                        >
-                          {order.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-muted text-sm">
-                      No recent orders found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Attention Center (lg:col-span-4) */}
-        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-87.5">
-          <div className="px-6 py-4 border-b border-separator bg-surface-elevated">
-            <h2 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
-              <AlertTriangle size={15} className="text-warning" /> Needs your attention
-            </h2>
-          </div>
-          <div className="divide-y divide-separator overflow-y-auto flex-1">
-            {metrics.attention.purchaseOrders.map((po) => (
-              <div
-                key={po.id}
-                className="px-6 py-4 flex items-center justify-between hover:bg-surface-elevated/50 transition-colors"
-              >
-                <div>
-                  <div className="font-semibold text-sm text-foreground">Purchase order arriving {po.eta}</div>
-                  <div className="text-xs text-muted mt-0.5">
-                    {po.id} — {po.supplierName}
-                  </div>
-                  <div className="text-xs text-muted mt-1.5 flex items-center gap-2">
-                    <span className="bg-surface-elevated px-2 py-0.5 rounded border border-separator text-foreground tabular-nums">
-                      {po.units} units
-                    </span>
-                    <span className="bg-brand-primary/10 text-brand-primary font-medium px-2 py-0.5 rounded tabular-nums">
-                      {po.preOrders} pre-orders
-                    </span>
-                  </div>
-                </div>
-                <Link
-                  href="/dashboard/purchasing"
-                  className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-0.5 transition-colors"
-                >
-                  View <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-
-            {metrics.attention.lowStock.map((stock) => (
-              <div
-                key={stock.id}
-                className="px-6 py-4 flex items-center justify-between hover:bg-surface-elevated/50 transition-colors"
-              >
-                <div>
-                  <div className="font-semibold text-sm text-foreground flex items-center gap-1.5">
-                    Low stock <span className="w-2 h-2 rounded-full bg-destructive animate-pulse"></span>
-                  </div>
-                  <div className="text-xs text-muted mt-0.5">
-                    {stock.name} — {stock.size}
-                  </div>
-                  <div className="text-xs text-muted mt-1.5 flex items-center gap-2">
-                    <span className="bg-destructive/10 text-destructive font-medium px-2 py-0.5 rounded tabular-nums">
-                      {stock.remaining} units remaining
-                    </span>
-                  </div>
-                </div>
-                <Link
-                  href="/dashboard/inventory"
-                  className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-0.5 transition-colors"
-                >
-                  Restock <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-
-            {metrics.attention.supplierBalances.map((bal) => (
-              <div
-                key={bal.id}
-                className="px-6 py-4 flex items-center justify-between hover:bg-surface-elevated/50 transition-colors"
-              >
-                <div>
-                  <div className="font-semibold text-sm text-foreground">Supplier balance</div>
-                  <div className="text-xs text-muted mt-0.5">{bal.supplierName}</div>
-                  <div className="text-xs text-warning mt-1.5 font-medium tabular-nums">
-                    {formatCurrency(bal.balance, 'USD', 'en-US')} outstanding
-                  </div>
-                </div>
-                <Link
-                  href="/dashboard/suppliers"
-                  className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-0.5 transition-colors"
-                >
-                  View <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-
-            {metrics.attention.purchaseOrders.length === 0 &&
-              metrics.attention.lowStock.length === 0 &&
-              metrics.attention.supplierBalances.length === 0 && (
-                <div className="px-6 py-8 text-center">
-                  <CheckCircle2 size={28} className="text-success mx-auto mb-2 opacity-60" />
-                  <p className="text-sm text-muted">You&apos;re all caught up!</p>
-                </div>
-              )}
-          </div>
-        </div>
-
-        {/* ROW 4: Products & Incoming */}
-        {/* Top Products (lg:col-span-8) */}
+        {/* ROW 4: Top Products & Incoming Shipments */}
         <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-75">
           <div className="px-6 py-4 border-b border-separator bg-surface-elevated flex items-center justify-between">
             <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">Top Products</h2>
-            <Link
-              href="/dashboard/products"
-              className="text-xs sm:text-sm font-medium text-brand-primary hover:text-brand-primary/80 flex items-center gap-1 transition-colors"
-            >
-              View all products <ArrowRight size={14} />
-            </Link>
           </div>
           <div className="flex-1 overflow-y-auto">
             <TopProductsList products={metrics.topProducts} />
           </div>
         </div>
 
-        {/* Incoming Purchase Orders (lg:col-span-4) */}
-        <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs p-6 flex flex-col min-h-75">
-          <h2 className="text-xs font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Ship size={15} className="text-brand-primary" /> Incoming Purchase Orders
-          </h2>
-
-          {metrics.incoming ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-4 bg-surface-elevated rounded-xl border border-separator text-center">
-              <div className="text-lg font-display font-semibold  mb-1">🇨🇳 {metrics.incoming.origin}</div>
-              <div className="text-muted mb-1">↓</div>
-              <div className="font-medium text-brand-primary mb-1">{metrics.incoming.id}</div>
-              <div className="text-muted mb-1">↓</div>
-              <div className="font-medium  mb-1 tabular-nums">{metrics.incoming.units} units</div>
-              <div className="text-muted mb-3">↓</div>
-              <div className="text-sm font-medium">ETA: {metrics.incoming.eta}</div>
-
-              <div className="w-full h-px bg-separator my-4"></div>
-
-              <div className="text-sm font-medium">
-                {metrics.incoming.preOrders} customers are already waiting for these products.
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-4 bg-surface-elevated rounded-xl border border-separator text-center">
-              <div className="text-muted mb-3">
-                <Ship size={32} className="opacity-20 mx-auto" />
-              </div>
-              <div className="text-sm">No active purchase orders in transit.</div>
-            </div>
-          )}
-        </div>
+        <DashboardIncomingCard incoming={metrics.incoming} />
       </div>
     </div>
   );

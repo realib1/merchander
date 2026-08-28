@@ -55,10 +55,7 @@ export function TrustSection() {
             {trustItems.map((item) => {
               const Icon = item.icon;
               return (
-                <div
-                  key={item.title}
-                  className="flex gap-5 py-4"
-                >
+                <div key={item.title} className="flex gap-5 py-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-elevated text-primary border border-separator shadow-xs">
                     <Icon className="h-6 w-6" />
                   </div>

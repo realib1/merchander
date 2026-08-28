@@ -26,11 +26,7 @@ export async function globalSearch(query: string) {
   }
 
   // Get tenant ID
-  const { data: tenantUser } = await supabase
-    .from('tenant_users')
-    .select('tenant_id')
-    .eq('user_id', user.id)
-    .single();
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
 
   if (!tenantUser?.tenant_id) {
     return { data: [], error: 'Tenant not found' };

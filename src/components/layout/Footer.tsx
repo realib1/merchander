@@ -50,7 +50,7 @@ export interface FooterProps {
 /**
  * Responsive application footer with brand info, grouped links, social shortcuts, and copyright notice.
  */
-export const Footer: React.FC<FooterProps> = ({
+export function Footer({
   brandName = 'Merchander',
   tagline = 'The operating system for ambitious merchants in Africa and beyond.',
   linkGroups = [],
@@ -58,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({
   copyright,
   extraBottom,
   className,
-}) => {
+}: FooterProps) {
   const currentYear = new Date().getFullYear();
   const defaultCopyright = `© ${currentYear} ${brandName}. All rights reserved.`;
 
@@ -156,4 +156,4 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
     </footer>
   );
-};
+}

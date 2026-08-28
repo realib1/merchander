@@ -48,7 +48,8 @@ export default async function CatalogPage({
   const totalPages = Math.ceil((count || 0) / pageSize);
 
   return (
-    <div className="flex flex-col mx-auto w-full min-h-full">
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Products Catalog</h1>
       <ProductsMetrics products={products as Product[]} />
       <ProductsHeader />
 
@@ -85,11 +86,19 @@ function ProductGridView({
   currentPage: number;
   totalPages: number;
   totalCount: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  searchParams: any;
+  searchParams: Record<string, string | string[] | undefined>;
 }) {
   const createPageUrl = (pageNumber: number) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach((v) => params.append(key, v));
+        } else {
+          params.set(key, value);
+        }
+      }
+    });
     params.set('page', pageNumber.toString());
     return `?${params.toString()}`;
   };

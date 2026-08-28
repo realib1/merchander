@@ -1,170 +1,136 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard,
-  ClipboardList,
-  Users,
-  Package,
-  Boxes,
-  Container,
-  Ship,
-  Wallet,
-  Receipt,
-  LineChart,
-  Sparkles,
-  PieChart,
-  MessageSquare,
-  UserCog,
-  Settings,
-  LogOut,
-  FolderTree,
-  ShoppingCart,
-  Store,
-} from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 import { useMobileNav } from './MobileNavContext';
+import { toast } from 'sonner';
+import { navGroups } from './sidebar/sidebarNavigation';
+import { SidebarUserProfile } from './sidebar/SidebarUserProfile';
 
-export function Sidebar({ userEmail, businessName }: { userEmail: string; businessName: string }) {
+export interface SidebarProps {
+  userEmail: string;
+  userName?: string;
+  userRole?: string;
+  avatarUrl?: string | null;
+  businessName: string;
+}
+
+export function Sidebar({
+  userEmail,
+  userName = 'Admin User',
+  userRole = 'Owner',
+  avatarUrl,
+  businessName,
+}: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
   const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    try {
+      setIsLoggingOut(true);
+      toast.loading('Signing out...');
+      await supabase.auth.signOut();
+      router.push('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      toast.error('Failed to sign out. Please try again.');
+      setIsLoggingOut(false);
+    }
   };
-
-  const navGroups = [
-    {
-      title: 'COMMAND',
-      items: [
-        { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Orders', href: '/dashboard/orders', icon: ClipboardList },
-        { name: 'Customers', href: '/dashboard/customers', icon: Users },
-      ],
-    },
-    {
-      title: 'COMMERCE',
-      items: [
-        { name: 'Products', href: '/dashboard/products', icon: Package },
-        { name: 'Categories', href: '/dashboard/categories', icon: FolderTree },
-        { name: 'Inventory', href: '/dashboard/inventory', icon: Boxes },
-        { name: 'Purchasing', href: '/dashboard/purchasing', icon: ShoppingCart },
-        { name: 'Suppliers', href: '/dashboard/suppliers', icon: Container },
-        { name: 'Shipments', href: '/dashboard/shipments', icon: Ship },
-        { name: 'Online Store', href: '/dashboard/online-store', icon: Store },
-      ],
-    },
-    {
-      title: 'MONEY',
-      items: [
-        { name: 'Payments', href: '/dashboard/payments', icon: Wallet },
-        { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
-        { name: 'Profitability', href: '/dashboard/profitability', icon: LineChart },
-      ],
-    },
-    {
-      title: 'INTELLIGENCE',
-      items: [
-        { name: 'Insights', href: '/dashboard/insights', icon: Sparkles },
-        { name: 'Analytics', href: '/dashboard/analytics', icon: PieChart },
-      ],
-    },
-    {
-      title: 'SYSTEM',
-      items: [
-        { name: 'Conversations', href: '/dashboard/conversations', icon: MessageSquare },
-        { name: 'Staff', href: '/dashboard/staff', icon: UserCog },
-        { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-      ],
-    },
-  ];
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile Drawer Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          aria-hidden="true"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs xl:hidden"
           onClick={() => setIsOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') setIsOpen(false);
-          }}
+          aria-hidden="true"
         />
       )}
 
+      {/* Sidebar Container */}
       <aside
-        aria-label="Main navigation"
-        className={`
-        fixed md:static inset-y-0 left-0 z-50
-        ${isDesktopCollapsed ? 'w-64 md:w-20' : 'w-64'} bg-surface/50 backdrop-blur-xl border-r border-separator/50 flex-col flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]
-        transition-all duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-separator/60 bg-surface/50 backdrop-blur-xl transition-all duration-300 ease-in-out xl:static xl:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${isDesktopCollapsed ? 'xl:w-20' : 'xl:w-64'} w-64`}
       >
-        <div className={`p-6 pb-4 border-b border-separator/50 ${isDesktopCollapsed ? 'md:px-4' : ''}`}>
-          <Link
-            href="/dashboard"
-            className={`flex items-center gap-2 group ${isDesktopCollapsed ? 'md:justify-center' : ''}`}
-          >
-            <div className="w-8 h-8 shrink-0">
-              {/* Logo */}
-              <Image src="/merchander.png" alt="Logo" width={100} height={100} />
+        {/* Brand Header */}
+        <div className="flex h-18 shrink-0 items-center justify-between px-4 border-b border-separator/60">
+          <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 min-w-0 group">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-primary/20 shadow-2xs group-hover:scale-105 transition-transform overflow-hidden">
+              <Image src="/icon.png" alt="Merchander Logo" width={28} height={28} className="object-contain" priority />
             </div>
-            <div
-              className={`transition-opacity duration-200 overflow-hidden ${isDesktopCollapsed ? 'md:hidden md:w-0' : 'whitespace-nowrap'}`}
-            >
-              <div className="text-xl font-bold  font-display tracking-tight">{businessName}</div>
-              <div className="text-caption text-brand-primary font-bold tracking-widest uppercase -mt-1">
-                Merchander OS
+            {!isDesktopCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <span className="font-display font-bold text-sm tracking-tight text-foreground truncate leading-tight">
+                  {businessName || 'Merchander'}
+                </span>
+                <span className="text-[10px] text-brand-primary/80 font-semibold uppercase tracking-widest mt-0.5">
+                  MerchanderOS
+                </span>
               </div>
-            </div>
+            )}
           </Link>
         </div>
 
-        <nav className={`flex-1 py-6 space-y-6 overflow-y-auto ${isDesktopCollapsed ? 'px-2 md:px-3' : 'px-4'}`}>
+        {/* Grouped Navigation List */}
+        <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4 hide-scrollbar">
           {navGroups.map((group) => (
-            <div key={group.title} className="space-y-1.5">
-              <div
-                className={`text-caption font-bold text-muted mb-2 px-3 tracking-widest uppercase ${isDesktopCollapsed ? 'md:hidden' : ''}`}
-              >
-                {group.title}
-              </div>
-              {isDesktopCollapsed && <div className="hidden md:block w-full h-px bg-separator/50 my-2"></div>}
+            <div key={group.title} className="space-y-1">
+              {!isDesktopCollapsed ? (
+                <div className="text-[10px] font-bold text-muted/80 mb-1 px-3 tracking-widest uppercase">
+                  {group.title}
+                </div>
+              ) : (
+                <div className="w-full h-px bg-separator/50 my-2" />
+              )}
+
               {group.items.map((item) => {
                 const isActive =
-                  item.href === '/dashboard'
-                    ? pathname === '/dashboard'
-                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
                 const Icon = item.icon;
+
                 return (
                   <Link
-                    key={item.href}
+                    key={item.name}
                     href={item.href}
-                    title={isDesktopCollapsed ? item.name : undefined}
-                    className={`
-                    flex items-center gap-3 rounded-xl font-medium transition-all group
-                    ${isDesktopCollapsed ? 'md:justify-center md:px-0 px-3 py-3' : 'px-3 py-2'}
-                    ${
+                    onClick={() => setIsOpen(false)}
+                    className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                       isActive
-                        ? 'bg-brand-primary/10 text-brand-primary'
-                        : ' hover:bg-surface-elevated hover:text-brand-primary'
-                    }
-                  `}
+                        ? 'bg-brand-primary/10 text-brand-primary font-bold shadow-2xs'
+                        : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
+                    }`}
+                    title={isDesktopCollapsed ? item.name : undefined}
                   >
                     <Icon
-                      size={18}
-                      className={`shrink-0 ${isActive ? 'text-brand-primary' : 'text-muted group-hover:text-brand-primary transition-colors'}`}
+                      size={17}
+                      className={`shrink-0 transition-transform group-hover:scale-110 ${
+                        isActive ? 'text-brand-primary' : 'text-muted group-hover:text-foreground'
+                      }`}
                     />
-                    <span className={`text-sm ${isDesktopCollapsed ? 'md:hidden' : ''}`}>{item.name}</span>
-                    {isActive && !isDesktopCollapsed && (
-                      <div className="ml-auto w-1 h-4 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(255,106,0,0.5)] shrink-0"></div>
+                    {!isDesktopCollapsed && <span className="truncate flex-1">{item.name}</span>}
+
+                    {!isDesktopCollapsed && item.badge && (
+                      <span
+                        className={`ml-auto px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          item.badgeType === 'accent'
+                            ? 'bg-brand-primary text-white shadow-2xs'
+                            : 'bg-surface-elevated text-muted'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+
+                    {isActive && (
+                      <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1 h-4 bg-brand-primary rounded-full" />
                     )}
                   </Link>
                 );
@@ -173,30 +139,17 @@ export function Sidebar({ userEmail, businessName }: { userEmail: string; busine
           ))}
         </nav>
 
-        {/* User Profile Section at bottom */}
-        <div
-          className={`p-4 m-4 mt-0 bg-surface-elevated/50 border border-separator/50 rounded-2xl backdrop-blur-sm ${isDesktopCollapsed ? 'md:mx-2 md:p-2' : ''}`}
-        >
-          <div className={`flex items-center gap-3 mb-3 ${isDesktopCollapsed ? 'md:justify-center' : ''}`}>
-            <div className="w-10 h-10 shrink-0 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5">
-              <div className="w-full h-full rounded-full bg-surface flex items-center justify-center">
-                <span className="text-sm font-bold">{userEmail.charAt(0).toUpperCase()}</span>
-              </div>
-            </div>
-            <div className={`flex-1 min-w-0 ${isDesktopCollapsed ? 'md:hidden' : ''}`}>
-              <p className="text-sm font-semibold  truncate">Admin User</p>
-              <p className="text-xs text-muted truncate">{userEmail}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            title={isDesktopCollapsed ? 'Sign Out' : undefined}
-            className={`w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-red-500/80 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer ${isDesktopCollapsed ? 'md:p-3' : ''}`}
-          >
-            <LogOut size={14} className="shrink-0" />
-            <span className={`${isDesktopCollapsed ? 'md:hidden' : ''}`}>Sign Out</span>
-          </button>
-        </div>
+        {/* Current User Profile Card & Sign Out */}
+        <SidebarUserProfile
+          isDesktopCollapsed={isDesktopCollapsed}
+          userEmail={userEmail}
+          userName={userName}
+          userRole={userRole}
+          avatarUrl={avatarUrl}
+          isLoggingOut={isLoggingOut}
+          onLogout={handleLogout}
+          onNavigate={() => setIsOpen(false)}
+        />
       </aside>
     </>
   );

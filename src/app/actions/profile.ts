@@ -38,6 +38,7 @@ export async function updateProfile(formData: FormData) {
     data: {
       first_name: firstName,
       last_name: lastName,
+      full_name: `${firstName} ${lastName}`.trim(),
       phone: phone,
     },
   });
@@ -47,6 +48,7 @@ export async function updateProfile(formData: FormData) {
     return { error: 'Failed to update profile' };
   }
 
+  revalidatePath('/dashboard', 'layout');
   revalidatePath('/dashboard/settings/profile');
   return { success: true };
 }

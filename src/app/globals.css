@@ -213,6 +213,26 @@
     font-family: var(--font-sans);
   }
 
+  /* Universal Interactive Pointer Cursors */
+  button,
+  [role='button'],
+  [type='button'],
+  [type='submit'],
+  [type='reset'],
+  a[role='button'],
+  select,
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role='button'][aria-disabled='true'],
+  [type='button']:disabled,
+  [type='submit']:disabled,
+  [type='reset']:disabled {
+    cursor: not-allowed;
+  }
+
   /* Universal Accessibility Focus Outline */
   :focus-visible {
     outline: 3px solid var(--color-brand-primary);

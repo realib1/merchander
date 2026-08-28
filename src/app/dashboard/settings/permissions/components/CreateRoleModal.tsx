@@ -26,19 +26,19 @@ export function CreateRoleModal({ children }: CreateRoleModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const formData = new FormData(e.currentTarget);
       const res = await createTenantRole(formData);
-      
+
       if (res?.error) {
         toast.error(res.error);
         return;
       }
-      
+
       toast.success('Role created successfully!');
       setIsOpen(false);
     } catch {
@@ -53,10 +53,10 @@ export function CreateRoleModal({ children }: CreateRoleModalProps) {
       <div onClick={() => setIsOpen(true)} className="inline-block cursor-pointer">
         {children}
       </div>
-      
-      <Modal 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
         title="Create Custom Role"
         description="Define a new role and select its specific permissions."
       >
@@ -89,12 +89,13 @@ export function CreateRoleModal({ children }: CreateRoleModalProps) {
           </div>
 
           <div className="flex flex-col gap-3 mt-2">
-            <label className="text-sm font-medium text-foreground">
-              Permissions
-            </label>
+            <label className="text-sm font-medium text-foreground">Permissions</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-62.5 overflow-y-auto custom-scrollbar p-1">
               {AVAILABLE_PERMISSIONS.map((perm) => (
-                <label key={perm.id} className="flex items-start gap-2.5 p-2.5 border border-separator rounded-lg cursor-pointer hover:bg-surface-elevated/50 transition-colors">
+                <label
+                  key={perm.id}
+                  className="flex items-start gap-2.5 p-2.5 border border-separator rounded-lg cursor-pointer hover:bg-surface-elevated/50 transition-colors"
+                >
                   <input
                     type="checkbox"
                     name="permissions"

@@ -11,7 +11,11 @@ interface DeleteRoleButtonProps {
 
 export function DeleteRoleButton({ roleId, roleName }: DeleteRoleButtonProps) {
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete the ${roleName} role? Users assigned to this role will lose their custom permissions.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete the ${roleName} role? Users assigned to this role will lose their custom permissions.`
+      )
+    ) {
       return;
     }
 

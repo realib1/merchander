@@ -49,15 +49,13 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
   const handleLoadMore = async (status: OrderStatus, currentCount: number) => {
     setIsUpdating(true);
     try {
-      const moreOrders = await getKanbanOrders(status, currentCount, 10, searchQuery);
+      const moreOrders = (await getKanbanOrders(status, currentCount, 10, searchQuery)) as Order[];
       if (moreOrders && moreOrders.length > 0) {
         setOrders((prev) => {
           const newOrders = [...prev];
           for (const order of moreOrders) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (!newOrders.find((o) => o.id === (order as any).id)) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              newOrders.push(order as any);
+            if (!newOrders.find((o) => o.id === order.id)) {
+              newOrders.push(order);
             }
           }
           return newOrders;
@@ -103,7 +101,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
     }
   };
 
-  const handleReconcile = async (e: React.FormEvent) => {
+  const handleReconcile = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!reconciliationOrder || !smsText) return;
 
@@ -140,7 +138,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                 const orderId = e.dataTransfer.getData('orderId');
                 if (orderId) {
                   if (col.id === 'paid') {
-                    const orderToReconcile = orders.find(o => o.id === orderId);
+                    const orderToReconcile = orders.find((o) => o.id === orderId);
                     if (orderToReconcile && orderToReconcile.status !== 'paid') {
                       setReconciliationOrder(orderToReconcile);
                     }
@@ -168,78 +166,82 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       key={order.id}
-                      draggable={true}
-
-                      onDragStart={(e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-                        e.dataTransfer.setData('orderId', order.id);
-                      }}
-                      className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab"
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs font-mono text-muted">#{order.short_id ? order.short_id : order.id.substring(0, 6).toUpperCase()}</span>
-                        <span className="text-sm font-bold">{formatCurrency(order.total_amount)}</span>
-                      </div>
+                      <div
+                        draggable={true}
+                        onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+                          e.dataTransfer.setData('orderId', order.id);
+                        }}
+                        className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-xs font-mono text-muted">
+                            #{order.short_id ? order.short_id : order.id.substring(0, 6).toUpperCase()}
+                          </span>
+                          <span className="text-sm font-bold">{formatCurrency(order.total_amount)}</span>
+                        </div>
 
-                      <div className="font-medium  text-sm">{order.customer?.name || 'Unknown Customer'}</div>
-                      <div className="text-xs  mt-0.5">{formatGhanaLocalDisplay(order.customer?.phone || '')}</div>
+                        <div className="font-medium  text-sm">{order.customer?.name || 'Unknown Customer'}</div>
+                        <div className="text-xs  mt-0.5">{formatGhanaLocalDisplay(order.customer?.phone || '')}</div>
 
-                      <div className="mt-3 space-y-1">
-                        {order.items?.map((item) => (
-                          <div key={item.id} className="text-xs  flex justify-between">
-                            <span className="truncate pr-2">
-                              {item.quantity}x {item.variant?.name || 'Item'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                        <div className="mt-3 space-y-1">
+                          {order.items?.map((item) => (
+                            <div key={item.id} className="text-xs  flex justify-between">
+                              <span className="truncate pr-2">
+                                {item.quantity}x {item.variant?.name || 'Item'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
 
-                      {/* Action Buttons */}
-                      <div className="mt-4 pt-3 border-t border-separator flex flex-wrap justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {col.id === 'draft' && (
-                          <button
-                            onClick={() => handleMove(order.id, 'pending_payment')}
-                            disabled={isUpdating}
-                            className="flex-1 text-xs bg-warning/10 text-warning px-3 py-1.5 rounded-lg font-medium hover:bg-warning/20 transition-colors text-center"
-                          >
-                            Request Pay
-                          </button>
-                        )}
-                        {col.id === 'pending_payment' && (
-                          <button
-                            onClick={() => setReconciliationOrder(order)}
-                            disabled={isUpdating}
-                            className="flex-1 text-xs bg-success/10 text-success px-3 py-1.5 rounded-lg font-medium hover:bg-success/20 transition-colors text-center"
-                          >
-                            Mark Paid
-                          </button>
-                        )}
-                        {col.id === 'paid' && (
-                          <button
-                            onClick={() => handleMove(order.id, 'dispatched')}
-                            disabled={isUpdating}
-                            className="flex-1 text-xs bg-brand-secondary/10 text-brand-secondary px-3 py-1.5 rounded-lg font-medium hover:bg-brand-secondary/20 transition-colors text-center"
-                          >
-                            Dispatch
-                          </button>
-                        )}
-                        {col.id === 'dispatched' && (
-                          <button
-                            onClick={() => handleMove(order.id, 'delivered')}
-                            disabled={isUpdating}
-                            className="flex-1 text-xs bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-500/20 transition-colors text-center"
-                          >
-                            Mark Delivered
-                          </button>
-                        )}
-                        {['draft', 'pending_payment', 'paid'].includes(col.id) && (
-                          <button
-                            onClick={() => handleCancel(order.id)}
-                            disabled={isUpdating}
-                            className="flex-1 text-xs bg-destructive/10 text-destructive px-3 py-1.5 rounded-lg font-medium hover:bg-destructive/20 transition-colors text-center"
-                          >
-                            Cancel
-                          </button>
-                        )}
+                        {/* Action Buttons */}
+                        <div className="mt-4 pt-3 border-t border-separator flex flex-wrap justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {col.id === 'draft' && (
+                            <button
+                              onClick={() => handleMove(order.id, 'pending_payment')}
+                              disabled={isUpdating}
+                              className="flex-1 text-xs bg-warning/10 text-warning px-3 py-1.5 rounded-lg font-medium hover:bg-warning/20 transition-colors text-center"
+                            >
+                              Request Pay
+                            </button>
+                          )}
+                          {col.id === 'pending_payment' && (
+                            <button
+                              onClick={() => setReconciliationOrder(order)}
+                              disabled={isUpdating}
+                              className="flex-1 text-xs bg-success/10 text-success px-3 py-1.5 rounded-lg font-medium hover:bg-success/20 transition-colors text-center"
+                            >
+                              Mark Paid
+                            </button>
+                          )}
+                          {col.id === 'paid' && (
+                            <button
+                              onClick={() => handleMove(order.id, 'dispatched')}
+                              disabled={isUpdating}
+                              className="flex-1 text-xs bg-brand-secondary/10 text-brand-secondary px-3 py-1.5 rounded-lg font-medium hover:bg-brand-secondary/20 transition-colors text-center"
+                            >
+                              Dispatch
+                            </button>
+                          )}
+                          {col.id === 'dispatched' && (
+                            <button
+                              onClick={() => handleMove(order.id, 'delivered')}
+                              disabled={isUpdating}
+                              className="flex-1 text-xs bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-500/20 transition-colors text-center"
+                            >
+                              Mark Delivered
+                            </button>
+                          )}
+                          {['draft', 'pending_payment', 'paid'].includes(col.id) && (
+                            <button
+                              onClick={() => handleCancel(order.id)}
+                              disabled={isUpdating}
+                              className="flex-1 text-xs bg-destructive/10 text-destructive px-3 py-1.5 rounded-lg font-medium hover:bg-destructive/20 transition-colors text-center"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </motion.div>
                   ))}
@@ -292,8 +294,11 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                   Verify Mobile Money Payment
                 </h3>
                 <p className="text-sm  mt-1">
-                  Order #{reconciliationOrder.short_id ? reconciliationOrder.short_id : reconciliationOrder.id.substring(0, 6).toUpperCase()} •{' '}
-                  {formatCurrency(reconciliationOrder.total_amount)}
+                  Order #
+                  {reconciliationOrder.short_id
+                    ? reconciliationOrder.short_id
+                    : reconciliationOrder.id.substring(0, 6).toUpperCase()}{' '}
+                  • {formatCurrency(reconciliationOrder.total_amount)}
                 </p>
               </div>
 

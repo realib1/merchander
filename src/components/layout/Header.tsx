@@ -37,14 +37,14 @@ export interface HeaderProps {
 /**
  * Responsive application header with desktop navigation, mobile drawer, and action slots.
  */
-export const Header: React.FC<HeaderProps> = ({
+export function Header({
   logo,
   navItems = [],
   actions,
   showThemeToggle = true,
   sticky = true,
   className,
-}) => {
+}: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -159,4 +159,4 @@ export const Header: React.FC<HeaderProps> = ({
       </MobileDrawer>
     </>
   );
-};
+}

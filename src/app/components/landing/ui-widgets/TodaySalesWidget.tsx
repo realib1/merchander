@@ -14,7 +14,9 @@ export function TodaySalesWidget() {
 
       <div className="mt-3 flex items-end justify-between">
         <div>
-          <div className="text-2xl font-extrabold tracking-tight text-primary tabular-nums font-display">GH₵ 12,840</div>
+          <div className="text-2xl font-extrabold tracking-tight text-primary tabular-nums font-display">
+            GH₵ 12,840
+          </div>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-secondary">
             <span className="inline-flex items-center gap-1">
               <Globe className="h-3 w-3 text-brand-primary" />
@@ -27,7 +29,7 @@ export function TodaySalesWidget() {
             </span>
           </div>
         </div>
-        
+
         {/* Minimalist Sparkline */}
         <div className="hidden sm:block h-10 w-24 ml-4 shrink-0">
           <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">

@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react';
+import { CircleAlert } from 'lucide-react';
 import Image from 'next/image';
 import { LoginForm } from './components/LoginForm';
 import Link from 'next/link';
@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div className="bg-surface py-8 px-4 shadow-xl shadow-brand-primary/5 sm:rounded-2xl sm:px-10 border border-separator">
           {resolvedSearchParams?.error && (
             <div className="mb-6 py-2 px-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3">
-              <AlertCircle size={14} className="mt-0.5 shrink-0" />
+              <CircleAlert size={14} className="mt-0.5 shrink-0" />
               <div>
                 {resolvedSearchParams.error === 'auth-failed'
                   ? 'Authentication failed. Please check your credentials and try again.'

@@ -6,6 +6,7 @@ export interface Expense {
   amount: number;
   currency: string;
   category: string;
+  payment_method: string | null;
   description: string | null;
   expense_date: string;
   receipt_url: string | null;

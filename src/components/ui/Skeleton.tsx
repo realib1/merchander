@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { cn } from '@/utils/cn';
 
 export type SkeletonVariant = 'rect' | 'circle' | 'text';
@@ -23,15 +23,7 @@ const VARIANT_STYLES: Record<SkeletonVariant, string> = {
 /**
  * Loading placeholder placeholder with animated shimmer/pulse.
  */
-export const Skeleton: React.FC<SkeletonProps> = ({
-  variant = 'rect',
-  width,
-  height,
-  count = 1,
-  className,
-  style,
-  ...props
-}) => {
+export function Skeleton({ variant = 'rect', width, height, count = 1, className, style, ...props }: SkeletonProps) {
   const customStyles: React.CSSProperties = {
     ...style,
     ...(width !== undefined ? { width: typeof width === 'number' ? `${width}px` : width } : {}),
@@ -65,4 +57,4 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       {...props}
     />
   );
-};
+}

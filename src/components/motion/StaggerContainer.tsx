@@ -20,14 +20,14 @@ export interface StaggerContainerProps extends Omit<HTMLMotionProps<'div'>, 'chi
 /**
  * Container wrapping multiple StaggerItem components with an orchestrated delay sequence.
  */
-export const StaggerContainer: React.FC<StaggerContainerProps> = ({
+export function StaggerContainer({
   children,
   staggerDelay = 0.08,
   delayChildren = 0,
   once = true,
   className,
   ...props
-}) => {
+}: StaggerContainerProps) {
   const shouldReduceMotion = useReducedMotion();
   const { isLowEnd } = useDevicePerformance();
 
@@ -58,4 +58,4 @@ export const StaggerContainer: React.FC<StaggerContainerProps> = ({
       {children}
     </motion.div>
   );
-};
+}

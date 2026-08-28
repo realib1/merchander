@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo } from 'react';
 import { cn } from '@/utils/cn';
 import { Skeleton } from './Skeleton';
+import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 
 export interface Column<T> {
   key: string;
@@ -149,8 +150,16 @@ export function DataTable<T extends Record<string, unknown>>({
                   <div className="flex items-center gap-1.5">
                     <span>{col.header}</span>
                     {col.sortable && (
-                      <span className="text-caption opacity-70">
-                        {sortKey === col.key ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                      <span className="text-muted opacity-70">
+                        {sortKey === col.key ? (
+                          sortOrder === 'asc' ? (
+                            <ArrowUp size={12} />
+                          ) : (
+                            <ArrowDown size={12} />
+                          )
+                        ) : (
+                          <ArrowUpDown size={12} className="opacity-40" />
+                        )}
                       </span>
                     )}
                   </div>

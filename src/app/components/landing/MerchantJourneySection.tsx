@@ -9,29 +9,29 @@ export function MerchantJourneySection() {
   const steps = [
     {
       icon: User,
-      title: "Pre-order",
-      desc: "Customer commits to GH₵600 item. Pays deposit."
+      title: 'Pre-order',
+      desc: 'Customer commits to GH₵600 item. Pays deposit.',
     },
     {
       icon: Package,
-      title: "Supplier",
-      desc: "You source the goods and pay supplier."
+      title: 'Supplier',
+      desc: 'You source the goods and pay supplier.',
     },
     {
       icon: Truck,
-      title: "Shipment",
-      desc: "Goods arrive. Shipping calculated (GH₵85)."
+      title: 'Shipment',
+      desc: 'Goods arrive. Shipping calculated (GH₵85).',
     },
     {
       icon: Receipt,
-      title: "Final Payment",
-      desc: "Customer owes GH₵85 for shipping. Pays balance."
+      title: 'Final Payment',
+      desc: 'Customer owes GH₵85 for shipping. Pays balance.',
     },
     {
       icon: Coins,
-      title: "True Margin",
-      desc: "Product GH₵600 + Shipping GH₵85 - Landed Cost = Profit."
-    }
+      title: 'True Margin',
+      desc: 'Product GH₵600 + Shipping GH₵85 - Landed Cost = Profit.',
+    },
   ];
 
   return (
@@ -43,7 +43,8 @@ export function MerchantJourneySection() {
               A real merchant journey.
             </h2>
             <p className="text-sm text-secondary leading-relaxed text-balance">
-              We know you don&apos;t just &quot;sell items.&quot; You take pre-orders, manage suppliers, wait for shipments, calculate landed costs, and collect balance payments. Merchander understands this reality.
+              We know you don&apos;t just &quot;sell items.&quot; You take pre-orders, manage suppliers, wait for
+              shipments, calculate landed costs, and collect balance payments. Merchander understands this reality.
             </p>
           </div>
         </FadeInView>
@@ -52,11 +53,11 @@ export function MerchantJourneySection() {
         <div className="relative hidden lg:block mx-auto max-w-6xl mt-12">
           {/* Elegant Horizontal Track */}
           <div className="absolute top-6 left-[10%] right-[10%] h-0.5 bg-separator/60 z-0 overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               whileInView={{ width: '100%' }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
               className="absolute top-0 left-0 h-full bg-brand-primary/60"
             />
           </div>
@@ -78,30 +79,22 @@ export function MerchantJourneySection() {
                     </div>
 
                     <div className="px-1">
-                      <h3 className="text-base font-bold text-primary font-display mb-1.5">
-                        {step.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-secondary leading-relaxed">
-                        {step.desc}
-                      </p>
+                      <h3 className="text-base font-bold text-primary font-display mb-1.5">{step.title}</h3>
+                      <p className="text-xs sm:text-sm text-secondary leading-relaxed">{step.desc}</p>
                     </div>
                   </div>
                 </FadeInView>
               );
             })}
           </div>
-
-
         </div>
 
         {/* --- MOBILE/TABLET VERTICAL JOURNEY --- */}
         <div className="relative lg:hidden mx-auto max-w-2xl mt-10">
-
-
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-100px' }}
             className="space-y-10 relative z-10 pb-12"
           >
             {steps.map((step, index) => {
@@ -111,16 +104,16 @@ export function MerchantJourneySection() {
                   {/* Segmented Vertical Track */}
                   {index !== steps.length - 1 && (
                     <div className="absolute left-6 md:left-7 top-6 -bottom-16 w-0.5 bg-separator/60 overflow-hidden">
-                       <motion.div 
-                         variants={{
-                           hidden: { height: 0 },
-                           visible: { 
-                             height: '100%', 
-                             transition: { duration: 0.3, delay: index * 0.3, ease: "linear" } 
-                           }
-                         }}
-                         className="absolute top-0 left-0 w-full bg-brand-primary/60"
-                       />
+                      <motion.div
+                        variants={{
+                          hidden: { height: 0 },
+                          visible: {
+                            height: '100%',
+                            transition: { duration: 0.3, delay: index * 0.3, ease: 'linear' },
+                          },
+                        }}
+                        className="absolute top-0 left-0 w-full bg-brand-primary/60"
+                      />
                     </div>
                   )}
 
@@ -136,20 +129,14 @@ export function MerchantJourneySection() {
                     </div>
 
                     <div className="pt-1">
-                      <h3 className="text-base font-bold text-primary font-display mb-1">
-                        {step.title}
-                      </h3>
-                      <p className="text-sm text-secondary leading-relaxed">
-                        {step.desc}
-                      </p>
+                      <h3 className="text-base font-bold text-primary font-display mb-1">{step.title}</h3>
+                      <p className="text-sm text-secondary leading-relaxed">{step.desc}</p>
                     </div>
                   </FadeInView>
                 </div>
               );
             })}
           </motion.div>
-
-
         </div>
       </div>
     </section>

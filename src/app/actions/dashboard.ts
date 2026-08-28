@@ -37,9 +37,7 @@ export interface DashboardMetrics {
   incoming: { origin: string; id: string; units: number; eta: string; preOrders: number } | null;
 }
 
-export async function getDashboardMetrics(
-  period: 'today' | '7d' | '30d' | '90d' = 'today'
-): Promise<DashboardMetrics> {
+export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d' = 'today'): Promise<DashboardMetrics> {
   const supabase = await createClient();
 
   // Dual-layer security: explicit auth check + RLS
@@ -60,7 +58,7 @@ export async function getDashboardMetrics(
     .eq('tenant_id', tenantUser?.tenant_id)
     .single();
 
-  const lowStockThreshold = (settings as Record<string, unknown>)?.low_stock_threshold as number ?? 10;
+  const lowStockThreshold = ((settings as Record<string, unknown>)?.low_stock_threshold as number) ?? 10;
 
   // Call the new RPC for aggregated metrics
   const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', {
@@ -70,6 +68,19 @@ export async function getDashboardMetrics(
   if (metricsError) {
     console.error('Error fetching dashboard metrics RPC:', metricsError);
     throw new Error('Failed to load dashboard metrics');
+  }
+
+  interface DashboardMetricsRpcResult {
+    current_sales: number;
+    previous_sales: number;
+    current_orders: number;
+    previous_orders: number;
+    current_cost: number;
+    previous_cost: number;
+    current_customers: number;
+    total_customers: number;
+    sales_chart: { date: string; sales: number; orders: number }[];
+    top_products: { name: string; revenue: number; quantity: number }[];
   }
 
   const {
@@ -83,42 +94,23 @@ export async function getDashboardMetrics(
     total_customers,
     sales_chart,
     top_products,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } = metricsData as any;
+  } = (metricsData || {}) as unknown as DashboardMetricsRpcResult;
 
   const salesDiff = current_sales - previous_sales;
-  const salesChange =
-    previous_sales === 0
-      ? current_sales > 0
-        ? undefined
-        : 0
-      : (salesDiff / previous_sales) * 100;
+  const salesChange = previous_sales === 0 ? (current_sales > 0 ? undefined : 0) : (salesDiff / previous_sales) * 100;
 
   const orderDiff = current_orders - previous_orders;
   const orderChange =
-    previous_orders === 0
-      ? current_orders > 0
-        ? undefined
-        : 0
-      : (orderDiff / previous_orders) * 100;
+    previous_orders === 0 ? (current_orders > 0 ? undefined : 0) : (orderDiff / previous_orders) * 100;
 
   const currentMargin = current_sales - current_cost;
   const previousMargin = previous_sales - previous_cost;
   const marginDiff = currentMargin - previousMargin;
-  const marginChange =
-    previousMargin === 0
-      ? currentMargin > 0
-        ? undefined
-        : 0
-      : (marginDiff / previousMargin) * 100;
+  const marginChange = previousMargin === 0 ? (currentMargin > 0 ? undefined : 0) : (marginDiff / previousMargin) * 100;
 
   const customerDiff = current_customers;
   const customerChange =
-    total_customers === 0
-      ? 0
-      : current_customers === 0
-        ? 0
-        : (current_customers / total_customers) * 100;
+    total_customers === 0 ? 0 : current_customers === 0 ? 0 : (current_customers / total_customers) * 100;
 
   // 2. Fetch Attention Items
   // 5A. Incoming Purchase Orders
@@ -171,12 +163,29 @@ export async function getDashboardMetrics(
 
   const nextPurchaseOrder = purchaseOrdersList.length > 0 ? purchaseOrdersList[0] : null;
 
+  interface RawLowStockItem {
+    quantity: number;
+    product_variants:
+      | {
+          id: string;
+          sku: string;
+          name: string;
+          products: { name: string } | { name: string }[] | null;
+        }
+      | {
+          id: string;
+          sku: string;
+          name: string;
+          products: { name: string } | { name: string }[] | null;
+        }[]
+      | null;
+  }
+
   // Process low stock data and compute velocity (sales in last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const lowStockList = await Promise.all(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ((lowStockData as any[]) || []).map(async (ls) => {
+    ((lowStockData as unknown as RawLowStockItem[]) || []).map(async (ls) => {
       const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
       const prod = variant?.products
         ? Array.isArray(variant.products)
@@ -205,13 +214,17 @@ export async function getDashboardMetrics(
     })
   );
 
-  const supplierBalancesList = (suppliersBal || []).map(
-    (s: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => ({
-      id: s.id,
-      supplierName: s.name,
-      balance: Number(s.outstanding_balance),
-    })
-  );
+  interface RawSupplierBalance {
+    id: string;
+    name: string;
+    outstanding_balance: number | string | null;
+  }
+
+  const supplierBalancesList = ((suppliersBal as unknown as RawSupplierBalance[]) || []).map((s) => ({
+    id: s.id,
+    supplierName: s.name,
+    balance: Number(s.outstanding_balance) || 0,
+  }));
 
   // D. Intelligence Engine
   const intelligence = {
@@ -247,7 +260,13 @@ export async function getDashboardMetrics(
     totalOrders: { value: current_orders, change: orderChange, diff: orderDiff },
     totalCustomers: { value: total_customers || 0, change: customerChange, diff: customerDiff },
     grossMargin: { value: currentMargin, change: marginChange, diff: marginDiff },
-    topProducts: top_products || [],
+    topProducts: (top_products || []).map((p, idx) => ({
+      id: `top-prod-${idx}`,
+      name: p.name,
+      price: Number(p.revenue || 0),
+      quantitySold: p.quantity,
+      image_url: null,
+    })),
     salesChart: sales_chart || [],
     attention: {
       purchaseOrders: purchaseOrdersList,

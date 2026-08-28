@@ -40,12 +40,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
   ];
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      showCloseButton={false}
-      size="lg"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} showCloseButton={false} size="lg">
       <div className="flex flex-col -m-5">
         <div className="flex items-center px-4 py-3 border-b border-separator">
           <Search size={20} className="text-muted mr-3 shrink-0" />
@@ -106,7 +101,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {results.map((result) => {
                 let Icon = Package;
                 let colorClass = 'bg-brand-primary/10 text-brand-primary';
-                
+
                 if (result.type === 'order') {
                   Icon = ShoppingCart;
                   colorClass = 'bg-blue-500/10 text-blue-500';
@@ -125,7 +120,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                     className="w-full flex items-center justify-between p-3 hover:bg-surface-elevated rounded-lg transition-colors group cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-md transition-colors ${colorClass} group-hover:bg-brand-primary group-hover:text-white`}>
+                      <div
+                        className={`p-2 rounded-md transition-colors ${colorClass} group-hover:bg-brand-primary group-hover:text-white`}
+                      >
                         <Icon size={18} />
                       </div>
                       <div>

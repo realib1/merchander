@@ -20,9 +20,29 @@ export default async function CategoriesPage({
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+
   const resolvedParams = await searchParams;
   const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
   const statusFilter = typeof resolvedParams.status === 'string' ? resolvedParams.status : undefined;
+
+  interface RawCategoryVariant {
+    id: string;
+    inventory?: { quantity?: number }[] | { quantity?: number } | null;
+  }
+
+  interface RawCategoryProduct {
+    id: string;
+    variants?: RawCategoryVariant[] | null;
+  }
+
+  interface RawCategoryResult {
+    id: string;
+    name: string;
+    description?: string | null;
+    is_active: boolean;
+    products?: RawCategoryProduct[] | null;
+  }
 
   // Build the query
   let queryBuilder = supabase
@@ -46,6 +66,10 @@ export default async function CategoriesPage({
     )
     .order('name');
 
+  if (tenantUser?.tenant_id) {
+    queryBuilder = queryBuilder.eq('tenant_id', tenantUser.tenant_id);
+  }
+
   if (query) {
     queryBuilder = queryBuilder.ilike('name', `%${query}%`);
   }
@@ -60,44 +84,47 @@ export default async function CategoriesPage({
   }
 
   // Process data to match CategoryData interface
-  const formattedCategories: CategoryData[] = (categories || []).map(
-    (cat: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-      let productCount = 0;
-      let totalInventory = 0;
+  const formattedCategories: CategoryData[] = ((categories as unknown as RawCategoryResult[]) || []).map((cat) => {
+    let productCount = 0;
+    let totalInventory = 0;
 
-      if (cat.products && Array.isArray(cat.products)) {
-        productCount = cat.products.length;
+    if (cat.products && Array.isArray(cat.products)) {
+      productCount = cat.products.length;
 
-        cat.products.forEach((product: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-          if (product.variants && Array.isArray(product.variants)) {
-            product.variants.forEach((variant: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
-              if (variant.inventory && Array.isArray(variant.inventory)) {
-                variant.inventory.forEach((inv: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) => {
+      cat.products.forEach((product) => {
+        if (product.variants && Array.isArray(product.variants)) {
+          product.variants.forEach((variant) => {
+            if (variant.inventory) {
+              if (Array.isArray(variant.inventory)) {
+                variant.inventory.forEach((inv) => {
                   totalInventory += inv.quantity || 0;
                 });
+              } else if (typeof variant.inventory === 'object') {
+                totalInventory += variant.inventory.quantity || 0;
               }
-            });
-          }
-        });
-      }
-
-      return {
-        id: cat.id,
-        name: cat.name,
-        description: cat.description,
-        is_active: cat.is_active,
-        productCount,
-        totalInventory,
-      };
+            }
+          });
+        }
+      });
     }
-  );
+
+    return {
+      id: cat.id,
+      name: cat.name,
+      description: cat.description || '',
+      is_active: cat.is_active,
+      productCount,
+      totalInventory,
+    };
+  });
 
   const totalCategories = formattedCategories.length;
   const activeCategories = formattedCategories.filter((c) => c.is_active).length;
   const emptyCategories = formattedCategories.filter((c) => c.productCount === 0).length;
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full min-h-full">
+    <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Product Categories</h1>
       <CategoriesTopMetrics
         totalCategories={totalCategories}
         activeCategories={activeCategories}

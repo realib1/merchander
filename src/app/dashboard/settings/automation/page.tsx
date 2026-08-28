@@ -32,7 +32,7 @@ export default function AutomationSettingsPage() {
             label="Welcome Greeting"
             isTextarea
             rows={3}
-            defaultValue="Hi there! 👋 Welcome to our store. How can we help you today?"
+            defaultValue="Hi there! Welcome to our store. How can we help you today?"
             hint="Sent automatically when a customer messages you for the first time."
           />
 

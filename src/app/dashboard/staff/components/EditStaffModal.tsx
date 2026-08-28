@@ -5,6 +5,11 @@ import { Modal } from '@/components/ui/Modal';
 import { updateStaffMember } from '@/app/actions/staff';
 import { toast } from 'sonner';
 
+interface CustomRole {
+  id: string;
+  name: string;
+}
+
 interface EditStaffModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -12,10 +17,12 @@ interface EditStaffModalProps {
     id: string; // tenant_users.id
     full_name: string;
     role: string;
+    role_id?: string | null;
   } | null;
+  customRoles?: CustomRole[];
 }
 
-export function EditStaffModal({ isOpen, onClose, staffMember }: EditStaffModalProps) {
+export function EditStaffModal({ isOpen, onClose, staffMember, customRoles = [] }: EditStaffModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRole, setSelectedRole] = useState('member');
   const [fullName, setFullName] = useState('');
@@ -25,40 +32,55 @@ export function EditStaffModal({ isOpen, onClose, staffMember }: EditStaffModalP
     if (staffMember) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFullName(staffMember.full_name);
-      
-      if (['admin', 'member'].includes(staffMember.role)) {
-        setSelectedRole(staffMember.role);
+
+      const standardRoles = ['admin', 'member', 'owner'];
+      const matchingCustomRole = customRoles.find(
+        (cr) => cr.name.toLowerCase() === staffMember.role.toLowerCase() || cr.id === staffMember.role_id
+      );
+
+      if (standardRoles.includes(staffMember.role.toLowerCase())) {
+        setSelectedRole(staffMember.role.toLowerCase());
+        setCustomRoleText('');
+      } else if (matchingCustomRole) {
+        setSelectedRole(matchingCustomRole.name.toLowerCase());
         setCustomRoleText('');
       } else {
         setSelectedRole('custom');
         setCustomRoleText(staffMember.role);
       }
     }
-  }, [staffMember]);
+  }, [staffMember, customRoles]);
 
   if (!staffMember) return null;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       let finalRole = selectedRole;
-      if (selectedRole === 'custom') {
+      let finalRoleId: string | null = null;
+
+      const matchingCustomRole = customRoles.find((cr) => cr.name.toLowerCase() === selectedRole.toLowerCase());
+
+      if (matchingCustomRole) {
+        finalRole = matchingCustomRole.name.toLowerCase();
+        finalRoleId = matchingCustomRole.id;
+      } else if (selectedRole === 'custom') {
         finalRole = customRoleText ? customRoleText.toLowerCase() : 'member';
       }
 
-      // Note: We don't handle role_id here yet, just string role matching for simplicity
       const res = await updateStaffMember(staffMember.id, {
         full_name: fullName,
         role: finalRole,
+        role_id: finalRoleId,
       });
-      
+
       if (res?.error) {
         toast.error(res.error);
         return;
       }
-      
+
       toast.success('Staff member updated successfully!');
       onClose();
     } catch {
@@ -69,9 +91,9 @@ export function EditStaffModal({ isOpen, onClose, staffMember }: EditStaffModalP
   };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
       title="Edit Team Member"
       description={`Update role and details for ${staffMember.full_name}.`}
     >
@@ -105,9 +127,14 @@ export function EditStaffModal({ isOpen, onClose, staffMember }: EditStaffModalP
           >
             <option value="member">Member (Standard Access)</option>
             <option value="admin">Admin (Full Dashboard Access)</option>
-            <option value="custom">Other (Custom Role)</option>
+            {customRoles.map((cr) => (
+              <option key={cr.id} value={cr.name.toLowerCase()}>
+                {cr.name} (Custom Role)
+              </option>
+            ))}
+            <option value="custom">Other (Freeform Role)</option>
           </select>
-          
+
           {selectedRole === 'custom' && (
             <div className="mt-2 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2">
               <input
@@ -117,7 +144,7 @@ export function EditStaffModal({ isOpen, onClose, staffMember }: EditStaffModalP
                 value={customRoleText}
                 onChange={(e) => setCustomRoleText(e.target.value)}
                 className="px-3 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
-                placeholder="e.g., Cashier, Attendant"
+                placeholder="e.g., Cashier, Logistics Lead"
               />
             </div>
           )}
@@ -127,14 +154,14 @@ export function EditStaffModal({ isOpen, onClose, staffMember }: EditStaffModalP
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-muted hover:text-foreground transition-colors"
+            className="px-4 py-2 text-sm font-medium text-muted hover:text-foreground transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
           >
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </button>

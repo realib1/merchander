@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function setActiveBranch(storeId: string) {
   const cookieStore = await cookies();
-  
+
   if (storeId) {
     cookieStore.set('merchander_active_store', storeId, {
       path: '/',
@@ -19,6 +19,6 @@ export async function setActiveBranch(storeId: string) {
 
   // Force dashboard revalidation so all server components fetch data for the new branch
   revalidatePath('/dashboard', 'layout');
-  
+
   return { success: true };
 }

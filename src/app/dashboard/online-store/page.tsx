@@ -1,29 +1,25 @@
-import { Construction } from 'lucide-react';
+import React from 'react';
+import { getStorefrontConfig } from '@/app/actions/storefront';
+import { StorefrontShareCard } from './components/StorefrontShareCard';
+import { StorefrontSettingsForm } from './components/StorefrontSettingsForm';
 
 export const metadata = {
   title: 'Online Store | Merchander',
+  description: 'Manage your public Link-in-Bio catalog, self-serve WhatsApp ordering, and storefront branding.',
 };
 
-export default function OnlineStorePage() {
-  return (
-    <div className="flex flex-col h-full animate-fadeIn max-w-7xl mx-auto w-full pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Online Store</h1>
-          <p className="text-muted mt-1">Manage your storefront and e-commerce settings.</p>
-        </div>
-      </div>
+export default async function OnlineStorePage() {
+  const config = await getStorefrontConfig();
 
-      <div className="flex-1 min-h-0 bg-surface border border-separator rounded-2xl flex flex-col shadow-sm items-center justify-center p-12 text-center">
-        <div className="w-16 h-16 bg-brand-primary/10 text-brand-primary rounded-full flex items-center justify-center mb-6">
-          <Construction size={32} />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-        <p className="text-muted max-w-md">
-          The Online Store module is currently under construction. Check back soon for updates!
-        </p>
-      </div>
+  return (
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-6">
+      <h1 className="sr-only">Online Store</h1>
+
+      {/* Share / Live Status Bar */}
+      <StorefrontShareCard config={config} />
+
+      {/* Storefront Customizer & Preview Grid */}
+      <StorefrontSettingsForm initialConfig={config} />
     </div>
   );
 }

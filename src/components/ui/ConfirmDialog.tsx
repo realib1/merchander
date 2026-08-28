@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { Modal } from './Modal';
@@ -28,7 +28,7 @@ export interface ConfirmDialogProps {
 /**
  * Confirmation dialog for critical, destructive, or high-impact actions.
  */
-export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+export function ConfirmDialog({
   isOpen,
   onClose,
   onConfirm,
@@ -38,7 +38,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   cancelText = 'Cancel',
   isDestructive = false,
   isLoading = false,
-}) => {
+}: ConfirmDialogProps) {
   return (
     <Modal
       isOpen={isOpen}
@@ -61,4 +61,4 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <div className="text-sm text-secondary">{description || 'Are you sure you want to proceed?'}</div>
     </Modal>
   );
-};
+}

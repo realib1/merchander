@@ -7,7 +7,7 @@ export function WaitlistForm() {
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = React.useState('');
 
-  const handleJoinWaitlist = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleJoinWaitlist = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 

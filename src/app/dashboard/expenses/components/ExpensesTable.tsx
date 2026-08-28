@@ -1,7 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { DollarSign, Edit3, Trash2, Calendar, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Calendar,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Receipt,
+  CreditCard,
+  DollarSign,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { deleteExpense } from '@/app/actions/expenses';
@@ -38,7 +48,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this expense?')) return;
+    if (!window.confirm('Are you sure you want to delete this expense record?')) return;
 
     try {
       await deleteExpense(id);
@@ -82,7 +92,7 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left whitespace-nowrap min-w-200">
           <thead>
-            <tr className="text-xs font-semibold  bg-surface-elevated/30 border-b border-separator">
+            <tr className="text-xs font-semibold bg-surface-elevated/30 border-b border-separator">
               <th className="px-6 py-4">
                 <Link href={createSortUrl('expense_date')} className="flex items-center group cursor-pointer">
                   ID / Date{' '}
@@ -95,9 +105,10 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
                   <SortIcon column="category" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
+              <th className="px-6 py-4">Payment Method</th>
               <th className="px-6 py-4">
                 <Link href={createSortUrl('description')} className="flex items-center group cursor-pointer">
-                  Description{' '}
+                  Description / Ref{' '}
                   <SortIcon column="description" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                 </Link>
               </th>
@@ -116,26 +127,43 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
                   <tr key={expense.id} className="hover:bg-surface-elevated/20 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0">
-                          <Calendar size={18} />
+                        <div className="h-9 w-9 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0">
+                          <Calendar size={16} />
                         </div>
                         <div>
-                          <div className="font-semibold text-sm">#{expense.short_id || 'EXP-XXXX'}</div>
+                          <div className="font-semibold text-sm text-foreground">
+                            #{expense.short_id || expense.id.slice(0, 8)}
+                          </div>
                           <div className="font-medium text-muted text-xs">{formatDate(expense.expense_date)}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-surface-elevated  border border-separator">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-elevated border border-separator text-foreground">
                         {expense.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm  truncate max-w-62.5">
-                      {expense.description || <span className="text-muted italic">No description</span>}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-muted font-medium">
+                        <CreditCard size={13} />
+                        {expense.payment_method || 'Cash'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm truncate max-w-60">
+                      <div>
+                        <div className="text-foreground text-sm truncate">
+                          {expense.description || <span className="text-muted italic">No description</span>}
+                        </div>
+                        {expense.receipt_url && (
+                          <div className="text-xs text-brand-primary flex items-center gap-1 mt-0.5">
+                            <Receipt size={11} /> {expense.receipt_url}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="text-sm font-bold">
-                        {expense.currency}{' '}
+                      <div className="text-sm font-bold text-foreground">
+                        {expense.currency || 'GHS'}{' '}
                         {Number(expense.amount).toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -143,22 +171,22 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => setEditingExpense(expense)}
-                          className="p-2  hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                          className="p-1.5 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors cursor-pointer"
                           title="Edit"
                           aria-label="Edit expense"
                         >
-                          <Edit3 size={16} />
+                          <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => handleDelete(expense.id)}
-                          className="p-2  hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                          className="p-1.5 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer"
                           title="Delete"
                           aria-label="Delete expense"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -167,13 +195,13 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
               })
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-16 text-center">
+                <td colSpan={6} className="px-6 py-16 text-center">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-surface-elevated flex items-center justify-center text-muted">
                       <DollarSign size={24} />
                     </div>
-                    <p className="text-body font-medium">No expenses found</p>
-                    <p className="text-sm text-muted">Track your spending by creating an expense.</p>
+                    <p className="text-sm font-semibold text-foreground">No expenses found</p>
+                    <p className="text-xs text-muted max-w-sm">Track your spending by creating an expense entry.</p>
                   </div>
                 </td>
               </tr>

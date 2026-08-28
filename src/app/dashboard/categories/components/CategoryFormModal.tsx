@@ -36,7 +36,7 @@ export function CategoryFormModal({ isOpen, onClose, category }: CategoryFormMod
     }
   }, [category, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -56,8 +56,8 @@ export function CategoryFormModal({ isOpen, onClose, category }: CategoryFormMod
         toast.success('Category created successfully');
       }
       onClose();
-    } catch (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
-      toast.error(error.message || 'Failed to save category');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to save category');
     } finally {
       setIsSubmitting(false);
     }
@@ -75,13 +75,13 @@ export function CategoryFormModal({ isOpen, onClose, category }: CategoryFormMod
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <Button variant="primary" type="submit" form="category-form" disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save Category'}
           </Button>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id="category-form" onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="name" className="text-body-sm font-semibold">
             Name

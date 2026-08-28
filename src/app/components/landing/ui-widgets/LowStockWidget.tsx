@@ -13,7 +13,7 @@ export function LowStockWidget() {
 
       <div className="mt-3">
         <div className="text-sm sm:text-base font-bold text-primary">Men&apos;s Smock</div>
-        
+
         {/* Progress Bar */}
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-separator/50">
           <div className="h-full w-[15%] rounded-full bg-amber-500" />

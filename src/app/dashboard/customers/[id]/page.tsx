@@ -124,8 +124,16 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
                     </td>
                   </tr>
                 ) : (
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  customer.orders.map((order: any) => (
+                  (
+                    customer.orders as unknown as {
+                      id: string;
+                      created_at: string;
+                      items?: { id: string }[] | null;
+                      total_amount: number;
+                      delivery_fee?: number | null;
+                      status: string;
+                    }[]
+                  ).map((order) => (
                     <tr key={order.id} className="hover:bg-surface-elevated/50 transition-colors">
                       <td className="px-6 py-4">
                         <Link

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { cn } from '@/utils/cn';
 
 export type BadgeVariant = 'default' | 'success' | 'warning' | 'destructive' | 'info';
@@ -44,14 +44,7 @@ const SIZE_STYLES: Record<BadgeSize, string> = {
 /**
  * Status and category indicator badge with optional status dot.
  */
-export const Badge: React.FC<BadgeProps> = ({
-  children,
-  variant = 'default',
-  size = 'md',
-  dot = false,
-  className,
-  ...props
-}) => {
+export function Badge({ children, variant = 'default', size = 'md', dot = false, className, ...props }: BadgeProps) {
   const styles = VARIANT_STYLES[variant];
 
   return (
@@ -74,4 +67,4 @@ export const Badge: React.FC<BadgeProps> = ({
       {children}
     </span>
   );
-};
+}

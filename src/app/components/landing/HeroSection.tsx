@@ -14,12 +14,12 @@ export function HeroSection() {
     <section className="relative border-b border-separator px-4 py-16 sm:px-6 md:py-24 lg:px-8 lg:py-32 bg-background">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-
           {/* Left Column: Clean, Uncluttered Editorial Messaging */}
           <div className="lg:col-span-6 flex flex-col items-start text-left">
             <Reveal direction="up" delay={0.05}>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-primary font-display leading-[1.1] max-w-2xl text-balance">
-                Open Path. <br /> <span className="text-brand-primary">More Possibilities.</span> <br /> For the ambitious merchant.
+                Open Path. <br /> <span className="text-brand-primary">More Possibilities.</span> <br /> For the
+                ambitious merchant.
               </h1>
             </Reveal>
 
@@ -51,7 +51,6 @@ export function HeroSection() {
 
           {/* Right Column: Clean Live Product Viewport */}
           <div className="lg:col-span-6 w-full relative">
-            
             {/* Floating Decorative Storefront Icon */}
             <div className="absolute -top-5 -right-2 sm:-top-6 sm:-right-6 z-20">
               <FadeInView delay={0.3}>
@@ -72,7 +71,7 @@ export function HeroSection() {
                   </div>
                   <span className="ml-2 text-xs font-semibold text-secondary tracking-wide uppercase">Dashboard</span>
                 </div>
-                
+
                 {/* Widget Area */}
                 <div className="p-4 sm:p-6 space-y-4 bg-surface-elevated/10">
                   <TodaySalesWidget />
@@ -84,7 +83,6 @@ export function HeroSection() {
               </div>
             </FadeInView>
           </div>
-
         </div>
       </div>
     </section>

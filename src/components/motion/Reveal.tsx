@@ -26,7 +26,7 @@ export interface RevealProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
 /**
  * Directional reveal animation for headings, cards, and section containers.
  */
-export const Reveal: React.FC<RevealProps> = ({
+export function Reveal({
   children,
   direction = 'up',
   distance = 24,
@@ -35,7 +35,7 @@ export const Reveal: React.FC<RevealProps> = ({
   once = true,
   className,
   ...props
-}) => {
+}: RevealProps) {
   const shouldReduceMotion = useReducedMotion();
   const { isLowEnd } = useDevicePerformance();
 
@@ -76,4 +76,4 @@ export const Reveal: React.FC<RevealProps> = ({
       {children}
     </motion.div>
   );
-};
+}

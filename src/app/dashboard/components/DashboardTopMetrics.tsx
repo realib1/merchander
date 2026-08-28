@@ -1,6 +1,7 @@
+import React from 'react';
 import { formatCurrency } from '@/utils/format';
 import { Users, DollarSign, ShoppingCart, Activity } from 'lucide-react';
-import { MetricCard } from './MetricCard';
+import { MetricCard } from '@/components/ui/MetricCard';
 
 export interface MetricData {
   value: number;
@@ -43,14 +44,14 @@ export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) 
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <MetricCard
         title="Revenue"
         value={formatCurrency(metrics.totalSales?.value ?? 0)}
         change={metrics.totalSales?.change}
         diffText={formatDiffCurrency(metrics.totalSales?.diff)}
         periodText={periodText}
-        icon={<DollarSign size={15} />}
+        icon={<DollarSign size={14} />}
         iconBg="bg-success/10 text-success"
       />
       <MetricCard
@@ -59,7 +60,7 @@ export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) 
         change={metrics.totalOrders?.change}
         diffText={formatDiffCount(metrics.totalOrders?.diff, 'orders')}
         periodText={periodText}
-        icon={<ShoppingCart size={15} />}
+        icon={<ShoppingCart size={14} />}
         iconBg="bg-brand-primary/10 text-brand-primary"
       />
       <MetricCard
@@ -68,7 +69,7 @@ export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) 
         change={metrics.totalCustomers?.change}
         diffText={formatDiffCount(metrics.totalCustomers?.diff, 'new')}
         periodText={periodText}
-        icon={<Users size={15} />}
+        icon={<Users size={14} />}
         iconBg="bg-brand-secondary/10 text-brand-secondary"
       />
       <MetricCard
@@ -77,7 +78,7 @@ export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) 
         change={metrics.grossMargin?.change}
         diffText={formatDiffCurrency(metrics.grossMargin?.diff)}
         periodText={periodText}
-        icon={<Activity size={15} />}
+        icon={<Activity size={14} />}
         iconBg="bg-info/10 text-info"
       />
     </div>

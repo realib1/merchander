@@ -2,7 +2,7 @@
 
 import { useState, useActionState, useEffect } from 'react';
 import { login } from '@/app/actions/auth';
-import { Mail, KeyRound, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, KeyRound, Eye, EyeOff, CircleAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function LoginForm() {
@@ -57,7 +57,7 @@ export function LoginForm() {
 
       {state?.error && (
         <div className="py-2 px-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3">
-          <AlertCircle size={18} className="mt-0.5 shrink-0" />
+          <CircleAlert size={18} className="mt-0.5 shrink-0" />
           <div>{state.error}</div>
         </div>
       )}
@@ -68,7 +68,7 @@ export function LoginForm() {
             Email address
           </label>
           <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted group-focus-within:text-brand-primary transition-colors">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted transition-colors">
               <Mail size={18} />
             </div>
             <input

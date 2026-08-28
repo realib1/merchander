@@ -27,7 +27,6 @@ export function AfricanRootsSection() {
   return (
     <section className="relative border-b border-separator px-4 py-16 sm:px-6 md:py-24 lg:px-8 bg-background">
       <div className="mx-auto max-w-6xl">
-        
         {/* Authentic, Grounded Quote */}
         <div className="max-w-4xl mb-16 md:mb-20">
           <Reveal direction="up">
@@ -58,9 +57,7 @@ export function AfricanRootsSection() {
                     <Icon className="h-6 w-6" strokeWidth={2} />
                   </div>
                   <h3 className="text-lg font-bold text-primary mb-2">{item.title}</h3>
-                  <p className="text-sm md:text-base text-secondary leading-relaxed">
-                    {item.description}
-                  </p>
+                  <p className="text-sm md:text-base text-secondary leading-relaxed">{item.description}</p>
                 </div>
               );
             })}

@@ -15,11 +15,7 @@ export async function getUnreadNotifications() {
   }
 
   // Get tenant ID
-  const { data: tenantUser } = await supabase
-    .from('tenant_users')
-    .select('tenant_id')
-    .eq('user_id', user.id)
-    .single();
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
 
   if (!tenantUser?.tenant_id) {
     return { data: null, error: 'Tenant not found' };
@@ -39,15 +35,12 @@ export async function getUnreadNotifications() {
 export async function markNotificationAsRead(notificationId: string) {
   const supabase = await createClient();
 
-  const { error } = await supabase
-    .from('tenant_notifications')
-    .update({ is_read: true })
-    .eq('id', notificationId);
+  const { error } = await supabase.from('tenant_notifications').update({ is_read: true }).eq('id', notificationId);
 
   if (error) {
     return { success: false, error: error.message };
   }
-  
+
   revalidatePath('/');
   return { success: true };
 }
@@ -63,11 +56,7 @@ export async function markAllNotificationsAsRead() {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const { data: tenantUser } = await supabase
-    .from('tenant_users')
-    .select('tenant_id')
-    .eq('user_id', user.id)
-    .single();
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
 
   if (!tenantUser?.tenant_id) {
     return { success: false, error: 'Tenant not found' };

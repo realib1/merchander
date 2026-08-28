@@ -6,9 +6,21 @@ import { revalidatePath } from 'next/cache';
 export async function getSuppliers() {
   const supabase = await createClient();
 
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) return { data: [], error: null };
+
+  const { data: tenantUsers } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', userData.user.id)
+    .single();
+
+  if (!tenantUsers) return { data: [], error: null };
+
   const { data, error } = await supabase
     .from('suppliers')
     .select('*')
+    .eq('tenant_id', tenantUsers.tenant_id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -25,7 +37,7 @@ export async function createSupplier(formData: FormData) {
   // Get tenant ID
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) return { data: null, error: 'Not authenticated' };
-  
+
   const { data: tenantUsers } = await supabase
     .from('tenant_users')
     .select('tenant_id')
@@ -42,14 +54,16 @@ export async function createSupplier(formData: FormData) {
 
   const { data, error } = await supabase
     .from('suppliers')
-    .insert([{ 
-      name, 
-      contact_name, 
-      email, 
-      phone, 
-      country,
-      tenant_id: tenantUsers.tenant_id
-    }])
+    .insert([
+      {
+        name,
+        contact_name,
+        email,
+        phone,
+        country,
+        tenant_id: tenantUsers.tenant_id,
+      },
+    ])
     .select()
     .single();
 
@@ -65,7 +79,18 @@ export async function createSupplier(formData: FormData) {
 export async function deleteSupplier(id: string) {
   const supabase = await createClient();
 
-  const { error } = await supabase.from('suppliers').delete().eq('id', id);
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) return { error: 'Not authenticated' };
+
+  const { data: tenantUsers } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', userData.user.id)
+    .single();
+
+  if (!tenantUsers) return { error: 'No tenant found' };
+
+  const { error } = await supabase.from('suppliers').delete().eq('id', id).eq('tenant_id', tenantUsers.tenant_id);
 
   if (error) {
     console.error('Error deleting supplier:', error);
@@ -111,6 +136,7 @@ export async function recordSupplierPayment(formData: FormData) {
     .from('suppliers')
     .select('outstanding_balance')
     .eq('id', supplier_id)
+    .eq('tenant_id', tenantUsers.tenant_id)
     .single();
 
   if (supplierError || !supplier) {
@@ -120,17 +146,17 @@ export async function recordSupplierPayment(formData: FormData) {
   const newBalance = Number(supplier.outstanding_balance) - amount;
 
   // 2. Insert payment record
-  const { error: paymentError } = await supabase
-    .from('supplier_payments')
-    .insert([{
+  const { error: paymentError } = await supabase.from('supplier_payments').insert([
+    {
       tenant_id: tenantUsers.tenant_id,
       supplier_id,
       amount,
       payment_date,
       payment_method,
       reference_number: reference_number || null,
-      notes: notes || null
-    }]);
+      notes: notes || null,
+    },
+  ]);
 
   if (paymentError) {
     console.error('Error recording payment:', paymentError);
@@ -141,11 +167,11 @@ export async function recordSupplierPayment(formData: FormData) {
   const { error: updateError } = await supabase
     .from('suppliers')
     .update({ outstanding_balance: newBalance })
-    .eq('id', supplier_id);
+    .eq('id', supplier_id)
+    .eq('tenant_id', tenantUsers.tenant_id);
 
   if (updateError) {
     console.error('Error updating supplier balance:', updateError);
-    // Note: in a production app, we would wrap this in a transaction or RPC
     return { error: 'Payment recorded, but failed to update supplier balance.' };
   }
 

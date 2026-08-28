@@ -110,20 +110,24 @@ export default async function OrdersPage({
   }
 
   return (
-    <div className="min-h-full flex flex-col">
-      <OrdersHeader />
-      <div className="mt-6">
-        <OrdersTopMetrics
-          metrics={{
-            total: totalOrders || 0,
-            pendingPayment: pendingPayment || 0,
-            toDispatch: toDispatch || 0,
-            cancelled: cancelled || 0,
-            ordersChange,
-          }}
-        />
-      </div>
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Orders</h1>
 
+      {/* 1. Top 4 Executive KPI Metrics */}
+      <OrdersTopMetrics
+        metrics={{
+          total: totalOrders || 0,
+          pendingPayment: pendingPayment || 0,
+          toDispatch: toDispatch || 0,
+          cancelled: cancelled || 0,
+          ordersChange,
+        }}
+      />
+
+      {/* 2. Unified Search, Filter Tabs & Action Toolbar */}
+      <OrdersHeader />
+
+      {/* 3. Data View: Table or Kanban */}
       {view === 'kanban' ? (
         <KanbanBoard initialOrders={orders || []} searchQuery={q} />
       ) : (

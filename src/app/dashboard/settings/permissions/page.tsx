@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { getTenantRoles } from '@/app/actions/roles';
-import { ShieldCheck, Plus } from 'lucide-react';
+import { ShieldCheck, Plus, Pencil } from 'lucide-react';
 import { CreateRoleModal } from './components/CreateRoleModal';
+import { EditRoleModal } from './components/EditRoleModal';
 import { DeleteRoleButton } from './components/DeleteRoleButton';
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default async function PermissionsPage() {
           </p>
         </div>
         <CreateRoleModal>
-          <button className="inline-flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary/90 transition-colors shadow-sm">
+          <button className="inline-flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary/90 transition-colors shadow-sm cursor-pointer">
             <Plus size={16} />
             Create Role
           </button>
@@ -46,8 +47,6 @@ export default async function PermissionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-separator">
-                {/* Built-in roles are implicit, but we can list them here statically if we want, or just custom roles. 
-                    Let's just show custom roles here for now, as owners manage these. */}
                 {roles && roles.length > 0 ? (
                   roles.map((role) => (
                     <tr key={role.id} className="hover:bg-surface-elevated/20 transition-colors group">
@@ -62,15 +61,29 @@ export default async function PermissionsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1.5 max-w-75">
-                          {(role.permissions as string[] || []).map(p => (
-                            <span key={p} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-surface-elevated border border-separator text-foreground">
+                          {((role.permissions as string[]) || []).map((p) => (
+                            <span
+                              key={p}
+                              className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-surface-elevated border border-separator text-foreground"
+                            >
                               {p}
                             </span>
                           ))}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <DeleteRoleButton roleId={role.id} roleName={role.name} />
+                        <div className="flex items-center justify-end gap-1">
+                          <EditRoleModal role={role}>
+                            <button
+                              className="p-2 hover:text-foreground hover:bg-surface-elevated rounded-lg transition-colors"
+                              title="Edit Role"
+                              aria-label={`Edit ${role.name} role`}
+                            >
+                              <Pencil size={16} />
+                            </button>
+                          </EditRoleModal>
+                          <DeleteRoleButton roleId={role.id} roleName={role.name} />
+                        </div>
                       </td>
                     </tr>
                   ))

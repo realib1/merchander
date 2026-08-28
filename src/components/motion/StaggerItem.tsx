@@ -16,7 +16,7 @@ export interface StaggerItemProps extends Omit<HTMLMotionProps<'div'>, 'children
 /**
  * Child element within StaggerContainer animated in sequence.
  */
-export const StaggerItem: React.FC<StaggerItemProps> = ({ children, yOffset = 16, className, ...props }) => {
+export function StaggerItem({ children, yOffset = 16, className, ...props }: StaggerItemProps) {
   const shouldReduceMotion = useReducedMotion();
   const { isLowEnd } = useDevicePerformance();
 
@@ -41,4 +41,4 @@ export const StaggerItem: React.FC<StaggerItemProps> = ({ children, yOffset = 16
       {children}
     </motion.div>
   );
-};
+}

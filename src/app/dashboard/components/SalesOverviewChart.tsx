@@ -13,14 +13,15 @@ export interface SalesOverviewChartProps {
 
 export function SalesOverviewChart({ data }: SalesOverviewChartProps) {
   // Determine if data spans multiple days or is within a single day
-  const isSingleDay = data.length > 0 && data.every(d => new Date(d.date).toDateString() === new Date(data[0].date).toDateString());
+  const isSingleDay =
+    data.length > 0 && data.every((d) => new Date(d.date).toDateString() === new Date(data[0].date).toDateString());
 
   // Format dates for the X-axis
   const formattedData = data.map((item) => {
     const d = new Date(item.date);
     return {
       ...item,
-      formattedDate: isSingleDay 
+      formattedDate: isSingleDay
         ? d.toLocaleTimeString('en-US', { hour: 'numeric' })
         : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     };

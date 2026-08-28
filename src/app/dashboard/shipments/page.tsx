@@ -1,28 +1,83 @@
-import { Construction } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { getShipments } from '@/app/actions/shipments';
+import { ShipmentsTopMetrics } from './components/ShipmentsTopMetrics';
+import { ShipmentsToolbar } from './components/ShipmentsToolbar';
+import { ShipmentsTable } from './components/ShipmentsTable';
+import type { Shipment } from '@/types/shipments';
 
 export const metadata = {
-  title: 'Shipments | Merchander',
+  title: 'Shipments & Logistics | Merchander',
+  description: 'Track inbound sea-freight and air-cargo consignments, customs clearance, and landed costs.',
 };
 
-export default function ShipmentsPage() {
-  return (
-    <div className="flex flex-col h-full animate-fadeIn max-w-7xl mx-auto w-full pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Shipments</h1>
-          <p className="text-muted mt-1">Manage customer fulfillment and delivery logistics.</p>
-        </div>
-      </div>
+export default async function ShipmentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const supabase = await createClient();
 
-      <div className="flex-1 min-h-0 bg-surface border border-separator rounded-2xl flex flex-col shadow-sm items-center justify-center p-12 text-center">
-        <div className="w-16 h-16 bg-brand-primary/10 text-brand-primary rounded-full flex items-center justify-center mb-6">
-          <Construction size={32} />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-        <p className="text-muted max-w-md">
-          The Customer Shipments module is currently under construction. Check back soon for updates!
-        </p>
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const resolvedParams = await searchParams;
+  const searchQuery = typeof resolvedParams.q === 'string' ? resolvedParams.q.toLowerCase() : undefined;
+  const modeFilter = typeof resolvedParams.mode === 'string' ? resolvedParams.mode : undefined;
+  const statusFilter = typeof resolvedParams.status === 'string' ? resolvedParams.status : undefined;
+
+  // 1. Fetch all shipments
+  const { data: shipmentsData, error } = await getShipments();
+  if (error) {
+    console.error('Error loading shipments:', error);
+  }
+
+  let shipments = (shipmentsData as Shipment[]) || [];
+
+  // Apply filters
+  if (searchQuery) {
+    shipments = shipments.filter(
+      (s) =>
+        s.title.toLowerCase().includes(searchQuery) ||
+        (s.tracking_number && s.tracking_number.toLowerCase().includes(searchQuery)) ||
+        (s.carrier && s.carrier.toLowerCase().includes(searchQuery)) ||
+        (s.origin_port && s.origin_port.toLowerCase().includes(searchQuery))
+    );
+  }
+
+  if (modeFilter && modeFilter !== 'all') {
+    shipments = shipments.filter((s) => s.freight_mode === modeFilter);
+  }
+
+  if (statusFilter && statusFilter !== 'all') {
+    shipments = shipments.filter((s) => s.status === statusFilter);
+  }
+
+  // 2. Fetch suppliers for dropdowns
+  const { data: suppliersData } = await supabase.from('suppliers').select('id, name').order('name');
+
+  // 3. Fetch purchase orders for dropdowns
+  const { data: purchaseOrdersData } = await supabase
+    .from('purchase_orders')
+    .select('id, po_number')
+    .order('created_at', { ascending: false });
+
+  const suppliers = (suppliersData as { id: string; name: string }[]) || [];
+  const purchaseOrders = (purchaseOrdersData as { id: string; po_number: string | null }[]) || [];
+
+  return (
+    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full animate-fadeIn">
+      <h1 className="sr-only">Shipments & Logistics</h1>
+
+      {/* Top Metrics */}
+      <ShipmentsTopMetrics shipments={shipmentsData || []} />
+
+      {/* Table & Controls */}
+      <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
+        <ShipmentsToolbar suppliers={suppliers} purchaseOrders={purchaseOrders} />
+        <ShipmentsTable shipments={shipments} suppliers={suppliers} purchaseOrders={purchaseOrders} />
       </div>
     </div>
   );

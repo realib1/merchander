@@ -1,29 +1,66 @@
-import { Construction } from 'lucide-react';
+import React from 'react';
+import { getAnalyticsData } from '@/app/actions/analytics';
+import { AnalyticsFilterPeriod } from '@/types/analytics';
+import { AnalyticsToolbar } from './components/AnalyticsToolbar';
+import { AnalyticsTopMetrics } from './components/AnalyticsTopMetrics';
+import { AnalyticsTimelineChart } from './components/AnalyticsTimelineChart';
+import { AnalyticsPeakTrading } from './components/AnalyticsPeakTrading';
+import { AnalyticsChannelAndPayments } from './components/AnalyticsChannelAndPayments';
+import { AnalyticsProductRankings } from './components/AnalyticsProductRankings';
+import { AnalyticsCustomerCohorts } from './components/AnalyticsCustomerCohorts';
+import { AnalyticsDataExplorer } from './components/AnalyticsDataExplorer';
 
 export const metadata = {
-  title: 'Analytics | Merchander',
+  title: 'Analytics & GMV Exploration | Merchander',
+  description: 'Explore business trends, sales velocity, peak trading hours, and customer cohorts.',
 };
 
-export default function AnalyticsPage() {
-  return (
-    <div className="flex flex-col h-full animate-fadeIn max-w-7xl mx-auto w-full pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted mt-1">Explore your business data, trends, and performance.</p>
-        </div>
-      </div>
+interface AnalyticsPageProps {
+  searchParams: Promise<{
+    period?: string;
+  }>;
+}
 
-      <div className="flex-1 min-h-0 bg-surface border border-separator rounded-2xl flex flex-col shadow-sm items-center justify-center p-12 text-center">
-        <div className="w-16 h-16 bg-brand-primary/10 text-brand-primary rounded-full flex items-center justify-center mb-6">
-          <Construction size={32} />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-        <p className="text-muted max-w-md">
-          The Analytics module is currently under construction. Check back soon for updates!
-        </p>
-      </div>
+export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps) {
+  const resolvedParams = await searchParams;
+  const rawPeriod = resolvedParams.period || '30d';
+  const validPeriods: AnalyticsFilterPeriod[] = ['today', '7d', '30d', '90d', 'ytd', '1y'];
+  const period: AnalyticsFilterPeriod = validPeriods.includes(rawPeriod as AnalyticsFilterPeriod)
+    ? (rawPeriod as AnalyticsFilterPeriod)
+    : '30d';
+
+  const data = await getAnalyticsData(period);
+
+  return (
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Analytics & Performance</h1>
+      {/* 1. Header Toolbar & Period Selector */}
+      <AnalyticsToolbar currentPeriod={period} analyticsData={data} />
+
+      {/* 2. Top 4 KPI Metrics */}
+      <AnalyticsTopMetrics metrics={data.metrics} periodLabel={data.periodLabel} />
+
+      {/* 3. Sales Timeline & Velocity Chart */}
+      <AnalyticsTimelineChart timeline={data.timeline} periodLabel={data.periodLabel} />
+
+      {/* 4. Peak Trading Hours & Day-of-Week Heatmap */}
+      <AnalyticsPeakTrading peakTrading={data.peakTrading} />
+
+      {/* 5. Sales Channels & Payment Rails */}
+      <AnalyticsChannelAndPayments
+        channels={data.channels}
+        paymentMethods={data.paymentMethods}
+        statusFunnel={data.statusFunnel}
+      />
+
+      {/* 6. Best Sellers & Category Performance */}
+      <AnalyticsProductRankings topProducts={data.topProducts} categories={data.categories} />
+
+      {/* 7. Customer Retention & Cohort Exploration */}
+      <AnalyticsCustomerCohorts cohorts={data.customerCohorts} />
+
+      {/* 8. Multi-Dimensional Data Explorer Table */}
+      <AnalyticsDataExplorer data={data} />
     </div>
   );
 }

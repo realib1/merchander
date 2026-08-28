@@ -26,7 +26,7 @@ export function AdjustStockModal({
   const [quantity, setQuantity] = useState<number>(currentQuantity);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -58,13 +58,13 @@ export function AdjustStockModal({
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <Button variant="primary" type="submit" form="adjust-stock-form" disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id="adjust-stock-form" onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center justify-between p-3 bg-surface-elevated/50 border border-separator rounded-lg mb-4">
           <span className="text-sm font-medium">Existing units</span>
           <span className="text-sm font-bold">{currentQuantity}</span>

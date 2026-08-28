@@ -79,7 +79,9 @@ export function OrderDetailsSheet({
             <div className="flex items-center justify-between p-6 border-b border-separator">
               <div>
                 <h2 className="text-xl font-display font-bold text-brand-primary">Order Details</h2>
-                <p className="text-xs font-mono text-muted mt-1 uppercase">#{order.short_id ? order.short_id : order.id.split('-')[0]}</p>
+                <p className="text-xs font-mono text-muted mt-1 uppercase">
+                  #{order.short_id ? order.short_id : order.id.split('-')[0]}
+                </p>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-surface-elevated rounded-lg transition-colors">
                 <X size={20} />

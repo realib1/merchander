@@ -5,22 +5,28 @@ import { Modal } from '@/components/ui/Modal';
 import { inviteStaffMember } from '@/app/actions/staff';
 import { toast } from 'sonner';
 
-interface InviteStaffModalProps {
-  children: React.ReactNode;
+interface CustomRole {
+  id: string;
+  name: string;
 }
 
-export function InviteStaffModal({ children }: InviteStaffModalProps) {
+interface InviteStaffModalProps {
+  children: React.ReactNode;
+  customRoles?: CustomRole[];
+}
+
+export function InviteStaffModal({ children, customRoles = [] }: InviteStaffModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRole, setSelectedRole] = useState('member');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const formData = new FormData(e.currentTarget);
-      
+
       // If custom role, replace the role value with the custom one
       if (selectedRole === 'custom') {
         const customRole = formData.get('custom_role') as string;
@@ -32,12 +38,12 @@ export function InviteStaffModal({ children }: InviteStaffModalProps) {
       }
 
       const res = await inviteStaffMember(formData);
-      
+
       if (res?.error) {
         toast.error(res.error);
         return;
       }
-      
+
       toast.success('Invitation sent successfully!');
       setIsOpen(false);
     } catch {
@@ -52,10 +58,10 @@ export function InviteStaffModal({ children }: InviteStaffModalProps) {
       <div onClick={() => setIsOpen(true)} className="inline-block cursor-pointer">
         {children}
       </div>
-      
-      <Modal 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
         title="Invite Team Member"
         description="Invite a new member to join your team."
       >
@@ -73,7 +79,7 @@ export function InviteStaffModal({ children }: InviteStaffModalProps) {
               placeholder="e.g., Jane Doe"
             />
           </div>
-          
+
           <div className="flex flex-col gap-1.5">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
               Email Address
@@ -102,9 +108,14 @@ export function InviteStaffModal({ children }: InviteStaffModalProps) {
             >
               <option value="member">Member (Standard Access)</option>
               <option value="admin">Admin (Full Dashboard Access)</option>
-              <option value="custom">Other (Custom Role)</option>
+              {customRoles.map((cr) => (
+                <option key={cr.id} value={cr.name.toLowerCase()}>
+                  {cr.name} (Custom Role)
+                </option>
+              ))}
+              <option value="custom">Other (Create New Role on Invite)</option>
             </select>
-            
+
             {selectedRole === 'custom' && (
               <div className="mt-2 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2">
                 <input
@@ -130,7 +141,7 @@ export function InviteStaffModal({ children }: InviteStaffModalProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
               {isSubmitting ? 'Sending...' : 'Send Invitation'}
             </button>

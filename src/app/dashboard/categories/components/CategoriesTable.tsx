@@ -1,6 +1,6 @@
 'use client';
 
-import { Package, Edit3, Trash2 } from 'lucide-react';
+import { Package, Pencil, Trash2 } from 'lucide-react';
 import { deleteCategory } from '@/app/actions/categories';
 import { toast } from 'sonner';
 import { CategoryFormModal } from './CategoryFormModal';
@@ -36,8 +36,8 @@ export function CategoriesTable({
       const res = await deleteCategory(id);
       if (res.error) throw new Error(res.error);
       toast.success('Category deleted successfully');
-    } catch (error: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
-      toast.error(error.message || 'Failed to delete category');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete category');
     }
   };
 
@@ -100,7 +100,7 @@ export function CategoriesTable({
                           className="p-2  hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                           title="Edit"
                         >
-                          <Edit3 size={16} />
+                          <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(cat.id)}

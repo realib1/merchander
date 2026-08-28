@@ -35,11 +35,11 @@ function getSystemTheme(): ResolvedTheme {
 /**
  * ThemeProvider component managing zero-flash theme persistence and system preference sync.
  */
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+export function ThemeProvider({
   children,
   defaultTheme = 'system',
   storageKey = STORAGE_KEY_DEFAULT,
-}) => {
+}: ThemeProviderProps) {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     if (typeof window === 'undefined') return defaultTheme;
     try {
@@ -116,8 +116,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     [theme, resolvedTheme]
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
-};
+  return <ThemeContext value={value}>{children}</ThemeContext>;
+}
 
 /**
  * Custom hook to access theme context.

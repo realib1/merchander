@@ -23,7 +23,7 @@ export interface FadeInViewProps extends Omit<HTMLMotionProps<'div'>, 'children'
  * Scroll-triggered fade entrance component.
  * Automatically gracefully degrades to a static render when prefers-reduced-motion is enabled.
  */
-export const FadeInView: React.FC<FadeInViewProps> = ({
+export function FadeInView({
   children,
   duration = 0.4,
   delay = 0,
@@ -31,7 +31,7 @@ export const FadeInView: React.FC<FadeInViewProps> = ({
   once = true,
   className,
   ...props
-}) => {
+}: FadeInViewProps) {
   const shouldReduceMotion = useReducedMotion();
   const { isLowEnd } = useDevicePerformance();
 
@@ -55,4 +55,4 @@ export const FadeInView: React.FC<FadeInViewProps> = ({
       {children}
     </motion.div>
   );
-};
+}

@@ -76,6 +76,11 @@ export async function updateCategory(id: string, formData: FormData) {
     return { error: validation.error.errors[0].message };
   }
 
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  if (!tenantUser) {
+    return { error: 'Tenant not found' };
+  }
+
   const { error } = await supabase
     .from('product_categories')
     .update({
@@ -83,7 +88,8 @@ export async function updateCategory(id: string, formData: FormData) {
       description: validation.data.description,
       is_active: validation.data.is_active,
     })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('tenant_id', tenantUser.tenant_id);
 
   if (error) {
     console.error('Error updating category:', error);
@@ -104,7 +110,16 @@ export async function deleteCategory(id: string) {
     return { error: 'Not authenticated' };
   }
 
-  const { error } = await supabase.from('product_categories').delete().eq('id', id);
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  if (!tenantUser) {
+    return { error: 'Tenant not found' };
+  }
+
+  const { error } = await supabase
+    .from('product_categories')
+    .delete()
+    .eq('id', id)
+    .eq('tenant_id', tenantUser.tenant_id);
 
   if (error) {
     console.error('Error deleting category:', error);

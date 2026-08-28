@@ -1,28 +1,94 @@
-import { Construction } from 'lucide-react';
+import { Metadata } from 'next';
+import { getPayments, getUnpaidOrdersForPayment } from '@/app/actions/payments';
+import { createClient } from '@/lib/supabase/server';
+import { PaymentsTopMetrics } from './components/PaymentsTopMetrics';
+import { PaymentsToolbar } from './components/PaymentsToolbar';
+import { PaymentsTable } from './components/PaymentsTable';
 
-export const metadata = {
-  title: 'Payments | Merchander',
+export const metadata: Metadata = {
+  title: 'Payments & Cashflow | Merchander',
 };
 
-export default function PaymentsPage() {
-  return (
-    <div className="flex flex-col h-full animate-fadeIn max-w-7xl mx-auto w-full pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
-          <p className="text-muted mt-1">Track money received and paid through transactions.</p>
-        </div>
-      </div>
+interface PaymentsPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-      <div className="flex-1 min-h-0 bg-surface border border-separator rounded-2xl flex flex-col shadow-sm items-center justify-center p-12 text-center">
-        <div className="w-16 h-16 bg-brand-primary/10 text-brand-primary rounded-full flex items-center justify-center mb-6">
-          <Construction size={32} />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-        <p className="text-muted max-w-md">
-          The Payments module is currently under construction. Check back soon for updates!
-        </p>
+export default async function PaymentsPage({ searchParams }: PaymentsPageProps) {
+  const resolvedParams = await searchParams;
+  const period = (resolvedParams.period as string) || 'this_month';
+  const provider = (resolvedParams.provider as string) || 'all';
+  const status = (resolvedParams.status as string) || 'all';
+  const search = (resolvedParams.q as string) || '';
+
+  // Calculate Date Bounds based on period
+  const now = new Date();
+  let startDate: string | undefined;
+  let endDate: string | undefined;
+
+  if (period === 'this_month') {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+  } else if (period === 'last_month') {
+    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+    endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
+  } else if (period === 'this_quarter') {
+    const quarter = Math.floor(now.getMonth() / 3);
+    startDate = new Date(now.getFullYear(), quarter * 3, 1).toISOString();
+    endDate = new Date(now.getFullYear(), (quarter + 1) * 3, 0, 23, 59, 59).toISOString();
+  } else if (period === 'this_year') {
+    startDate = new Date(now.getFullYear(), 0, 1).toISOString();
+    endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59).toISOString();
+  }
+
+  // Fetch payments and metrics
+  const { payments, metrics } = await getPayments({
+    period: period as 'this_month' | 'last_month' | 'this_quarter' | 'this_year' | 'all',
+    provider,
+    status,
+    search,
+    startDate,
+    endDate,
+  });
+
+  // Fetch unpaid orders and customers for modal selection
+  const unpaidOrders = await getUnpaidOrdersForPayment();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let customers: Array<{ id: string; name: string; phone: string }> = [];
+  if (user) {
+    const { data: tenantUser } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (tenantUser) {
+      const { data: custData } = await supabase
+        .from('customers')
+        .select('id, name, phone')
+        .eq('tenant_id', tenantUser.tenant_id)
+        .order('name', { ascending: true })
+        .limit(100);
+
+      customers = custData || [];
+    }
+  }
+
+  return (
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Payments & Cashflow</h1>
+
+      {/* Top Metrics */}
+      <PaymentsTopMetrics metrics={metrics} />
+
+      {/* Table & Controls */}
+      <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
+        <PaymentsToolbar payments={payments} orders={unpaidOrders} customers={customers} />
+        <PaymentsTable payments={payments} />
       </div>
     </div>
   );

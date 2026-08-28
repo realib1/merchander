@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
@@ -26,7 +26,7 @@ export interface MobileDrawerProps {
 /**
  * Slide-in mobile navigation drawer with backdrop overlay and accessible keyboard controls.
  */
-export const MobileDrawer: React.FC<MobileDrawerProps> = ({
+export function MobileDrawer({
   isOpen,
   onClose,
   title,
@@ -34,7 +34,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   footer,
   position = 'left',
   className,
-}) => {
+}: MobileDrawerProps) {
   const isReducedMotion = useReducedMotion();
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -106,7 +106,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 type="button"
                 onClick={onClose}
                 aria-label="Close menu"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm,4px)] text-muted hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-muted hover:bg-surface-elevated hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -122,4 +122,4 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       )}
     </AnimatePresence>
   );
-};
+}

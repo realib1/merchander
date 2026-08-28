@@ -51,8 +51,10 @@ export default async function CustomersPage({
   const totalPages = Math.ceil(count / pageSize);
 
   return (
-    <div className="min-h-full flex flex-col relative">
-      <CustomersHeader />
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Customers CRM</h1>
+
+      {/* 1. Top 4 KPI Metrics */}
       <CustomersTopMetrics
         totalCustomers={totalCustomers}
         customersChange={customersChange}
@@ -62,14 +64,18 @@ export default async function CustomersPage({
         totalRevenue={totalRevenue}
       />
 
+      {/* 2. Search & Action Toolbar */}
+      <CustomersHeader />
+
+      {/* 3. Customer Data Table */}
       <Suspense
         fallback={
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-12">
             <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
           </div>
         }
       >
-        <div className="flex-1 pb-6 mt-6">
+        <div className="flex-1">
           <CustomersTable initialCustomers={customers} currentPage={page} totalPages={totalPages} totalCount={count} />
         </div>
       </Suspense>

@@ -6,9 +6,21 @@ import { revalidatePath } from 'next/cache';
 export async function getPurchaseOrders() {
   const supabase = await createClient();
 
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) return { data: [], error: null };
+
+  const { data: tenantUsers } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', userData.user.id)
+    .single();
+
+  if (!tenantUsers) return { data: [], error: null };
+
   const { data, error } = await supabase
     .from('purchase_orders')
     .select('*, supplier:suppliers(name, short_id)')
+    .eq('tenant_id', tenantUsers.tenant_id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -25,7 +37,7 @@ export async function createPurchaseOrder(formData: FormData) {
   // Get tenant ID
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) return { data: null, error: 'Not authenticated' };
-  
+
   const { data: tenantUsers } = await supabase
     .from('tenant_users')
     .select('tenant_id')
@@ -43,16 +55,18 @@ export async function createPurchaseOrder(formData: FormData) {
 
   const { data, error } = await supabase
     .from('purchase_orders')
-    .insert([{ 
-      tenant_id: tenantUsers.tenant_id,
-      supplier_id, 
-      tracking_number, 
-      eta: eta || null, 
-      status: 'draft',
-      supplier_cost,
-      shipping_cost,
-      import_cost
-    }])
+    .insert([
+      {
+        tenant_id: tenantUsers.tenant_id,
+        supplier_id,
+        tracking_number,
+        eta: eta || null,
+        status: 'draft',
+        supplier_cost,
+        shipping_cost,
+        import_cost,
+      },
+    ])
     .select()
     .single();
 
@@ -67,6 +81,17 @@ export async function createPurchaseOrder(formData: FormData) {
 
 export async function updatePurchaseOrder(id: string, formData: FormData) {
   const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) return { data: null, error: 'Not authenticated' };
+
+  const { data: tenantUsers } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', userData.user.id)
+    .single();
+
+  if (!tenantUsers) return { data: null, error: 'No tenant found' };
 
   const tracking_number = formData.get('tracking_number') as string;
   const eta = formData.get('eta') as string;
@@ -86,7 +111,7 @@ export async function updatePurchaseOrder(id: string, formData: FormData) {
     tracking_number,
     supplier_cost,
     shipping_cost,
-    import_cost
+    import_cost,
   };
 
   if (eta) {
@@ -100,6 +125,7 @@ export async function updatePurchaseOrder(id: string, formData: FormData) {
     .from('purchase_orders')
     .update(updatePayload)
     .eq('id', id)
+    .eq('tenant_id', tenantUsers.tenant_id)
     .select()
     .single();
 
@@ -114,6 +140,17 @@ export async function updatePurchaseOrder(id: string, formData: FormData) {
 
 export async function receivePurchaseOrder(purchaseOrderId: string, storeId: string) {
   const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) return { error: 'Not authenticated' };
+
+  const { data: tenantUsers } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', userData.user.id)
+    .single();
+
+  if (!tenantUsers) return { error: 'No tenant found' };
 
   // Fetch PO items
   const { data: items, error: itemsError } = await supabase
@@ -145,7 +182,8 @@ export async function receivePurchaseOrder(purchaseOrderId: string, storeId: str
   const { error: updateError } = await supabase
     .from('purchase_orders')
     .update({ status: 'received' })
-    .eq('id', purchaseOrderId);
+    .eq('id', purchaseOrderId)
+    .eq('tenant_id', tenantUsers.tenant_id);
 
   if (updateError) {
     console.error('Error updating purchase order status:', updateError);

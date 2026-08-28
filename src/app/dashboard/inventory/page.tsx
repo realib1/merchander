@@ -31,8 +31,20 @@ export default async function InventoryPage({
     getInventoryMetrics(),
   ]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows: InventoryRowData[] = (data || []).map((row: any) => ({
+  interface InventoryViewRow {
+    variant_id: string;
+    sku: string;
+    variant_name?: string | null;
+    price: number;
+    product_name?: string | null;
+    image_urls?: string[] | null;
+    category_name?: string | null;
+    quantity: number;
+    store_id: string;
+    store_name?: string | null;
+  }
+
+  const rows: InventoryRowData[] = ((data as unknown as InventoryViewRow[]) || []).map((row) => ({
     variantId: row.variant_id,
     sku: row.sku,
     name: row.variant_name || '',
@@ -50,7 +62,8 @@ export default async function InventoryPage({
   const statuses = ['All statuses', 'In stock', 'Low stock', 'Out of stock'];
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full min-h-full">
+    <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full">
+      <h1 className="sr-only">Inventory Stock Levels</h1>
       <InventoryTopMetrics
         totalUnits={metrics.totalUnits}
         totalVariants={metrics.totalVariants}

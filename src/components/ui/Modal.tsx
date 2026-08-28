@@ -1,7 +1,9 @@
-﻿'use client';
+'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/utils/cn';
+import { X } from 'lucide-react';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'fullscreen';
 
@@ -29,16 +31,18 @@ export interface ModalProps {
 }
 
 const SIZE_STYLES: Record<ModalSize, string> = {
-  sm: 'max-w-md w-full rounded-lg',
-  md: 'max-w-lg w-full rounded-lg',
-  lg: 'max-w-2xl w-full rounded-lg',
-  fullscreen: 'w-screen h-screen max-w-none rounded-none',
+  sm: 'max-w-md',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  fullscreen: 'w-screen h-screen max-w-none rounded-none max-h-screen',
 };
 
+const emptySubscribe = () => () => {};
+
 /**
- * Accessible dialog overlay with focus trap, backdrop dismissal, and keyboard support.
+ * Accessible dialog overlay with Portal, focus trap, backdrop dismissal, single-scroll container, and keyboard support.
  */
-export const Modal: React.FC<ModalProps> = ({
+export function Modal({
   isOpen,
   onClose,
   title,
@@ -49,7 +53,12 @@ export const Modal: React.FC<ModalProps> = ({
   showCloseButton = true,
   closeOnBackdropClick = true,
   className,
-}) => {
+}: ModalProps) {
+  const isMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
 
@@ -78,7 +87,7 @@ export const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen]);
 
-  // Handle ESC key press & Tab focus trap
+  // Handle ESC key press & Tab focus trap & Body Scroll Lock
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
       if (!isOpen) return;
@@ -128,42 +137,47 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !isMounted) return null;
 
-  return (
-    <div role="presentation" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
+  const modalContent = (
+    <div
+      role="presentation"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-hidden"
+    >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
         aria-hidden="true"
         onClick={() => closeOnBackdropClick && onClose()}
       />
 
-      {/* Modal Dialog */}
+      {/* Modal Dialog Card */}
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        tabIndex={-1}
         aria-labelledby={title ? 'modal-title' : undefined}
         aria-describedby={description ? 'modal-description' : undefined}
         className={cn(
-          'relative z-10 flex flex-col bg-surface-elevated text-primary',
-          'animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-xl duration-150',
+          'relative z-10 flex flex-col w-full bg-surface-elevated text-primary',
+          'animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-2xl rounded-2xl duration-150 outline-none',
+          'max-h-[min(90dvh,800px)]',
           SIZE_STYLES[size],
           className
         )}
       >
-        {/* Header */}
+        {/* Pinned Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between border-b border-separator/60 p-5">
-            <div className="flex flex-col gap-1 pr-6">
+          <div className="shrink-0 flex items-start justify-between border-b border-separator/60 p-4 sm:p-5 bg-surface-elevated">
+            <div className="flex flex-col gap-1 pr-4">
               {title && (
-                <h2 id="modal-title" className="text-lg font-semibold tracking-tight">
+                <h2 id="modal-title" className="text-base sm:text-lg font-semibold tracking-tight">
                   {title}
                 </h2>
               )}
               {description && (
-                <p id="modal-description" className="text-xs text-secondary">
+                <p id="modal-description" className="text-xs text-secondary leading-relaxed">
                   {description}
                 </p>
               )}
@@ -174,27 +188,26 @@ export const Modal: React.FC<ModalProps> = ({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="rounded-sm p-1.5 text-muted transition-colors hover:bg-surface hover:text-brand-primary"
+                className="shrink-0 rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-brand-primary cursor-pointer"
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
         )}
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5">{children}</div>
+        {/* Single Scrollable Body */}
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 text-sm">{children}</div>
 
-        {/* Footer */}
+        {/* Pinned Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 border-t border-separator/60 bg-surface/40 p-5">
+          <div className="shrink-0 flex items-center justify-end gap-2.5 border-t border-separator/60 bg-surface/50 p-3.5 sm:p-4 flex-wrap">
             {footer}
           </div>
         )}
       </div>
     </div>
   );
-};
+
+  return createPortal(modalContent, document.body);
+}

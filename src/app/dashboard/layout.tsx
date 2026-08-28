@@ -31,22 +31,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let stores: { id: string; name: string }[] = [];
   let initialActiveStoreId: string | null = null;
-  
+
   if (tenantUser?.tenant_id) {
     const { data: storesData } = await supabase
       .from('stores')
       .select('id, name')
       .eq('tenant_id', tenantUser.tenant_id)
       .order('name');
-    
+
     if (storesData && storesData.length > 0) {
       stores = storesData;
-      
+
       // Determine active store from cookie
       const cookieStore = await cookies();
       const storeCookie = cookieStore.get('merchander_active_store')?.value;
-      
-      if (storeCookie && stores.some(s => s.id === storeCookie)) {
+
+      if (storeCookie && stores.some((s) => s.id === storeCookie)) {
         initialActiveStoreId = storeCookie;
       } else {
         initialActiveStoreId = stores[0].id;
@@ -116,18 +116,39 @@ export default async function DashboardLayout({ children }: { children: React.Re
     );
   };
 
+  const meta = user.user_metadata || {};
+  const metaFullName =
+    meta.full_name ||
+    meta.name ||
+    (meta.first_name || meta.last_name ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : null);
+
+  const displayName =
+    metaFullName ||
+    (user.email
+      ? user.email
+          .split('@')[0]
+          .replace(/[._-]/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+      : 'Admin User');
+
   return (
     <MobileNavProvider>
       {renderThemeStyles()}
       <div id="tenant-theme-wrapper" className="flex h-screen bg-background  overflow-hidden">
-        <Sidebar userEmail={user.email || ''} businessName={businessName} />
+        <Sidebar
+          userEmail={user.email || ''}
+          userName={displayName}
+          userRole={userRole}
+          avatarUrl={user.user_metadata?.avatar_url}
+          businessName={businessName}
+        />
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 bg-background relative z-10 transition-all overflow-hidden">
           <Topbar
             user={{
               email: user.email || '',
-              fullName: user.user_metadata?.full_name || 'User',
+              fullName: displayName,
               avatarUrl: user.user_metadata?.avatar_url,
               role: userRole,
             }}
@@ -137,7 +158,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             initialNotifications={notifications}
           />
 
-          <div className="flex-1 overflow-auto p-4 md:p-8 pb-20 md:pb-24 max-w-7xl mx-auto w-full">{children}</div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
+            <div className="flex-1 w-full min-w-0">{children}</div>
+            {/* Dedicated Guaranteed Bottom Breathing Room Spacer */}
+            <div className="h-28 sm:h-36 shrink-0 w-full" aria-hidden="true" />
+          </div>
         </main>
       </div>
     </MobileNavProvider>

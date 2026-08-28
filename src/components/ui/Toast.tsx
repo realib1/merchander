@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { createContext, useContext, useState, useCallback, useId } from 'react';
 import { cn } from '@/utils/cn';
@@ -57,7 +57,7 @@ const TOAST_ICONS: Record<ToastType, React.JSX.Element> = {
   ),
 };
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const idPrefix = useId();
 
@@ -92,7 +92,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, toast: toastMethods }}>
+    <ToastContext value={{ toasts, addToast, removeToast, toast: toastMethods }}>
       {children}
       <div
         aria-live="polite"
@@ -127,9 +127,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           </div>
         ))}
       </div>
-    </ToastContext.Provider>
+    </ToastContext>
   );
-};
+}
 
 export function useToast(): ToastContextValue {
   const context = useContext(ToastContext);

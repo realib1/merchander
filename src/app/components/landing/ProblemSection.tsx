@@ -75,10 +75,7 @@ export function ProblemSection() {
                 {frictionPoints.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <div
-                      key={item.title}
-                      className="flex gap-4 items-start py-6 sm:py-8 first:pt-0 last:pb-0"
-                    >
+                    <div key={item.title} className="flex gap-4 items-start py-6 sm:py-8 first:pt-0 last:pb-0">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary mt-1">
                         <Icon className="h-6 w-6" />
                       </div>

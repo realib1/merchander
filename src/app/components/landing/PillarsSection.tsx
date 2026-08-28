@@ -73,7 +73,11 @@ export function PillarsSection() {
         {/* 6 Pillars Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-separator border border-separator sm:rounded-2xl overflow-hidden">
           {pillars.map((pillar, idx) => (
-            <FadeInView key={pillar.id} delay={0.04 * idx} className="flex flex-col bg-surface hover:bg-surface-elevated transition-colors">
+            <FadeInView
+              key={pillar.id}
+              delay={0.04 * idx}
+              className="flex flex-col bg-surface hover:bg-surface-elevated transition-colors"
+            >
               <div className="group flex h-full flex-col justify-start p-6 sm:p-8">
                 <div>
                   <div className="flex items-center justify-between mb-4">
