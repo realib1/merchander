@@ -113,13 +113,25 @@ export async function processMoMoPayment(
       return { success: false, error: 'Could not extract a valid transaction reference from the SMS text.' };
     }
 
+    const providerMap: Record<string, string> = {
+      mtn: 'mtn_momo',
+      mtn_momo: 'mtn_momo',
+      telecel: 'telecel_cash',
+      telecel_cash: 'telecel_cash',
+      at: 'at_money',
+      at_money: 'at_money',
+    };
+    const resolvedProvider = providerMap[provider] || 'mtn_momo';
+
     // 1. Record the Payment
     const { error: paymentError } = await supabase.from('payments').insert({
       tenant_id: tenantId,
       order_id: orderId,
-      provider: provider,
+      provider: resolvedProvider,
       transaction_ref: transactionRef,
       amount: amountPaid,
+      fee: 0,
+      net_amount: amountPaid,
       status: 'completed',
     });
 

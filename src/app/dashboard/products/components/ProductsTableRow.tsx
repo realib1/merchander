@@ -132,7 +132,21 @@ export function ProductsTableRow({ product, isSelected, onToggleSelect }: Produc
       <td className="px-4 py-3 text-body-sm tabular-nums">{totalUnitsSold.toLocaleString()}</td>
 
       <td className="px-4 py-3 text-right relative z-10">
-        <ProductsActionMenu productId={product.id} />
+        <ProductsActionMenu
+          productId={product.id}
+          product={{
+            id: product.id,
+            name: product.name,
+            price: minPrice,
+            image_url: product.image_urls?.[0] || null,
+            availability_status: product.availability_status,
+            category_name: product.category?.name || null,
+            description: product.description || null,
+            total_stock: totalStock,
+            stock_unit: product.stock_unit || 'pcs',
+            preorder_shipping_mode: product.preorder_shipping_mode || null,
+          }}
+        />
       </td>
     </tr>
   );

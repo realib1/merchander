@@ -51,7 +51,7 @@ export function CartCheckoutForm({
             placeholder="e.g. Kwame Mensah"
             value={customerName}
             onChange={(e) => onCustomerNameChange(e.target.value)}
-            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 text-foreground placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none"
+            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none"
           />
         </div>
 
@@ -63,7 +63,7 @@ export function CartCheckoutForm({
             placeholder="e.g. 024 123 4567"
             value={customerPhone}
             onChange={(e) => onCustomerPhoneChange(e.target.value)}
-            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 text-foreground placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none"
+            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none"
           />
         </div>
 
@@ -74,7 +74,7 @@ export function CartCheckoutForm({
             placeholder="e.g. East Legon, near Shell"
             value={deliveryAddress}
             onChange={(e) => onDeliveryAddressChange(e.target.value)}
-            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 text-foreground placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none"
+            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none"
           />
         </div>
 
@@ -85,7 +85,7 @@ export function CartCheckoutForm({
             placeholder="Any special instructions or questions..."
             value={deliveryNotes}
             onChange={(e) => onDeliveryNotesChange(e.target.value)}
-            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 text-foreground placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
+            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
           />
         </div>
 

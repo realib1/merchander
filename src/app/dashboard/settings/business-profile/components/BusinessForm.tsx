@@ -14,6 +14,8 @@ interface BusinessFormProps {
   initialTradingName: string | null;
   initialIndustry: string | null;
   initialTaxId: string | null;
+  initialStoreEmail: string | null;
+  initialStoreCurrency: string;
   initialBrandColor: string | null;
   initialBrandSecondaryColor: string | null;
   initialStreet: string | null;
@@ -28,6 +30,8 @@ export function BusinessForm({
   initialTradingName,
   initialIndustry,
   initialTaxId,
+  initialStoreEmail,
+  initialStoreCurrency,
   initialBrandColor,
   initialBrandSecondaryColor,
   initialStreet,
@@ -66,7 +70,9 @@ export function BusinessForm({
             </div>
             <div>
               <CardTitle>Company Details</CardTitle>
-              <CardDescription>Official business information for invoicing and compliance.</CardDescription>
+              <CardDescription>
+                Official business information for invoicing, store contact, and compliance.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -77,7 +83,7 @@ export function BusinessForm({
               name="tradingName"
               label="Trading Name (DBA)"
               defaultValue={initialTradingName || ''}
-              hint="Optional"
+              hint="Public trading name used across storefront and receipts"
             />
 
             <div className="space-y-1.5">
@@ -93,11 +99,44 @@ export function BusinessForm({
                 <option value="Retail & E-commerce">Retail & E-commerce</option>
                 <option value="Wholesale & Distribution">Wholesale & Distribution</option>
                 <option value="Fashion & Apparel">Fashion & Apparel</option>
-                <option value="Electronics">Electronics</option>
+                <option value="Electronics & Gadgets">Electronics & Gadgets</option>
+                <option value="Health & Beauty">Health & Beauty</option>
+                <option value="Food & Groceries">Food & Groceries</option>
+                <option value="Home & Living">Home & Living</option>
               </select>
             </div>
 
-            <FormField name="taxId" label="Registration Number / Tax ID" defaultValue={initialTaxId || ''} />
+            <FormField
+              name="taxId"
+              label="Registration Number / Tax ID"
+              defaultValue={initialTaxId || ''}
+              hint="Optional tax/TIN identifier"
+            />
+
+            <FormField
+              name="storeEmail"
+              type="email"
+              label="Store Contact Email"
+              defaultValue={initialStoreEmail || ''}
+              hint="Public customer support email"
+            />
+
+            <div className="space-y-1.5">
+              <label htmlFor="storeCurrency" className="text-xs font-semibold text-primary">
+                Default Operating Currency
+              </label>
+              <select
+                id="storeCurrency"
+                name="storeCurrency"
+                defaultValue={initialStoreCurrency || 'GHS'}
+                className="w-full rounded-md border border-separator bg-surface px-3.5 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                <option value="GHS">GHS (₵) - Ghanaian Cedi</option>
+                <option value="NGN">NGN (₦) - Nigerian Naira</option>
+                <option value="USD">USD ($) - US Dollar</option>
+                <option value="KES">KES (KSh) - Kenyan Shilling</option>
+              </select>
+            </div>
           </div>
 
           <div className="w-full h-px bg-separator/50 my-6" />

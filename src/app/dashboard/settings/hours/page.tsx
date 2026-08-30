@@ -1,89 +1,25 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
-import { Switch } from '@/components/ui/Switch';
-import { Button } from '@/components/ui/Button';
-import { Clock } from 'lucide-react';
+import { Metadata } from 'next';
+import { getBusinessHours } from '@/app/actions/settings-business';
+import { HoursForm } from './components/HoursForm';
 
-const DAYS_OF_WEEK = [
-  { id: 'mon', name: 'Monday', defaultOpen: true },
-  { id: 'tue', name: 'Tuesday', defaultOpen: true },
-  { id: 'wed', name: 'Wednesday', defaultOpen: true },
-  { id: 'thu', name: 'Thursday', defaultOpen: true },
-  { id: 'fri', name: 'Friday', defaultOpen: true },
-  { id: 'sat', name: 'Saturday', defaultOpen: false },
-  { id: 'sun', name: 'Sunday', defaultOpen: false },
-];
+export const metadata: Metadata = {
+  title: 'Business Hours | Merchander',
+  description: 'Configure your operating hours and storefront availability schedule.',
+};
 
-export default function BusinessHoursSettingsPage() {
+export default async function BusinessHoursSettingsPage() {
+  const settings = await getBusinessHours();
+
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-primary">Business Hours</h1>
         <p className="text-sm text-secondary mt-1">
-          Configure when your store is open for business and accepting orders.
+          Configure when your store is open for business, taking orders, and answering customer chats.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-              <Clock className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <CardTitle>Operating Hours</CardTitle>
-              <CardDescription>Customers will see these hours on your storefront.</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-0 p-0">
-          <div className="divide-y divide-separator/50">
-            {DAYS_OF_WEEK.map((day) => (
-              <div key={day.id} className="flex items-center justify-between p-5">
-                <div className="flex items-center gap-4 w-40">
-                  <Switch defaultChecked={day.defaultOpen} aria-label={`Open on ${day.name}`} />
-                  <span className={`text-sm font-medium ${day.defaultOpen ? 'text-primary' : 'text-muted'}`}>
-                    {day.name}
-                  </span>
-                </div>
-
-                {day.defaultOpen ? (
-                  <div className="flex items-center gap-3 flex-1 justify-end sm:justify-start">
-                    <select
-                      aria-label={`${day.name} opening time`}
-                      defaultValue="09:00 AM"
-                      className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                    >
-                      <option value="08:00 AM">08:00 AM</option>
-                      <option value="09:00 AM">09:00 AM</option>
-                      <option value="10:00 AM">10:00 AM</option>
-                    </select>
-                    <span className="text-muted text-xs">to</span>
-                    <select
-                      aria-label={`${day.name} closing time`}
-                      defaultValue="05:00 PM"
-                      className="w-28 rounded-md border border-separator bg-surface px-3 py-1.5 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                    >
-                      <option value="04:00 PM">04:00 PM</option>
-                      <option value="05:00 PM">05:00 PM</option>
-                      <option value="06:00 PM">06:00 PM</option>
-                    </select>
-                  </div>
-                ) : (
-                  <div className="flex-1 text-right sm:text-left">
-                    <span className="text-xs text-muted italic px-3">Closed</span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </CardBody>
-        <CardFooter className="justify-end">
-          <Button variant="outline" size="sm" disabled>
-            Save Hours
-            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-muted">Coming Soon</span>
-          </Button>
-        </CardFooter>
-      </Card>
+      <HoursForm initialSettings={settings} />
     </div>
   );
 }

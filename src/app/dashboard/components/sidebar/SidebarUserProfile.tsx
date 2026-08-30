@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { LogOut, Loader2 } from 'lucide-react';
 
@@ -24,6 +25,9 @@ export function SidebarUserProfile({
   onLogout,
   onNavigate,
 }: SidebarUserProfileProps) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const hasValidImage = Boolean(avatarUrl && failedUrl !== avatarUrl);
+
   const userInitial = userName ? userName.charAt(0).toUpperCase() : userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
 
   return (
@@ -36,9 +40,15 @@ export function SidebarUserProfile({
         >
           <div className="w-8 h-8 shrink-0 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-2xs">
             <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
-              {avatarUrl ? (
+              {hasValidImage && avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
+                <img
+                  key={avatarUrl}
+                  src={avatarUrl}
+                  alt={userName}
+                  onError={() => setFailedUrl(avatarUrl)}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <span className="text-xs font-bold text-foreground">{userInitial}</span>
               )}

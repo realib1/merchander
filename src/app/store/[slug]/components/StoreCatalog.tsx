@@ -75,7 +75,7 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
             placeholder="Search catalog by name or keyword..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-surface border border-separator rounded-2xl pl-9 pr-4 py-2.5 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary shadow-xs transition"
+            className="w-full bg-surface border border-separator rounded-2xl pl-9 pr-4 py-2.5 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary shadow-xs transition"
           />
         </div>
 

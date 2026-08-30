@@ -16,6 +16,8 @@ const updateBusinessSchema = z.object({
   tradingName: z.string().max(100).optional(),
   industry: z.string().max(100).optional(),
   taxId: z.string().max(50, 'Tax ID / Registration Number must not exceed 50 characters').optional(),
+  storeEmail: z.string().email('Invalid store contact email').optional().or(z.literal('')),
+  storeCurrency: z.string().max(10).optional().default('GHS'),
   brandColor: hexColorSchema,
   brandSecondaryColor: hexColorSchema,
   businessStreet: z.string().max(200).optional(),
@@ -31,6 +33,8 @@ export async function updateBusinessProfile(formData: FormData) {
     tradingName: (formData.get('tradingName') as string) || undefined,
     industry: (formData.get('industry') as string) || undefined,
     taxId: (formData.get('taxId') as string) || undefined,
+    storeEmail: (formData.get('storeEmail') as string) || undefined,
+    storeCurrency: (formData.get('storeCurrency') as string) || 'GHS',
     brandColor: (formData.get('brandColor') as string) || undefined,
     brandSecondaryColor: (formData.get('brandSecondaryColor') as string) || undefined,
     businessStreet: (formData.get('businessStreet') as string) || undefined,
@@ -49,6 +53,8 @@ export async function updateBusinessProfile(formData: FormData) {
     tradingName,
     industry,
     taxId,
+    storeEmail,
+    storeCurrency,
     brandColor,
     brandSecondaryColor,
     businessStreet,
@@ -77,13 +83,15 @@ export async function updateBusinessProfile(formData: FormData) {
 
     if (updateTenantError) throw updateTenantError;
 
-    // Update Brand Color and Address
+    // Update Brand Color, Contact, Currency and Address
     const { error: updateSettingsError } = await supabase
       .from('tenant_settings')
       .update({
         trading_name: tradingName || null,
         industry: industry || null,
         tax_id: taxId || null,
+        store_email: storeEmail || null,
+        store_currency: storeCurrency || 'GHS',
         brand_primary_color: brandColor || null,
         brand_secondary_color: brandSecondaryColor || null,
         business_street: businessStreet || null,
@@ -97,94 +105,10 @@ export async function updateBusinessProfile(formData: FormData) {
     if (updateSettingsError) throw updateSettingsError;
 
     revalidatePath('/dashboard', 'layout');
+    revalidatePath('/dashboard/settings/business-profile');
     return { success: true };
   } catch (error) {
     console.error('Error updating business profile:', error);
     return { error: 'Failed to update business profile' };
-  }
-}
-
-const updateStoreSchema = z.object({
-  storeEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
-  storeCurrency: z.string().optional(),
-});
-
-export async function updateStoreSettings(formData: FormData) {
-  const rawData = {
-    storeEmail: formData.get('storeEmail'),
-    storeCurrency: formData.get('storeCurrency'),
-  };
-
-  const validation = updateStoreSchema.safeParse(rawData);
-  if (!validation.success) {
-    return { error: validation.error.errors[0].message };
-  }
-  const { storeEmail, storeCurrency } = validation.data;
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Not authenticated' };
-
-  try {
-    const { tenantId, role } = await getTenantInfo(supabase, user.id);
-
-    if (role !== 'owner' && role !== 'admin') {
-      return { error: 'You do not have permission to update store settings' };
-    }
-
-    const { error: updateError } = await supabase
-      .from('tenant_settings')
-      .update({
-        store_email: storeEmail || null,
-        store_currency: storeCurrency || 'GHS',
-      })
-      .eq('tenant_id', tenantId);
-
-    if (updateError) throw updateError;
-
-    revalidatePath('/dashboard/settings/store');
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating store settings:', error);
-    return { error: 'Failed to update store settings' };
-  }
-}
-
-export async function updateSecuritySettings(formData: FormData) {
-  // Add authentication update logic later, including password changing.
-  // For now, updating 2FA and SMS preferences in tenant_settings.
-  const twoFactor = formData.get('twoFactor') === 'on';
-  const smsRecovery = formData.get('smsRecovery') === 'on';
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Not authenticated' };
-
-  try {
-    const { tenantId, role } = await getTenantInfo(supabase, user.id);
-
-    if (role !== 'owner' && role !== 'admin') {
-      return { error: 'You do not have permission to update security settings' };
-    }
-
-    const { error: updateError } = await supabase
-      .from('tenant_settings')
-      .update({
-        two_factor_enabled: twoFactor,
-        sms_recovery_enabled: smsRecovery,
-      })
-      .eq('tenant_id', tenantId);
-
-    if (updateError) throw updateError;
-
-    revalidatePath('/dashboard/settings/security');
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating security settings:', error);
-    return { error: 'Failed to update security settings' };
   }
 }

@@ -152,14 +152,35 @@ export async function createOrderAction(formData: FormData) {
 
   // 6. Insert Payment Record
   if (data.paymentMethod) {
-    const paymentStatus =
-      data.paymentMethod === 'cash_payment' || data.paymentMethod === 'card_payment' ? 'completed' : 'pending';
+    const providerMap: Record<string, string> = {
+      momo: 'mtn_momo',
+      mtn_momo: 'mtn_momo',
+      telecel_cash: 'telecel_cash',
+      at_money: 'at_money',
+      card_payment: 'card',
+      card: 'card',
+      cash_payment: 'cash',
+      cash: 'cash',
+      cash_on_delivery: 'cash_on_delivery',
+      bank_transfer: 'bank_transfer',
+      hubtel: 'hubtel',
+      paystack: 'paystack',
+    };
+    const provider = providerMap[data.paymentMethod] || 'mtn_momo';
+    const isCompleted = provider === 'cash' || provider === 'card';
+    const paymentStatus = isCompleted ? 'completed' : 'pending';
+
     const { error: paymentError } = await supabase.from('payments').insert({
       tenant_id: tenantId,
       order_id: order.id,
-      provider: data.paymentMethod,
+      customer_id: customerId,
+      provider: provider,
       amount: totalAmount,
+      fee: 0,
+      net_amount: totalAmount,
       status: paymentStatus,
+      sender_phone: normalizedPhone,
+      sender_name: rawName,
     });
     if (paymentError) return { error: 'Failed to create payment record' };
   }

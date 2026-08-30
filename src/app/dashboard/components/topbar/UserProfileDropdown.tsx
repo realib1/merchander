@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { User, Settings, LogOut, Moon, Sun, ChevronDown } from 'lucide-react';
+import { User, Building2, LogOut, Moon, Sun, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeToggle } from '../ThemeToggle';
 
@@ -20,6 +21,9 @@ interface UserProfileDropdownProps {
 }
 
 export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserProfileDropdownProps) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const hasValidImage = Boolean(user.avatarUrl && failedUrl !== user.avatarUrl);
+
   const userInitial = user.fullName
     ? user.fullName.charAt(0).toUpperCase()
     : user.email
@@ -35,9 +39,15 @@ export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserPro
       >
         <div className="w-7 h-7 shrink-0 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-2xs">
           <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
-            {user.avatarUrl ? (
+            {hasValidImage && user.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+              <img
+                key={user.avatarUrl}
+                src={user.avatarUrl}
+                alt={user.fullName}
+                onError={() => setFailedUrl(user.avatarUrl || null)}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <span className="text-xs font-bold text-foreground">{userInitial}</span>
             )}
@@ -69,9 +79,15 @@ export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserPro
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 shrink-0 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-xs">
                   <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
-                    {user.avatarUrl ? (
+                    {hasValidImage && user.avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                      <img
+                        key={user.avatarUrl}
+                        src={user.avatarUrl}
+                        alt={user.fullName}
+                        onError={() => setFailedUrl(user.avatarUrl || null)}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <span className="text-sm font-bold text-foreground">{userInitial}</span>
                     )}
@@ -114,12 +130,12 @@ export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserPro
                 Account Profile
               </Link>
               <Link
-                href="/dashboard/settings"
+                href="/dashboard/settings/business-profile"
                 onClick={onClose}
                 className="w-full text-left px-3 py-2 text-xs font-medium text-foreground hover:bg-surface-elevated rounded-lg flex items-center gap-2.5 transition-colors"
               >
-                <Settings size={15} className="text-muted" />
-                Store Settings
+                <Building2 size={15} className="text-muted" />
+                Business Profile
               </Link>
             </div>
 

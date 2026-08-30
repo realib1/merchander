@@ -73,7 +73,7 @@ export function MerchantJourneySection() {
                       <div className="w-12 h-12 rounded-full bg-surface-elevated border border-brand-primary/50 flex items-center justify-center shadow-sm">
                         <Icon size={20} className="text-brand-primary" />
                       </div>
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-brand-primary text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm ring-2 ring-surface z-10">
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-primary rounded-full text-xs font-bold flex items-center justify-center shadow-sm ring-2 ring-surface z-20 leading-none">
                         {index + 1}
                       </div>
                     </div>
@@ -123,7 +123,7 @@ export function MerchantJourneySection() {
                       <div className="w-12 h-12 bg-surface-elevated rounded-full border border-brand-primary/50 flex items-center justify-center shadow-sm">
                         <Icon size={20} className="text-brand-primary" />
                       </div>
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-brand-primary text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm ring-2 ring-surface z-10">
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-primary rounded-full text-xs font-bold flex items-center justify-center shadow-sm ring-2 ring-surface z-20 leading-none">
                         {index + 1}
                       </div>
                     </div>

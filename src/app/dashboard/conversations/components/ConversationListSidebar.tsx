@@ -36,7 +36,7 @@ export function ConversationListSidebar({ threads, selectedThreadId, onSelectThr
             placeholder="Search name, phone, or intent..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-surface border border-separator rounded-xl pl-7 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+            className="w-full bg-surface border border-separator rounded-xl pl-7 pr-3 py-1.5 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
           />
         </div>
 

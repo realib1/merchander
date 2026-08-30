@@ -1,20 +1,64 @@
 'use client';
 
-import { useState, useActionState, useEffect } from 'react';
+import { useState, useTransition } from 'react';
 import { login } from '@/app/actions/auth';
 import { Mail, KeyRound, Eye, EyeOff, CircleAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [state, formAction, isPending] = useActionState(login, undefined);
+import { MfaChallengeForm } from './MfaChallengeForm';
 
-  // Show toast notification whenever the server action returns an error state
-  useEffect(() => {
-    if (state?.error) {
-      toast.error(state.error);
-    }
-  }, [state?.error]);
+interface LoginFormProps {
+  initialMfaRequired?: boolean;
+}
+
+export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [emailValue, setEmailValue] = useState('');
+  const [mfaRequired, setMfaRequired] = useState(initialMfaRequired);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = (formData.get('email') as string) || '';
+    setEmailValue(email);
+
+    startTransition(async () => {
+      try {
+        const result = await login(undefined, formData);
+        if (result?.error) {
+          setErrorMessage(result.error);
+          toast.error(result.error);
+        } else if (result?.mfaRequired) {
+          setMfaRequired(true);
+        }
+      } catch (err) {
+        // Allow Next.js internal redirect exceptions to bubble so router handles them
+        if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) {
+          throw err;
+        }
+        console.error('Login submission error:', err);
+        const msg = 'Unable to reach the server. Please verify your connection and try again.';
+        setErrorMessage(msg);
+        toast.error(msg);
+      }
+    });
+  };
+
+  if (mfaRequired) {
+    return (
+      <MfaChallengeForm
+        email={emailValue}
+        onBack={() => {
+          setMfaRequired(false);
+          setErrorMessage(null);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -55,14 +99,14 @@ export function LoginForm() {
         </div>
       </div>
 
-      {state?.error && (
+      {errorMessage && (
         <div className="py-2 px-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3">
           <CircleAlert size={18} className="mt-0.5 shrink-0" />
-          <div>{state.error}</div>
+          <div>{errorMessage}</div>
         </div>
       )}
 
-      <form action={formAction} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <label htmlFor="email" className="text-sm font-semibold  block">
             Email address
@@ -77,7 +121,8 @@ export function LoginForm() {
               name="email"
               placeholder="merchant@example.com"
               required
-              defaultValue={(state?.email as string) || ''}
+              value={emailValue}
+              onChange={(e) => setEmailValue(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-separator bg-surface focus:ring-2 focus:ring-brand-primary transition-all outline-none text-sm font-medium  shadow-sm placeholder:text-muted"
             />
           </div>

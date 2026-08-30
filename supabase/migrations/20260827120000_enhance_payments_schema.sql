@@ -41,8 +41,10 @@ CREATE INDEX IF NOT EXISTS idx_payments_tenant_customer ON public.payments(tenan
 CREATE INDEX IF NOT EXISTS idx_payments_tenant_order ON public.payments(tenant_id, order_id);
 
 -- 3. Update RLS policies to allow delete/update operations for tenant users
+DROP POLICY IF EXISTS "Users can update payments of their tenant." ON public.payments;
 CREATE POLICY "Users can update payments of their tenant." ON public.payments
   FOR UPDATE USING (tenant_id IN (SELECT public.get_auth_user_tenant_ids()));
 
+DROP POLICY IF EXISTS "Users can delete payments of their tenant." ON public.payments;
 CREATE POLICY "Users can delete payments of their tenant." ON public.payments
   FOR DELETE USING (tenant_id IN (SELECT public.get_auth_user_tenant_ids()));

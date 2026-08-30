@@ -1,9 +1,10 @@
-import { getCustomerById } from '@/app/actions/customers';
+import { getCustomerById, getCustomerIdentities } from '@/app/actions/customers';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { ArrowLeft, Mail, Phone, User, ShoppingBag, TrendingUp, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { MetricCard } from '../../components/MetricCard';
+import { CustomerIdentitiesCard, CustomerIdentity } from './components/CustomerIdentitiesCard';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,8 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function CustomerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // If this throws, we should ideally catch it in a generic error boundary, but let's assume it works for the happy path.
-  const customer = await getCustomerById(id);
+  const [customer, identities] = await Promise.all([getCustomerById(id), getCustomerIdentities(id)]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -102,8 +102,10 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
         />
       </div>
 
-      <div className="mt-4">
-        <h2 className="text-xl font-bold  mb-4">Order History</h2>
+      <CustomerIdentitiesCard customerId={id} initialIdentities={(identities || []) as unknown as CustomerIdentity[]} />
+
+      <div className="mt-2">
+        <h2 className="text-xl font-bold text-foreground mb-4 font-display">Order History</h2>
         <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">

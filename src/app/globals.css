@@ -19,9 +19,11 @@
   --color-success: var(--success);
   --color-info: var(--info);
   --color-background: var(--background);
+  --color-foreground: var(--text-primary);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
   --color-primary: var(--text-primary);
+  --color-text-primary: var(--text-primary);
   --color-secondary: var(--text-secondary);
   --color-muted: var(--text-muted);
   --color-separator: var(--separator);
@@ -239,7 +241,13 @@
     outline-offset: 2px;
   }
 
-  /* Custom Scrollbar */
+  /* Cross-Browser Custom Scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-separator) transparent;
+  }
+
+  /* WebKit Scrollbar Styling (Chrome, Safari, Edge, Opera) */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -258,10 +266,42 @@
     background: var(--color-muted);
   }
 
-  /* Thinner scrollbar for specific elements */
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Thinner Custom Scrollbar for specific overflow containers */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-separator) transparent;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
     height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-separator);
+    border-radius: var(--radius-full);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted);
+  }
+
+  /* Hide Scrollbar Utility */
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   /* Override Chrome Autofill Background */

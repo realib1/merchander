@@ -46,7 +46,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           <Search size={20} className="text-muted mr-3 shrink-0" />
           <input
             type="text"
-            className="flex-1 bg-transparent border-none focus:outline-none text-base text-foreground placeholder:text-muted"
+            className="flex-1 bg-transparent border-none focus:outline-none text-base placeholder:text-muted"
             placeholder="Search products, orders, customers..."
             value={query}
             onChange={(e) => {

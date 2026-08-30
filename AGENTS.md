@@ -34,6 +34,7 @@ These principles MUST be adhered to across the entire codebase. Detailed guideli
 17. **Graceful Error Handling**: Do not allow errors to fail silently. Always implement proper error boundaries, try-catch blocks, and meaningful logging so that issues can be diagnosed easily.
 18. **Clean Code & Comments**: Write code that explains itself through clear naming. Only use comments to explain *why* a decision was made, not *what* the code is doing. Avoid leaving commented-out dead code.
 19. **Strict Type Safety (No `any`)**: NEVER use the `any` type in TypeScript. Always define explicit, strong types or interfaces. If a type is truly unknown, use `unknown` and perform proper type narrowing before usage.
+20. **Production-First & Zero-Fluff (Real Commercial SaaS)**: This is a real, revenue-generating commercial product, not a portfolio or demo project. Think thoroughly about every design, architectural decision, and feature before implementing. Never introduce hardcoded mock data, ornamental widgets, fake status scores, or redundant unrequested fluff that has no functional impact. Every component, database model, server action, and UI element must be production-grade, backed by real data contracts, and directly advance the platform toward live production launch.
 
 # AI Agent Workflow Checklist
 

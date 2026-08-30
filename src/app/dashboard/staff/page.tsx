@@ -73,7 +73,7 @@ export default async function StaffPage() {
       </div>
 
       {/* 3. Staff Data Table */}
-      <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-100">
+      <div className="flex-1 flex flex-col overflow-hidden shadow-xs min-h-100">
         <StaffTable staff={staff} customRoles={customRoles} />
       </div>
     </div>

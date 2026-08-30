@@ -79,15 +79,21 @@ values
 ('71000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', 'Guangzhou Fashion Co.', 'Mr. Wang', 900.00, 'China'),
 ('72000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', 'Accra Weavers Guild', 'Kwasi Yeboah', 0.00, 'Ghana');
 
--- 13. Create Shipments
-insert into public.shipments (id, tenant_id, supplier_id, tracking_number, status, eta)
+-- 13. Create Purchase Orders
+insert into public.purchase_orders (id, tenant_id, supplier_id, status, eta)
 values 
-('81000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', '71000000-0000-0000-0000-000000000000', 'SHP-024', 'in_transit', timezone('utc'::text, now() + interval '2 days')),
-('82000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', '72000000-0000-0000-0000-000000000000', 'SHP-025', 'pending', timezone('utc'::text, now() + interval '10 days'));
+('81000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', '71000000-0000-0000-0000-000000000000', 'ordered', timezone('utc'::text, now() + interval '2 days')),
+('82000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', '72000000-0000-0000-0000-000000000000', 'ordered', timezone('utc'::text, now() + interval '10 days'));
 
--- 14. Create Shipment Items
-insert into public.shipment_items (shipment_id, variant_id, quantity, cost_price)
+-- 14. Create Purchase Order Items
+insert into public.purchase_order_items (purchase_order_id, variant_id, quantity, cost_price)
 values 
 ('81000000-0000-0000-0000-000000000000', '52100000-0000-0000-0000-000000000000', 86, 72.00),
 ('82000000-0000-0000-0000-000000000000', '51100000-0000-0000-0000-000000000000', 100, 510.00);
+
+-- 15. Create Shipments (Logistics)
+insert into public.shipments (id, tenant_id, supplier_id, purchase_order_id, title, tracking_number, status, freight_mode, eta)
+values 
+('91000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', '71000000-0000-0000-0000-000000000000', '81000000-0000-0000-0000-000000000000', 'Q3 Fabric Restock - Guangzhou', 'SHP-024', 'in_transit', 'sea', timezone('utc'::text, now() + interval '2 days')),
+('92000000-0000-0000-0000-000000000000', '11000000-0000-0000-0000-000000000000', '72000000-0000-0000-0000-000000000000', '82000000-0000-0000-0000-000000000000', 'Kente Batch #12 - Bonwire', 'SHP-025', 'booked', 'road', timezone('utc'::text, now() + interval '10 days'));
 

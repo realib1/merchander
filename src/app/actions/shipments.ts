@@ -91,7 +91,7 @@ export async function getShipments(): Promise<{ data: Shipment[] | null; error: 
   if (poIds.length > 0) {
     const { data: pos } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, status, total_cost')
+      .select('id, po_number, status, supplier_cost, shipping_cost, import_cost')
       .in('id', poIds)
       .eq('tenant_id', tenantId);
     if (pos) {
@@ -100,7 +100,7 @@ export async function getShipments(): Promise<{ data: Shipment[] | null; error: 
           id: po.id,
           po_number: po.po_number || `PO-${po.id.slice(0, 6)}`,
           status: po.status,
-          total_cost: Number(po.total_cost) || 0,
+          total_cost: (Number(po.supplier_cost) || 0) + (Number(po.shipping_cost) || 0) + (Number(po.import_cost) || 0),
         })
       );
     }
@@ -165,7 +165,7 @@ export async function getShipmentById(id: string): Promise<{ data: Shipment | nu
   if (rawShipment.purchase_order_id) {
     const { data: poData } = await supabase
       .from('purchase_orders')
-      .select('id, po_number, status, total_cost')
+      .select('id, po_number, status, supplier_cost, shipping_cost, import_cost')
       .eq('id', rawShipment.purchase_order_id)
       .eq('tenant_id', tenantId)
       .single();
@@ -174,7 +174,8 @@ export async function getShipmentById(id: string): Promise<{ data: Shipment | nu
         id: poData.id,
         po_number: poData.po_number || `PO-${poData.id.slice(0, 6)}`,
         status: poData.status,
-        total_cost: Number(poData.total_cost) || 0,
+        total_cost:
+          (Number(poData.supplier_cost) || 0) + (Number(poData.shipping_cost) || 0) + (Number(poData.import_cost) || 0),
       };
     }
   }

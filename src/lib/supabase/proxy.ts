@@ -6,27 +6,72 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+            supabaseResponse = NextResponse.next({
+              request,
+            });
+            cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
-        },
-      },
-    }
-  );
+      }
+    );
 
-  // refreshing the auth token
-  await supabase.auth.getUser();
+    // Refresh the auth token safely
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const isProtectedPath =
+      request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/superadmin');
+
+    // Route protection: redirect to /login if unauthenticated and accessing protected routes
+    if (!user && isProtectedPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      const redirectResponse = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+      return redirectResponse;
+    }
+
+    // 2FA Enforcement: If user is authenticated at AAL1 but requires AAL2, redirect to /login
+    if (user && isProtectedPath) {
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aalData && aalData.currentLevel === 'aal1' && aalData.nextLevel === 'aal2') {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        url.searchParams.set('mfa', 'required');
+        const redirectResponse = NextResponse.redirect(url);
+        supabaseResponse.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+        return redirectResponse;
+      }
+    }
+
+    // If fully authenticated user visits /login via direct GET navigation, redirect to /dashboard
+    const isServerAction = request.headers.has('next-action');
+    if (user && request.nextUrl.pathname === '/login' && request.method === 'GET' && !isServerAction) {
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const needsMfa = aalData && aalData.currentLevel === 'aal1' && aalData.nextLevel === 'aal2';
+      if (!needsMfa) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/dashboard';
+        const redirectResponse = NextResponse.redirect(url);
+        supabaseResponse.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+        return redirectResponse;
+      }
+    }
+  } catch (err) {
+    console.error('Session update error in proxy:', err);
+  }
 
   return supabaseResponse;
 }

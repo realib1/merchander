@@ -1,18 +1,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MoreHorizontal, Edit, PackageSearch, Trash2, Eye } from 'lucide-react';
+import { MoreHorizontal, Edit, PackageSearch, Trash2, Eye, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 
 import { deleteProduct } from '@/app/actions/products-mutations';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { ProductFlyerModal } from './ProductFlyerModal';
 
-export function ProductsActionMenu({ productId }: { productId: string }) {
+interface ProductsActionMenuProps {
+  productId: string;
+  product?: {
+    id: string;
+    name: string;
+    price: number;
+    image_url?: string | null;
+    availability_status?: string | null;
+    category_name?: string | null;
+    description?: string | null;
+    total_stock?: number;
+    stock_unit?: string | null;
+    preorder_shipping_mode?: string | null;
+  };
+}
+
+export function ProductsActionMenu({ productId, product }: ProductsActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isFlyerModalOpen, setIsFlyerModalOpen] = useState(false);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -65,12 +83,12 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-8 top-0 w-40 bg-surface border border-separator rounded-xl shadow-lg z-50 overflow-hidden text-left"
+            className="absolute right-8 top-0 w-48 bg-surface border border-separator rounded-xl shadow-lg z-50 overflow-hidden text-left"
           >
             <div role="menu" className="p-1">
               <Link
                 href={`/dashboard/products/${productId}`}
-                className="w-full px-3 py-2 text-sm  hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-sm hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors text-foreground"
                 role="menuitem"
               >
                 <Eye size={14} />
@@ -78,7 +96,7 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
               </Link>
               <Link
                 href={`/dashboard/products/${productId}/edit`}
-                className="w-full px-3 py-2 text-sm  hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-sm hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors text-foreground"
                 role="menuitem"
               >
                 <Edit size={14} />
@@ -86,12 +104,28 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
               </Link>
               <Link
                 href={`/dashboard/inventory?product=${productId}`}
-                className="w-full px-3 py-2 text-sm  hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-sm hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors text-foreground"
                 role="menuitem"
               >
                 <PackageSearch size={14} />
                 Inventory
               </Link>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  setIsFlyerModalOpen(true);
+                }}
+                className="w-full px-3 py-2 text-sm hover:text-brand-primary hover:bg-surface-elevated rounded-lg flex items-center gap-2 transition-colors text-foreground"
+              >
+                <QrCode size={14} />
+                Share Flyer & QR
+              </button>
+
               <div className="h-px bg-separator my-1 mx-2" role="separator" />
               <button
                 role="menuitem"
@@ -120,6 +154,10 @@ export function ProductsActionMenu({ productId }: { productId: string }) {
         isDestructive={true}
         isLoading={isDeleting}
       />
+
+      {product && (
+        <ProductFlyerModal isOpen={isFlyerModalOpen} onClose={() => setIsFlyerModalOpen(false)} product={product} />
+      )}
     </div>
   );
 }

@@ -1,9 +1,12 @@
 'use client';
 
+import { useTransition } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, User, MapPin, Package, Calendar, Tag, ArrowRight } from 'lucide-react';
+import { X, User, MapPin, Package, Calendar, Tag, ArrowRight, Truck, MessageCircle, Loader2 } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
+import { updateOrderStatus } from '@/app/actions/orders';
+import { toast } from 'sonner';
 import Link from 'next/link';
 
 interface Order {
@@ -35,7 +38,44 @@ export function OrderDetailsSheet({
   onClose: () => void;
   order: Order | null;
 }) {
+  const [isPending, startTransition] = useTransition();
+
   if (!order) return null;
+
+  const handleMarkDispatched = () => {
+    startTransition(async () => {
+      try {
+        const res = await updateOrderStatus(order.id, 'dispatched');
+        if (res?.error) {
+          toast.error(res.error);
+        } else {
+          toast.success('Order marked as dispatched');
+          onClose();
+        }
+      } catch {
+        toast.error('Failed to update status');
+      }
+    });
+  };
+
+  const handleWhatsAppReceipt = () => {
+    if (!order.customer?.phone) {
+      toast.error('Customer phone number not available');
+      return;
+    }
+    const cleanPhone = order.customer.phone.replace(/[^0-9]/g, '');
+    const itemsText = (order.items || [])
+      .map((it) => `• ${it.quantity}x ${it.variant?.product?.name || 'Product'} (${it.variant?.name || 'Standard'})`)
+      .join('\n');
+
+    const msg = `🧾 *Order Receipt #${order.short_id || order.id.substring(0, 8).toUpperCase()}*\nHello ${
+      order.customer.name || 'valued customer'
+    },\n\nHere is your order summary:\n${itemsText}\n\n💰 *Total Paid:* ${formatCurrency(
+      order.total_amount || 0
+    )}\n📍 *Delivery:* ${order.delivery_address || 'Standard Delivery'}\n\nThank you for shopping with us!`;
+
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -46,7 +86,7 @@ export function OrderDetailsSheet({
       case 'dispatched':
         return 'bg-info/10 text-info';
       default:
-        return 'bg-surface-elevated ';
+        return 'bg-surface-elevated text-foreground';
     }
   };
 
@@ -78,12 +118,15 @@ export function OrderDetailsSheet({
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-separator">
               <div>
-                <h2 className="text-xl font-display font-bold text-brand-primary">Order Details</h2>
+                <h2 className="text-xl font-display font-bold text-foreground">Order Details</h2>
                 <p className="text-xs font-mono text-muted mt-1 uppercase">
                   #{order.short_id ? order.short_id : order.id.split('-')[0]}
                 </p>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-surface-elevated rounded-lg transition-colors">
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-surface-elevated rounded-lg transition-colors text-muted hover:text-foreground"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -92,58 +135,55 @@ export function OrderDetailsSheet({
             <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
               {/* Status & Date */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-sm text-muted">
                   <Calendar size={16} />
                   {new Date(order.created_at).toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
                   })}
                 </div>
-                <div className={`px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}`}>
                   {getStatusLabel(order.status)}
-                </div>
+                </span>
               </div>
 
               {/* Customer Details */}
-              <div>
-                <h3 className="text-xs font-bold text-muted uppercase tracking-wider mb-4 flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <User size={14} /> Customer Information
-                  </span>
-                  {order.customer_id && (
-                    <Link
-                      href={`/dashboard/customers/${order.customer_id}`}
-                      className="text-brand-primary hover:text-brand-primary-600 transition-colors flex items-center gap-1 normal-case tracking-normal"
-                      onClick={onClose}
-                    >
-                      View Profile <ArrowRight aria-hidden="true" size={16} />
-                    </Link>
-                  )}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-2">
+                  <User size={14} /> Customer Information
                 </h3>
-                <div className="bg-surface-elevated p-4 rounded-xl border border-separator space-y-3">
-                  <div>
-                    <div className="text-xs text-muted">Name</div>
-                    <div className="text-sm font-semibold">{order.customer?.name || 'Unknown'}</div>
+                <div className="bg-surface-elevated p-4 rounded-xl border border-separator space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-foreground">
+                      {order.customer?.name || 'Walk-in Customer'}
+                    </span>
+                    {order.customer_id && (
+                      <Link
+                        href={`/dashboard/customers/${order.customer_id}`}
+                        className="text-xs text-brand-primary font-semibold hover:underline flex items-center gap-1"
+                      >
+                        View Profile <ArrowRight size={12} />
+                      </Link>
+                    )}
                   </div>
-                  <div>
-                    <div className="text-xs text-muted">Phone</div>
-                    <div className="text-sm font-semibold">
-                      {order.customer?.phone ? formatGhanaLocalDisplay(order.customer.phone) : 'N/A'}
-                    </div>
-                  </div>
-                  {order.delivery_address && (
-                    <div>
-                      <div className="text-xs text-muted flex items-center gap-1">
-                        <MapPin size={12} /> Address
-                      </div>
-                      <div className="text-sm mt-0.5">{order.delivery_address}</div>
-                    </div>
+                  {order.customer?.phone && (
+                    <div className="text-xs text-muted font-mono">{formatGhanaLocalDisplay(order.customer.phone)}</div>
                   )}
                 </div>
               </div>
+
+              {/* Delivery Address */}
+              {order.delivery_address && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-2">
+                    <MapPin size={14} /> Delivery Address
+                  </h3>
+                  <div className="bg-surface-elevated p-4 rounded-xl border border-separator text-xs text-foreground leading-relaxed">
+                    {order.delivery_address}
+                  </div>
+                </div>
+              )}
 
               {/* Order Items */}
               <div>
@@ -155,14 +195,16 @@ export function OrderDetailsSheet({
                     {order.items?.map((item) => (
                       <li key={item.id} className="p-4 flex items-center justify-between">
                         <div>
-                          <div className="text-sm font-semibold">
+                          <div className="text-sm font-semibold text-foreground">
                             {item.variant?.product?.name || 'Product'}{' '}
                             {item.variant?.name ? `- ${item.variant.name}` : ''}
                           </div>
                           <div className="text-xs text-muted mt-0.5">Qty: {item.quantity}</div>
                         </div>
                         {item.unit_price && (
-                          <div className="text-sm font-semibold">{formatCurrency(item.unit_price * item.quantity)}</div>
+                          <div className="text-sm font-semibold text-foreground">
+                            {formatCurrency(item.unit_price * item.quantity)}
+                          </div>
                         )}
                       </li>
                     ))}
@@ -180,18 +222,18 @@ export function OrderDetailsSheet({
                 </h3>
                 <div className="bg-surface-elevated p-4 rounded-xl border border-separator space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="">Subtotal</span>
-                    <span className="font-medium">
+                    <span className="text-muted">Subtotal</span>
+                    <span className="font-medium text-foreground">
                       {formatCurrency((order.total_amount || 0) - (order.delivery_fee || 0))}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="">Delivery</span>
-                    <span className="font-medium">{formatCurrency(order.delivery_fee || 0)}</span>
+                    <span className="text-muted">Delivery</span>
+                    <span className="font-medium text-foreground">{formatCurrency(order.delivery_fee || 0)}</span>
                   </div>
                   <div className="pt-2 border-t border-separator mt-2 flex justify-between">
-                    <span className="font-semibold text-brand-primary">Total</span>
-                    <span className="font-black text-brand-primary font-display">
+                    <span className="font-semibold text-foreground">Total</span>
+                    <span className="font-black text-brand-primary font-display text-base">
                       {formatCurrency(order.total_amount || 0)}
                     </span>
                   </div>
@@ -200,10 +242,36 @@ export function OrderDetailsSheet({
             </div>
 
             {/* Footer actions */}
-            <div className="p-4 border-t border-separator bg-surface-elevated/50 flex gap-3">
+            <div className="p-4 border-t border-separator bg-surface-elevated/50 flex flex-col gap-2">
+              <div className="flex gap-2">
+                {order.status === 'paid' && (
+                  <button
+                    type="button"
+                    onClick={handleMarkDispatched}
+                    disabled={isPending}
+                    className="flex-1 px-3 py-2 bg-brand-primary text-white rounded-xl text-xs font-bold hover:bg-brand-primary-600 transition-colors flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
+                  >
+                    {isPending ? <Loader2 size={13} className="animate-spin" /> : <Truck size={13} />}
+                    <span>Mark Dispatched</span>
+                  </button>
+                )}
+
+                {order.customer?.phone && (
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppReceipt}
+                    className="flex-1 px-3 py-2 bg-[#25D366] text-white rounded-xl text-xs font-bold hover:bg-[#20bd5a] transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                  >
+                    <MessageCircle size={13} />
+                    <span>WhatsApp Receipt</span>
+                  </button>
+                )}
+              </div>
+
               <button
+                type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 bg-surface  border border-separator rounded-xl text-sm font-semibold hover:bg-surface-elevated transition-colors"
+                className="w-full px-4 py-2 bg-surface border border-separator rounded-xl text-xs font-semibold text-foreground hover:bg-surface-elevated transition-colors"
               >
                 Close
               </button>

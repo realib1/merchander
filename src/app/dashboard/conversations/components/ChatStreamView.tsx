@@ -212,7 +212,7 @@ export function ChatStreamView({ thread, quickReplies, onCreateOrder }: ChatStre
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder={`Reply to ${thread.customerName} on ${channelBadge.label}...`}
-          className="flex-1 bg-surface-elevated border border-separator rounded-xl px-4 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+          className="flex-1 bg-surface-elevated border border-separator rounded-xl px-4 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
         />
         <button
           type="submit"

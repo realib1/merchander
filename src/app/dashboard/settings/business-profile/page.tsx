@@ -27,7 +27,7 @@ export default async function BusinessProfileSettingsPage() {
     tenantSettings = await getTenantSettings(
       supabase,
       tenantId,
-      'trading_name, industry, tax_id, brand_primary_color, brand_secondary_color, business_street, business_city, business_state, business_zip, business_country'
+      'trading_name, industry, tax_id, store_email, store_currency, brand_primary_color, brand_secondary_color, business_street, business_city, business_state, business_zip, business_country'
     );
   } catch (error) {
     console.error('Error fetching tenant business settings:', error);
@@ -36,8 +36,8 @@ export default async function BusinessProfileSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Business Profile</h1>
-        <p className="text-sm text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground font-display">Business Profile</h1>
+        <p className="text-sm text-muted mt-1">
           Manage your company&apos;s legal information, brand identity, and contact details.
         </p>
       </div>
@@ -48,6 +48,8 @@ export default async function BusinessProfileSettingsPage() {
           initialTradingName={tenantSettings?.trading_name ?? null}
           initialIndustry={tenantSettings?.industry ?? null}
           initialTaxId={tenantSettings?.tax_id ?? null}
+          initialStoreEmail={tenantSettings?.store_email ?? null}
+          initialStoreCurrency={tenantSettings?.store_currency || 'GHS'}
           initialBrandColor={tenantSettings?.brand_primary_color ?? null}
           initialBrandSecondaryColor={tenantSettings?.brand_secondary_color ?? null}
           initialStreet={tenantSettings?.business_street ?? null}

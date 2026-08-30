@@ -46,7 +46,7 @@ export function AnalyticsProductRankings({ topProducts, categories }: AnalyticsP
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-surface-elevated border border-separator rounded-lg pl-7 pr-3 py-1 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition w-36 sm:w-44"
+                  className="bg-surface-elevated border border-separator rounded-lg pl-7 pr-3 py-1 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition w-36 sm:w-44"
                 />
               </div>
 

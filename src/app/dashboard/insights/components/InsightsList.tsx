@@ -84,7 +84,7 @@ export function InsightsList({ insights }: InsightsListProps) {
             placeholder="Search signals..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs bg-surface border border-separator rounded-xl text-foreground focus:ring-2 focus:ring-brand-primary/40 focus:outline-none placeholder:text-muted"
+            className="w-full pl-9 pr-4 py-1.5 text-xs bg-surface border border-separator rounded-xl focus:ring-2 focus:ring-brand-primary/40 focus:outline-none placeholder:text-muted"
           />
         </div>
       </div>

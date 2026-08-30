@@ -131,7 +131,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
             placeholder="Search by ref, phone, sender, customer, or notes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted focus:ring-2 focus:ring-brand-primary/50 outline-none transition-all"
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-separator bg-surface placeholder:text-muted focus:ring-2 focus:ring-brand-primary/50 outline-none transition-all"
           />
         </div>
 

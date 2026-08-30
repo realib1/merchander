@@ -224,3 +224,107 @@ export async function bulkDeleteCustomers(customerIds: string[]) {
   revalidatePath('/dashboard/customers');
   return { success: true };
 }
+
+export async function getCustomerIdentities(customerId: string) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data: tenantUser } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .single();
+    if (!tenantUser) return [];
+
+    const { data, error } = await supabase
+      .from('customer_identities')
+      .select('*')
+      .eq('customer_id', customerId)
+      .eq('tenant_id', tenantUser.tenant_id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      if (error.code === '42P01') {
+        // Table not yet migrated in database environment
+        return [];
+      }
+      console.warn('Notice: Could not fetch customer identities:', error.message || error.code || error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.warn('Notice: Error in getCustomerIdentities:', err instanceof Error ? err.message : err);
+    return [];
+  }
+}
+
+export async function linkCustomerIdentity(
+  customerId: string,
+  channel: 'whatsapp' | 'instagram' | 'facebook' | 'telegram' | 'storefront',
+  identifier: string,
+  profileData?: Record<string, unknown>
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  if (!tenantUser) throw new Error('Tenant not found');
+
+  const { data, error } = await supabase
+    .from('customer_identities')
+    .upsert(
+      {
+        tenant_id: tenantUser.tenant_id,
+        customer_id: customerId,
+        channel,
+        identifier: identifier.trim(),
+        profile_data: profileData ? JSON.stringify(profileData) : null,
+        is_verified: true,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id,channel,identifier' }
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error linking customer identity:', error);
+    throw new Error(`Failed to link identity: ${error.message}`);
+  }
+
+  revalidatePath(`/dashboard/customers/${customerId}`);
+  return data;
+}
+
+export async function removeCustomerIdentity(identityId: string, customerId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  if (!tenantUser) throw new Error('Tenant not found');
+
+  const { error } = await supabase
+    .from('customer_identities')
+    .delete()
+    .eq('id', identityId)
+    .eq('tenant_id', tenantUser.tenant_id);
+
+  if (error) {
+    console.error('Error removing customer identity:', error);
+    throw new Error(`Failed to remove identity: ${error.message}`);
+  }
+
+  revalidatePath(`/dashboard/customers/${customerId}`);
+  return { success: true };
+}

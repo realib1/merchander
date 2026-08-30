@@ -1047,6 +1047,296 @@ export type Database = {
         };
         Relationships: [];
       };
+      customer_identities: {
+        Row: {
+          channel: string;
+          created_at: string;
+          customer_id: string;
+          id: string;
+          identifier: string;
+          is_verified: boolean;
+          profile_data: Json | null;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          channel: string;
+          created_at?: string;
+          customer_id: string;
+          id?: string;
+          identifier: string;
+          is_verified?: boolean;
+          profile_data?: Json | null;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          channel?: string;
+          created_at?: string;
+          customer_id?: string;
+          id?: string;
+          identifier?: string;
+          is_verified?: boolean;
+          profile_data?: Json | null;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'customer_identities_customer_id_fkey';
+            columns: ['customer_id'];
+            isOneToOne: false;
+            referencedRelation: 'customers';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'customer_identities_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      channel_connections: {
+        Row: {
+          channel: string;
+          created_at: string;
+          credentials: Json | null;
+          error_message: string | null;
+          id: string;
+          last_health_check: string | null;
+          settings: Json | null;
+          status: string;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          channel: string;
+          created_at?: string;
+          credentials?: Json | null;
+          error_message?: string | null;
+          id?: string;
+          last_health_check?: string | null;
+          settings?: Json | null;
+          status?: string;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          channel?: string;
+          created_at?: string;
+          credentials?: Json | null;
+          error_message?: string | null;
+          id?: string;
+          last_health_check?: string | null;
+          settings?: Json | null;
+          status?: string;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'channel_connections_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      workflow_logs: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string;
+          event_type: string;
+          id: string;
+          payload: Json | null;
+          source: string;
+          tenant_id: string;
+        };
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type: string;
+          event_type: string;
+          id?: string;
+          payload?: Json | null;
+          source: string;
+          tenant_id: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          event_type?: string;
+          id?: string;
+          payload?: Json | null;
+          source?: string;
+          tenant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workflow_logs_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      flyer_shares: {
+        Row: {
+          channel_target: string | null;
+          created_at: string;
+          id: string;
+          orders_count: number;
+          product_id: string;
+          scans_count: number;
+          short_code: string;
+          tenant_id: string;
+          updated_at: string;
+          views_count: number;
+        };
+        Insert: {
+          channel_target?: string | null;
+          created_at?: string;
+          id?: string;
+          orders_count?: number;
+          product_id: string;
+          scans_count?: number;
+          short_code: string;
+          tenant_id: string;
+          updated_at?: string;
+          views_count?: number;
+        };
+        Update: {
+          channel_target?: string | null;
+          created_at?: string;
+          id?: string;
+          orders_count?: number;
+          product_id?: string;
+          scans_count?: number;
+          short_code?: string;
+          tenant_id?: string;
+          updated_at?: string;
+          views_count?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'flyer_shares_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'flyer_shares_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      shipments: {
+        Row: {
+          carrier: string | null;
+          cbm: number | null;
+          created_at: string;
+          currency: string;
+          customs_duty: number | null;
+          departure_date: string | null;
+          destination_port: string | null;
+          eta: string | null;
+          freight_mode: string;
+          id: string;
+          notes: string | null;
+          origin_port: string | null;
+          purchase_order_id: string | null;
+          shipping_cost: number | null;
+          status: string;
+          supplier_id: string | null;
+          tenant_id: string;
+          title: string;
+          tracking_number: string | null;
+          updated_at: string;
+          weight_kg: number | null;
+        };
+        Insert: {
+          carrier?: string | null;
+          cbm?: number | null;
+          created_at?: string;
+          currency?: string;
+          customs_duty?: number | null;
+          departure_date?: string | null;
+          destination_port?: string | null;
+          eta?: string | null;
+          freight_mode?: string;
+          id?: string;
+          notes?: string | null;
+          origin_port?: string | null;
+          purchase_order_id?: string | null;
+          shipping_cost?: number | null;
+          status?: string;
+          supplier_id?: string | null;
+          tenant_id: string;
+          title: string;
+          tracking_number?: string | null;
+          updated_at?: string;
+          weight_kg?: number | null;
+        };
+        Update: {
+          carrier?: string | null;
+          cbm?: number | null;
+          created_at?: string;
+          currency?: string;
+          customs_duty?: number | null;
+          departure_date?: string | null;
+          destination_port?: string | null;
+          eta?: string | null;
+          freight_mode?: string;
+          id?: string;
+          notes?: string | null;
+          origin_port?: string | null;
+          purchase_order_id?: string | null;
+          shipping_cost?: number | null;
+          status?: string;
+          supplier_id?: string | null;
+          tenant_id?: string;
+          title?: string;
+          tracking_number?: string | null;
+          updated_at?: string;
+          weight_kg?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'shipments_purchase_order_id_fkey';
+            columns: ['purchase_order_id'];
+            isOneToOne: false;
+            referencedRelation: 'purchase_orders';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shipments_supplier_id_fkey';
+            columns: ['supplier_id'];
+            isOneToOne: false;
+            referencedRelation: 'suppliers';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'shipments_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       customer_stats_view: {

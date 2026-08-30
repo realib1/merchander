@@ -4,11 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { LifeBuoy } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useMobileNav } from './MobileNavContext';
 import { toast } from 'sonner';
 import { navGroups } from './sidebar/sidebarNavigation';
 import { SidebarUserProfile } from './sidebar/SidebarUserProfile';
+import { HelpSupportModal } from '@/components/help/HelpSupportModal';
 
 export interface SidebarProps {
   userEmail: string;
@@ -30,6 +32,7 @@ export function Sidebar({
   const supabase = createClient();
   const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -139,6 +142,23 @@ export function Sidebar({
           ))}
         </nav>
 
+        {/* Help & Support Button */}
+        <div className="px-3 pb-2">
+          <button
+            type="button"
+            onClick={() => setIsHelpOpen(true)}
+            className="w-full group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold text-muted hover:bg-surface-elevated/70 hover:text-foreground transition-all cursor-pointer"
+            title={isDesktopCollapsed ? 'Help & Support' : undefined}
+          >
+            <LifeBuoy size={17} className="shrink-0 text-muted group-hover:text-brand-primary transition-colors" />
+            {!isDesktopCollapsed && (
+              <div className="flex items-center justify-between flex-1 min-w-0">
+                <span className="truncate">Help & Support</span>
+              </div>
+            )}
+          </button>
+        </div>
+
         {/* Current User Profile Card & Sign Out */}
         <SidebarUserProfile
           isDesktopCollapsed={isDesktopCollapsed}
@@ -151,6 +171,9 @@ export function Sidebar({
           onNavigate={() => setIsOpen(false)}
         />
       </aside>
+
+      {/* Global Help & Support Hub Modal */}
+      <HelpSupportModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </>
   );
 }

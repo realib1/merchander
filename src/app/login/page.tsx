@@ -7,7 +7,7 @@ export const metadata = {
   title: 'Login | Merchander',
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; mfa?: string }> }) {
   const resolvedSearchParams = await searchParams;
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -35,7 +35,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             </div>
           )}
 
-          <LoginForm />
+          <LoginForm initialMfaRequired={resolvedSearchParams?.mfa === 'required'} />
         </div>
 
         <p className="text-center text-sm  mt-8 font-medium">

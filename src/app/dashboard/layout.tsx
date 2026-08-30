@@ -131,6 +131,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
           .replace(/\b\w/g, (c) => c.toUpperCase())
       : 'Admin User');
 
+  let avatarUrl = meta.avatar_url || null;
+  if (avatarUrl && avatarUrl.startsWith('data:')) {
+    avatarUrl = null;
+  }
+
   return (
     <MobileNavProvider>
       {renderThemeStyles()}
@@ -139,7 +144,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           userEmail={user.email || ''}
           userName={displayName}
           userRole={userRole}
-          avatarUrl={user.user_metadata?.avatar_url}
+          avatarUrl={avatarUrl}
           businessName={businessName}
         />
 
@@ -149,7 +154,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             user={{
               email: user.email || '',
               fullName: displayName,
-              avatarUrl: user.user_metadata?.avatar_url,
+              avatarUrl: avatarUrl,
               role: userRole,
             }}
             stores={stores}
@@ -158,10 +163,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
             initialNotifications={notifications}
           />
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col custom-scrollbar">
             <div className="flex-1 w-full min-w-0">{children}</div>
             {/* Dedicated Guaranteed Bottom Breathing Room Spacer */}
-            <div className="h-28 sm:h-36 shrink-0 w-full" aria-hidden="true" />
+            <div className="h-10 sm:h-10 shrink-0 w-full" aria-hidden="true" />
           </div>
         </main>
       </div>

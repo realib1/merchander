@@ -129,4 +129,75 @@ describe('Security & Multi-Tenant Input Sanitization Suite', () => {
       expect(message).toContain('980');
     });
   });
+
+  describe('Password Security & Complexity Requirements', () => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
+    it('accepts strong passwords meeting all complexity criteria', () => {
+      expect(passwordRegex.test('Merchander@2026!')).toBe(true);
+      expect(passwordRegex.test('P@ssw0rdSecure#9')).toBe(true);
+    });
+
+    it('rejects passwords shorter than 8 characters', () => {
+      expect(passwordRegex.test('Ab1!xyz')).toBe(false);
+    });
+
+    it('rejects passwords missing uppercase letters', () => {
+      expect(passwordRegex.test('merchander@2026!')).toBe(false);
+    });
+
+    it('rejects passwords missing numbers', () => {
+      expect(passwordRegex.test('Merchander@Password!')).toBe(false);
+    });
+
+    it('rejects passwords missing special characters', () => {
+      expect(passwordRegex.test('Merchander2026Secure')).toBe(false);
+    });
+  });
+
+  describe('Two-Factor Authentication (TOTP) Validation', () => {
+    const totpCodeRegex = /^\d{6}$/;
+
+    it('accepts valid 6-digit numerical TOTP codes', () => {
+      expect(totpCodeRegex.test('123456')).toBe(true);
+      expect(totpCodeRegex.test('000999')).toBe(true);
+    });
+
+    it('rejects TOTP codes with letters or special characters', () => {
+      expect(totpCodeRegex.test('12345a')).toBe(false);
+      expect(totpCodeRegex.test('12-456')).toBe(false);
+    });
+
+    it('rejects TOTP codes with incorrect length', () => {
+      expect(totpCodeRegex.test('12345')).toBe(false);
+      expect(totpCodeRegex.test('1234567')).toBe(false);
+    });
+  });
+
+  describe('Emergency Backup Recovery Codes Utilities', () => {
+    it('normalizes backup codes by removing whitespace and hyphens and converting to uppercase', async () => {
+      const { normalizeBackupCode } = await import('./backup-codes');
+      expect(normalizeBackupCode('ab12-cd34')).toBe('AB12CD34');
+      expect(normalizeBackupCode('  5678 - 90EF  ')).toBe('567890EF');
+    });
+
+    it('generates the specified count of unique backup codes with matching hashes', async () => {
+      const { generateBackupCodeBatch, hashBackupCode, normalizeBackupCode } = await import('./backup-codes');
+      const { plaintextCodes, hashedCodes } = generateBackupCodeBatch(8);
+
+      expect(plaintextCodes.length).toBe(8);
+      expect(hashedCodes.length).toBe(8);
+
+      // All codes are unique
+      const uniqueSet = new Set(plaintextCodes);
+      expect(uniqueSet.size).toBe(8);
+
+      // Each plaintext code matches its hash
+      plaintextCodes.forEach((code, idx) => {
+        expect(code).toMatch(/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{5}-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{5}$/);
+        expect(hashBackupCode(code)).toBe(hashedCodes[idx]);
+        expect(hashBackupCode(normalizeBackupCode(code))).toBe(hashedCodes[idx]);
+      });
+    });
+  });
 });

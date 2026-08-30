@@ -1,205 +1,71 @@
 # MERCHANDER: PROJECT RECORD
-## All Decisions, Architecture, and Context
+## Strategic Baseline, Architecture & Decision Log
 
-> **[STRATEGY RESET]** See docs/00_STRATEGY_RESET.md for the August 2026 pivot from a WhatsApp bot to a Social Commerce OS.
+> **[STRATEGY RESET]** See docs/00_STRATEGY_RESET.md and docs/Merchander_PRD_v2.1.md for the pivot from a WhatsApp bot to a Social Commerce OS.
 
 **Last Updated**: August 2026  
-**Status**: Ready to Build (Week 1)
+**Status**: Pre-Development / Schema & Foundations Ready (v2.1 Baseline)
 
 ---
 
-# WHAT WE'RE BUILDING
+# 1. WHAT WE'RE BUILDING
 
 Merchander is the **Operating System for Social-First Merchants**, specifically targeting **Ghanaian importers and resellers**.
 
-It empowers merchants who manage pre-orders, sea-freight shipments, and staggered inventory arrivals to turn their chaotic WhatsApp and Telegram conversations into organized, trackable commerce operations.
+It empowers merchants who manage pre-orders, sea/air-freight shipments, supplier balances, and staggered inventory arrivals to turn their multi-channel conversations (WhatsApp, Instagram, Telegram) into organized, trackable commerce operations.
 
-**Not** just another WhatsApp bot. It is a full commerce infrastructure (products, customers, orders, payments, shipments) where WhatsApp serves merely as a channel adapter.
+**Not** just another WhatsApp bot. It is a full commerce infrastructure (products, multi-store inventory, customers, unified identities, orders, payments, suppliers, purchase orders, shipments & landed costs) where social channels serve as decoupled adapters.
 
 ---
 
-# DECISIONS LOG
+# 2. DECISION LOG
 
 ## Architecture Decisions
 
 | Decision | Choice | Reason |
-|----------|--------|--------|
-| Platform type | Multi-tenant SaaS | Vendors are isolated, not competing |
-| Marketplace? | No | Vendors would lose customers to competitors on shared platform |
-| Customer platform | WhatsApp/Telegram groups (existing) | Customers already there, no new app needed |
-| Payment integration | Skip for MVP | Reduce complexity, vendors collect manually for now |
-| Revenue model | Subscription only | No commission, simpler model |
-| Data isolation | tenant_id on every table + RLS | Strict per-vendor isolation |
-| Architecture Layers | 3-Layer OS | Core (Next.js), Intelligence (Python), Channels (Meta API) |
-| Bot architecture | Human-in-the-Loop | GREEN (auto), YELLOW (approval), RED (human) |
-| Architecture | Next.js Full Stack + Python Bot | Paradigm B chosen for simplicity, speed, and shared DB logic |
-| Database / BaaS | Supabase | Native RLS, easy Edge compatibility, replaces need for separate ORM |
+|---|---|---|
+| **Platform Type** | Multi-tenant SaaS | Merchants operate in isolated workspaces (`tenants`) |
+| **Marketplace?** | No | Prevents customer leakage across competing merchants |
+| **Customer Touchpoints** | Multi-Channel (WhatsApp, IG, FB, Telegram, Storefront) | Customers interact on channels they already use |
+| **Unified Identity** | `customer_identities` table mapping to `customers` | Single customer profile across multiple channels without false merges |
+| **Payment Flow** | Record-First (MTN MoMo, Telecel, COD, Bank, Card) | Records obligations & settlements accurately without requiring Merchander to be intermediate escrow |
+| **Supply Side** | Procurement & Inbound Logistics | Tracks purchase orders, supplier balances, sea/air consignments, and estimated landed cost |
+| **Data Isolation** | `tenant_id` on every table + Supabase RLS | Strict per-vendor isolation enforced at database engine level |
+| **Architecture Layers** | 3-Layer OS | Core (Next.js 15), Intelligence (Python/FastAPI), Channels (Official Meta API) |
+| **Bot Safety** | Human-in-the-Loop | GREEN (auto), YELLOW (approval), RED (human only) |
 
 ## Tech Stack Decisions
 
 | Layer | Choice | Reason |
-|-------|--------|--------|
-| Frontend + Dashboard | Next.js 15 | SSR, API routes, React ecosystem |
-| Bot engine | Python + FastAPI | Python strength, better for automation/NLP |
-| WhatsApp | WhatsApp Cloud API | SHERO is an approved Meta Tech Provider |
-| Telegram | python-telegram-bot | Official API, stable |
-| Database | PostgreSQL | Relational, supports RLS, reliable |
-| Queue | Celery + Redis | Proven task queue for Python |
-| Scheduler | APScheduler | Cron jobs per tenant |
-| Database Client | Supabase JS | Native RLS, Edge-compatible, SHERO Core standard |
-| ORM (Python) | SQLAlchemy | Mature, flexible |
-| Auth | NextAuth.js | JWT with tenantId embedded |
-| State | TanStack Query + Zustand | React data fetching + local state |
-| UI | TailwindCSS + shadcn/ui | Utility-first, fast to build |
-
-## Business Decisions
-
-| Decision | Choice |
-|----------|--------|
-| Pricing Strategy | To be validated | Testing Subscription, Usage, and Hybrid models |
-| Free tier limits | 10 products, 50 orders/month, 1 store |
-| Basic tier | 50 products, unlimited orders, 2 stores |
-| Pro tier | Unlimited products, unlimited orders, 5 stores |
-| Branch model | Same account, multiple stores, combined analytics with per-store breakdown |
-| Payment config (future) | Each vendor provides own PayStack API key |
-| Target market | Ghanaian social-commerce importers and resellers |
+|---|---|---|
+| **Frontend + Dashboard** | Next.js 15 (App Router + Server Actions) | SSR, Server Actions, high performance |
+| **Database & Auth** | Supabase (PostgreSQL + RLS + Supabase Auth) | Native RLS, security definer helpers, Edge-ready |
+| **Design System** | TailwindCSS v4 + shadcn/ui primitives | Token-based theming, accessible components |
+| **Bot & Intelligence** | Python + FastAPI + Celery + Redis | Asynchronous queues, multimodal image search |
+| **Channels** | Official WhatsApp Cloud API (Meta Tech Provider) | Stable business integration, zero risk of Baileys ban |
 
 ---
 
-# WHAT EACH VENDOR GETS
+# 3. TENANT ISOLATION (CRITICAL)
 
-```
-On signup, each vendor gets:
-├─ Isolated workspace (tenant_id)
-├─ Dashboard (products, orders, analytics)
-├─ WhatsApp bot (their number, their groups)
-├─ Telegram bot (their token, their channels)
-├─ Automation engine (scheduler, workflows)
-├─ Analytics (their data only)
-└─ Multi-store support (based on plan)
-```
-
----
-
-# TENANT ISOLATION (CRITICAL)
-
-**Rule**: Every database query in the entire platform must include `tenant_id` in the WHERE clause.
-
-```python
-# CORRECT
-orders = await db.select().from(orders_table).where(eq(orders_table.tenantId, tenantId))
-
-# WRONG — data leak across tenants
-orders = await db.select().from(orders_table)
-```
+**Rule**: Every database table must include `tenant_id` and enforce Row Level Security via `get_auth_user_tenant_ids()`.
 
 **Enforcement layers**:
-1. `middleware.ts` — blocks unauthenticated requests
-2. `getTenantId()` — extracts tenant from JWT on every API call
-3. API routes — always pass `tenantId` to DB queries
-4. PostgreSQL RLS — last line of defense at DB level
+1. `src/proxy.ts` / Middleware — blocks unauthenticated sessions.
+2. `src/lib/supabase/server.ts` — passes cookies to Supabase for RLS evaluation.
+3. Server Actions (`src/app/actions/`) — explicitly scope inserts/queries by `tenant_id`.
+4. PostgreSQL RLS — database engine-level barrier preventing cross-tenant leakage.
 
 ---
 
-# AUTOMATION SCOPE
-
-Automation is a core feature, not an add-on. Vendors should do zero manual work after setup.
-
-**Automated tasks**:
-- Auto-post products to groups on a schedule
-- Auto-parse customer replies as orders
-- Auto-send confirmation when order is created
-- Auto-broadcast status updates (confirmed, shipped, arrived)
-- Auto-send payment reminders (24h after order if unpaid)
-- Auto-send delivery follow-up (5 days after shipped)
-- Auto-generate daily report to vendor (11pm)
-- Auto-alert vendor when stock is zero
-
----
-
-# PROJECT STRUCTURE
-
-```
-merchander/
-├── web/              # Next.js (dashboard, API routes)
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   └── prisma/
-└── bot/              # Python (WhatsApp, Telegram, automation)
-    ├── api/
-    ├── bots/
-    ├── automation/
-    ├── core/
-    └── tasks/
-```
-
----
-
-# PLATFORM SUPPORT TIMELINE
-
-| Platform | Timeline | Priority |
-|----------|----------|---------|
-| WhatsApp | Week 2 | P0 |
-| Telegram | Week 3 | P0 |
-| Instagram DM | Post-MVP | P2 |
-| Web shop | Post-MVP | P2 |
-
----
-
-# 6-WEEK TIMELINE
-
-| Week | Focus | Deliverable |
-|------|-------|-------------|
-| 1 | Foundation | Tenant isolation, auth, DB |
-| 2 | WhatsApp | Connect, post, capture orders |
-| 3 | Telegram | Connect, post, capture orders |
-| 4 | Automation | Scheduler, workflows, alerts |
-| 5 | Dashboard | Orders, analytics, products |
-| 6 | Launch | Multi-store, testing, deploy |
-
----
-
-# POST-MVP BACKLOG
-
-1. Payment integration (vendor's own PayStack key)
-2. Instagram DM bot
-3. Customer loyalty tracking
-4. Bulk product upload (CSV)
-5. Multi-user per tenant (invite staff)
-6. Custom automation rules
-7. Mobile app (PWA)
-8. Custom domain per tenant
-
----
-
-# DOCS INDEX
+# 4. DOCS INDEX
 
 | File | Purpose |
-|------|---------|
-| `01_SPECIFICATION.md` | Full platform spec, architecture, flows |
-| `02_IMPLEMENTATION_GUIDE.md` | Code examples, folder structure |
-| `03_ROADMAP.md` | 6-week plan, daily tasks, checkpoints |
-| `04_QUICK_START.md` | 30-minute setup guide |
-| `05_PROJECT_RECORD.md` | This file — all decisions, context |
-
----
-
-# CONTEXT: WHY THIS DESIGN
-
-**Original idea**: Marketplace (like Jumia) where multiple vendors list products.
-
-**Problem discovered**: If vendors share a marketplace, customers can compare prices and jump between vendors. A vendor could lose loyal customers to a competitor on the same platform.
-
-**Competitor observed**: MerchBot (merchbot.vercel.app) — a WhatsApp-only automation bot.
-
-**Final decision**: Multi-tenant SaaS where:
-- Each vendor is completely isolated (no shared storefront)
-- Customers stay in WhatsApp/Telegram (no new app)
-- Automation handles everything (posting, capturing, updating)
-- Telegram added as second platform (MerchBot only does WhatsApp)
-- Platform makes money from monthly subscriptions
-
----
-
-**Ready to build. Start with `04_QUICK_START.md`.**
+|---|---|
+| `Merchander_PRD_v2.1.md` | Authoritative Product Requirements Document (v2.1) |
+| `00_STRATEGY_RESET.md` | Strategic teardown and repositioning |
+| `01_multi_tenant_specification.md` | Multi-tenant schema, DDL, and RLS specifications |
+| `02_implementation_guide.md` | Full stack implementation guide and code examples |
+| `03_ROADMAP.md` | Product roadmap and development phases |
+| `04_Page_Structure_Guide.md` | Dashboard page content and UX structure guide |
+| `05_PROJECT_RECORD.md` | This file — all decisions, architecture, and context |

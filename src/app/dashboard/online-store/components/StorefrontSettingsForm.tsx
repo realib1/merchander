@@ -142,16 +142,16 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                 value={storeName}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Glam Hair & Beauty"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
               />
             </div>
 
             <div>
               <label className="text-xs font-medium text-muted mb-1 flex items-center gap-1">
-                <LinkIcon size={12} /> Store Slug / Link *
+                <LinkIcon size={12} /> Store URL *
               </label>
               <div className="flex items-center bg-surface-elevated border border-separator rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-brand-primary">
-                <span className="text-[11px] text-muted px-2.5 bg-surface border-r border-separator select-none font-mono">
+                <span className="text-[10px] text-muted px-2.5 bg-surface border-r border-separator select-none font-mono">
                   /store/
                 </span>
                 <input
@@ -160,7 +160,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                   value={slug}
                   onChange={(e) => setSlug(generateStoreSlug(e.target.value))}
                   placeholder="glam-hair-beauty"
-                  className="w-full bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none"
+                  className="w-full bg-transparent px-3 py-2 text-xs font-mono outline-none"
                 />
               </div>
             </div>
@@ -173,7 +173,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
               placeholder="e.g. Premium 100% Virgin Hair & Lace Wigs in Accra"
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
             />
           </div>
 
@@ -184,7 +184,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Briefly describe what your shop sells, opening hours, and location..."
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition resize-none"
+              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition resize-none"
             />
           </div>
 
@@ -196,7 +196,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                 value={logoUrl}
                 onChange={(e) => setLogoUrl(e.target.value)}
                 placeholder="https://example.com/logo.png"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
               />
             </div>
 
@@ -207,7 +207,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                 value={bannerUrl}
                 onChange={(e) => setBannerUrl(e.target.value)}
                 placeholder="https://example.com/banner.jpg"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
               />
             </div>
           </div>
@@ -231,7 +231,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                 value={whatsappPhone}
                 onChange={(e) => setWhatsappPhone(e.target.value)}
                 placeholder="+233241234567"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground font-mono placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-mono placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
               />
             </div>
 
@@ -244,7 +244,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                 value={instagramHandle}
                 onChange={(e) => setInstagramHandle(e.target.value.replace('@', ''))}
                 placeholder="e.g. glamaccra"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
               />
             </div>
 
@@ -255,7 +255,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
                 value={tiktokHandle}
                 onChange={(e) => setTiktokHandle(e.target.value.replace('@', ''))}
                 placeholder="e.g. glam_gh"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
               />
             </div>
           </div>
@@ -269,7 +269,7 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
               value={deliveryPolicy}
               onChange={(e) => setDeliveryPolicy(e.target.value)}
               placeholder="e.g. Same-day delivery across Greater Accra (₵ 30). Nationwide dispatch via VIP bus."
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition resize-none"
+              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition resize-none"
             />
           </div>
         </div>
