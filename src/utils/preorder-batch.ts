@@ -81,12 +81,12 @@ export function getBatchCountdown(closesAt: string | Date): {
   const hoursLeft = differenceInHours(closeDate, now);
 
   if (daysLeft > 1) {
-    return { isClosed: false, daysLeft, hoursLeft, label: `⏱ ${daysLeft} days left` };
+    return { isClosed: false, daysLeft, hoursLeft, label: `${daysLeft} days left` };
   }
   if (hoursLeft > 1) {
-    return { isClosed: false, daysLeft: 0, hoursLeft, label: `⏱ ${hoursLeft} hours left` };
+    return { isClosed: false, daysLeft: 0, hoursLeft, label: `${hoursLeft} hours left` };
   }
-  return { isClosed: false, daysLeft: 0, hoursLeft: 1, label: '⏱ Closing soon' };
+  return { isClosed: false, daysLeft: 0, hoursLeft: 1, label: 'Closing soon' };
 }
 
 /**
@@ -107,6 +107,69 @@ export function formatArrivalWindow(start: string, end: string): string {
   } catch {
     return `${start} – ${end}`;
   }
+}
+
+export interface BatchBannerInfo {
+  type: 'open' | 'in_transit' | 'arrived' | 'closed';
+  badge: string;
+  headline: string;
+  subtext: string;
+  actionText: string;
+  urgency: 'high' | 'medium' | 'normal';
+}
+
+/**
+ * Generates storefront announcement banner data from an active pre-order batch
+ */
+export function getBatchBannerInfo(batch: PreorderBatch): BatchBannerInfo {
+  const countdown = getBatchCountdown(batch.closes_at);
+  const arrivalWindow = formatArrivalWindow(batch.expected_arrival_start, batch.expected_arrival_end);
+  const isFreightAir = batch.freight_mode === 'air' || batch.freight_mode === 'express';
+  const freightName = isFreightAir ? 'Air Cargo' : 'Sea Freight';
+
+  const st = (batch.status || '').toLowerCase();
+
+  if (!countdown.isClosed && (st === 'open' || st === 'closing_soon')) {
+    return {
+      type: 'open',
+      badge: countdown.label,
+      headline: `${batch.name || `Batch ${batch.code}`} Pre-orders are Open`,
+      subtext: `Orders close in ${countdown.daysLeft > 0 ? `${countdown.daysLeft} days` : 'a few hours'}. Expected arrival: ${arrivalWindow}.`,
+      actionText: 'Shop Pre-orders',
+      urgency: countdown.daysLeft <= 3 ? 'high' : 'medium',
+    };
+  }
+
+  if (st === 'arrived' || st === 'fulfilling') {
+    return {
+      type: 'arrived',
+      badge: 'Stock Arrived',
+      headline: `${batch.name || `Batch ${batch.code}`} Has Arrived in Ghana`,
+      subtext: 'Orders are currently being packed and dispatched for delivery.',
+      actionText: 'Track Order',
+      urgency: 'normal',
+    };
+  }
+
+  if (st === 'ordered' || st === 'in_transit') {
+    return {
+      type: 'in_transit',
+      badge: 'In Transit',
+      headline: `${batch.name || `Batch ${batch.code}`} is En Route (${freightName})`,
+      subtext: `Orders are on the way. Expected delivery: ${arrivalWindow}.`,
+      actionText: 'View Batch Details',
+      urgency: 'normal',
+    };
+  }
+
+  return {
+    type: 'closed',
+    badge: 'Batch Closed',
+    headline: `${batch.name || `Batch ${batch.code}`} Pre-orders are Closed`,
+    subtext: `Supplier processing underway. Expected arrival: ${arrivalWindow}.`,
+    actionText: 'Browse Catalog',
+    urgency: 'normal',
+  };
 }
 
 /**

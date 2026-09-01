@@ -86,6 +86,7 @@ export interface StorefrontPublicData {
   config: StorefrontConfig;
   categories: StorefrontCategory[];
   products: StorefrontProduct[];
+  activeBatches?: PreorderBatch[];
 }
 
 export interface StorefrontCartItem {

@@ -11,6 +11,7 @@ interface StoreCatalogGridProps {
   config: StorefrontConfig;
   categories: StorefrontCategory[];
   products: StorefrontProduct[];
+  preorderCount?: number;
   selectedCategoryId: string;
   searchQuery: string;
   sortBy: SortOption;
@@ -32,6 +33,7 @@ export function StoreCatalogGrid({
   config,
   categories,
   products,
+  preorderCount = 0,
   selectedCategoryId,
   searchQuery,
   sortBy,
@@ -69,6 +71,27 @@ export function StoreCatalogGrid({
           >
             All Products ({categories.reduce((acc, c) => acc + c.product_count, 0) || products.length})
           </button>
+
+          {/* Pre-order Quick Filter Pill */}
+          {preorderCount > 0 && (
+            <button
+              type="button"
+              onClick={() => onSelectCategory('preorders')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition border ${
+                selectedCategoryId === 'preorders'
+                  ? 'text-white shadow-xs'
+                  : 'bg-surface border-amber-500/30 text-amber-600 dark:text-amber-400 hover:text-amber-500'
+              }`}
+              style={
+                selectedCategoryId === 'preorders'
+                  ? { backgroundColor: primaryColor, borderColor: primaryColor }
+                  : undefined
+              }
+            >
+              Pre-Orders ({preorderCount})
+            </button>
+          )}
+
           {categories.map((cat) => (
             <button
               key={cat.id}

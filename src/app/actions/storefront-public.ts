@@ -94,7 +94,21 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
 
     // Resilient batch lookup (optional extension, does not block product loading)
     const activeBatchesByProductId: Record<string, import('@/types/preorder').PreorderBatch> = {};
+    let allActiveBatches: import('@/types/preorder').PreorderBatch[] = [];
     try {
+      // 1. Fetch all currently open/active batches for the store
+      const { data: tenantBatches } = await supabase
+        .from('preorder_batches')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .eq('is_active', true)
+        .order('closes_at', { ascending: true });
+
+      if (tenantBatches && tenantBatches.length > 0) {
+        allActiveBatches = tenantBatches as unknown as import('@/types/preorder').PreorderBatch[];
+      }
+
+      // 2. Fetch product-to-batch associations
       const { data: batchLinks } = await supabase
         .from('product_preorder_batches')
         .select('product_id, batch_id, is_active')
@@ -104,12 +118,11 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
       if (batchLinks && batchLinks.length > 0) {
         const batchIds = Array.from(new Set(batchLinks.map((b) => b.batch_id).filter(Boolean)));
         if (batchIds.length > 0) {
-          const { data: batches } = await supabase.from('preorder_batches').select('*').in('id', batchIds);
-          const batchesMap = new Map((batches || []).map((b) => [b.id, b]));
+          const batchesMap = new Map((allActiveBatches || []).map((b) => [b.id, b]));
           for (const link of batchLinks) {
             const b = batchesMap.get(link.batch_id);
             if (b) {
-              activeBatchesByProductId[link.product_id] = b as unknown as import('@/types/preorder').PreorderBatch;
+              activeBatchesByProductId[link.product_id] = b;
             }
           }
         }
@@ -266,6 +279,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
       config,
       categories,
       products,
+      activeBatches: allActiveBatches,
     };
   } catch (err) {
     console.error('Error loading public storefront:', err);

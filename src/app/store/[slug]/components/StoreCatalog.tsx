@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { StorefrontCategory, StorefrontConfig, StorefrontProduct } from '@/types/storefront';
+import { PreorderBatch } from '@/types/preorder';
 import { StoreCartDrawer } from './StoreCartDrawer';
 import { StoreWishlistDrawer } from './StoreWishlistDrawer';
 import { StoreNavbar } from './StoreNavbar';
@@ -12,6 +13,7 @@ import { StoreBottomNav } from './StoreBottomNav';
 import { StoreMenuDrawer } from './StoreMenuDrawer';
 import { StoreSearchModal } from './StoreSearchModal';
 import { StoreFloatingWhatsApp } from './StoreFloatingWhatsApp';
+import { StoreAnnouncementBanner } from './StoreAnnouncementBanner';
 import { StoreCatalogGrid, SortOption } from './StoreCatalogGrid';
 import { calculateCartTotals } from '@/utils/storefront';
 import { slugify } from '@/utils/format';
@@ -22,9 +24,10 @@ interface StoreCatalogProps {
   config: StorefrontConfig;
   categories: StorefrontCategory[];
   products: StorefrontProduct[];
+  activeBatches?: PreorderBatch[];
 }
 
-export function StoreCatalog({ config, categories, products }: StoreCatalogProps) {
+export function StoreCatalog({ config, categories, products, activeBatches = [] }: StoreCatalogProps) {
   const router = useRouter();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +44,11 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
   const currency = config.currency || 'GHS';
   const primaryColor = config.primary_color || '#3b82f6';
 
+  const preorderCount = useMemo(
+    () => products.filter((p) => p.availability_status === 'PRE_ORDER' || Boolean(p.active_batch)).length,
+    [products]
+  );
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -56,13 +64,18 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter((p) => {
-      const matchesCategory = selectedCategoryId === 'all' || p.category_id === selectedCategoryId;
+      const matchesCategory =
+        selectedCategoryId === 'all'
+          ? true
+          : selectedCategoryId === 'preorders'
+            ? p.availability_status === 'PRE_ORDER' || Boolean(p.active_batch)
+            : p.category_id === selectedCategoryId;
       const matchesSearch =
         searchQuery === '' ||
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesStock = !inStockOnly || p.total_stock > 0;
+      const matchesStock = !inStockOnly || p.total_stock > 0 || p.availability_status === 'PRE_ORDER';
       return matchesCategory && matchesSearch && matchesStock;
     });
 
@@ -92,6 +105,14 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
     return products.filter((p) => featuredProductIds.includes(p.id));
   }, [products, config.featured_product_ids]);
 
+  const handleShopPreorders = () => {
+    setSelectedCategoryId('preorders');
+    const catalogEl = document.getElementById('store-catalog-section');
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const handleQuickAdd = (product: StorefrontProduct) => {
     const firstVariant = product.variants[0];
     if (product.variants.length > 1 || !firstVariant || firstVariant.stock_quantity <= 0) {
@@ -100,11 +121,9 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
     }
 
     updateCart((prev) => {
-      const existing = prev.find((item) => item.variantId === firstVariant.id);
+      const existing = prev.find((i) => i.variantId === firstVariant.id);
       if (existing) {
-        return prev.map((item) =>
-          item.variantId === firstVariant.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
+        return prev.map((i) => (i.variantId === firstVariant.id ? { ...i, quantity: i.quantity + 1 } : i));
       }
       return [
         ...prev,
@@ -117,6 +136,7 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
           quantity: 1,
           imageUrl: product.image_url,
           sku: firstVariant.sku,
+          batchId: product.active_batch?.id || null,
         },
       ];
     });
@@ -126,18 +146,34 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
   };
 
   const handleUpdateQuantity = (variantId: string, delta: number) => {
-    updateCart((prev) =>
-      prev
-        .map((item) => (item.variantId === variantId ? { ...item, quantity: item.quantity + delta } : item))
-        .filter((item) => item.quantity > 0)
+    updateCart(
+      (prev) =>
+        prev
+          .map((item) => {
+            if (item.variantId === variantId) {
+              const newQty = item.quantity + delta;
+              return newQty > 0 ? { ...item, quantity: newQty } : null;
+            }
+            return item;
+          })
+          .filter(Boolean) as typeof prev
     );
   };
 
   const { itemCount } = calculateCartTotals(cart);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
-      <div>
+    <div className="flex flex-col min-h-screen relative pb-16 sm:pb-0">
+      <StoreAnnouncementBanner
+        batches={activeBatches}
+        announcementHeadline={config.banner_headline}
+        announcementText={config.banner_tagline}
+        primaryColor={primaryColor}
+        onShopPreorders={handleShopPreorders}
+        onTrackOrder={() => router.push(`/store/${config.slug}/orders`)}
+      />
+
+      <div className="flex-1">
         <StoreNavbar
           config={config}
           cartCount={itemCount}
@@ -146,7 +182,6 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
           onOpenWishlist={() => setIsWishlistOpen(true)}
           onOpenMenu={() => setIsMenuOpen(true)}
           onOpenSearch={() => setIsSearchOpen(true)}
-          onOpenTracking={() => router.push(`/store/${config.slug}/orders`)}
           onSelectFilter={() => setSelectedCategoryId('all')}
         />
 
@@ -160,6 +195,7 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
           config={config}
           categories={categories}
           products={filteredAndSortedProducts}
+          preorderCount={preorderCount}
           selectedCategoryId={selectedCategoryId}
           searchQuery={searchQuery}
           sortBy={sortBy}

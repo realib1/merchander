@@ -5,6 +5,7 @@ import {
   getBatchCountdown,
   formatArrivalWindow,
   formatBatchMilestoneMessage,
+  getBatchBannerInfo,
 } from './preorder-batch';
 import { PreorderBatch, BatchBroadcastRecipient } from '@/types/preorder';
 import { addDays, subDays } from 'date-fns';
@@ -66,5 +67,24 @@ describe('Preorder Batch Utilities', () => {
     expect(msg).toContain('Batch A — Aug Wave');
     expect(msg).toContain('Oct 15–22');
     expect(msg).toContain('https://merchander.com/store/demo/orders/5YU4WH');
+  });
+
+  it('generates accurate storefront banner data for open and in-transit batches', () => {
+    const openBatch: PreorderBatch = {
+      id: 'batch-open',
+      tenant_id: 'tenant-1',
+      name: 'Batch Sep Express',
+      code: 'SEP-EXP',
+      status: 'OPEN',
+      opens_at: new Date().toISOString(),
+      closes_at: addDays(new Date(), 6).toISOString(),
+      expected_arrival_start: '2026-11-01',
+      expected_arrival_end: '2026-11-10',
+    };
+
+    const bannerOpen = getBatchBannerInfo(openBatch);
+    expect(bannerOpen.type).toBe('open');
+    expect(bannerOpen.headline).toContain('Batch Sep Express Pre-orders are Open');
+    expect(bannerOpen.actionText).toBe('Shop Pre-orders');
   });
 });

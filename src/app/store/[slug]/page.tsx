@@ -51,7 +51,12 @@ export default async function PublicStorefrontPage({ params }: StorePageProps) {
         } as React.CSSProperties
       }
     >
-      <StoreCatalog config={data.config} categories={data.categories} products={data.products} />
+      <StoreCatalog
+        config={data.config}
+        categories={data.categories}
+        products={data.products}
+        activeBatches={data.activeBatches}
+      />
     </div>
   );
 }
