@@ -15,8 +15,8 @@ import { StoreFloatingWhatsApp } from './StoreFloatingWhatsApp';
 import { StoreCatalogGrid, SortOption } from './StoreCatalogGrid';
 import { calculateCartTotals } from '@/utils/storefront';
 import { slugify } from '@/utils/format';
+import { useStorefrontWishlist, useStorefrontCart } from '@/hooks';
 import { ShoppingCart } from 'lucide-react';
-import { useStorefrontWishlist } from '@/hooks/useStorefrontWishlist';
 
 interface StoreCatalogProps {
   config: StorefrontConfig;
@@ -30,15 +30,7 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [cart, setCart] = useState<StorefrontCartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(`merchander_cart_${config.slug}`);
-        if (saved) return JSON.parse(saved);
-      } catch {}
-    }
-    return [];
-  });
+  const { cart, updateCart, clearCart } = useStorefrontCart(config.slug);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -99,16 +91,6 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
     }
     return products.filter((p) => featuredProductIds.includes(p.id));
   }, [products, config.featured_product_ids]);
-
-  const updateCart = (updater: (prev: StorefrontCartItem[]) => StorefrontCartItem[]) => {
-    setCart((prev) => {
-      const next = updater(prev);
-      try {
-        localStorage.setItem(`merchander_cart_${config.slug}`, JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-  };
 
   const handleQuickAdd = (product: StorefrontProduct) => {
     const firstVariant = product.variants[0];

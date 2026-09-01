@@ -20,6 +20,10 @@ import { useProductDraft } from './product-form/useProductDraft';
 import type { ProductSpecification } from '@/types/product';
 import type { ProductImageItem } from '@/types/product-form';
 
+import { PreorderBatch } from '@/types/preorder';
+import { PreorderCustomBatchState } from './product-form/ProductPreorderConfigSection';
+import { addDays, format } from 'date-fns';
+
 export interface InitialProductData {
   id: string;
   name: string;
@@ -35,15 +39,24 @@ export interface InitialProductData {
   variants: VariantState[];
   preorderShippingMode: 'included' | 'tbd';
   specifications?: ProductSpecification[];
+  selectedBatchId?: string | null;
 }
 
 interface ProductFormProps {
   stores: Store[];
   categories: Category[];
+  batches?: PreorderBatch[];
+  initialBatchId?: string | null;
   initialData?: InitialProductData;
 }
 
-export function ProductForm({ stores, categories: initialCategories, initialData }: ProductFormProps) {
+export function ProductForm({
+  stores,
+  categories: initialCategories,
+  batches = [],
+  initialBatchId,
+  initialData,
+}: ProductFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -56,6 +69,20 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   const [preorderShippingMode, setPreorderShippingMode] = useState<'included' | 'tbd'>(
     initialData?.preorderShippingMode ?? 'included'
   );
+  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(
+    initialBatchId || (batches.length > 0 ? batches[0].id : null)
+  );
+  const [customBatch, setCustomBatch] = useState<PreorderCustomBatchState>({
+    isNewBatch: !initialBatchId && batches.length === 0,
+    name: initialData?.name ? `${initialData.name} Batch` : '',
+    code: '',
+    closesAt: format(addDays(new Date(), 14), 'yyyy-MM-dd'),
+    supplierOrderDate: format(addDays(new Date(), 15), 'yyyy-MM-dd'),
+    expectedArrivalStart: format(addDays(new Date(), 60), 'yyyy-MM-dd'),
+    expectedArrivalEnd: format(addDays(new Date(), 67), 'yyyy-MM-dd'),
+    freightMode: 'sea',
+    originCountry: 'China',
+  });
   const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId ?? '');
   const [vendor, setVendor] = useState<string>(initialData?.vendor ?? '');
   const [stockUnit, setStockUnit] = useState<string>(initialData?.stockUnit ?? 'pcs');
@@ -265,6 +292,13 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       formData.append('isActive', isActive.toString());
       formData.append('availabilityStatus', availabilityStatus);
       formData.append('preorderShippingMode', preorderShippingMode);
+      if (availabilityStatus === 'PRE_ORDER') {
+        if (!customBatch.isNewBatch && selectedBatchId) {
+          formData.append('batchId', selectedBatchId);
+        } else if (customBatch.isNewBatch) {
+          formData.append('customBatch', JSON.stringify(customBatch));
+        }
+      }
       const finalVariants = variants.map((v, idx) => {
         const parsedPrice = v.price === '' ? (basePrice === '' ? 0 : basePrice) : v.price;
         const parsedCostPrice =
@@ -375,9 +409,15 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             isActive={isActive}
             availabilityStatus={availabilityStatus}
             preorderShippingMode={preorderShippingMode}
+            batches={batches}
+            selectedBatchId={selectedBatchId}
+            customBatch={customBatch}
+            productName={name}
             onIsActiveChange={setIsActive}
             onAvailabilityStatusChange={setAvailabilityStatus}
             onPreorderShippingModeChange={setPreorderShippingMode}
+            onSelectBatchId={setSelectedBatchId}
+            onCustomBatchChange={setCustomBatch}
           />
 
           <ProductOrganizationCard

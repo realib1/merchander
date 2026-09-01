@@ -30,29 +30,45 @@ export async function getTenantPreorderBatches(customTenantId?: string): Promise
 
   if (!tenantId) return [];
 
-  const { data: batches, error } = await supabase
-    .from('preorder_batches')
-    .select(
-      `
-      *,
-      product_preorder_batches (
-        product_id
-      )
-    `
-    )
-    .eq('tenant_id', tenantId)
-    .order('opens_at', { ascending: false });
+  try {
+    const { data: batches, error } = await supabase
+      .from('preorder_batches')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .order('opens_at', { ascending: false });
 
-  if (error || !batches) {
-    console.error('Error fetching preorder batches:', error);
+    if (error || !batches) {
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Preorder batches not initialized or empty:', error.message || error);
+      }
+      return [];
+    }
+
+    const { data: mappings } = await supabase
+      .from('product_preorder_batches')
+      .select('batch_id, product_id')
+      .eq('tenant_id', tenantId);
+
+    const mappingByBatch: Record<string, string[]> = {};
+    (mappings || []).forEach((m) => {
+      if (!mappingByBatch[m.batch_id]) {
+        mappingByBatch[m.batch_id] = [];
+      }
+      mappingByBatch[m.batch_id].push(m.product_id);
+    });
+
+    return batches.map((b) => {
+      const assignedIds = mappingByBatch[b.id] || [];
+      return {
+        ...b,
+        product_count: assignedIds.length,
+        assigned_product_ids: assignedIds,
+      };
+    });
+  } catch (err) {
+    console.warn('Failed to load preorder batches:', err);
     return [];
   }
-
-  return batches.map((b) => ({
-    ...b,
-    product_count: b.product_preorder_batches?.length || 0,
-    assigned_product_ids: b.product_preorder_batches?.map((pb: { product_id: string }) => pb.product_id) || [],
-  }));
 }
 
 /**

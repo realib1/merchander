@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { StorefrontConfig, StorefrontProduct, StorefrontProductVariant, StorefrontCartItem } from '@/types/storefront';
 import { slugify } from '@/utils/format';
-import { useStorefrontWishlist } from '@/hooks/useStorefrontWishlist';
+import { useStorefrontWishlist, useStorefrontCart } from '@/hooks';
 import { StoreCartDrawer } from '@/app/store/[slug]/components/StoreCartDrawer';
 import { StoreWishlistDrawer } from '@/app/store/[slug]/components/StoreWishlistDrawer';
 import { StoreSearchModal } from '@/app/store/[slug]/components/StoreSearchModal';
@@ -42,26 +42,8 @@ export function DirectProductView({ config, product, relatedProducts, slug }: Di
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const [cart, setCart] = useState<StorefrontCartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(`merchander_cart_${slug}`);
-        if (saved) return JSON.parse(saved);
-      } catch {}
-    }
-    return [];
-  });
+  const { cart, updateCart, clearCart } = useStorefrontCart(slug);
   const wishlist = useStorefrontWishlist(slug);
-
-  const updateCart = (updater: (prev: StorefrontCartItem[]) => StorefrontCartItem[]) => {
-    setCart((prev) => {
-      const next = updater(prev);
-      try {
-        localStorage.setItem(`merchander_cart_${slug}`, JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-  };
 
   const isPreOrder = product.availability_status === 'PRE_ORDER' || Boolean(product.active_batch);
   const isSelectedOutOfStock =
@@ -216,7 +198,7 @@ export function DirectProductView({ config, product, relatedProducts, slug }: Di
           )
         }
         onRemoveItem={(vId) => updateCart((prev) => prev.filter((i) => i.variantId !== vId))}
-        onClearCart={() => updateCart(() => [])}
+        onClearCart={clearCart}
       />
 
       <StoreWishlistDrawer

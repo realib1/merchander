@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { ProductForm, InitialProductData } from '../../components/ProductForm';
 
+import { getTenantPreorderBatches } from '@/app/actions/preorder-batches';
+
 export const metadata = {
   title: 'Edit Product | Merchander',
 };
@@ -24,32 +26,27 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     redirect('/dashboard/products');
   }
 
-  // Fetch the product
-  const { data: product } = await supabase
-    .from('products')
-    .select('*')
-    .eq('id', id)
-    .eq('tenant_id', tenantUser.tenant_id)
-    .single();
-
-  if (!product) {
-    redirect('/dashboard/products'); // Not found or not authorized
-  }
-
-  // Fetch product variants
-  const { data: variantsData } = await supabase.from('product_variants').select('*').eq('product_id', product.id);
-
-  // Fetch all stores for this tenant
-  const { data: stores } = await supabase
-    .from('stores')
-    .select('id, name, location')
-    .eq('tenant_id', tenantUser.tenant_id);
-
-  const { data: categories } = await supabase
-    .from('product_categories')
-    .select('id, name')
-    .eq('tenant_id', tenantUser.tenant_id)
-    .order('name');
+  // Parallel fetch product, variants, stores, categories, batches, and active batch link
+  const [
+    { data: product },
+    { data: variantsData },
+    { data: stores },
+    { data: categories },
+    batches,
+    { data: activeBatchLink },
+  ] = await Promise.all([
+    supabase.from('products').select('*').eq('id', id).eq('tenant_id', tenantUser.tenant_id).single(),
+    supabase.from('product_variants').select('*').eq('product_id', id),
+    supabase.from('stores').select('id, name, location').eq('tenant_id', tenantUser.tenant_id),
+    supabase.from('product_categories').select('id, name').eq('tenant_id', tenantUser.tenant_id).order('name'),
+    getTenantPreorderBatches(tenantUser.tenant_id),
+    supabase
+      .from('product_preorder_batches')
+      .select('batch_id')
+      .eq('product_id', id)
+      .eq('is_active', true)
+      .maybeSingle(),
+  ]);
 
   // Transform data for the form
   let basePrice: number | '' = '';
@@ -98,7 +95,13 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   return (
     <div className="min-h-full">
-      <ProductForm stores={stores || []} categories={categories || []} initialData={initialData} />
+      <ProductForm
+        stores={stores || []}
+        categories={categories || []}
+        batches={batches}
+        initialBatchId={activeBatchLink?.batch_id || null}
+        initialData={initialData}
+      />
     </div>
   );
 }

@@ -174,11 +174,83 @@ export async function updateProductAction(formData: FormData) {
     }
   }
 
-  // Note: we intentionally skip inventory handling here as discussed in the implementation plan.
-  // Inventory updates should be done via the Inventory tab/system to avoid race conditions.
+  // Handle Pre-Order Batch Association
+  if (data.availabilityStatus === 'PRE_ORDER') {
+    let targetBatchId = (formData.get('batchId') as string) || null;
+    const customBatchRaw = formData.get('customBatch') as string;
+
+    if (!targetBatchId && customBatchRaw) {
+      try {
+        const cb = JSON.parse(customBatchRaw);
+        const { data: newBatch } = await supabase
+          .from('preorder_batches')
+          .insert({
+            tenant_id: tenantId,
+            name: cb.name || `${data.name} Batch`,
+            code:
+              (cb.code || cb.name || `${data.name}-B1`)
+                .toUpperCase()
+                .replace(/[^A-Z0-9-]/g, '')
+                .slice(0, 16) || 'BATCH-1',
+            status: 'OPEN',
+            opens_at: new Date().toISOString(),
+            closes_at: cb.closesAt ? new Date(`${cb.closesAt}T23:59:59Z`).toISOString() : new Date().toISOString(),
+            supplier_order_date: cb.supplierOrderDate || undefined,
+            expected_arrival_start: cb.expectedArrivalStart || undefined,
+            expected_arrival_end: cb.expectedArrivalEnd || undefined,
+            freight_mode: cb.freightMode || 'sea',
+            origin_country: cb.originCountry || 'China',
+          })
+          .select('id')
+          .single();
+
+        if (newBatch) {
+          targetBatchId = newBatch.id;
+        }
+      } catch (err) {
+        console.error('Error creating custom preorder batch:', err);
+      }
+    }
+
+    if (targetBatchId) {
+      // Deactivate older active links for this product
+      await supabase
+        .from('product_preorder_batches')
+        .update({ is_active: false })
+        .eq('product_id', data.id)
+        .eq('tenant_id', tenantId);
+
+      // Check if this batch already mapped
+      const { data: existingLink } = await supabase
+        .from('product_preorder_batches')
+        .select('id')
+        .eq('product_id', data.id)
+        .eq('batch_id', targetBatchId)
+        .maybeSingle();
+
+      if (existingLink) {
+        await supabase.from('product_preorder_batches').update({ is_active: true }).eq('id', existingLink.id);
+      } else {
+        await supabase.from('product_preorder_batches').insert({
+          tenant_id: tenantId,
+          product_id: data.id,
+          batch_id: targetBatchId,
+          is_active: true,
+        });
+      }
+    }
+  } else {
+    // If availability was switched away from PRE_ORDER, deactivate active links
+    await supabase
+      .from('product_preorder_batches')
+      .update({ is_active: false })
+      .eq('product_id', data.id)
+      .eq('tenant_id', tenantId);
+  }
 
   revalidatePath('/dashboard/products');
   revalidatePath('/dashboard/inventory');
+  revalidatePath('/dashboard/inventory/batches');
   revalidatePath('/dashboard/categories');
   redirect('/dashboard/products');
 }
