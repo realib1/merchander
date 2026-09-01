@@ -119,7 +119,7 @@ export function Topbar({
           </div>
 
           {/* Branch Switcher */}
-          {canSwitchBranch && stores.length > 0 && (
+          {canSwitchBranch && stores.length > 1 && (
             <BranchSwitcher
               stores={stores}
               initialActiveStoreId={initialActiveStoreId}

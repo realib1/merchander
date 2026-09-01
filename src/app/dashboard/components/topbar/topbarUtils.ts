@@ -25,7 +25,7 @@ export function getPageHeader(segment: string): PageHeaderInfo {
     case 'payments':
       return {
         title: 'Payments & Cashflow',
-        subtitle: 'Monitor Mobile Money ledger, COD collections, and reconciliation.',
+        subtitle: 'Monitor mobile money, card, and cash payments across all channels.',
       };
     case 'expenses':
       return {

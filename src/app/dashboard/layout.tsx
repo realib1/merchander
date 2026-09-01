@@ -46,10 +46,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
       const cookieStore = await cookies();
       const storeCookie = cookieStore.get('merchander_active_store')?.value;
 
-      if (storeCookie && stores.some((s) => s.id === storeCookie)) {
+      if (storeCookie === 'all') {
+        initialActiveStoreId = 'all';
+      } else if (storeCookie && stores.some((s) => s.id === storeCookie)) {
         initialActiveStoreId = storeCookie;
       } else {
-        initialActiveStoreId = stores[0].id;
+        initialActiveStoreId = stores[0]?.id || null;
       }
     }
   }
@@ -63,17 +65,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let brandPrimaryColor = null;
   let brandSecondaryColor = null;
+  let businessLogoUrl: string | null = null;
 
   if (tenantUser?.tenant_id) {
-    const { data: settings } = await supabase
-      .from('tenant_settings')
-      .select('brand_primary_color, brand_secondary_color')
-      .eq('tenant_id', tenantUser.tenant_id)
-      .single();
+    const [settingsRes, sfRes] = await Promise.all([
+      supabase
+        .from('tenant_settings')
+        .select('brand_primary_color, brand_secondary_color, settings_data')
+        .eq('tenant_id', tenantUser.tenant_id)
+        .single(),
+      supabase.from('storefront_settings').select('logo_url').eq('tenant_id', tenantUser.tenant_id).single(),
+    ]);
 
-    if (settings) {
-      brandPrimaryColor = settings.brand_primary_color;
-      brandSecondaryColor = settings.brand_secondary_color;
+    if (settingsRes.data) {
+      brandPrimaryColor = settingsRes.data.brand_primary_color;
+      brandSecondaryColor = settingsRes.data.brand_secondary_color;
+      const custom = settingsRes.data.settings_data as Record<string, unknown> | null;
+      if (custom?.logo_url) {
+        businessLogoUrl = custom.logo_url as string;
+      }
+    }
+    if (sfRes.data?.logo_url) {
+      businessLogoUrl = sfRes.data.logo_url;
     }
   }
 
@@ -146,6 +159,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           userRole={userRole}
           avatarUrl={avatarUrl}
           businessName={businessName}
+          businessLogoUrl={businessLogoUrl}
         />
 
         {/* Main Content Area */}

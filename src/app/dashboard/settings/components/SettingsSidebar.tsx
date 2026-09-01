@@ -8,6 +8,7 @@ import {
   Shield,
   Bell,
   Building2,
+  Store,
   CreditCard,
   Share2,
   UsersRound,
@@ -17,6 +18,14 @@ import {
   ChevronDown,
   Settings,
   LifeBuoy,
+  Package,
+  Truck,
+  PackageCheck,
+  ShieldCheck,
+  FileSpreadsheet,
+  Activity,
+  Cookie,
+  Bot,
 } from 'lucide-react';
 import { MobileSettingsSheet } from './MobileSettingsSheet';
 import { HelpSupportModal } from '@/components/help/HelpSupportModal';
@@ -31,26 +40,44 @@ export const settingsGroups = [
     ],
   },
   {
-    title: 'Business & Store',
+    title: 'Business',
     items: [
       { name: 'Business Profile', href: '/dashboard/settings/business-profile', icon: Building2 },
+      { name: 'Branches & Locations', href: '/dashboard/settings/branches', icon: Store },
       { name: 'Business Hours', href: '/dashboard/settings/hours', icon: Clock },
     ],
   },
   {
-    title: 'Commerce & Channels',
+    title: 'Commerce',
     items: [
-      { name: 'Payments & MoMo', href: '/dashboard/settings/payments', icon: CreditCard },
-      { name: 'Connected Channels', href: '/dashboard/settings/channels', icon: Share2 },
       { name: 'Order Preferences', href: '/dashboard/settings/orders', icon: Sliders },
+      { name: 'Products & Inventory', href: '/dashboard/settings/inventory', icon: Package },
+      { name: 'Payments & Cashflow', href: '/dashboard/settings/payments', icon: CreditCard },
     ],
   },
   {
-    title: 'Organization',
+    title: 'Operations & Channels',
+    items: [
+      { name: 'Connected Channels', href: '/dashboard/settings/channels', icon: Share2 },
+      { name: 'Automation & Bots', href: '/dashboard/settings/automation', icon: Bot },
+      { name: 'Suppliers & POs', href: '/dashboard/settings/suppliers', icon: Truck },
+      { name: 'Shipments & Zones', href: '/dashboard/settings/shipments', icon: Truck },
+      { name: 'Fulfillment & Slips', href: '/dashboard/settings/fulfillment', icon: PackageCheck },
+    ],
+  },
+  {
+    title: 'Data & Access',
     items: [
       { name: 'Staff Management', href: '/dashboard/staff', icon: UsersRound },
-      { name: 'Plan & Billing', href: '/dashboard/settings/subscription', icon: Gem },
+      { name: 'Roles & Permissions', href: '/dashboard/settings/permissions', icon: ShieldCheck },
+      { name: 'Privacy & Retention', href: '/dashboard/settings/privacy', icon: Cookie },
+      { name: 'Audit Log', href: '/dashboard/settings/audit-log', icon: Activity },
+      { name: 'Export Data', href: '/dashboard/settings/export', icon: FileSpreadsheet },
     ],
+  },
+  {
+    title: 'System',
+    items: [{ name: 'Plan & Billing', href: '/dashboard/settings/subscription', icon: Gem }],
   },
 ];
 

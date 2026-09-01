@@ -1,7 +1,6 @@
-'use client';
-
 import React from 'react';
-import { MessageCircle, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { MessageCircle, BadgeCheck, ShoppingBag } from 'lucide-react';
+import { getBusinessInitials } from '@/utils/format';
 
 function InstagramIcon({ size = 12, className }: { size?: number; className?: string }) {
   return (
@@ -27,10 +26,13 @@ interface StorefrontLivePreviewProps {
   storeName: string;
   tagline: string;
   bio: string;
-  bannerUrl: string;
   logoUrl: string;
+  bannerUrl?: string;
+  heroMode?: 'banner' | 'featured_product' | 'default';
+  bannerHeadline?: string;
   whatsappPhone: string;
   instagramHandle: string;
+  primaryColor?: string;
   isActive: boolean;
 }
 
@@ -38,19 +40,22 @@ export function StorefrontLivePreview({
   storeName,
   tagline,
   bio,
-  bannerUrl,
   logoUrl,
+  bannerUrl,
+  heroMode = 'default',
+  bannerHeadline,
   whatsappPhone,
   instagramHandle,
+  primaryColor = '#3b82f6',
   isActive,
 }: StorefrontLivePreviewProps) {
   const displayName = storeName || 'Your Store Name';
   const displayTagline = tagline || 'Curated fashion & beauty products';
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col items-center">
+    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col items-center sticky top-6">
       <div className="flex items-center justify-between w-full mb-4">
-        <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">Mobile Live Preview</h3>
+        <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">Live Mockup Preview</h3>
         <span className="text-[11px] text-muted">Updates in real-time</span>
       </div>
 
@@ -63,77 +68,96 @@ export function StorefrontLivePreview({
 
         {/* Scrollable Store Content */}
         <div className="flex-1 overflow-y-auto max-h-105 custom-scrollbar pb-6 bg-background">
-          {/* Banner */}
-          <div className="h-20 w-full bg-linear-to-r from-brand-primary/20 via-brand-secondary/20 to-info/20 relative overflow-hidden">
-            {bannerUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
+          {/* Hero Banner or Gradient */}
+          {bannerUrl && heroMode === 'banner' ? (
+            <div className="h-24 w-full relative overflow-hidden bg-surface-elevated">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={bannerUrl} alt="Banner preview" className="w-full h-full object-cover" />
-            )}
-          </div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent flex items-end p-2">
+                <span className="text-[10px] font-bold text-white leading-tight line-clamp-1">
+                  {bannerHeadline || displayName}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="h-20 w-full relative overflow-hidden transition-colors duration-300"
+              style={{
+                background: `linear-gradient(135deg, ${primaryColor}40 0%, ${primaryColor}15 50%, transparent 100%)`,
+              }}
+            />
+          )}
 
           {/* Logo & Store Title */}
-          <div className="px-3 -mt-6 flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-full border-2 border-background bg-surface-elevated shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+          <div className="px-3 -mt-8 flex flex-col items-center text-center">
+            <div
+              className="w-14 h-14 rounded-2xl border-2 border-background bg-surface-elevated shadow-md flex items-center justify-center overflow-hidden shrink-0 transition-colors duration-300"
+              style={{
+                borderColor: primaryColor,
+                backgroundColor: logoUrl ? undefined : primaryColor,
+              }}
+            >
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={logoUrl} alt="Logo preview" className="w-full h-full object-cover" />
               ) : (
-                <ShoppingBag size={18} className="text-brand-primary" />
+                <span className="text-lg font-bold font-display text-white select-none">
+                  {getBusinessInitials(displayName)}
+                </span>
               )}
             </div>
 
-            <div className="mt-1.5 flex items-center gap-1">
+            <div className="mt-2 flex items-center gap-1">
               <span className="text-xs font-bold text-foreground truncate max-w-45">{displayName}</span>
-              <ShieldCheck size={12} className="text-brand-primary shrink-0" />
+              <BadgeCheck size={13} style={{ color: primaryColor }} className="shrink-0" />
             </div>
 
             <p className="text-[10px] text-muted line-clamp-1 mt-0.5">{displayTagline}</p>
             {bio && <p className="text-[9px] text-muted/80 line-clamp-2 mt-1 px-1">{bio}</p>}
 
             {/* Quick Action Badges */}
-            <div className="flex items-center justify-center gap-1.5 mt-2.5 w-full">
+            <div className="flex items-center justify-center gap-1.5 mt-2.5 w-full flex-wrap">
               {whatsappPhone && (
                 <div className="px-2 py-1 rounded-full bg-success/15 text-success text-[9px] font-bold flex items-center gap-1">
                   <MessageCircle size={10} /> WhatsApp
                 </div>
               )}
               {instagramHandle && (
-                <div className="px-2 py-1 rounded-full bg-brand-primary/15 text-brand-primary text-[9px] font-bold flex items-center gap-1">
+                <div
+                  className="px-2 py-1 rounded-full text-[9px] font-bold flex items-center gap-1"
+                  style={{
+                    backgroundColor: `${primaryColor}18`,
+                    color: primaryColor,
+                  }}
+                >
                   <InstagramIcon size={10} /> @{instagramHandle}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Catalog Mock Grid */}
-          <div className="mt-4 px-2.5">
-            <div className="flex items-center justify-between text-[10px] font-semibold text-muted mb-2">
-              <span>Catalog</span>
-              <span>All Items</span>
+          {/* E-Commerce Catalog Preview Box */}
+          <div className="mt-4 px-3 space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-semibold text-muted">
+              <span>Live Store Catalog</span>
+              <span className="text-[9px] font-bold" style={{ color: primaryColor }}>
+                Synced
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-lg bg-surface border border-separator/60 p-1.5 space-y-1">
-                <div className="h-14 bg-surface-elevated rounded-md flex items-center justify-center text-muted text-[9px]">
-                  Product Image
-                </div>
-                <div className="text-[10px] font-semibold text-foreground truncate">Sample Product</div>
-                <div className="text-[9px] font-bold text-brand-primary">₵ 120.00</div>
-              </div>
-              <div className="rounded-lg bg-surface border border-separator/60 p-1.5 space-y-1">
-                <div className="h-14 bg-surface-elevated rounded-md flex items-center justify-center text-muted text-[9px]">
-                  Product Image
-                </div>
-                <div className="text-[10px] font-semibold text-foreground truncate">Best Seller</div>
-                <div className="text-[9px] font-bold text-brand-primary">₵ 250.00</div>
-              </div>
+            <div className="p-3 rounded-xl border border-dashed border-separator bg-surface-elevated/30 text-center space-y-1">
+              <ShoppingBag size={16} className="mx-auto" style={{ color: primaryColor }} />
+              <p className="text-[10px] font-bold text-foreground">Catalog Linked</p>
+              <p className="text-[9px] text-muted leading-tight">
+                Your published inventory products will appear with your brand colors.
+              </p>
             </div>
           </div>
         </div>
 
         {/* Status bar */}
-        <div className="py-1 px-3 bg-surface-elevated border-t border-separator/40 text-center">
-          <span className="text-[9px] font-medium text-muted">
+        <div className="py-1.5 px-3 bg-surface-elevated border-t border-separator/40 text-center">
+          <span className="text-[9px] font-semibold text-muted">
             {isActive ? '🟢 Storefront is Active' : '🔴 Storefront is Offline'}
           </span>
         </div>

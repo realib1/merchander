@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ConversationThread } from '@/types/conversations';
 import { filterConversationThreads, getChannelBadgeDetails } from '@/utils/conversationsMath';
-import { Search, MessageSquare, MessageCircle, Send, Sparkles, Bot, ShoppingBag } from 'lucide-react';
+import { Search, MessageSquare, MessageCircle, Send, Bot, ShoppingBag } from 'lucide-react';
 
 interface ConversationListSidebarProps {
   threads: ConversationThread[];
@@ -158,7 +158,7 @@ export function ConversationListSidebar({ threads, selectedThreadId, onSelectThr
 
                     {t.detectedIntent && (
                       <span className="inline-flex items-center gap-0.5 text-[9px] text-muted font-medium bg-surface-elevated px-1.5 py-0.2 rounded-md border border-separator/50 truncate max-w-30">
-                        <Sparkles size={8} className="text-brand-secondary shrink-0" />
+                        <Bot size={8} className="text-brand-secondary shrink-0" />
                         <span className="truncate">{t.detectedIntent}</span>
                       </span>
                     )}

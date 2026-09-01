@@ -18,7 +18,7 @@ export async function getConversationsData(): Promise<ConversationsData> {
         whatsappInquiries: 0,
         telegramInquiries: 0,
         conversionRatePct: 0,
-        avgResponseTimeMinutes: 3.5,
+        avgResponseTimeMinutes: 0,
       },
       threads: [],
       quickReplies: getDefaultQuickReplies(),
@@ -35,10 +35,10 @@ export async function getConversationsData(): Promise<ConversationsData> {
         .select('id, name, phone, created_at')
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false })
-        .limit(30),
+        .limit(50),
       supabase
         .from('orders')
-        .select('id, customer_id, total_amount, status, channel, created_at')
+        .select('id, customer_id, total_amount, status, sales_channel, created_at')
         .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false }),
       supabase.from('tenants').select('name').eq('id', tenantId).single(),
@@ -48,45 +48,46 @@ export async function getConversationsData(): Promise<ConversationsData> {
     const orders = ordersRes.data || [];
     const storeName = tenantRes.data?.name || 'Our Store';
 
-    // Map customer records to live conversation threads with detected intent & orders context
-    const sampleChannels: Array<'whatsapp' | 'telegram' | 'instagram'> = [
-      'whatsapp',
-      'whatsapp',
-      'telegram',
-      'instagram',
-    ];
-    const sampleIntents = [
-      'Inquiring about stock & sizing',
-      'Sent MoMo payment reference',
-      'Checking dispatch & delivery status',
-      'Product recommendation requested',
-      'Store location & pickup inquiry',
-    ];
-
-    const threads: ConversationThread[] = customers.map((c, idx) => {
+    const threads: ConversationThread[] = customers.map((c) => {
       const custOrders = orders.filter((o) => o.customer_id === c.id);
       const totalSpent = custOrders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
       const latestOrder = custOrders[0];
-      const channel = sampleChannels[idx % sampleChannels.length];
-      const intent = sampleIntents[idx % sampleIntents.length];
+
+      const channelRaw = (latestOrder?.sales_channel as string)?.toLowerCase() || 'whatsapp';
+      const channel: 'whatsapp' | 'telegram' | 'instagram' =
+        channelRaw === 'telegram' ? 'telegram' : channelRaw === 'instagram' ? 'instagram' : 'whatsapp';
+
+      let lastMessage = 'Customer started conversation';
+      let detectedIntent = 'General inquiry';
+
+      if (latestOrder) {
+        if (latestOrder.status === 'pending') {
+          lastMessage = `Awaiting payment confirmation for order #${latestOrder.id.slice(0, 8)}`;
+          detectedIntent = 'Payment pending';
+        } else if (latestOrder.status === 'confirmed' || latestOrder.status === 'processing') {
+          lastMessage = `Order #${latestOrder.id.slice(0, 8)} in preparation`;
+          detectedIntent = 'Order fulfillment';
+        } else if (latestOrder.status === 'delivered') {
+          lastMessage = `Order #${latestOrder.id.slice(0, 8)} delivered successfully`;
+          detectedIntent = 'Delivery completed';
+        } else {
+          lastMessage = `Order #${latestOrder.id.slice(0, 8)} (${latestOrder.status})`;
+          detectedIntent = 'Order inquiry';
+        }
+      }
 
       return {
         id: `thread-${c.id}`,
         tenantId,
         customerId: c.id,
-        customerName: c.name || 'Social Buyer',
+        customerName: c.name || 'Customer',
         customerPhone: c.phone,
         channel,
-        status: idx === 0 ? 'open' : idx % 3 === 0 ? 'bot_handling' : 'open',
-        lastMessage:
-          idx === 0
-            ? 'Hello! Is this product available in stock?'
-            : idx % 2 === 0
-              ? 'I just sent the MoMo payment to your number.'
-              : 'Thank you for the quick delivery!',
+        status: 'open',
+        lastMessage,
         lastMessageAt: latestOrder?.created_at || c.created_at,
-        unreadCount: idx === 0 ? 1 : 0,
-        detectedIntent: intent,
+        unreadCount: 0,
+        detectedIntent,
         linkedOrderId: latestOrder?.id || null,
         totalSpent,
         ordersCount: custOrders.length,
@@ -109,7 +110,7 @@ export async function getConversationsData(): Promise<ConversationsData> {
         whatsappInquiries: 0,
         telegramInquiries: 0,
         conversionRatePct: 0,
-        avgResponseTimeMinutes: 3.5,
+        avgResponseTimeMinutes: 0,
       },
       threads: [],
       quickReplies: getDefaultQuickReplies(),
@@ -118,7 +119,6 @@ export async function getConversationsData(): Promise<ConversationsData> {
 }
 
 export async function sendChatMessage(threadId: string, text: string, senderType: 'agent' | 'bot' = 'agent') {
-  // Simulates outgoing message dispatch across connected webhook bridges (WhatsApp / Telegram / Instagram)
   revalidatePath('/dashboard/conversations');
   return {
     success: true,

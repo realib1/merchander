@@ -2,9 +2,18 @@
 
 import React from 'react';
 import { StorefrontConfig } from '@/types/storefront';
-import { MessageCircle, ShieldCheck, Truck, ShoppingBag, ExternalLink } from 'lucide-react';
+import { getBusinessInitials } from '@/utils/format';
+import { MessageCircle, BadgeCheck, Truck, ExternalLink } from 'lucide-react';
 
-function InstagramIcon({ size = 14, className }: { size?: number; className?: string }) {
+function InstagramIcon({
+  size = 14,
+  className,
+  style,
+}: {
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <svg
       width={size}
@@ -16,6 +25,7 @@ function InstagramIcon({ size = 14, className }: { size?: number; className?: st
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      style={style}
     >
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -29,6 +39,7 @@ interface StoreHeaderProps {
 }
 
 export function StoreHeader({ config }: StoreHeaderProps) {
+  const primaryColor = config.primary_color || '#3b82f6';
   const whatsappLink = config.whatsapp_phone
     ? `https://wa.me/${config.whatsapp_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
         `Hello ${config.store_name}, I am browsing your online storefront!`
@@ -38,7 +49,14 @@ export function StoreHeader({ config }: StoreHeaderProps) {
   return (
     <header className="w-full bg-surface border-b border-separator/80 overflow-hidden shadow-xs">
       {/* Banner */}
-      <div className="h-36 sm:h-48 w-full bg-linear-to-r from-brand-primary/25 via-brand-secondary/25 to-info/25 relative overflow-hidden">
+      <div
+        className="h-36 sm:h-48 w-full relative overflow-hidden"
+        style={{
+          background: config.banner_url
+            ? 'transparent'
+            : `linear-gradient(135deg, ${primaryColor}35 0%, ${primaryColor}15 50%, rgba(15,23,42,0.1) 100%)`,
+        }}
+      >
         {config.banner_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={config.banner_url} alt={`${config.store_name} Banner`} className="w-full h-full object-cover" />
@@ -50,12 +68,20 @@ export function StoreHeader({ config }: StoreHeaderProps) {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
           {/* Logo & Store Names */}
           <div className="flex items-end gap-3.5">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-surface bg-surface-elevated shadow-md flex items-center justify-center overflow-hidden shrink-0">
+            <div
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-surface bg-surface-elevated shadow-md flex items-center justify-center overflow-hidden shrink-0"
+              style={{
+                borderColor: 'var(--color-surface)',
+                backgroundColor: config.logo_url ? undefined : primaryColor,
+              }}
+            >
               {config.logo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={config.logo_url} alt={`${config.store_name} Logo`} className="w-full h-full object-cover" />
               ) : (
-                <ShoppingBag size={32} className="text-brand-primary" />
+                <span className="text-2xl sm:text-3xl font-bold font-display text-white select-none">
+                  {getBusinessInitials(config.store_name)}
+                </span>
               )}
             </div>
 
@@ -63,7 +89,7 @@ export function StoreHeader({ config }: StoreHeaderProps) {
               <div className="flex items-center gap-1.5">
                 <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">{config.store_name}</h1>
                 <span title="Verified Merchant" className="inline-flex">
-                  <ShieldCheck size={18} className="text-brand-primary shrink-0" />
+                  <BadgeCheck size={18} style={{ color: primaryColor }} className="shrink-0" />
                 </span>
               </div>
               {config.tagline && <p className="text-xs sm:text-sm text-muted font-medium mt-0.5">{config.tagline}</p>}
@@ -91,7 +117,7 @@ export function StoreHeader({ config }: StoreHeaderProps) {
                 rel="noopener noreferrer"
                 className="px-3.5 py-2 rounded-xl bg-surface-elevated border border-separator text-xs font-semibold text-foreground hover:bg-surface-elevated/80 cursor-pointer transition flex items-center gap-1.5"
               >
-                <InstagramIcon size={14} className="text-brand-primary" />
+                <InstagramIcon size={14} style={{ color: primaryColor }} />
                 <span>@{config.instagram_handle}</span>
                 <ExternalLink size={11} className="text-muted" />
               </a>

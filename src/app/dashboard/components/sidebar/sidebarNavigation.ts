@@ -9,7 +9,7 @@ import {
   Wallet,
   Receipt,
   LineChart,
-  Sparkles,
+  Lightbulb,
   PieChart,
   MessageSquare,
   UserCog,
@@ -65,7 +65,7 @@ export const navGroups: NavGroup[] = [
   {
     title: 'INTELLIGENCE',
     items: [
-      { name: 'Insights', href: '/dashboard/insights', icon: Sparkles, badge: 'AI', badgeType: 'accent' },
+      { name: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
       { name: 'Analytics', href: '/dashboard/analytics', icon: PieChart },
     ],
   },

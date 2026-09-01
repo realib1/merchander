@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { Search, Download, FileSpreadsheet, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -33,6 +33,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const currentSearch = searchParams.get('q') || '';
   const currentPeriod = searchParams.get('period') || 'this_month';
@@ -61,7 +62,9 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
     } else {
       params.delete(key);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   };
 
   // Debounce search
@@ -75,9 +78,11 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
         } else {
           params.delete('q');
         }
-        router.replace(`${pathname}?${params.toString()}`);
+        startTransition(() => {
+          router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        });
       }
-    }, 300);
+    }, 250);
     return () => clearTimeout(timer);
   }, [search, searchParams, pathname, router]);
 
@@ -177,62 +182,51 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
         </div>
       </div>
 
-      {/* Filter Row: Period, Provider, Status */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        {/* Method Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-          {[
-            { id: 'all', label: 'All Methods' },
-            { id: 'mtn_momo', label: 'MTN MoMo' },
-            { id: 'telecel_cash', label: 'Telecel' },
-            { id: 'at_money', label: 'AT Money' },
-            { id: 'cash_on_delivery', label: 'COD' },
-            { id: 'cash', label: 'Cash' },
-            { id: 'bank_transfer', label: 'Bank' },
-            { id: 'card', label: 'Card / POS' },
-          ].map((pill) => (
-            <button
-              key={pill.id}
-              onClick={() => updateParam('provider', pill.id)}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
-                currentProvider === pill.id
-                  ? 'bg-brand-primary text-white shadow-xs'
-                  : 'bg-surface-elevated text-muted hover:text-foreground hover:bg-surface-elevated/80'
-              }`}
-            >
-              {pill.label}
-            </button>
-          ))}
-        </div>
+      {/* Filter Row: Method, Status, Period */}
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 transition-opacity ${isPending ? 'opacity-60' : 'opacity-100'}`}
+      >
+        {/* Method Selector */}
+        <select
+          value={currentProvider}
+          onChange={(e) => updateParam('provider', e.target.value)}
+          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none cursor-pointer"
+        >
+          <option value="all">All Methods</option>
+          <option value="mtn_momo">MTN Mobile Money</option>
+          <option value="telecel_cash">Telecel Cash</option>
+          <option value="at_money">AT Money</option>
+          <option value="cash_on_delivery">Cash on Delivery (COD)</option>
+          <option value="cash">In-Store Cash</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="card">Card / POS</option>
+        </select>
 
-        {/* Status & Period Dropdowns */}
-        <div className="flex items-center gap-2 ml-auto">
-          {/* Status Selector */}
-          <select
-            value={currentStatus}
-            onChange={(e) => updateParam('status', e.target.value)}
-            className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none"
-          >
-            <option value="all">All Statuses</option>
-            <option value="completed">Completed / Verified</option>
-            <option value="pending">Pending Verification</option>
-            <option value="failed">Failed</option>
-            <option value="refunded">Refunded</option>
-          </select>
+        {/* Status Selector */}
+        <select
+          value={currentStatus}
+          onChange={(e) => updateParam('status', e.target.value)}
+          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none cursor-pointer"
+        >
+          <option value="all">All Statuses</option>
+          <option value="completed">Completed / Verified</option>
+          <option value="pending">Pending Verification</option>
+          <option value="failed">Failed</option>
+          <option value="refunded">Refunded</option>
+        </select>
 
-          {/* Time Period Selector */}
-          <select
-            value={currentPeriod}
-            onChange={(e) => updateParam('period', e.target.value)}
-            className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none"
-          >
-            <option value="this_month">This Month</option>
-            <option value="last_month">Last Month</option>
-            <option value="this_quarter">This Quarter</option>
-            <option value="this_year">This Year</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
+        {/* Time Period Selector */}
+        <select
+          value={currentPeriod}
+          onChange={(e) => updateParam('period', e.target.value)}
+          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none cursor-pointer"
+        >
+          <option value="this_month">This Month</option>
+          <option value="last_month">Last Month</option>
+          <option value="this_quarter">This Quarter</option>
+          <option value="this_year">This Year</option>
+          <option value="all">All Time</option>
+        </select>
       </div>
     </div>
   );

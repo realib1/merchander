@@ -16,3 +16,4 @@ export { Modal, type ModalProps, type ModalSize } from './Modal';
 export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';
 export { ToastProvider, useToast, type ToastType, type ToastItem, type ToastContextValue } from './Toast';
 export { DataTable, type DataTableProps, type Column } from './DataTable';
+export { Checkbox, type CheckboxProps } from './Checkbox';

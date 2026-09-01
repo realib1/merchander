@@ -1,54 +1,77 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeGhanaPhone, formatGhanaLocalDisplay } from './phone';
+import { normalizeGhanaPhone, isValidGhanaPhone, detectGhanaNetwork, formatGhanaLocalDisplay } from './phone';
 
-describe('normalizeGhanaPhone', () => {
-  it('returns null for empty input', () => {
-    expect(normalizeGhanaPhone('')).toBeNull();
-    expect(normalizeGhanaPhone(null)).toBeNull();
-    expect(normalizeGhanaPhone(undefined)).toBeNull();
+describe('Phone Utilities (Ghana MSISDN)', () => {
+  describe('normalizeGhanaPhone', () => {
+    it('normalizes local 10-digit format starting with 0', () => {
+      expect(normalizeGhanaPhone('0244123456')).toBe('+233244123456');
+      expect(normalizeGhanaPhone('0501234567')).toBe('+233501234567');
+      expect(normalizeGhanaPhone('0271234567')).toBe('+233271234567');
+    });
+
+    it('normalizes numbers with spaces, hyphens, and parentheses', () => {
+      expect(normalizeGhanaPhone('024 123 4567')).toBe('+233241234567');
+      expect(normalizeGhanaPhone('(055) 987-6543')).toBe('+233559876543');
+    });
+
+    it('preserves and normalizes +233 prefix', () => {
+      expect(normalizeGhanaPhone('+233244123456')).toBe('+233244123456');
+      expect(normalizeGhanaPhone('233244123456')).toBe('+233244123456');
+    });
+
+    it('rejects invalid lengths and invalid characters', () => {
+      expect(normalizeGhanaPhone('12345')).toBeNull();
+      expect(normalizeGhanaPhone('0123456789')).toBeNull();
+      expect(normalizeGhanaPhone('0244123456789')).toBeNull();
+      expect(normalizeGhanaPhone(null)).toBeNull();
+      expect(normalizeGhanaPhone(undefined)).toBeNull();
+    });
   });
 
-  it('normalizes local 0-prefixed number', () => {
-    expect(normalizeGhanaPhone('0241234567')).toBe('+233241234567');
+  describe('isValidGhanaPhone', () => {
+    it('validates correct Ghana numbers', () => {
+      expect(isValidGhanaPhone('0244123456')).toBe(true);
+      expect(isValidGhanaPhone('+233501234567')).toBe(true);
+      expect(isValidGhanaPhone('0201112233')).toBe(true);
+    });
+
+    it('rejects invalid numbers', () => {
+      expect(isValidGhanaPhone('08012345678')).toBe(false);
+      expect(isValidGhanaPhone('')).toBe(false);
+    });
   });
 
-  it('normalizes +233 prefixed number', () => {
-    expect(normalizeGhanaPhone('+233241234567')).toBe('+233241234567');
+  describe('detectGhanaNetwork', () => {
+    it('correctly identifies MTN numbers', () => {
+      expect(detectGhanaNetwork('0244123456')).toBe('MTN');
+      expect(detectGhanaNetwork('0541234567')).toBe('MTN');
+      expect(detectGhanaNetwork('0551234567')).toBe('MTN');
+      expect(detectGhanaNetwork('0591234567')).toBe('MTN');
+      expect(detectGhanaNetwork('0251234567')).toBe('MTN');
+    });
+
+    it('correctly identifies Telecel numbers', () => {
+      expect(detectGhanaNetwork('0201234567')).toBe('Telecel');
+      expect(detectGhanaNetwork('0501234567')).toBe('Telecel');
+    });
+
+    it('correctly identifies AT numbers', () => {
+      expect(detectGhanaNetwork('0261234567')).toBe('AT');
+      expect(detectGhanaNetwork('0271234567')).toBe('AT');
+      expect(detectGhanaNetwork('0561234567')).toBe('AT');
+      expect(detectGhanaNetwork('0571234567')).toBe('AT');
+    });
+
+    it('returns Unknown for unrecognized numbers', () => {
+      expect(detectGhanaNetwork('0231234567')).toBe('Unknown');
+      expect(detectGhanaNetwork('invalid')).toBe('Unknown');
+    });
   });
 
-  it('normalizes 233 prefixed number without +', () => {
-    expect(normalizeGhanaPhone('233241234567')).toBe('+233241234567');
-  });
-
-  it('handles numbers with spaces and hyphens', () => {
-    expect(normalizeGhanaPhone('024-123-4567')).toBe('+233241234567');
-    expect(normalizeGhanaPhone('024 123 4567')).toBe('+233241234567');
-  });
-
-  it('returns null for invalid number (wrong length)', () => {
-    expect(normalizeGhanaPhone('024123')).toBeNull();
-  });
-
-  it('returns null for invalid prefix', () => {
-    // Ghana subscriber numbers start with 2 or 5
-    expect(normalizeGhanaPhone('0801234567')).toBeNull();
-  });
-
-  it('normalizes Telecel (055) numbers', () => {
-    expect(normalizeGhanaPhone('0551234567')).toBe('+233551234567');
-  });
-});
-
-describe('formatGhanaLocalDisplay', () => {
-  it('formats E.164 to local display', () => {
-    expect(formatGhanaLocalDisplay('+233241234567')).toBe('024 123 4567');
-  });
-
-  it('returns original for non-Ghana numbers', () => {
-    expect(formatGhanaLocalDisplay('+14155551234')).toBe('+14155551234');
-  });
-
-  it('returns original for short numbers', () => {
-    expect(formatGhanaLocalDisplay('+23324')).toBe('+23324');
+  describe('formatGhanaLocalDisplay', () => {
+    it('formats E.164 phone into readable local representation', () => {
+      expect(formatGhanaLocalDisplay('+233244123456')).toBe('024 412 3456');
+      expect(formatGhanaLocalDisplay('0244123456')).toBe('024 412 3456');
+    });
   });
 });

@@ -12,10 +12,13 @@ import { toast } from 'sonner';
 import { ProductImageUploader } from './product-form/ProductImageUploader';
 import { ProductGeneralInfo } from './product-form/ProductGeneralInfo';
 import { ProductVariantManager, Store, VariantState } from './product-form/ProductVariantManager';
+import { ProductSpecificationsCard } from './product-form/ProductSpecificationsCard';
 import { ProductPricingCard } from './product-form/ProductPricingCard';
 import { ProductStatusCard } from './product-form/ProductStatusCard';
 import { ProductOrganizationCard, Category } from './product-form/ProductOrganizationCard';
 import { useProductDraft } from './product-form/useProductDraft';
+import type { ProductSpecification } from '@/types/product';
+import type { ProductImageItem } from '@/types/product-form';
 
 export interface InitialProductData {
   id: string;
@@ -31,6 +34,7 @@ export interface InitialProductData {
   baseCostPrice: number | '';
   variants: VariantState[];
   preorderShippingMode: 'included' | 'tbd';
+  specifications?: ProductSpecification[];
 }
 
 interface ProductFormProps {
@@ -55,9 +59,16 @@ export function ProductForm({ stores, categories: initialCategories, initialData
   const [categoryId, setCategoryId] = useState<string>(initialData?.categoryId ?? '');
   const [vendor, setVendor] = useState<string>(initialData?.vendor ?? '');
   const [stockUnit, setStockUnit] = useState<string>(initialData?.stockUnit ?? 'pcs');
-  const [files, setFiles] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<string[]>(initialData?.imageUrls ?? []);
+  const [imageItems, setImageItems] = useState<ProductImageItem[]>(() => {
+    return (initialData?.imageUrls ?? []).map((url, idx) => ({
+      id: `existing-${idx}-${url}`,
+      type: 'existing',
+      url,
+    }));
+  });
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+
+  const [specifications, setSpecifications] = useState<ProductSpecification[]>(initialData?.specifications ?? []);
 
   const [variants, setVariants] = useState<VariantState[]>(
     initialData?.variants ?? [
@@ -91,12 +102,23 @@ export function ProductForm({ stores, categories: initialCategories, initialData
         if (savedDraft.variants !== undefined) setVariants(savedDraft.variants);
         if (savedDraft.basePrice !== undefined) setBasePrice(savedDraft.basePrice);
         if (savedDraft.baseCostPrice !== undefined) setBaseCostPrice(savedDraft.baseCostPrice);
+        if (savedDraft.specifications !== undefined) setSpecifications(savedDraft.specifications);
       }
       if (draftFiles.length > 0) {
-        setFiles(draftFiles);
+        const fileItems: ProductImageItem[] = draftFiles.map((file, idx) => ({
+          id: `file-draft-${idx}-${file.name}`,
+          type: 'file',
+          file,
+          preview: URL.createObjectURL(file),
+        }));
+        setImageItems((prev) => [...prev, ...fileItems]);
       }
     });
   }, [savedDraft, draftFiles]);
+
+  const draftFilesToPersist = imageItems
+    .filter((i): i is { id: string; type: 'file'; file: File; preview: string } => i.type === 'file')
+    .map((i) => i.file);
 
   useEffect(() => {
     persistDraft(
@@ -112,8 +134,9 @@ export function ProductForm({ stores, categories: initialCategories, initialData
         variants,
         basePrice,
         baseCostPrice,
+        specifications,
       },
-      files
+      draftFilesToPersist
     );
   }, [
     name,
@@ -127,7 +150,8 @@ export function ProductForm({ stores, categories: initialCategories, initialData
     variants,
     basePrice,
     baseCostPrice,
-    files,
+    specifications,
+    draftFilesToPersist,
     isLoaded,
     persistDraft,
   ]);
@@ -138,45 +162,83 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       {
         id: Math.random().toString(36).substr(2, 9),
         sku: '',
-        name: '',
-        price: '',
-        costPrice: '',
+        name: `Variant ${variants.length + 1}`,
+        price: basePrice !== '' ? basePrice : '',
+        costPrice: baseCostPrice !== '' ? baseCostPrice : '',
         inventory: {},
       },
     ]);
   };
 
   const removeVariant = (id: string) => {
-    if (variants.length === 1) return;
+    if (variants.length <= 1) return;
     setVariants(variants.filter((v) => v.id !== id));
   };
 
   const updateVariant = (id: string, field: keyof VariantState, value: VariantState[keyof VariantState]) => {
-    setVariants(variants.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
+    setVariants(
+      variants.map((v) => {
+        if (v.id === id) {
+          return { ...v, [field]: value };
+        }
+        return v;
+      })
+    );
   };
 
   const updateVariantInventory = (variantId: string, storeId: string, quantity: number) => {
     setVariants(
-      variants.map((v) => (v.id === variantId ? { ...v, inventory: { ...v.inventory, [storeId]: quantity } } : v))
+      variants.map((v) => {
+        if (v.id === variantId) {
+          return {
+            ...v,
+            inventory: {
+              ...v.inventory,
+              [storeId]: quantity,
+            },
+          };
+        }
+        return v;
+      })
     );
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(e.target.files || []);
-    if (newFiles.length > 0) setFiles((prev) => [...prev, ...newFiles]);
-    e.target.value = '';
+  const handleAddFiles = (newFiles: File[]) => {
+    const newItems: ProductImageItem[] = newFiles.map((file, idx) => ({
+      id: `file-${Date.now()}-${idx}-${file.name}`,
+      type: 'file',
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setImageItems((prev) => [...prev, ...newItems]);
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImageItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (index === 0) return;
+    setImageItems((prev) => {
+      const copy = [...prev];
+      const [promoted] = copy.splice(index, 1);
+      return [promoted, ...copy];
+    });
   };
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     startTransition(async () => {
-      const uploadedUrls: string[] = [];
+      const finalUrls: string[] = [];
+      const supabase = createClient();
 
-      if (files.length > 0) {
-        const supabase = createClient();
-        for (const file of files) {
-          const fileExt = file.name.split('.').pop();
+      for (const item of imageItems) {
+        if (item.type === 'existing') {
+          finalUrls.push(item.url);
+        } else {
+          const file = item.file;
+          const fileExt = file.name.split('.').pop() || 'png';
           const fileName = `${Math.random().toString(36).substr(2, 9)}_${Date.now()}.${fileExt}`;
 
           const { data: uploadData, error: uploadError } = await supabase.storage
@@ -192,7 +254,7 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             const {
               data: { publicUrl },
             } = supabase.storage.from('product-images').getPublicUrl(fileName);
-            uploadedUrls.push(publicUrl);
+            finalUrls.push(publicUrl);
           }
         }
       }
@@ -216,13 +278,14 @@ export function ProductForm({ stores, categories: initialCategories, initialData
       });
 
       formData.append('variants', JSON.stringify(finalVariants));
+      const validSpecs = specifications.filter((s) => s.key.trim() !== '' && s.value.trim() !== '');
+      formData.append('specifications', JSON.stringify(validSpecs));
       if (categoryId) formData.append('categoryId', categoryId);
       if (vendor) formData.append('vendor', vendor);
       formData.append('stockUnit', stockUnit);
       if (initialData) formData.append('id', initialData.id);
 
-      const allImageUrls = [...existingImages, ...uploadedUrls];
-      if (allImageUrls.length > 0) formData.append('imageUrls', JSON.stringify(allImageUrls));
+      if (finalUrls.length > 0) formData.append('imageUrls', JSON.stringify(finalUrls));
 
       const result = initialData ? await updateProductAction(formData) : await createProductAction(formData);
 
@@ -279,12 +342,13 @@ export function ProductForm({ stores, categories: initialCategories, initialData
             onDescriptionChange={setDescription}
           />
 
+          <ProductSpecificationsCard specifications={specifications} onChange={setSpecifications} />
+
           <ProductImageUploader
-            files={files}
-            existingImages={existingImages}
-            onFileChange={handleFileChange}
-            onRemoveFile={(idx) => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-            onRemoveExistingImage={(idx) => setExistingImages((prev) => prev.filter((_, i) => i !== idx))}
+            images={imageItems}
+            onAddFiles={handleAddFiles}
+            onRemoveImage={handleRemoveImage}
+            onSetPrimaryImage={handleSetPrimaryImage}
           />
 
           <ProductVariantManager

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, CheckCircle2 } from 'lucide-react';
+import { Search, CheckCircle2 } from 'lucide-react';
 
 interface InsightsEmptyStateProps {
   hasFilters?: boolean;
@@ -10,7 +10,7 @@ export function InsightsEmptyState({ hasFilters = false }: InsightsEmptyStatePro
     return (
       <div className="bg-surface border border-separator rounded-2xl p-12 text-center shadow-xs flex flex-col items-center justify-center min-h-60">
         <div className="w-12 h-12 bg-surface-elevated text-muted rounded-full flex items-center justify-center mb-3">
-          <Sparkles size={22} />
+          <Search size={22} />
         </div>
         <h3 className="text-base font-bold text-foreground mb-1">No matching insights found</h3>
         <p className="text-xs text-muted max-w-sm">

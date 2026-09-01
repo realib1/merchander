@@ -1,12 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { StorefrontCartItem, StorefrontCategory, StorefrontConfig, StorefrontProduct } from '@/types/storefront';
-import { ProductDetailModal } from './ProductDetailModal';
 import { StoreCartDrawer } from './StoreCartDrawer';
+import { StoreWishlistDrawer } from './StoreWishlistDrawer';
+import { StoreNavbar } from './StoreNavbar';
+import { StoreHeroSection } from './StoreHeroSection';
+import { StoreFooter } from './StoreFooter';
+import { StoreBottomNav } from './StoreBottomNav';
+import { StoreMenuDrawer } from './StoreMenuDrawer';
+import { StoreSearchModal } from './StoreSearchModal';
+import { StoreFloatingWhatsApp } from './StoreFloatingWhatsApp';
+import { StoreCatalogGrid, SortOption } from './StoreCatalogGrid';
 import { calculateCartTotals } from '@/utils/storefront';
-import { formatCurrency } from '@/utils/format';
-import { Search, ShoppingBag, Plus, Sparkles, Package } from 'lucide-react';
+import { slugify } from '@/utils/format';
+import { ShoppingCart } from 'lucide-react';
+import { useStorefrontWishlist } from '@/hooks/useStorefrontWishlist';
 
 interface StoreCatalogProps {
   config: StorefrontConfig;
@@ -15,211 +25,256 @@ interface StoreCatalogProps {
 }
 
 export function StoreCatalog({ config, categories, products }: StoreCatalogProps) {
+  const router = useRouter();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeModalProduct, setActiveModalProduct] = useState<StorefrontProduct | null>(null);
-  const [cart, setCart] = useState<StorefrontCartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  const currency = config.currency || 'GHS';
-
-  // Filter products by category and search term
-  const filteredProducts = products.filter((p) => {
-    const matchesCategory = selectedCategoryId === 'all' || p.category_id === selectedCategoryId;
-    const matchesSearch =
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesSearch;
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [cart, setCart] = useState<StorefrontCartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(`merchander_cart_${config.slug}`);
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return [];
   });
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [quickAddedId, setQuickAddedId] = useState<string | null>(null);
 
-  const handleAddToCart = (newItem: StorefrontCartItem) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.variantId === newItem.variantId);
-      if (existing) {
-        return prev.map((item) =>
-          item.variantId === newItem.variantId ? { ...item, quantity: item.quantity + newItem.quantity } : item
-        );
+  const wishlist = useStorefrontWishlist(config.slug);
+  const currency = config.currency || 'GHS';
+  const primaryColor = config.primary_color || '#3b82f6';
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+      if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) {
+        e.preventDefault();
+        setIsSearchOpen(true);
       }
-      return [...prev, newItem];
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = products.filter((p) => {
+      const matchesCategory = selectedCategoryId === 'all' || p.category_id === selectedCategoryId;
+      const matchesSearch =
+        searchQuery === '' ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStock = !inStockOnly || p.total_stock > 0;
+      return matchesCategory && matchesSearch && matchesStock;
+    });
+
+    switch (sortBy) {
+      case 'price_asc':
+        result = [...result].sort((a, b) => a.min_price - b.min_price);
+        break;
+      case 'price_desc':
+        result = [...result].sort((a, b) => b.min_price - a.min_price);
+        break;
+      case 'name':
+        result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'featured':
+      default:
+        result = [...result].sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+        break;
+    }
+    return result;
+  }, [products, selectedCategoryId, searchQuery, inStockOnly, sortBy]);
+
+  const featuredProducts = useMemo(() => {
+    const featuredProductIds = config.featured_product_ids;
+    if (!featuredProductIds || featuredProductIds.length === 0) {
+      return products.filter((p) => p.is_featured).slice(0, 4);
+    }
+    return products.filter((p) => featuredProductIds.includes(p.id));
+  }, [products, config.featured_product_ids]);
+
+  const updateCart = (updater: (prev: StorefrontCartItem[]) => StorefrontCartItem[]) => {
+    setCart((prev) => {
+      const next = updater(prev);
+      try {
+        localStorage.setItem(`merchander_cart_${config.slug}`, JSON.stringify(next));
+      } catch {}
+      return next;
     });
   };
 
+  const handleQuickAdd = (product: StorefrontProduct) => {
+    const firstVariant = product.variants[0];
+    if (product.variants.length > 1 || !firstVariant || firstVariant.stock_quantity <= 0) {
+      router.push(`/store/${config.slug}/products/${slugify(product.name)}`);
+      return;
+    }
+
+    updateCart((prev) => {
+      const existing = prev.find((item) => item.variantId === firstVariant.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.variantId === firstVariant.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [
+        ...prev,
+        {
+          variantId: firstVariant.id,
+          productId: product.id,
+          productName: product.name,
+          variantTitle: firstVariant.title || 'Standard',
+          price: firstVariant.price,
+          quantity: 1,
+          imageUrl: product.image_url,
+          sku: firstVariant.sku,
+        },
+      ];
+    });
+
+    setQuickAddedId(product.id);
+    setTimeout(() => setQuickAddedId(null), 1500);
+  };
+
   const handleUpdateQuantity = (variantId: string, delta: number) => {
-    setCart((prev) =>
+    updateCart((prev) =>
       prev
         .map((item) => (item.variantId === variantId ? { ...item, quantity: item.quantity + delta } : item))
         .filter((item) => item.quantity > 0)
     );
   };
 
-  const handleRemoveItem = (variantId: string) => {
-    setCart((prev) => prev.filter((item) => item.variantId !== variantId));
-  };
-
-  const handleClearCart = () => {
-    setCart([]);
-  };
-
   const { itemCount } = calculateCartTotals(cart);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-      {/* Category Pills & Search */}
-      <div className="space-y-3.5 mb-6">
-        {/* Search */}
-        <div className="relative">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
-          <input
-            type="text"
-            placeholder="Search catalog by name or keyword..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-surface border border-separator rounded-2xl pl-9 pr-4 py-2.5 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary shadow-xs transition"
-          />
-        </div>
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+      <div>
+        <StoreNavbar
+          config={config}
+          cartCount={itemCount}
+          wishlistCount={wishlist.count}
+          onOpenCart={() => setIsCartOpen(true)}
+          onOpenWishlist={() => setIsWishlistOpen(true)}
+          onOpenMenu={() => setIsMenuOpen(true)}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onOpenTracking={() => router.push(`/store/${config.slug}/orders`)}
+          onSelectFilter={() => setSelectedCategoryId('all')}
+        />
 
-        {/* Categories Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryId('all')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-pointer transition border ${
-              selectedCategoryId === 'all'
-                ? 'bg-brand-primary text-white border-brand-primary shadow-xs'
-                : 'bg-surface border-separator text-muted hover:text-foreground'
-            }`}
-          >
-            All Products ({products.length})
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategoryId(cat.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-pointer transition border ${
-                selectedCategoryId === cat.id
-                  ? 'bg-brand-primary text-white border-brand-primary shadow-xs'
-                  : 'bg-surface border-separator text-muted hover:text-foreground'
-              }`}
-            >
-              {cat.name} ({cat.product_count})
-            </button>
-          ))}
-        </div>
+        <StoreHeroSection
+          config={config}
+          featuredProducts={featuredProducts}
+          onSelectProduct={(p) => router.push(`/store/${config.slug}/products/${slugify(p.name)}`)}
+        />
+
+        <StoreCatalogGrid
+          config={config}
+          categories={categories}
+          products={filteredAndSortedProducts}
+          selectedCategoryId={selectedCategoryId}
+          searchQuery={searchQuery}
+          sortBy={sortBy}
+          inStockOnly={inStockOnly}
+          currency={currency}
+          primaryColor={primaryColor}
+          quickAddedId={quickAddedId}
+          isSaved={wishlist.isSaved}
+          onSelectCategory={setSelectedCategoryId}
+          onClearSearch={() => setSearchQuery('')}
+          onToggleInStock={setInStockOnly}
+          onSortChange={setSortBy}
+          onToggleWishlist={wishlist.toggleSave}
+          onQuickAdd={handleQuickAdd}
+          onResetFilters={() => {
+            setSelectedCategoryId('all');
+            setSearchQuery('');
+            setInStockOnly(false);
+          }}
+        />
       </div>
 
-      {/* Products Grid */}
-      {filteredProducts.length === 0 ? (
-        <div className="bg-surface border border-separator rounded-2xl p-12 text-center text-muted space-y-2">
-          <Package size={36} className="mx-auto opacity-30" />
-          <p className="text-sm font-semibold text-foreground">No products found</p>
-          <p className="text-xs">Try selecting another category or changing your search terms.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4">
-          {filteredProducts.map((p) => {
-            const hasMultiplePrices = p.min_price !== p.max_price && p.max_price > 0;
-            const isOutOfStock = p.total_stock <= 0;
-
-            return (
-              <div
-                key={p.id}
-                onClick={() => setActiveModalProduct(p)}
-                className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-xs hover:border-separator/80 transition flex flex-col justify-between cursor-pointer group"
-              >
-                {/* Product Image */}
-                <div className="relative aspect-square w-full bg-surface-elevated overflow-hidden">
-                  {p.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={p.image_url}
-                      alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted">
-                      <ShoppingBag size={28} className="opacity-20" />
-                    </div>
-                  )}
-
-                  {/* Stock pill */}
-                  {isOutOfStock ? (
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-destructive text-white text-[9px] font-bold">
-                      Sold Out
-                    </span>
-                  ) : p.is_featured ? (
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-brand-primary text-white text-[9px] font-bold flex items-center gap-0.5">
-                      <Sparkles size={8} /> Featured
-                    </span>
-                  ) : null}
-                </div>
-
-                {/* Details */}
-                <div className="p-3 flex flex-col justify-between flex-1">
-                  <div>
-                    <span className="text-[10px] text-muted font-medium">{p.category_name}</span>
-                    <h3 className="text-xs font-bold text-foreground line-clamp-2 mt-0.5 group-hover:text-brand-primary transition">
-                      {p.name}
-                    </h3>
-                  </div>
-
-                  <div className="mt-2.5 pt-2 border-t border-separator/50 flex items-center justify-between">
-                    <div className="font-bold text-xs text-brand-primary tabular-nums">
-                      {hasMultiplePrices
-                        ? `${formatCurrency(p.min_price, currency)} - ${formatCurrency(p.max_price, currency)}`
-                        : formatCurrency(p.min_price, currency)}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveModalProduct(p);
-                      }}
-                      className="h-6 w-6 rounded-lg bg-surface-elevated hover:bg-brand-primary hover:text-white border border-separator text-muted flex items-center justify-center cursor-pointer transition shadow-xs"
-                      title="Select options"
-                    >
-                      <Plus size={13} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Floating Cart Button */}
       {itemCount > 0 && (
         <button
           type="button"
           onClick={() => setIsCartOpen(true)}
-          className="fixed bottom-6 right-6 z-40 px-5 py-3 rounded-full bg-brand-primary text-white text-xs font-bold shadow-2xl hover:bg-brand-primary/90 transition-transform active:scale-95 cursor-pointer flex items-center gap-2.5 animate-scaleUp"
+          className="fixed bottom-6 right-6 z-40 px-5 py-3 rounded-full text-white text-xs font-bold shadow-2xl hover:opacity-95 transition-transform active:scale-95 cursor-pointer flex items-center gap-2.5 animate-scaleUp"
+          style={{ backgroundColor: primaryColor }}
         >
-          <ShoppingBag size={16} />
-          <span>View Bag ({itemCount})</span>
+          <ShoppingCart size={16} />
+          <span>View Cart ({itemCount})</span>
         </button>
       )}
 
-      {/* Variant Selector Modal */}
-      <ProductDetailModal
-        product={activeModalProduct}
+      <StoreSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        products={products}
+        categories={categories}
         currency={currency}
-        onClose={() => setActiveModalProduct(null)}
-        onAddToCart={handleAddToCart}
+        primaryColor={primaryColor}
+        onSelectProduct={(p) => {
+          setIsSearchOpen(false);
+          router.push(`/store/${config.slug}/products/${slugify(p.name)}`);
+        }}
+        onSelectCategory={(catId) => setSelectedCategoryId(catId)}
       />
 
-      {/* Slide-over Cart Drawer */}
       <StoreCartDrawer
         isOpen={isCartOpen}
         config={config}
         cart={cart}
         onClose={() => setIsCartOpen(false)}
         onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
+        onRemoveItem={(vId) => updateCart((prev) => prev.filter((i) => i.variantId !== vId))}
+        onClearCart={() => updateCart(() => [])}
       />
+
+      <StoreWishlistDrawer
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        products={products}
+        savedIds={wishlist.savedIds}
+        onRemove={wishlist.removeProduct}
+        onAddToCart={(p) => {
+          handleQuickAdd(p);
+          setIsWishlistOpen(false);
+          setIsCartOpen(true);
+        }}
+        onSyncPhone={wishlist.syncWithPhone}
+        currency={currency}
+        primaryColor={primaryColor}
+      />
+
+      <StoreMenuDrawer
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        config={config}
+        categories={categories}
+        onSelectCategory={(catId) => setSelectedCategoryId(catId)}
+        onOpenTracking={() => {
+          setIsMenuOpen(false);
+          router.push(`/store/${config.slug}/orders`);
+        }}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
+      />
+
+      <StoreFloatingWhatsApp whatsappPhone={config.whatsapp_phone} storeName={config.store_name} />
+      <StoreBottomNav
+        storeSlug={config.slug}
+        cartCount={itemCount}
+        wishlistCount={wishlist.count}
+        primaryColor={primaryColor}
+        onOpenCart={() => setIsCartOpen(true)}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
+      />
+      <StoreFooter config={config} />
     </div>
   );
 }

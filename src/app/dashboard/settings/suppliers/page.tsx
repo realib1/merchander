@@ -11,10 +11,14 @@ export default async function SuppliersSettingsPage() {
   const settings = await getSupplierSettings();
 
   return (
-    <div className="max-w-3xl space-y-8 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Suppliers</h1>
-        <p className="text-sm text-secondary mt-1">Manage procurement defaults and supplier communications.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
+          Suppliers Settings
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Manage procurement defaults, purchase order formats, and supplier receiving guidelines.
+        </p>
       </div>
 
       <SuppliersSettingsForm initialSettings={settings} />

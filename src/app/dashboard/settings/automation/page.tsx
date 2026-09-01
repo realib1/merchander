@@ -11,10 +11,12 @@ export default async function AutomationSettingsPage() {
   const settings = await getAutomationSettings();
 
   return (
-    <div className="max-w-3xl space-y-8 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Automation & Bots</h1>
-        <p className="text-sm text-secondary mt-1">Configure automated replies, greeting messages, and AI responses.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">Automation & Bots</h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Configure automated replies, greeting messages, and keyword auto-responders.
+        </p>
       </div>
 
       <AutomationSettingsForm initialSettings={settings} />

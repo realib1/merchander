@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { saveFilesToDraft, getFilesFromDraft, clearFilesFromDraft } from '@/lib/draft';
 import type { InitialProductData, VariantState } from '@/types/product-form';
+import type { ProductSpecification } from '@/types/product';
 
 interface DraftData {
   name: string;
@@ -16,6 +17,7 @@ interface DraftData {
   variants: VariantState[];
   basePrice: number | '';
   baseCostPrice: number | '';
+  specifications: ProductSpecification[];
 }
 
 export function useProductDraft(initialData?: InitialProductData) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ProfitabilityMetrics } from '@/types/profitability';
 import { formatCurrency } from '@/utils/format';
-import { TrendingUp, DollarSign, Layers, ShieldAlert, Sparkles } from 'lucide-react';
+import { TrendingUp, DollarSign, Layers, ShieldAlert, Wallet } from 'lucide-react';
 import { MetricCard } from '@/components/ui/MetricCard';
 
 interface ProfitabilityTopMetricsProps {
@@ -68,7 +68,7 @@ export function ProfitabilityTopMetrics({ metrics }: ProfitabilityTopMetricsProp
           </span>
         }
         subtitle={`After ${formatCurrency(metrics.totalExpenses, 'GHS')} OPEX & logistics`}
-        icon={isNetPositive ? <Sparkles size={14} /> : <ShieldAlert size={14} />}
+        icon={isNetPositive ? <Wallet size={14} /> : <ShieldAlert size={14} />}
         iconBg={isNetPositive ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}
       />
     </div>

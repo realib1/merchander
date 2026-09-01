@@ -3,6 +3,7 @@ import { KanbanBoard } from '@/app/dashboard/components/KanbanBoard';
 import { OrdersTable } from './components/OrdersTable';
 import { OrdersHeader } from './components/OrdersHeader';
 import { OrdersTopMetrics } from './components/OrdersTopMetrics';
+import { getActiveBranchId } from '@/app/actions/branch';
 
 export const metadata = {
   title: 'Orders | Merchander',
@@ -15,6 +16,8 @@ export default async function OrdersPage({
 }) {
   const supabase = await createClient();
   const resolvedParams = await searchParams;
+  const activeBranchId = await getActiveBranchId();
+  const isBranchFiltered = Boolean(activeBranchId && activeBranchId !== 'all');
 
   const status = typeof resolvedParams?.status === 'string' ? resolvedParams.status : 'all';
   const q = typeof resolvedParams?.q === 'string' ? resolvedParams.q : '';
@@ -35,6 +38,32 @@ export default async function OrdersPage({
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
+  let totalQ = supabase.from('orders').select('*', { count: 'exact', head: true });
+  let pendingQ = supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .in('status', ['draft', 'pending_payment']);
+  let dispatchQ = supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'paid');
+  let cancelledQ = supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'cancelled');
+  let current30Q = supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', thirtyDaysAgo.toISOString());
+  let previous30Q = supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', sixtyDaysAgo.toISOString())
+    .lt('created_at', thirtyDaysAgo.toISOString());
+
+  if (isBranchFiltered && activeBranchId) {
+    totalQ = totalQ.eq('store_id', activeBranchId);
+    pendingQ = pendingQ.eq('store_id', activeBranchId);
+    dispatchQ = dispatchQ.eq('store_id', activeBranchId);
+    cancelledQ = cancelledQ.eq('store_id', activeBranchId);
+    current30Q = current30Q.eq('store_id', activeBranchId);
+    previous30Q = previous30Q.eq('store_id', activeBranchId);
+  }
+
   const [
     { count: totalOrders },
     { count: pendingPayment },
@@ -42,18 +71,7 @@ export default async function OrdersPage({
     { count: cancelled },
     { count: current30DaysOrders },
     { count: previous30DaysOrders },
-  ] = await Promise.all([
-    supabase.from('orders').select('*', { count: 'exact', head: true }),
-    supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['draft', 'pending_payment']),
-    supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'paid'),
-    supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'cancelled'),
-    supabase.from('orders').select('*', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo.toISOString()),
-    supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', sixtyDaysAgo.toISOString())
-      .lt('created_at', thirtyDaysAgo.toISOString()),
-  ]);
+  ] = await Promise.all([totalQ, pendingQ, dispatchQ, cancelledQ, current30Q, previous30Q]);
 
   const currentCount = current30DaysOrders || 0;
   const previousCount = previous30DaysOrders || 0;
@@ -69,6 +87,10 @@ export default async function OrdersPage({
     { count: 'exact' }
   );
 
+  if (isBranchFiltered && activeBranchId) {
+    query = query.eq('store_id', activeBranchId);
+  }
+
   // Filter by status
   if (status && status !== 'all') {
     query = query.eq('status', status);
@@ -77,23 +99,28 @@ export default async function OrdersPage({
     query = query.in('status', ['draft', 'pending_payment', 'paid', 'dispatched']);
   }
 
-  // Filter by search query (Order ID, Customer Name, or Phone)
+  // Filter by search query (Order ID, Short ID, Customer Name, or Phone)
   if (q) {
-    // 1. Find matching customers first
-    const { data: matchingCustomers } = await supabase
-      .from('customers')
-      .select('id')
-      .or(`name.ilike.%${q}%,phone.ilike.%${q}%`);
+    const cleanQ = q.replace(/^#+/, '').trim();
+    if (cleanQ) {
+      // 1. Find matching customers first
+      const { data: matchingCustomers } = await supabase
+        .from('customers')
+        .select('id')
+        .or(`name.ilike.%${cleanQ}%,phone.ilike.%${cleanQ}%`);
 
-    const customerIds = matchingCustomers?.map((c) => c.id) || [];
+      const customerIds = matchingCustomers?.map((c) => c.id) || [];
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanQ);
 
-    // 2. Search by order ID (cast to text) OR matching customer IDs
-    if (customerIds.length > 0) {
-      const idsStr = customerIds.join(',');
-      query = query.or(`id::text.ilike.%${q}%,customer_id.in.(${idsStr})`);
-    } else {
-      // Use cast to text to avoid "operator does not exist: uuid ~~* unknown"
-      query = query.or(`id::text.ilike.%${q}%`);
+      const filterClauses: string[] = [`short_id.ilike.%${cleanQ}%`];
+      if (isUuid) {
+        filterClauses.push(`id.eq.${cleanQ}`);
+      }
+      if (customerIds.length > 0) {
+        filterClauses.push(`customer_id.in.(${customerIds.join(',')})`);
+      }
+
+      query = query.or(filterClauses.join(','));
     }
   }
 

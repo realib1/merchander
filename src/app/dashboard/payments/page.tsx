@@ -40,43 +40,47 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
     endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59).toISOString();
   }
 
-  // Fetch payments and metrics
-  const { payments, metrics } = await getPayments({
-    period: period as 'this_month' | 'last_month' | 'this_quarter' | 'this_year' | 'all',
-    provider,
-    status,
-    search,
-    startDate,
-    endDate,
-  });
+  // Fetch payments, unpaid orders, and customers concurrently for maximum performance
+  const [{ payments, metrics }, unpaidOrders, customers] = await Promise.all([
+    getPayments({
+      period: period as 'this_month' | 'last_month' | 'this_quarter' | 'this_year' | 'all',
+      provider,
+      status,
+      search,
+      startDate,
+      endDate,
+    }),
+    getUnpaidOrdersForPayment(),
+    (async () => {
+      try {
+        const supabase = await createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return [];
 
-  // Fetch unpaid orders and customers for modal selection
-  const unpaidOrders = await getUnpaidOrdersForPayment();
+        const { data: tenantUser } = await supabase
+          .from('tenant_users')
+          .select('tenant_id')
+          .eq('user_id', user.id)
+          .single();
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+        if (!tenantUser) return [];
 
-  let customers: Array<{ id: string; name: string; phone: string }> = [];
-  if (user) {
-    const { data: tenantUser } = await supabase
-      .from('tenant_users')
-      .select('tenant_id')
-      .eq('user_id', user.id)
-      .single();
+        const { data: custData } = await supabase
+          .from('customers')
+          .select('id, name, phone')
+          .eq('tenant_id', tenantUser.tenant_id)
+          .order('name', { ascending: true })
+          .limit(100);
 
-    if (tenantUser) {
-      const { data: custData } = await supabase
-        .from('customers')
-        .select('id, name, phone')
-        .eq('tenant_id', tenantUser.tenant_id)
-        .order('name', { ascending: true })
-        .limit(100);
-
-      customers = custData || [];
-    }
-  }
+        return custData || [];
+      } catch (err) {
+        console.error('Error fetching customers for payments toolbar:', err);
+        return [];
+      }
+    })(),
+  ]);
 
   return (
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">

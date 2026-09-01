@@ -9,6 +9,8 @@ import { PaymentDetailsDrawer } from './PaymentDetailsDrawer';
 import { RefundPaymentModal } from './RefundPaymentModal';
 import { PaymentTableRow } from './PaymentTableRow';
 
+import { PaymentMobileCard } from './PaymentMobileCard';
+
 interface PaymentsTableProps {
   payments: Payment[];
 }
@@ -79,7 +81,27 @@ export function PaymentsTable({ payments }: PaymentsTableProps) {
 
   return (
     <>
-      <div className="flex-1 overflow-x-auto">
+      {/* Mobile Card List View (< 768px) */}
+      <div className="block md:hidden divide-y divide-separator">
+        {sortedPayments.map((p) => (
+          <PaymentMobileCard
+            key={p.id}
+            payment={p}
+            onViewDetails={(payment) => {
+              setSelectedPayment(payment);
+              setIsDetailsOpen(true);
+            }}
+            onRefund={(payment) => {
+              setRefundPayment(payment);
+              setIsRefundOpen(true);
+            }}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
+
+      {/* Desktop / Tablet Table View (>= 768px) */}
+      <div className="hidden md:block flex-1 overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="border-b border-separator bg-surface-elevated/40 text-muted font-semibold">

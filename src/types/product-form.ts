@@ -33,3 +33,6 @@ export interface InitialProductData {
   preorderShippingMode: 'included' | 'tbd';
   variants: VariantState[];
 }
+
+export type ProductImageItem =
+  { id: string; type: 'existing'; url: string } | { id: string; type: 'file'; file: File; preview: string };

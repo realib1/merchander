@@ -1,6 +1,6 @@
 import React from 'react';
 import { InsightsSummary } from '@/types/insights';
-import { ShieldAlert, AlertTriangle, Sparkles, Activity } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, TrendingUp, Activity } from 'lucide-react';
 import { MetricCard } from '@/components/ui/MetricCard';
 
 interface InsightsHeaderSummaryProps {
@@ -33,7 +33,7 @@ export function InsightsHeaderSummary({ summary }: InsightsHeaderSummaryProps) {
         title="Growth Opportunities"
         value={summary.opportunityCount}
         subtitle={summary.opportunityCount > 0 ? 'Surging products & VIP retargeting' : 'No active growth alerts'}
-        icon={<Sparkles size={14} />}
+        icon={<TrendingUp size={14} />}
         iconBg="bg-success/10 text-success"
       />
 

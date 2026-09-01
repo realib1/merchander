@@ -9,21 +9,71 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }
 ];
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const remotePatterns: NonNullable<NonNullable<NextConfig['images']>['remotePatterns']> = [
+  {
+    protocol: 'http',
+    hostname: '127.0.0.1',
+    pathname: '/storage/v1/object/public/**',
+  },
+  {
+    protocol: 'http',
+    hostname: '127.0.0.1',
+    port: '64321',
+    pathname: '/storage/v1/object/public/**',
+  },
+  {
+    protocol: 'http',
+    hostname: '127.0.0.1',
+    port: '54321',
+    pathname: '/storage/v1/object/public/**',
+  },
+  {
+    protocol: 'http',
+    hostname: 'localhost',
+    pathname: '/storage/v1/object/public/**',
+  },
+  {
+    protocol: 'http',
+    hostname: 'localhost',
+    port: '64321',
+    pathname: '/storage/v1/object/public/**',
+  },
+  {
+    protocol: 'http',
+    hostname: 'localhost',
+    port: '54321',
+    pathname: '/storage/v1/object/public/**',
+  },
+  {
+    protocol: 'https',
+    hostname: '*.supabase.co',
+    pathname: '/storage/v1/object/public/**',
+  },
+];
+
+if (supabaseUrl) {
+  try {
+    const parsed = new URL(supabaseUrl);
+    const protocol = parsed.protocol.replace(':', '') as 'http' | 'https';
+    remotePatterns.push({
+      protocol,
+      hostname: parsed.hostname,
+      ...(parsed.port ? { port: parsed.port } : {}),
+      pathname: '/storage/v1/object/public/**',
+    });
+  } catch {
+    // Ignore URL parse error
+  }
+}
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
   images: {
     dangerouslyAllowLocalIP: true,
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '54321', // Default local Supabase port
-        pathname: '/storage/v1/object/public/**',
-      },
-      // You can add production domains here later (e.g. *.supabase.co)
-    ],
+    remotePatterns,
   },
   async headers() {
     return [

@@ -52,47 +52,48 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     .order('name');
 
   // Transform data for the form
-  // We need to calculate basePrice and baseCostPrice from variants
-  // If there's only 1 variant, or all variants have the same price, we can use that as base.
-  // For simplicity, we just use the first variant's price as base, or 0.
   let basePrice: number | '' = '';
   let baseCostPrice: number | '' = '';
 
   if (variantsData && variantsData.length > 0) {
-    // If all variants share the same price, extract it to basePrice
-    const allPricesSame = variantsData.every((v) => v.price === variantsData[0].price);
-    if (allPricesSame) {
-      basePrice = variantsData[0].price;
-    }
-
-    // Do the same for costPrice
-    const allCostPricesSame = variantsData.every((v) => v.cost_price === variantsData[0].cost_price);
-    if (allCostPricesSame) {
-      baseCostPrice = variantsData[0].cost_price ?? '';
-    }
+    basePrice = variantsData[0].price ?? '';
+    baseCostPrice = variantsData[0].cost_price ?? '';
   }
 
   const initialData: InitialProductData = {
     id: product.id,
-    name: product.name,
+    name: product.name || '',
     description: product.description || '',
-    isActive: product.is_active,
+    isActive: product.is_active ?? true,
     categoryId: product.category_id || '',
     vendor: product.vendor || '',
     stockUnit: product.stock_unit || 'pcs',
     imageUrls: product.image_urls || [],
-    basePrice: product.product_variants?.[0]?.price || '',
-    baseCostPrice: product.product_variants?.[0]?.cost_price || '',
+    basePrice: basePrice,
+    baseCostPrice: baseCostPrice,
     availabilityStatus: product.availability_status || 'AVAILABLE',
     preorderShippingMode: product.preorder_shipping_mode || 'included',
-    variants: (variantsData || []).map((v) => ({
-      id: v.id,
-      sku: v.sku,
-      name: v.name || '',
-      price: v.price === basePrice ? '' : v.price,
-      costPrice: v.cost_price === baseCostPrice ? '' : v.cost_price || '',
-      inventory: {}, // Ignore inventory for edit mode
-    })),
+    specifications: Array.isArray(product.specifications) ? product.specifications : [],
+    variants:
+      variantsData && variantsData.length > 0
+        ? variantsData.map((v) => ({
+            id: v.id,
+            sku: v.sku || '',
+            name: v.name || 'Default',
+            price: v.price ?? basePrice,
+            costPrice: v.cost_price ?? baseCostPrice,
+            inventory: {},
+          }))
+        : [
+            {
+              id: 'default',
+              sku: '',
+              name: 'Default',
+              price: basePrice,
+              costPrice: baseCostPrice,
+              inventory: {},
+            },
+          ],
   };
 
   return (

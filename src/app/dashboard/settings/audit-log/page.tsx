@@ -11,10 +11,12 @@ export default async function AuditLogSettingsPage() {
   const logs = await getRecentAuditLogs();
 
   return (
-    <div className="max-w-3xl space-y-8 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Audit Log</h1>
-        <p className="text-sm text-secondary mt-1">Review a secure trail of all actions performed by your team.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">Audit Log</h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Review a secure immutable trail of all actions performed by your team.
+        </p>
       </div>
 
       <AuditLogView logs={logs} />

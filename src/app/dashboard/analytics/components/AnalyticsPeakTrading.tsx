@@ -3,7 +3,7 @@
 import React from 'react';
 import { PeakTradingAnalytics } from '@/types/analytics';
 import { formatCurrency } from '@/utils/format';
-import { Clock, Calendar, Zap, Sparkles } from 'lucide-react';
+import { Clock, Calendar, Zap } from 'lucide-react';
 
 interface AnalyticsPeakTradingProps {
   peakTrading: PeakTradingAnalytics;
@@ -64,7 +64,7 @@ export function AnalyticsPeakTrading({ peakTrading }: AnalyticsPeakTradingProps)
                       </span>
                       {isPeak && (
                         <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-brand-primary/10 text-brand-primary">
-                          <Sparkles size={9} /> Peak
+                          <Zap size={9} /> Peak
                         </span>
                       )}
                     </div>

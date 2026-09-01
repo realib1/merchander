@@ -1,50 +1,43 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { StorefrontConfig } from '@/types/storefront';
+import { StorefrontConfig, CustomDomainConfig } from '@/types/storefront';
 import { updateStorefrontConfig } from '@/app/actions/storefront';
+import { StorefrontHeaderHub } from './StorefrontHeaderHub';
+import { StorefrontBrandingTab } from './StorefrontBrandingTab';
+import { StorefrontPoliciesTab } from './StorefrontPoliciesTab';
 import { StorefrontLivePreview } from './StorefrontLivePreview';
+import { DomainSettingsCard } from './DomainSettingsCard';
+import { FeaturedProductsManager } from './FeaturedProductsManager';
 import { generateStoreSlug } from '@/utils/storefront';
-import {
-  Save,
-  CheckCircle,
-  AlertCircle,
-  ShoppingBag,
-  Sparkles,
-  Link as LinkIcon,
-  MessageCircle,
-  Truck,
-  Loader2,
-} from 'lucide-react';
+import { getStorefrontSubdomainUrl } from '@/utils/domain';
+import { Globe, MessageCircle, Palette, Star } from 'lucide-react';
+import { toast } from 'sonner';
 
-function InstagramIcon({ size = 12, className }: { size?: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
+type StorefrontTab = 'branding' | 'merchandising' | 'domain' | 'policies';
 
 interface StorefrontSettingsFormProps {
   initialConfig: StorefrontConfig | null;
+  domainConfig?: CustomDomainConfig | null;
+  products?: Array<{
+    id: string;
+    name: string;
+    price: number;
+    stock: number;
+    imageUrl: string | null;
+    isFeatured: boolean;
+  }>;
+  featuredProductIds?: string[];
 }
 
-export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsFormProps) {
+export function StorefrontSettingsForm({
+  initialConfig,
+  domainConfig = null,
+  products = [],
+  featuredProductIds = [],
+}: StorefrontSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<StorefrontTab>('branding');
 
   // Form states
   const [storeName, setStoreName] = useState(initialConfig?.store_name || '');
@@ -52,253 +45,197 @@ export function StorefrontSettingsForm({ initialConfig }: StorefrontSettingsForm
   const [tagline, setTagline] = useState(initialConfig?.tagline || '');
   const [bio, setBio] = useState(initialConfig?.bio || '');
   const [logoUrl, setLogoUrl] = useState(initialConfig?.logo_url || '');
-  const [bannerUrl, setBannerUrl] = useState(initialConfig?.banner_url || '');
   const [whatsappPhone, setWhatsappPhone] = useState(initialConfig?.whatsapp_phone || '');
   const [instagramHandle, setInstagramHandle] = useState(initialConfig?.instagram_handle || '');
   const [tiktokHandle, setTiktokHandle] = useState(initialConfig?.tiktok_handle || '');
   const [deliveryPolicy, setDeliveryPolicy] = useState(initialConfig?.delivery_policy || '');
+  const [primaryColor, setPrimaryColor] = useState(initialConfig?.primary_color || '#3b82f6');
+  const [secondaryColor, setSecondaryColor] = useState(initialConfig?.secondary_color || '#1e40af');
   const [isActive, setIsActive] = useState(initialConfig?.is_active ?? true);
+  const [bannerUrl, setBannerUrl] = useState(initialConfig?.banner_url || '');
+  const [heroMode, setHeroMode] = useState<'banner' | 'featured_product' | 'default'>(
+    initialConfig?.hero_mode || 'default'
+  );
+  const [bannerHeadline, setBannerHeadline] = useState(initialConfig?.banner_headline || '');
+  const [bannerTagline, setBannerTagline] = useState(initialConfig?.banner_tagline || '');
+  const [bannerCtaText, setBannerCtaText] = useState(initialConfig?.banner_cta_text || '');
+  const [currentFeaturedIds, setCurrentFeaturedIds] = useState<string[]>(featuredProductIds);
+
+  const customDomain = domainConfig?.domain || initialConfig?.custom_domain;
+  const publicUrl = customDomain ? `https://${customDomain}` : getStorefrontSubdomainUrl(slug || 'my-store');
 
   const handleNameChange = (val: string) => {
     setStoreName(val);
-    if (!initialConfig?.slug || initialConfig.slug === generateStoreSlug(initialConfig.store_name)) {
+    if (!initialConfig?.slug || slug === generateStoreSlug(initialConfig.store_name)) {
       setSlug(generateStoreSlug(val));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccessMsg(null);
-    setErrorMsg(null);
-
-    const formData = new FormData();
-    formData.set('storeName', storeName);
-    formData.set('slug', slug);
-    formData.set('tagline', tagline);
-    formData.set('bio', bio);
-    formData.set('logoUrl', logoUrl);
-    formData.set('bannerUrl', bannerUrl);
-    formData.set('whatsappPhone', whatsappPhone);
-    formData.set('instagramHandle', instagramHandle);
-    formData.set('tiktokHandle', tiktokHandle);
-    formData.set('deliveryPolicy', deliveryPolicy);
-    formData.set('isActive', String(isActive));
-    formData.set('currency', initialConfig?.currency || 'GHS');
 
     startTransition(async () => {
+      const formData = new FormData();
+      formData.append('storeName', storeName);
+      formData.append('slug', slug);
+      formData.append('tagline', tagline);
+      formData.append('bio', bio);
+      formData.append('logoUrl', logoUrl);
+      formData.append('bannerUrl', bannerUrl);
+      formData.append('heroMode', heroMode);
+      formData.append('bannerHeadline', bannerHeadline);
+      formData.append('bannerTagline', bannerTagline);
+      formData.append('bannerCtaText', bannerCtaText);
+      formData.append('whatsappPhone', whatsappPhone);
+      formData.append('instagramHandle', instagramHandle);
+      formData.append('tiktokHandle', tiktokHandle);
+      formData.append('deliveryPolicy', deliveryPolicy);
+      formData.append('primaryColor', primaryColor);
+      formData.append('secondaryColor', secondaryColor);
+      formData.append('isActive', String(isActive));
+      formData.append('currency', initialConfig?.currency || 'GHS');
+
       const res = await updateStorefrontConfig(formData);
-      if (res?.error) {
-        setErrorMsg(res.error);
+      if (res.error) {
+        toast.error(res.error);
       } else {
-        setSuccessMsg('Storefront configuration saved successfully!');
-        setTimeout(() => setSuccessMsg(null), 4000);
+        toast.success('Storefront settings saved successfully');
       }
     });
   };
 
+  const tabs = [
+    { id: 'branding' as const, label: 'Branding & Visuals', icon: Palette },
+    { id: 'merchandising' as const, label: 'Featured Products', icon: Star },
+    { id: 'domain' as const, label: 'Custom Domain', icon: Globe },
+    { id: 'policies' as const, label: 'Contact & Policies', icon: MessageCircle },
+  ];
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* 1. Main Settings Editor (8 Cols) */}
-      <form onSubmit={handleSubmit} className="lg:col-span-8 space-y-6">
-        {/* Alerts */}
-        {successMsg && (
-          <div className="p-3.5 rounded-xl bg-success/10 border border-success/30 text-success text-xs font-semibold flex items-center gap-2 animate-fadeIn">
-            <CheckCircle size={15} />
-            <span>{successMsg}</span>
-          </div>
-        )}
+    <div className="space-y-6">
+      {/* 1. Master Control Header Card */}
+      <StorefrontHeaderHub slug={slug} publicUrl={publicUrl} isActive={isActive} primaryColor={primaryColor} />
 
-        {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs font-semibold flex items-center gap-2 animate-fadeIn">
-            <AlertCircle size={15} />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-
-        {/* Section 1: Store Branding & Identity */}
-        <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-separator/60">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">
-              <ShoppingBag size={15} className="text-brand-primary" /> Store Identity & URL
-            </h3>
-            {/* Active Toggle */}
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="rounded text-brand-primary focus:ring-brand-primary/50"
-              />
-              <span>Active & Public</span>
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1">Store Name *</label>
-              <input
-                type="text"
-                required
-                value={storeName}
-                onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g. Glam Hair & Beauty"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-muted mb-1 flex items-center gap-1">
-                <LinkIcon size={12} /> Store URL *
-              </label>
-              <div className="flex items-center bg-surface-elevated border border-separator rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-brand-primary">
-                <span className="text-[10px] text-muted px-2.5 bg-surface border-r border-separator select-none font-mono">
-                  /store/
+      {/* 2. Modern Segmented Tab Strip */}
+      <div className="flex items-center gap-1.5 p-1 bg-surface border border-separator rounded-2xl overflow-x-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActiveTab = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                isActiveTab
+                  ? 'bg-surface-elevated text-foreground shadow-xs'
+                  : 'text-muted hover:text-foreground hover:bg-surface-elevated/40'
+              }`}
+            >
+              <Icon size={14} style={isActiveTab ? { color: primaryColor } : undefined} />
+              <span>{tab.label}</span>
+              {tab.id === 'merchandising' && products.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
+                  {currentFeaturedIds.length}
                 </span>
-                <input
-                  type="text"
-                  required
-                  value={slug}
-                  onChange={(e) => setSlug(generateStoreSlug(e.target.value))}
-                  placeholder="glam-hair-beauty"
-                  className="w-full bg-transparent px-3 py-2 text-xs font-mono outline-none"
-                />
-              </div>
-            </div>
-          </div>
+              )}
+              {tab.id === 'domain' && customDomain && (
+                <span className="px-1.5 py-0.2 rounded-full bg-success/15 text-success text-[10px] font-bold">
+                  Connected
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-          <div>
-            <label className="block text-xs font-medium text-muted mb-1">Tagline</label>
-            <input
-              type="text"
-              value={tagline}
-              onChange={(e) => setTagline(e.target.value)}
-              placeholder="e.g. Premium 100% Virgin Hair & Lace Wigs in Accra"
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
-            />
-          </div>
+      {/* 3. Main Workspace: Tab Content (8 Cols) + Sticky Phone Preview (4 Cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-8 space-y-6">
+          {activeTab === 'branding' && (
+            <form onSubmit={handleSubmit}>
+              <StorefrontBrandingTab
+                storeName={storeName}
+                slug={slug}
+                tagline={tagline}
+                bio={bio}
+                logoUrl={logoUrl}
+                bannerUrl={bannerUrl}
+                heroMode={heroMode}
+                bannerHeadline={bannerHeadline}
+                bannerTagline={bannerTagline}
+                bannerCtaText={bannerCtaText}
+                primaryColor={primaryColor}
+                isActive={isActive}
+                isPending={isPending}
+                onNameChange={handleNameChange}
+                onSlugChange={setSlug}
+                onTaglineChange={setTagline}
+                onBioChange={setBio}
+                onLogoUrlChange={setLogoUrl}
+                onBannerUrlChange={setBannerUrl}
+                onHeroModeChange={setHeroMode}
+                onBannerHeadlineChange={setBannerHeadline}
+                onBannerTaglineChange={setBannerTagline}
+                onBannerCtaTextChange={setBannerCtaText}
+                onPrimaryColorChange={setPrimaryColor}
+                onSecondaryColorChange={setSecondaryColor}
+                onIsActiveChange={setIsActive}
+              />
+            </form>
+          )}
 
-          <div>
-            <label className="block text-xs font-medium text-muted mb-1">Store Bio & Description</label>
-            <textarea
-              rows={3}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Briefly describe what your shop sells, opening hours, and location..."
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1">Logo Image URL</label>
-              <input
-                type="url"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://example.com/logo.png"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
+          {activeTab === 'merchandising' && (
+            <div className="space-y-6 animate-fadeIn">
+              <FeaturedProductsManager
+                products={products}
+                initialFeaturedIds={currentFeaturedIds}
+                currency={initialConfig?.currency || 'GHS'}
+                onFeaturedChange={setCurrentFeaturedIds}
               />
             </div>
+          )}
 
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1">Hero Banner Image URL</label>
-              <input
-                type="url"
-                value={bannerUrl}
-                onChange={(e) => setBannerUrl(e.target.value)}
-                placeholder="https://example.com/banner.jpg"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
-              />
+          {activeTab === 'domain' && (
+            <div className="space-y-6 animate-fadeIn">
+              <DomainSettingsCard slug={slug || 'my-store'} initialDomainConfig={domainConfig} />
             </div>
-          </div>
+          )}
+
+          {activeTab === 'policies' && (
+            <form onSubmit={handleSubmit}>
+              <StorefrontPoliciesTab
+                whatsappPhone={whatsappPhone}
+                instagramHandle={instagramHandle}
+                tiktokHandle={tiktokHandle}
+                deliveryPolicy={deliveryPolicy}
+                primaryColor={primaryColor}
+                isPending={isPending}
+                onWhatsappPhoneChange={setWhatsappPhone}
+                onInstagramHandleChange={setInstagramHandle}
+                onTiktokHandleChange={setTiktokHandle}
+                onDeliveryPolicyChange={setDeliveryPolicy}
+              />
+            </form>
+          )}
         </div>
 
-        {/* Section 2: Social Commerce & WhatsApp Ordering */}
-        <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs space-y-4">
-          <div className="pb-3 border-b border-separator/60">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">
-              <Sparkles size={15} className="text-brand-secondary" /> Social Commerce & WhatsApp
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="text-xs font-medium text-muted mb-1 flex items-center gap-1">
-                <MessageCircle size={12} className="text-success" /> WhatsApp Phone *
-              </label>
-              <input
-                type="tel"
-                value={whatsappPhone}
-                onChange={(e) => setWhatsappPhone(e.target.value)}
-                placeholder="+233241234567"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-mono placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-muted mb-1 flex items-center gap-1">
-                <InstagramIcon size={12} className="text-brand-primary" /> Instagram Handle
-              </label>
-              <input
-                type="text"
-                value={instagramHandle}
-                onChange={(e) => setInstagramHandle(e.target.value.replace('@', ''))}
-                placeholder="e.g. glamaccra"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1">TikTok Handle</label>
-              <input
-                type="text"
-                value={tiktokHandle}
-                onChange={(e) => setTiktokHandle(e.target.value.replace('@', ''))}
-                placeholder="e.g. glam_gh"
-                className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-muted mb-1 flex items-center gap-1">
-              <Truck size={12} className="text-info" /> Delivery & Pickup Policy
-            </label>
-            <textarea
-              rows={2}
-              value={deliveryPolicy}
-              onChange={(e) => setDeliveryPolicy(e.target.value)}
-              placeholder="e.g. Same-day delivery across Greater Accra (₵ 30). Nationwide dispatch via VIP bus."
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition resize-none"
-            />
-          </div>
+        {/* Sticky Live Mobile Mockup Preview */}
+        <div className="lg:col-span-4">
+          <StorefrontLivePreview
+            storeName={storeName}
+            tagline={tagline}
+            bio={bio}
+            logoUrl={logoUrl}
+            bannerUrl={bannerUrl}
+            heroMode={heroMode}
+            bannerHeadline={bannerHeadline}
+            whatsappPhone={whatsappPhone}
+            instagramHandle={instagramHandle}
+            primaryColor={primaryColor}
+            isActive={isActive}
+          />
         </div>
-
-        {/* Save CTA */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={isPending}
-            className="px-6 py-2.5 rounded-xl bg-brand-primary text-white text-xs font-semibold hover:bg-brand-primary/90 disabled:opacity-50 cursor-pointer transition flex items-center gap-2 shadow-xs"
-          >
-            {isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-            <span>{isPending ? 'Saving Changes...' : 'Save Storefront Settings'}</span>
-          </button>
-        </div>
-      </form>
-
-      {/* 2. Live Mobile Preview Sidebar (4 Cols) */}
-      <div className="lg:col-span-4">
-        <StorefrontLivePreview
-          storeName={storeName}
-          tagline={tagline}
-          bio={bio}
-          bannerUrl={bannerUrl}
-          logoUrl={logoUrl}
-          whatsappPhone={whatsappPhone}
-          instagramHandle={instagramHandle}
-          isActive={isActive}
-        />
       </div>
     </div>
   );

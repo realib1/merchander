@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ChatMessage, ConversationThread, QuickReplyTemplate } from '@/types/conversations';
 import { sendChatMessage } from '@/app/actions/conversations';
 import { getChannelBadgeDetails } from '@/utils/conversationsMath';
-import { Send, Sparkles, Bot, User, CheckCheck, Check, ShoppingBag, ExternalLink } from 'lucide-react';
+import { Send, Bot, User, CheckCheck, Check, ShoppingBag, ExternalLink } from 'lucide-react';
 
 interface ChatStreamViewProps {
   thread: ConversationThread | null;
@@ -112,7 +112,7 @@ export function ChatStreamView({ thread, quickReplies, onCreateOrder }: ChatStre
       {thread.detectedIntent && (
         <div className="px-4 py-2.5 bg-brand-secondary/5 border-b border-brand-secondary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Sparkles size={14} className="text-brand-secondary shrink-0" />
+            <Bot size={14} className="text-brand-secondary shrink-0" />
             <div className="text-xs">
               <span className="text-muted font-medium">Customer Intent: </span>
               <span className="font-semibold text-foreground">{thread.detectedIntent}</span>

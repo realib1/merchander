@@ -11,6 +11,8 @@ const updateProfileSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   phone: z.string().optional().nullable(),
   avatarUrl: z.string().optional().nullable(),
+  language: z.string().optional().nullable(),
+  timezone: z.string().optional().nullable(),
 });
 
 export async function updateProfile(formData: FormData) {
@@ -22,13 +24,15 @@ export async function updateProfile(formData: FormData) {
     lastName: formData.get('lastName'),
     phone: normalizedPhone || null,
     avatarUrl: formData.get('avatarUrl')?.toString() || null,
+    language: formData.get('language')?.toString() || 'en',
+    timezone: formData.get('timezone')?.toString() || 'Africa/Accra',
   };
 
   const validation = updateProfileSchema.safeParse(rawData);
   if (!validation.success) {
     return { error: validation.error.errors[0].message };
   }
-  const { firstName, lastName, phone, avatarUrl } = validation.data;
+  const { firstName, lastName, phone, avatarUrl, language, timezone } = validation.data;
 
   const supabase = await createClient();
   const {
@@ -128,6 +132,8 @@ export async function updateProfile(formData: FormData) {
       full_name: `${firstName} ${lastName}`.trim(),
       phone: phone || '',
       avatar_url: cleanAvatarUrl,
+      language: language || 'en',
+      timezone: timezone || 'Africa/Accra',
     },
   });
 

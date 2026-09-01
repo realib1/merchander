@@ -51,5 +51,7 @@ export async function createCategoryAction(formData: FormData) {
   }
 
   revalidatePath('/dashboard/products/new');
+  revalidatePath('/dashboard/products');
+  revalidatePath('/dashboard/categories');
   return { category };
 }

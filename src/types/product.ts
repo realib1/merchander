@@ -26,6 +26,11 @@ export interface ProductCategory {
   name: string;
 }
 
+export interface ProductSpecification {
+  key: string;
+  value: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -39,5 +44,6 @@ export interface Product {
   vendor?: string | null;
   image_urls?: string[] | null;
   stock_unit?: string | null;
+  specifications?: ProductSpecification[] | null;
   variants?: ProductVariant[] | null;
 }

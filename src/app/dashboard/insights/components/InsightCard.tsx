@@ -13,7 +13,6 @@ import {
   UserCheck,
   ShieldAlert,
   AlertTriangle,
-  Sparkles,
   Info,
   ArrowRight,
   MessageCircle,
@@ -58,7 +57,7 @@ function getSeverityBadge(sev: InsightSeverity) {
     case 'opportunity':
       return (
         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20">
-          <Sparkles size={12} /> Opportunity
+          <TrendingUp size={12} /> Opportunity
         </span>
       );
     case 'info':

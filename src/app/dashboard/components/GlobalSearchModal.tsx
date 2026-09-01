@@ -32,7 +32,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
 
-  // Basic mock quick links for now. In a real app, this would hit an API.
+  // Direct shortcut navigation links
   const quickLinks = [
     { name: 'Products', href: '/dashboard/products', icon: Package },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },

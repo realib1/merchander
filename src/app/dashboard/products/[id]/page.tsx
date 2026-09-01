@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Edit, Package, BarChart2, Calendar, Tag, Layers } from 'lucide-react';
+import { ChevronLeft, Edit, Package, BarChart2, Calendar, Tag, Layers, SlidersHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { formatCurrency } from '@/utils/format';
-import type { ProductVariant } from '@/types/product';
+import type { ProductVariant, ProductSpecification } from '@/types/product';
 
 interface VariantWithStore extends Omit<ProductVariant, 'inventory'> {
   inventory?: { quantity: number; store?: { name: string } }[] | null;
@@ -155,6 +155,27 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
               </div>
             </div>
           </div>
+
+          {/* Product Specifications */}
+          {product.specifications && Array.isArray(product.specifications) && product.specifications.length > 0 && (
+            <div className="bg-surface border border-separator rounded-2xl p-6 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <SlidersHorizontal size={18} className="text-brand-primary" />
+                Technical Specifications & Details
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {product.specifications.map((spec: ProductSpecification, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center p-3 rounded-xl bg-surface-elevated/40 border border-separator/60 text-sm"
+                  >
+                    <span className="text-muted font-medium">{spec.key}</span>
+                    <span className="font-semibold text-foreground text-right">{spec.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Variants & Inventory */}
           <div className="bg-surface border border-separator rounded-2xl shadow-sm overflow-hidden">

@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { StorefrontConfig, StorefrontPublicData, StoreOrderPayload } from '@/types/storefront';
 import { generateStoreSlug } from '@/utils/storefront';
@@ -17,8 +18,16 @@ function extractErrorMessage(err: unknown): string {
   return 'Failed to process storefront order';
 }
 
+async function getStorefrontSupabase() {
+  try {
+    return createAdminClient();
+  } catch {
+    return await createClient();
+  }
+}
+
 export async function getPublicStorefrontBySlug(slug: string): Promise<StorefrontPublicData | null> {
-  const supabase = await createClient();
+  const supabase = await getStorefrontSupabase();
 
   try {
     let config: StorefrontConfig | null = null;
@@ -31,13 +40,13 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         config = sfData as StorefrontConfig;
       }
     } catch {
-      // Table may not exist yet
+      // Table may not exist yet or error
     }
 
-    // 2. Fallback: lookup by tenant name match
+    // 2. Fallback: lookup by tenant name match or ID
     if (!config) {
       const { data: allTenants } = await supabase.from('tenants').select('id, name');
-      const matchingTenant = allTenants?.find((t) => generateStoreSlug(t.name) === slug);
+      const matchingTenant = allTenants?.find((t) => generateStoreSlug(t.name) === slug || t.id.slice(0, 8) === slug);
       if (matchingTenant) {
         config = {
           tenant_id: matchingTenant.id,
@@ -50,7 +59,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
           whatsapp_phone: null,
           instagram_handle: null,
           tiktok_handle: null,
-          delivery_policy: 'Contact merchant for delivery terms',
+          delivery_policy: 'Fast delivery across Ghana',
           is_active: true,
           currency: 'GHS',
         };
@@ -61,37 +70,127 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
 
     const tenantId = config.tenant_id;
 
-    // Fetch categories and published products in parallel
-    const [categoriesRes, productsRes] = await Promise.all([
-      supabase.from('categories').select('id, name').eq('tenant_id', tenantId).order('name'),
+    // Fetch categories, published products, and tenant settings in parallel
+    const [categoriesRes, productsRes, settingsRes] = await Promise.all([
+      supabase.from('product_categories').select('id, name').eq('tenant_id', tenantId).order('name'),
       supabase
         .from('products')
         .select(
           `
-          id, name, description, category_id,
-          categories(name),
-          product_images(image_url, is_primary),
-          product_variants(id, sku, title, price, cost_price, inventory(stock_level))
+          id, name, description, category_id, specifications, image_urls, availability_status, preorder_shipping_mode,
+          category:product_categories(id, name),
+          variants:product_variants(id, sku, name, price, cost_price, compare_at_price, inventory:inventory_levels(quantity))
         `
         )
         .eq('tenant_id', tenantId)
+        .eq('is_active', true)
         .order('name'),
+      supabase
+        .from('tenant_settings')
+        .select('trading_name, logo_url, brand_primary_color, brand_secondary_color, settings_data')
+        .eq('tenant_id', tenantId)
+        .maybeSingle(),
     ]);
+
+    const tenantSettings = settingsRes.data as Record<string, unknown> | null;
+    const customData = (tenantSettings?.settings_data as Record<string, unknown> | null) || {};
+    const social = (customData.social as Record<string, string> | undefined) || {};
+
+    if (!config.primary_color) {
+      config.primary_color =
+        (tenantSettings?.brand_primary_color as string) || (customData.brand_primary_color as string) || '#3b82f6';
+    }
+    if (!config.secondary_color) {
+      config.secondary_color =
+        (tenantSettings?.brand_secondary_color as string) || (customData.brand_secondary_color as string) || '#1e40af';
+    }
+    if (!config.logo_url) {
+      config.logo_url = (tenantSettings?.logo_url as string) || (customData.logo_url as string) || null;
+    }
+    if (!config.banner_url) {
+      config.banner_url = (tenantSettings?.banner_url as string) || (customData.banner_url as string) || null;
+    }
+    if (!config.whatsapp_phone) {
+      config.whatsapp_phone = (tenantSettings?.support_phone as string) || social.whatsapp || null;
+    }
+    if (!config.instagram_handle) {
+      config.instagram_handle = social.instagram || null;
+    }
+    if (!config.tiktok_handle) {
+      config.tiktok_handle = social.tiktok || null;
+    }
+    if (!config.delivery_policy) {
+      config.delivery_policy = (customData.delivery_policy as string) || null;
+    }
+
+    // Extract real configured payment methods from Dashboard Payment Settings
+    const paymentSettings = (customData.payment_settings as Record<string, unknown> | undefined) || {};
+    const methods = (paymentSettings.methods as Record<string, boolean> | undefined) || {};
+    const p2pAccounts = (paymentSettings.p2p_accounts as Array<{ type?: string; active?: boolean }> | undefined) || [];
+
+    const acceptedMethods: import('@/types/storefront').AcceptedPaymentMethod[] = [];
+
+    const enableMomo = methods.mobileMoney ?? paymentSettings.enableMtnMomo ?? true;
+    const hasMtn =
+      p2pAccounts.some((a: { type?: string }) => a.type === 'mtn_momo') ||
+      paymentSettings.enableMtnMomo === true ||
+      p2pAccounts.length === 0;
+    const hasTelecel =
+      p2pAccounts.some((a: { type?: string }) => a.type === 'telecel_cash') ||
+      paymentSettings.enableTelecelCash === true;
+    const hasAtMoney =
+      p2pAccounts.some((a: { type?: string }) => a.type === 'at_money') || paymentSettings.enableAtMoney === true;
+
+    if (enableMomo) {
+      if (hasMtn) {
+        acceptedMethods.push({ id: 'mtn_momo', name: 'MTN MoMo', type: 'mtn_momo', dotColor: '#FFCC00' });
+      }
+      if (hasTelecel) {
+        acceptedMethods.push({ id: 'telecel_cash', name: 'Telecel Cash', type: 'telecel_cash', dotColor: '#E60000' });
+      }
+      if (hasAtMoney) {
+        acceptedMethods.push({ id: 'at_money', name: 'AT Money', type: 'at_money', dotColor: '#0066CC' });
+      }
+      if (acceptedMethods.length === 0) {
+        acceptedMethods.push({ id: 'momo', name: 'Mobile Money', type: 'mtn_momo', dotColor: '#FFCC00' });
+      }
+    }
+
+    const enableCards = methods.card ?? paymentSettings.enableCards ?? false;
+    if (enableCards) {
+      acceptedMethods.push({ id: 'card', name: 'Visa / Mastercard', type: 'card', dotColor: '#10B981' });
+    }
+
+    const enableBank = methods.bankTransfer ?? p2pAccounts.some((a: { type?: string }) => a.type === 'bank');
+    if (enableBank) {
+      acceptedMethods.push({ id: 'bank_transfer', name: 'Bank Transfer', type: 'bank_transfer', dotColor: '#6366F1' });
+    }
+
+    const enableCash = methods.cash ?? paymentSettings.enableCod ?? true;
+    if (enableCash) {
+      acceptedMethods.push({ id: 'cash', name: 'Cash on Delivery', type: 'cash', dotColor: '#F59E0B' });
+    }
+
+    config.accepted_payment_methods = acceptedMethods;
 
     const rawCategories = categoriesRes.data || [];
     const rawProducts = productsRes.data || [];
 
     const products = rawProducts.map((p) => {
-      const primaryImg =
-        p.product_images?.find((img) => img.is_primary)?.image_url || p.product_images?.[0]?.image_url || null;
-      const variants = (p.product_variants || []).map((v) => {
-        const stock = v.inventory?.reduce((sum, inv) => sum + (Number(inv.stock_level) || 0), 0) ?? 10;
+      const primaryImg = Array.isArray(p.image_urls) && p.image_urls.length > 0 ? p.image_urls[0] : null;
+      const variants = (p.variants || []).map((v) => {
+        const invArray = Array.isArray(v.inventory) ? v.inventory : v.inventory ? [v.inventory] : [];
+        const stock = invArray.reduce(
+          (sum: number, inv: { quantity?: number }) => sum + (Number(inv?.quantity) || 0),
+          0
+        );
         return {
           id: v.id,
           sku: v.sku,
-          title: v.title || 'Standard',
+          title: v.name || 'Standard',
           price: Number(v.price) || 0,
           cost_price: Number(v.cost_price) || 0,
+          compare_at_price: v.compare_at_price ? Number(v.compare_at_price) : null,
           stock_quantity: stock,
           is_available: stock > 0,
         };
@@ -102,9 +201,9 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
       const max_price = prices.length > 0 ? Math.max(...prices) : 0;
       const total_stock = variants.reduce((sum, v) => sum + v.stock_quantity, 0);
 
-      const categoryName = Array.isArray(p.categories)
-        ? p.categories[0]?.name || 'General'
-        : (p.categories as { name?: string } | null)?.name || 'General';
+      const categoryName = Array.isArray(p.category)
+        ? p.category[0]?.name || 'General'
+        : (p.category as { name?: string } | null)?.name || 'General';
 
       return {
         id: p.id,
@@ -113,10 +212,16 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         category_id: p.category_id,
         category_name: categoryName,
         image_url: primaryImg,
-        is_featured: ((config?.featured_product_ids as string[]) || []).includes(p.id),
+        image_urls: Array.isArray(p.image_urls) ? (p.image_urls as string[]).filter(Boolean) : [],
+        is_featured: Array.isArray(config?.featured_product_ids)
+          ? (config?.featured_product_ids as string[]).includes(p.id)
+          : false,
         min_price,
         max_price,
         total_stock,
+        availability_status: p.availability_status || 'AVAILABLE',
+        preorder_shipping_mode: p.preorder_shipping_mode || 'included',
+        specifications: (p.specifications as Array<{ key: string; value: string }>) || [],
         variants,
       };
     });
@@ -124,6 +229,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
     const categories = rawCategories.map((c) => ({
       id: c.id,
       name: c.name,
+      slug: generateStoreSlug(c.name),
       product_count: products.filter((p) => p.category_id === c.id).length,
     }));
 
@@ -133,13 +239,13 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
       products,
     };
   } catch (err) {
-    console.error('Error fetching public storefront:', err);
+    console.error('Error loading public storefront:', err);
     return null;
   }
 }
 
 export async function submitPublicStoreOrder(payload: StoreOrderPayload) {
-  const supabase = await createClient();
+  const supabase = await getStorefrontSupabase();
 
   try {
     const { tenantId, customerName, customerPhone, deliveryAddress, paymentMethod, items } = payload;
@@ -151,7 +257,7 @@ export async function submitPublicStoreOrder(payload: StoreOrderPayload) {
       .select('id')
       .eq('tenant_id', tenantId)
       .eq('phone', customerPhone)
-      .single();
+      .maybeSingle();
 
     let customerId = existingCustomer?.id;
     if (!customerId) {
@@ -178,7 +284,7 @@ export async function submitPublicStoreOrder(payload: StoreOrderPayload) {
         customer_id: customerId,
         total_amount: totalAmount,
         status: 'pending_payment',
-        channel: 'storefront',
+        sales_channel: 'storefront',
         payment_method: paymentMethod,
         delivery_address: deliveryAddress,
         notes: payload.deliveryNotes || null,
@@ -194,7 +300,6 @@ export async function submitPublicStoreOrder(payload: StoreOrderPayload) {
       variant_id: item.variantId,
       quantity: item.quantity,
       unit_price: item.unitPrice,
-      total_price: item.unitPrice * item.quantity,
     }));
 
     const { error: itemsErr } = await supabase.from('order_items').insert(orderItems);

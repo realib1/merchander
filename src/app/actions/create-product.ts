@@ -14,6 +14,11 @@ const variantSchema = z.object({
   inventory: z.record(z.number()).optional(), // store_id -> quantity
 });
 
+const specificationSchema = z.object({
+  key: z.string().min(1, 'Specification name cannot be empty'),
+  value: z.string().min(1, 'Specification value cannot be empty'),
+});
+
 const createProductSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   description: z.string().optional(),
@@ -23,6 +28,7 @@ const createProductSchema = z.object({
   vendor: z.string().optional().nullable(),
   stockUnit: z.string().optional().nullable(),
   imageUrls: z.array(z.string()).optional(),
+  specifications: z.array(specificationSchema).optional().default([]),
   availabilityStatus: z.string().optional(),
   preorderShippingMode: z.enum(['included', 'tbd']).optional().default('included'),
 });
@@ -39,6 +45,7 @@ export async function createProductAction(formData: FormData) {
       vendor: formData.get('vendor') || null,
       stockUnit: formData.get('stockUnit') || 'pcs',
       imageUrls: JSON.parse((formData.get('imageUrls') as string) || '[]'),
+      specifications: JSON.parse((formData.get('specifications') as string) || '[]'),
       availabilityStatus: formData.get('availabilityStatus') || 'in_stock',
       preorderShippingMode: formData.get('preorderShippingMode') || 'included',
     };
@@ -82,6 +89,7 @@ export async function createProductAction(formData: FormData) {
       vendor: data.vendor,
       stock_unit: data.stockUnit,
       image_urls: data.imageUrls || [],
+      specifications: data.specifications || [],
       availability_status: data.availabilityStatus,
       preorder_shipping_mode: data.preorderShippingMode,
     })
@@ -143,5 +151,6 @@ export async function createProductAction(formData: FormData) {
 
   revalidatePath('/dashboard/products');
   revalidatePath('/dashboard/inventory');
+  revalidatePath('/dashboard/categories');
   redirect('/dashboard/products');
 }

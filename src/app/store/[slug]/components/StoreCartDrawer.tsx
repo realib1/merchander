@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
-import { StorefrontCartItem, StorefrontConfig } from '@/types/storefront';
+import React, { useState, useEffect, useTransition } from 'react';
+import { StorefrontCartItem, StorefrontConfig, StoreOrderResponse } from '@/types/storefront';
 import { calculateCartTotals, formatWhatsAppOrderMessage, createWhatsAppOrderLink } from '@/utils/storefront';
-import { submitPublicStoreOrder } from '@/app/actions/storefront';
+import { submitStorefrontOrder } from '@/app/actions/storefront-order';
+import { getPublicStorefrontBranches } from '@/app/actions/branches';
+import { initiateOrderOnlinePayment } from '@/app/actions/payments-online';
 import { X, ShoppingBag, AlertCircle } from 'lucide-react';
 import { CartItemRow } from './cart/CartItemRow';
-import { CartCheckoutForm } from './cart/CartCheckoutForm';
+import { CartCheckoutForm, PickupBranchOption } from './cart/CartCheckoutForm';
 import { CartSuccessView } from './cart/CartSuccessView';
 
 interface StoreCartDrawerProps {
@@ -32,15 +34,44 @@ export function StoreCartDrawer({
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [gpsAddress, setGpsAddress] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'mtn_momo' | 'cash_on_delivery'>('whatsapp');
-  const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+  const [fulfillmentMode, setFulfillmentMode] = useState<'delivery' | 'pickup'>('delivery');
+  const [pickupBranches, setPickupBranches] = useState<PickupBranchOption[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('');
+  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'mtn_momo' | 'cash_on_delivery'>('mtn_momo');
+  const [orderSuccess, setOrderSuccess] = useState<StoreOrderResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (config?.slug) {
+      getPublicStorefrontBranches(config.slug).then((branches) => {
+        setPickupBranches(branches);
+        if (branches.length > 0) {
+          setSelectedBranchId(branches[0].id);
+        }
+      });
+    }
+  }, [config?.slug]);
 
   if (!isOpen) return null;
 
   const { subtotal, itemCount } = calculateCartTotals(cart);
   const currency = config.currency || 'GHS';
+  const primaryColor = config.primary_color || '#3b82f6';
+
+  const selectedBranch = pickupBranches.find((b) => b.id === selectedBranchId) || pickupBranches[0];
+  const formattedDeliveryAddress = [
+    deliveryAddress.trim(),
+    gpsAddress.trim() ? `[GPS: ${gpsAddress.trim().toUpperCase()}]` : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const finalAddress =
+    fulfillmentMode === 'pickup' && selectedBranch
+      ? `Pickup: ${selectedBranch.name} (${selectedBranch.street_address || selectedBranch.city || 'Store Desk'})`
+      : formattedDeliveryAddress || 'Doorstep Delivery';
 
   const handleWhatsAppCheckout = () => {
     if (!customerName.trim() || !customerPhone.trim()) {
@@ -51,7 +82,7 @@ export function StoreCartDrawer({
     const message = formatWhatsAppOrderMessage(config, cart, {
       name: customerName,
       phone: customerPhone,
-      address: deliveryAddress,
+      address: finalAddress,
       notes: deliveryNotes,
     });
 
@@ -59,12 +90,15 @@ export function StoreCartDrawer({
     const waLink = createWhatsAppOrderLink(targetPhone, message);
 
     startTransition(async () => {
-      await submitPublicStoreOrder({
+      await submitStorefrontOrder({
         tenantId: config.tenant_id,
+        tenantSlug: config.slug,
         customerName,
         customerPhone,
-        deliveryAddress: deliveryAddress || 'Order via WhatsApp Chat',
+        deliveryAddress: finalAddress,
         deliveryNotes,
+        fulfillmentMode,
+        pickupStoreId: fulfillmentMode === 'pickup' ? selectedBranch?.id : undefined,
         paymentMethod: 'whatsapp',
         items: cart.map((i) => ({
           variantId: i.variantId,
@@ -87,12 +121,15 @@ export function StoreCartDrawer({
 
     setErrorMsg(null);
     startTransition(async () => {
-      const res = await submitPublicStoreOrder({
+      const res = await submitStorefrontOrder({
         tenantId: config.tenant_id,
+        tenantSlug: config.slug,
         customerName,
         customerPhone,
-        deliveryAddress: deliveryAddress || 'Pending Confirmation',
+        deliveryAddress: finalAddress,
         deliveryNotes,
+        fulfillmentMode,
+        pickupStoreId: fulfillmentMode === 'pickup' ? selectedBranch?.id : undefined,
         paymentMethod,
         items: cart.map((i) => ({
           variantId: i.variantId,
@@ -101,12 +138,29 @@ export function StoreCartDrawer({
         })),
       });
 
-      if (res.error) {
-        setErrorMsg(res.error);
-      } else {
-        setOrderSuccess(res.orderId || 'SUCCESS');
-        onClearCart();
+      if (!res.success || res.error) {
+        setErrorMsg(res.error || 'Failed to place order.');
+        return;
       }
+
+      if (paymentMethod === 'mtn_momo' && res.orderId) {
+        try {
+          const payRes = await initiateOrderOnlinePayment({
+            orderId: res.orderId,
+            customerPhone,
+          });
+
+          if (payRes.authorizationUrl) {
+            window.location.href = payRes.authorizationUrl;
+            return;
+          }
+        } catch (err) {
+          console.warn('Online payment trigger notification:', err);
+        }
+      }
+
+      setOrderSuccess(res);
+      onClearCart();
     });
   };
 
@@ -116,45 +170,54 @@ export function StoreCartDrawer({
         {/* Header */}
         <div className="p-4 border-b border-separator flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShoppingBag size={18} className="text-brand-primary" />
-            <h2 className="text-sm font-bold text-foreground">
-              Your Bag ({itemCount} {itemCount === 1 ? 'item' : 'items'})
-            </h2>
+            <ShoppingBag size={18} style={{ color: primaryColor }} />
+            <h2 className="text-sm font-bold text-foreground">Shopping Bag ({itemCount})</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="h-8 w-8 rounded-xl bg-surface-elevated text-muted hover:text-foreground flex items-center justify-center cursor-pointer transition"
+            className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-elevated cursor-pointer transition"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        {/* Drawer Content */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar pb-16 sm:pb-6">
           {orderSuccess ? (
             <CartSuccessView
               customerPhone={customerPhone}
+              orderId={orderSuccess.orderId}
+              orderShortId={orderSuccess.orderShortId}
+              trackingUrl={orderSuccess.trackingUrl}
+              slug={config.slug}
+              primaryColor={primaryColor}
               onReset={() => {
                 setOrderSuccess(null);
                 onClose();
               }}
             />
           ) : cart.length === 0 ? (
-            <div className="p-12 text-center text-muted space-y-2">
-              <ShoppingBag size={36} className="mx-auto opacity-30" />
-              <p className="text-xs font-medium">Your bag is empty</p>
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-surface-elevated flex items-center justify-center text-muted">
+                <ShoppingBag size={24} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Your bag is empty</p>
+                <p className="text-xs text-muted mt-1">Browse our catalog to add items.</p>
+              </div>
             </div>
           ) : (
             <>
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs font-semibold flex items-center gap-2">
-                  <AlertCircle size={14} />
+                <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                  <AlertCircle size={14} className="shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
-              <div className="space-y-2.5">
+              {/* Items List */}
+              <div className="divide-y divide-separator/60">
                 {cart.map((item) => (
                   <CartItemRow
                     key={item.variantId}
@@ -166,19 +229,28 @@ export function StoreCartDrawer({
                 ))}
               </div>
 
+              {/* Checkout Form */}
               <CartCheckoutForm
                 customerName={customerName}
                 customerPhone={customerPhone}
                 deliveryAddress={deliveryAddress}
+                gpsAddress={gpsAddress}
                 deliveryNotes={deliveryNotes}
+                fulfillmentMode={fulfillmentMode}
+                pickupBranches={pickupBranches}
+                selectedBranchId={selectedBranchId}
                 paymentMethod={paymentMethod}
                 subtotal={subtotal}
                 currency={currency}
+                primaryColor={primaryColor}
                 isPending={isPending}
                 onCustomerNameChange={setCustomerName}
                 onCustomerPhoneChange={setCustomerPhone}
                 onDeliveryAddressChange={setDeliveryAddress}
+                onGpsAddressChange={setGpsAddress}
                 onDeliveryNotesChange={setDeliveryNotes}
+                onFulfillmentModeChange={setFulfillmentMode}
+                onSelectedBranchChange={setSelectedBranchId}
                 onPaymentMethodChange={setPaymentMethod}
                 onWhatsAppCheckout={handleWhatsAppCheckout}
                 onDirectCheckout={handleDirectCheckout}

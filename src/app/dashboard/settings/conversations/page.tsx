@@ -11,10 +11,14 @@ export default async function ConversationsSettingsPage() {
   const settings = await getConversationSettings();
 
   return (
-    <div className="max-w-3xl space-y-8 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Conversations</h1>
-        <p className="text-sm text-secondary mt-1">Manage how incoming customer chats are assigned and handled.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
+          Conversations Settings
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Manage how incoming customer chats are assigned, routed, and handled by your staff.
+        </p>
       </div>
 
       <ConversationsSettingsForm initialSettings={settings} />

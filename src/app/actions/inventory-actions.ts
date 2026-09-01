@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getActiveBranchId } from './branch';
 
 /**
  * Safely decrement inventory for a specific store and variant.
@@ -99,6 +100,11 @@ export async function getInventory(
     .from('inventory_view')
     .select('*', { count: 'exact' })
     .order(sortBy, { ascending: sortOrder === 'asc' });
+
+  const activeBranchId = await getActiveBranchId();
+  if (activeBranchId && activeBranchId !== 'all') {
+    queryBuilder = queryBuilder.eq('store_id', activeBranchId);
+  }
 
   if (query) {
     queryBuilder = queryBuilder.or(`product_name.ilike.%${query}%,variant_name.ilike.%${query}%,sku.ilike.%${query}%`);

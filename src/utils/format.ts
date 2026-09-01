@@ -61,6 +61,21 @@ export function formatNumber(value: number, options: FormatNumberOptions = {}): 
 }
 
 /**
+ * Extracts a 1-2 letter uppercase monogram / initials for business branding.
+ *
+ * @param name - The business name string.
+ * @returns 1-2 character uppercase initials (e.g. "Unique Fashion" -> "UF").
+ */
+export function getBusinessInitials(name?: string | null): string {
+  if (!name || !name.trim()) return 'M';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.trim().slice(0, 2).toUpperCase();
+}
+
+/**
  * Formats a date into a localized string.
  *
  * @param date - Date object, ISO timestamp, or milliseconds.
@@ -152,4 +167,17 @@ export function formatPhoneNumber(phone: string, defaultCountryCode: string = '2
   }
 
   return cleaned;
+}
+
+/**
+ * Converts a text string (such as a product name) into an SEO-friendly URL slug.
+ */
+export function slugify(text: string): string {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }

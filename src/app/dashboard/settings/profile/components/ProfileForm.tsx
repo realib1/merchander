@@ -17,9 +17,20 @@ interface ProfileFormProps {
   email: string;
   phone: string;
   avatarUrl?: string | null;
+  language?: string;
+  timezone?: string;
 }
 
-export function ProfileForm({ initials, firstName, lastName, email, phone, avatarUrl }: ProfileFormProps) {
+export function ProfileForm({
+  initials,
+  firstName,
+  lastName,
+  email,
+  phone,
+  avatarUrl,
+  language = 'en',
+  timezone = 'Africa/Accra',
+}: ProfileFormProps) {
   const router = useRouter();
   const [userSelectedPreview, setUserSelectedPreview] = useState<string | null | undefined>(undefined);
   const [prevAvatarUrl, setPrevAvatarUrl] = useState<string | null | undefined>(avatarUrl);
@@ -187,6 +198,43 @@ export function ProfileForm({ initials, firstName, lastName, email, phone, avata
             placeholder="024 123 4567"
             hint="Your direct personal contact number for account communication."
           />
+
+          <div className="space-y-1.5">
+            <label htmlFor="profile-language" className="text-xs font-semibold text-foreground">
+              Preferred Language
+            </label>
+            <select
+              id="profile-language"
+              name="language"
+              defaultValue={language}
+              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 cursor-pointer"
+            >
+              <option value="en">English (Default)</option>
+              <option value="tw">Twi (Ghana)</option>
+              <option value="fr">French</option>
+            </select>
+            <p className="text-[11px] text-muted">Used for dashboard interface and email alerts.</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="profile-timezone" className="text-xs font-semibold text-foreground">
+              Timezone
+            </label>
+            <select
+              id="profile-timezone"
+              name="timezone"
+              defaultValue={timezone}
+              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 cursor-pointer"
+            >
+              <option value="Africa/Accra">GMT (Accra, Ghana - UTC+0)</option>
+              <option value="Africa/Lagos">WAT (Lagos, Nigeria - UTC+1)</option>
+              <option value="Africa/Nairobi">EAT (Nairobi, Kenya - UTC+3)</option>
+              <option value="UTC">UTC (Universal Coordinated Time)</option>
+              <option value="Europe/London">GMT / BST (London - UTC+0/+1)</option>
+              <option value="America/New_York">EST / EDT (New York - UTC-5/-4)</option>
+            </select>
+            <p className="text-[11px] text-muted">Determines how timestamps and order receipts are formatted.</p>
+          </div>
         </div>
       </CardBody>
       <CardFooter className="justify-end">

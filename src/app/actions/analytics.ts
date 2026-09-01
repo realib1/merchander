@@ -43,7 +43,7 @@ export async function getAnalyticsData(period: AnalyticsFilterPeriod = '30d'): P
 
     supabase.from('customers').select('id, name, phone, created_at').eq('tenant_id', tenantId),
 
-    supabase.from('categories').select('id, name').eq('tenant_id', tenantId),
+    supabase.from('product_categories').select('id, name').eq('tenant_id', tenantId),
 
     supabase.from('products').select('id, name, category_id').eq('tenant_id', tenantId),
   ]);

@@ -43,6 +43,7 @@ export async function getProducts(
     .select(
       `
       *,
+      category:product_categories(id, name),
       variants:product_variants(
         *, 
         inventory:inventory_levels(*),

@@ -1,13 +1,18 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
-import { FormField } from '@/components/ui/FormField';
+import React, { useState, useTransition, useMemo } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Switch } from '@/components/ui/Switch';
-import { ShoppingBag, Hash, MailWarning, Loader2 } from 'lucide-react';
 import { OrderSettings } from '@/types/settings';
 import { updateOrderSettings } from '@/app/actions/settings-commerce';
+import { OrderNumberingCard } from './OrderNumberingCard';
+import { OrderCreationCard } from './OrderCreationCard';
+import { OrderConfirmationCard } from './OrderConfirmationCard';
+import { OrderStatusCard } from './OrderStatusCard';
+import { OrderCancellationCard } from './OrderCancellationCard';
+import { OrderReturnsRefundsCard } from './OrderReturnsRefundsCard';
+import { OrderInventoryBehaviourCard } from './OrderInventoryBehaviourCard';
+import { OrderNotificationsCard } from './OrderNotificationsCard';
+import { Loader2, Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface OrdersSettingsFormProps {
@@ -16,151 +21,129 @@ interface OrdersSettingsFormProps {
 
 export function OrdersSettingsForm({ initialSettings }: OrdersSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [settings, setSettings] = useState(initialSettings);
+  const [settings, setSettings] = useState<OrderSettings>(initialSettings);
+  const [savedSettings, setSavedSettings] = useState<OrderSettings>(initialSettings);
+
+  const isDirty = useMemo(() => {
+    return JSON.stringify(settings) !== JSON.stringify(savedSettings);
+  }, [settings, savedSettings]);
+
+  const handleReset = () => {
+    setSettings(savedSettings);
+    toast.info('Changes reverted');
+  };
 
   const handleSave = () => {
     startTransition(async () => {
-      const res = await updateOrderSettings(settings);
+      // Sync legacy flat fields for backward compatibility
+      const payload: OrderSettings = {
+        ...settings,
+        orderPrefix: settings.numbering.prefix,
+        orderConfirmationEmail: settings.confirmation.sendCustomerConfirmation,
+      };
+
+      const res = await updateOrderSettings(payload);
       if (res.error) {
         toast.error(res.error);
       } else {
-        toast.success('Order settings saved successfully');
+        setSavedSettings(settings);
+        toast.success('Orders preferences saved successfully');
       }
     });
   };
 
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-              <ShoppingBag className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <CardTitle>Order Processing</CardTitle>
-              <CardDescription>Default behaviors when a new order is placed.</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Order Confirmation Receipts</p>
-              <p className="text-xs text-muted">Automatically send a digital receipt to the customer when paid.</p>
-            </div>
-            <Switch
-              checked={Boolean(settings.orderConfirmationEmail)}
-              onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, orderConfirmationEmail: c }))}
-              aria-label="Enable order confirmation emails"
-            />
+    <div className="space-y-6 pb-24 sm:pb-8 animate-fadeIn">
+      {/* 1. Order Numbering */}
+      <OrderNumberingCard
+        numbering={settings.numbering}
+        onChange={(updated) => setSettings((s) => ({ ...s, numbering: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 2. Order Creation & AI */}
+      <OrderCreationCard
+        creation={settings.creation}
+        onChange={(updated) => setSettings((s) => ({ ...s, creation: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 3. Order Confirmation */}
+      <OrderConfirmationCard
+        confirmation={settings.confirmation}
+        onChange={(updated) => setSettings((s) => ({ ...s, confirmation: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 4. Order Lifecycle Statuses */}
+      <OrderStatusCard
+        statuses={settings.statuses}
+        onChange={(updated) => setSettings((s) => ({ ...s, statuses: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 5. Cancellation Policy */}
+      <OrderCancellationCard
+        cancellation={settings.cancellation}
+        onChange={(updated) => setSettings((s) => ({ ...s, cancellation: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 6. Returns & Refunds */}
+      <OrderReturnsRefundsCard
+        returnsRefunds={settings.returnsRefunds}
+        onChange={(updated) => setSettings((s) => ({ ...s, returnsRefunds: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 7. Inventory & Stock Behaviour */}
+      <OrderInventoryBehaviourCard
+        inventory={settings.inventory}
+        onChange={(updated) => setSettings((s) => ({ ...s, inventory: updated }))}
+        disabled={isPending}
+      />
+
+      {/* 8. Event Notifications */}
+      <OrderNotificationsCard
+        notifications={settings.notifications}
+        onChange={(updated) => setSettings((s) => ({ ...s, notifications: updated }))}
+        disabled={isPending}
+      />
+
+      {/* Sticky Bottom Save Bar */}
+      {isDirty && (
+        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
+            <span className="text-xs font-semibold text-foreground">You have unsaved order preferences</span>
           </div>
 
-          <div className="w-full h-px bg-separator/50" />
-
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Staff Order Notifications</p>
-              <p className="text-xs text-muted">Notify active staff members immediately when an order is created.</p>
-            </div>
-            <Switch
-              checked={Boolean(settings.staffOrderNotifications)}
-              onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, staffOrderNotifications: c }))}
-              aria-label="Enable staff order notifications"
-            />
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              disabled={isPending}
+              className="cursor-pointer"
+            >
+              <RotateCcw size={13} className="mr-1" />
+              <span>Revert</span>
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={isPending}
+              className="cursor-pointer"
+            >
+              {isPending ? <Loader2 size={13} className="animate-spin mr-1" /> : <Save size={13} className="mr-1" />}
+              <span>{isPending ? 'Saving...' : 'Save Preferences'}</span>
+            </Button>
           </div>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-              <Hash className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <CardTitle>Order Number Formatting</CardTitle>
-              <CardDescription>Customize prefix and suffix for customer invoices.</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <FormField
-              label="Order Prefix"
-              value={settings.orderPrefix}
-              onChange={(e) => setSettings((s) => ({ ...s, orderPrefix: e.target.value }))}
-              hint="Appears before the number (e.g. #ORD-)."
-            />
-            <FormField
-              label="Order Suffix"
-              value={settings.orderSuffix}
-              onChange={(e) => setSettings((s) => ({ ...s, orderSuffix: e.target.value }))}
-              hint="Optional suffix code (e.g. -GH)."
-            />
-          </div>
-          <div className="p-4 bg-surface-elevated rounded-xl border border-separator text-xs">
-            <span className="text-muted">Your formatted order numbers will look like: </span>
-            <span className="font-bold text-foreground font-mono ml-1">
-              {settings.orderPrefix || ''}1042{settings.orderSuffix || ''}
-            </span>
-          </div>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-              <MailWarning className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <CardTitle>Abandoned Checkouts</CardTitle>
-              <CardDescription>Recover lost storefront sales with automatic reminders.</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Send Recovery Reminders</p>
-              <p className="text-xs text-muted">
-                Send WhatsApp or SMS prompt to shoppers who left items in their cart.
-              </p>
-            </div>
-            <Switch
-              checked={Boolean(settings.abandonedRecoveryEnabled)}
-              onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, abandonedRecoveryEnabled: c }))}
-              aria-label="Enable abandoned checkout recovery"
-            />
-          </div>
-
-          {settings.abandonedRecoveryEnabled && (
-            <div className="space-y-1.5">
-              <label htmlFor="abandoned-hours" className="text-xs font-semibold text-foreground">
-                Trigger Reminder After
-              </label>
-              <select
-                id="abandoned-hours"
-                value={settings.abandonedSendAfterHours}
-                onChange={(e) => setSettings((s) => ({ ...s, abandonedSendAfterHours: Number(e.target.value) }))}
-                className="w-full max-w-sm rounded-lg border border-separator bg-surface px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-brand-primary"
-              >
-                <option value={1}>1 Hour</option>
-                <option value={6}>6 Hours</option>
-                <option value={12}>12 Hours</option>
-                <option value={24}>24 Hours</option>
-              </select>
-            </div>
-          )}
-        </CardBody>
-        <CardFooter className="justify-end">
-          <Button variant="primary" size="sm" onClick={handleSave} disabled={isPending}>
-            {isPending && <Loader2 size={14} className="animate-spin mr-2" />}
-            <span>{isPending ? 'Saving...' : 'Save Order Settings'}</span>
-          </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      )}
     </div>
   );
 }

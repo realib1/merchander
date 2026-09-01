@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
+import React, { useState, useTransition, useMemo } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
 import { Switch } from '@/components/ui/Switch';
-import { Package, AlertTriangle, Barcode, Loader2 } from 'lucide-react';
+import { Package, AlertTriangle, Barcode, Loader2, Save, RotateCcw } from 'lucide-react';
 import { InventorySettings } from '@/types/settings';
 import { updateInventorySettings } from '@/app/actions/settings-commerce';
 import { toast } from 'sonner';
@@ -17,6 +17,16 @@ interface InventorySettingsFormProps {
 export function InventorySettingsForm({ initialSettings }: InventorySettingsFormProps) {
   const [isPending, startTransition] = useTransition();
   const [settings, setSettings] = useState(initialSettings);
+  const [savedSettings, setSavedSettings] = useState(initialSettings);
+
+  const isDirty = useMemo(() => {
+    return JSON.stringify(settings) !== JSON.stringify(savedSettings);
+  }, [settings, savedSettings]);
+
+  const handleReset = () => {
+    setSettings(savedSettings);
+    toast.info('Changes reverted');
+  };
 
   const handleSave = () => {
     startTransition(async () => {
@@ -24,31 +34,35 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
       if (res.error) {
         toast.error(res.error);
       } else {
+        setSavedSettings(settings);
         toast.success('Inventory settings saved successfully');
       }
     });
   };
 
   return (
-    <div className="space-y-8">
-      <Card>
+    <div className="space-y-6 pb-20 sm:pb-8">
+      {/* 1. Inventory Policy Card */}
+      <Card className="shadow-xs">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+            <div className="p-2 rounded-xl bg-brand-primary/10 text-brand-primary">
               <Package className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle>Inventory Policy</CardTitle>
-              <CardDescription>Determine what happens when products run out of stock.</CardDescription>
+              <CardTitle className="text-base font-bold font-display">Inventory & Stock Policy</CardTitle>
+              <CardDescription className="text-xs text-muted">
+                Determine fulfillment and availability behavior when product stock is depleted.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Stop selling when out of stock</p>
-              <p className="text-xs text-muted max-w-lg">
-                Automatically mark product variants as &quot;Sold Out&quot; when their stock count hits 0.
+        <CardBody className="space-y-4 pt-0">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+            <div className="space-y-0.5">
+              <p className="text-xs font-semibold text-foreground">Stop Selling When Out of Stock</p>
+              <p className="text-[11px] text-muted">
+                Automatically mark product variants as &quot;Sold Out&quot; on storefront and bots when stock reaches 0.
               </p>
             </div>
             <Switch
@@ -58,13 +72,11 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
             />
           </div>
 
-          <div className="w-full h-px bg-separator/50" />
-
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Track Inventory by Default</p>
-              <p className="text-xs text-muted max-w-lg">
-                Automatically enable stock quantity tracking for newly created products.
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+            <div className="space-y-0.5">
+              <p className="text-xs font-semibold text-foreground">Track Inventory by Default</p>
+              <p className="text-[11px] text-muted">
+                Automatically enable stock quantity tracking for newly created products and variants.
               </p>
             </div>
             <Switch
@@ -76,22 +88,28 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
         </CardBody>
       </Card>
 
-      <Card>
+      {/* 2. Low Stock Alerts Card */}
+      <Card className="shadow-xs">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
+            <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500">
               <AlertTriangle className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle>Low Stock Alerts</CardTitle>
-              <CardDescription>Receive warnings before items completely sell out.</CardDescription>
+              <CardTitle className="text-base font-bold font-display">Low Stock Alerts</CardTitle>
+              <CardDescription className="text-xs text-muted">
+                Receive proactive warnings before product variants completely sell out.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="flex items-center justify-between py-2 mb-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Enable Low Stock Badges & Alerts</p>
+        <CardBody className="space-y-4 pt-0">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+            <div className="space-y-0.5">
+              <p className="text-xs font-semibold text-foreground">Enable Low Stock Badges & Alerts</p>
+              <p className="text-[11px] text-muted">
+                Highlights depleted items on the inventory ledger and sends notification warnings.
+              </p>
             </div>
             <Switch
               checked={Boolean(settings.enableLowStockAlerts)}
@@ -101,36 +119,41 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
           </div>
 
           {settings.enableLowStockAlerts && (
-            <FormField
-              label="Low Stock Threshold (Units)"
-              type="number"
-              min={1}
-              value={settings.lowStockThreshold}
-              onChange={(e) => setSettings((s) => ({ ...s, lowStockThreshold: parseInt(e.target.value) || 5 }))}
-              hint="You will receive an alert when a product variant falls to this quantity or lower."
-            />
+            <div className="p-3.5 rounded-xl border border-separator bg-surface-elevated/20">
+              <FormField
+                label="Low Stock Threshold (Units)"
+                type="number"
+                min={1}
+                value={settings.lowStockThreshold}
+                onChange={(e) => setSettings((s) => ({ ...s, lowStockThreshold: parseInt(e.target.value) || 5 }))}
+                hint="You will receive an alert when a product variant falls to this quantity or lower."
+              />
+            </div>
           )}
         </CardBody>
       </Card>
 
-      <Card>
+      {/* 3. SKU Auto-Generation Card */}
+      <Card className="shadow-xs">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
               <Barcode className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle>SKU Auto-Generation</CardTitle>
-              <CardDescription>Rules for generating Stock Keeping Units automatically.</CardDescription>
+              <CardTitle className="text-base font-bold font-display">SKU Auto-Generation</CardTitle>
+              <CardDescription className="text-xs text-muted">
+                Rules for generating Stock Keeping Units automatically.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="flex items-center justify-between py-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">Auto-generate SKUs on Product Creation</p>
-              <p className="text-xs text-muted max-w-lg">
-                Automatically generate clean sequential SKUs based on category code and variant attributes.
+        <CardBody className="pt-0">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+            <div className="space-y-0.5">
+              <p className="text-xs font-semibold text-foreground">Auto-generate SKUs on Product Creation</p>
+              <p className="text-[11px] text-muted">
+                Automatically generate sequential SKUs based on category code and variant attributes.
               </p>
             </div>
             <Switch
@@ -140,13 +163,42 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
             />
           </div>
         </CardBody>
-        <CardFooter className="justify-end">
-          <Button variant="primary" size="sm" onClick={handleSave} disabled={isPending}>
-            {isPending && <Loader2 size={14} className="animate-spin mr-2" />}
-            <span>{isPending ? 'Saving...' : 'Save Inventory Settings'}</span>
-          </Button>
-        </CardFooter>
       </Card>
+
+      {/* Sticky Bottom Save Bar */}
+      {isDirty && (
+        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
+            <span className="text-xs font-semibold text-foreground">You have unsaved inventory settings</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              disabled={isPending}
+              className="cursor-pointer"
+            >
+              <RotateCcw size={13} className="mr-1" />
+              <span>Revert</span>
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={isPending}
+              className="cursor-pointer"
+            >
+              {isPending ? <Loader2 size={13} className="animate-spin mr-1" /> : <Save size={13} className="mr-1" />}
+              <span>{isPending ? 'Saving...' : 'Save Preferences'}</span>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,146 @@
+export interface HubtelPromptParams {
+  customerPhone: string;
+  amount: number;
+  clientReference: string;
+  description: string;
+  merchantAccountOrPosId?: string;
+  clientId?: string;
+  clientSecret?: string;
+  callbackUrl?: string;
+}
+
+export interface HubtelPromptResponse {
+  responseCode: string;
+  status: string;
+  data?: {
+    transactionId?: string;
+    clientReference: string;
+    amount: number;
+    charges?: number;
+    description?: string;
+  };
+  message?: string;
+}
+
+export interface HubtelStatusResponse {
+  responseCode: string;
+  status: string;
+  data?: {
+    transactionId: string;
+    clientReference: string;
+    amount: number;
+    charges: number;
+    status: 'Success' | 'Pending' | 'Failed';
+  };
+}
+
+/**
+ * Normalizes phone number to 10-digit format for Hubtel Direct MoMo Prompt (e.g. 0244123456)
+ */
+export function formatPhoneForHubtel(phone: string): string {
+  const digits = phone.replace(/[^0-9]/g, '');
+  if (digits.startsWith('233') && digits.length === 12) {
+    return '0' + digits.substring(3);
+  }
+  return digits;
+}
+
+/**
+ * Validates Hubtel Basic Auth / webhook authorization header
+ */
+export function validateHubtelAuth(
+  authHeader: string | null,
+  expectedClientId?: string,
+  expectedClientSecret?: string
+): boolean {
+  const clientId = expectedClientId || process.env.HUBTEL_CLIENT_ID;
+  const clientSecret = expectedClientSecret || process.env.HUBTEL_CLIENT_SECRET;
+
+  if (!authHeader || !clientId || !clientSecret) return false;
+
+  try {
+    const expected = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    return authHeader === expected;
+  } catch (err) {
+    console.error('Error validating Hubtel auth:', err);
+    return false;
+  }
+}
+
+/**
+ * Requests a direct USSD Prompt on the buyer's Mobile Money phone via Hubtel Direct Debit API
+ */
+export async function requestHubtelMobileMoneyPrompt(params: HubtelPromptParams): Promise<HubtelPromptResponse> {
+  const clientId = params.clientId || process.env.HUBTEL_CLIENT_ID;
+  const clientSecret = params.clientSecret || process.env.HUBTEL_CLIENT_SECRET;
+  const merchantAccount = params.merchantAccountOrPosId || process.env.HUBTEL_MERCHANT_ACCOUNT_NUMBER;
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Hubtel API credentials (Client ID / Secret) are not configured.');
+  }
+
+  const normalizedPhone = formatPhoneForHubtel(params.customerPhone);
+  const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+  const payload = {
+    CustomerName: 'Store Customer',
+    CustomerMsisdn: normalizedPhone,
+    CustomerEmail: '',
+    Channel: 'mobilemoney',
+    Amount: params.amount,
+    PrimaryCallbackUrl: params.callbackUrl || `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/webhooks/hubtel`,
+    Description: params.description,
+    ClientReference: params.clientReference,
+  };
+
+  const endpoint = merchantAccount
+    ? `https://rmp.hubtel.com/merchantaccount/merchants/${merchantAccount}/receive/mobilemoney`
+    : 'https://api-merchant.hubtel.com/v1/merchantaccount/onlinecheckout/invoice/create';
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      Authorization: authHeader,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = (await res.json()) as HubtelPromptResponse;
+  return data;
+}
+
+/**
+ * Checks transaction status via Hubtel API
+ */
+export async function checkHubtelTransactionStatus(
+  clientReference: string,
+  customClientId?: string,
+  customClientSecret?: string
+): Promise<HubtelStatusResponse> {
+  const clientId = customClientId || process.env.HUBTEL_CLIENT_ID;
+  const clientSecret = customClientSecret || process.env.HUBTEL_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Hubtel API credentials are not configured.');
+  }
+
+  const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+  const res = await fetch(
+    `https://api-merchant.hubtel.com/v1/merchantaccount/transactions/status?clientReference=${encodeURIComponent(
+      clientReference
+    )}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    }
+  );
+
+  const data = (await res.json()) as HubtelStatusResponse;
+  return data;
+}

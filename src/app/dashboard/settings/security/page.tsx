@@ -36,26 +36,26 @@ export default async function SecuritySettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground font-display">Security Settings</h1>
-        <p className="text-sm text-muted mt-1">
-          Manage your password, multi-factor authentication, and active sessions.
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">Security Settings</h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Manage your password, multi-factor authentication, and active device sessions.
         </p>
       </div>
 
       {/* Password Management */}
-      <Card>
+      <Card className="shadow-xs">
         <PasswordChangeForm />
       </Card>
 
       {/* Two-Factor Authentication */}
-      <Card>
+      <Card className="shadow-xs">
         <SecurityForm initialTwoFactor={isTwoFactorEnabled} />
       </Card>
 
       {/* Active Sessions & Remote Revocation */}
-      <Card>
+      <Card className="shadow-xs">
         <ActiveSessionsCard userEmail={user.email || ''} />
       </Card>
     </div>

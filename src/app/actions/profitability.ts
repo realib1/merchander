@@ -73,7 +73,7 @@ export async function getProfitabilityData(period: ProfitPeriod = '30d'): Promis
       .gte('created_at', fromIso)
       .order('created_at', { ascending: true }),
     supabase.from('products').select('id, name, sku, cost_price, selling_price, category_id').eq('tenant_id', tenantId),
-    supabase.from('categories').select('id, name').eq('tenant_id', tenantId),
+    supabase.from('product_categories').select('id, name').eq('tenant_id', tenantId),
     supabase
       .from('expenses')
       .select('id, amount, category, expense_date, created_at')

@@ -18,6 +18,7 @@ export interface SidebarProps {
   userRole?: string;
   avatarUrl?: string | null;
   businessName: string;
+  businessLogoUrl?: string | null;
 }
 
 export function Sidebar({
@@ -26,6 +27,7 @@ export function Sidebar({
   userRole = 'Owner',
   avatarUrl,
   businessName,
+  businessLogoUrl,
 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -67,8 +69,24 @@ export function Sidebar({
         {/* Brand Header */}
         <div className="flex h-18 shrink-0 items-center justify-between px-4 border-b border-separator/60">
           <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 min-w-0 group">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-primary/20 shadow-2xs group-hover:scale-105 transition-transform overflow-hidden">
-              <Image src="/icon.png" alt="Merchander Logo" width={28} height={28} className="object-contain" priority />
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+              {businessLogoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={businessLogoUrl}
+                  alt={`${businessName || 'Business'} Logo`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Image
+                  src="/icon.png"
+                  alt="Merchander Logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                  priority
+                />
+              )}
             </div>
             {!isDesktopCollapsed && (
               <div className="flex flex-col min-w-0">

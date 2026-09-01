@@ -42,15 +42,20 @@ export default async function ProfileSettingsPage() {
         ? firstName[0].toUpperCase()
         : user.email?.[0]?.toUpperCase() || 'U';
 
+  const language = user.user_metadata?.language || 'en';
+  const timezone = user.user_metadata?.timezone || 'Africa/Accra';
+
   return (
-    <div className="max-w-3xl space-y-6 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground font-display">Profile Settings</h1>
-        <p className="text-sm text-muted mt-1">Manage your personal information and contact details.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">Profile Settings</h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Manage your personal information, language preferences, and contact details.
+        </p>
       </div>
 
       {/* Profile Form Card */}
-      <Card>
+      <Card className="shadow-xs">
         <ProfileForm
           initials={initials}
           firstName={firstName}
@@ -58,6 +63,8 @@ export default async function ProfileSettingsPage() {
           email={user.email || ''}
           phone={phone}
           avatarUrl={avatarUrl}
+          language={language}
+          timezone={timezone}
         />
       </Card>
     </div>

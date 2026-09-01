@@ -6,14 +6,17 @@ import { revalidatePath } from 'next/cache';
 import { SupplierSettings, ShipmentSettings, FulfillmentSettings } from '@/types/settings';
 
 const DEFAULT_SUPPLIERS: SupplierSettings = {
-  procurementEmail: 'purchasing@merchander.com',
+  procurementEmail: '',
   enableAutoPos: false,
-  receivingInstructions: 'Deliveries accepted Monday - Friday, 9:00 AM to 4:00 PM. Please use the back entrance.',
+  receivingInstructions: 'Deliveries accepted Monday - Friday, 9:00 AM to 4:00 PM.',
+  poPrefix: 'PO-',
+  defaultCurrency: 'USD',
+  paymentTerms: 'immediate',
 };
 
 const DEFAULT_SHIPMENTS: ShipmentSettings = {
   allowCustomerTracking: true,
-  originWarehouse: 'Main Warehouse - Accra, Ghana',
+  originWarehouse: 'Main Warehouse',
   zones: [
     { id: 'accra', name: 'Greater Accra', eta: 'Standard Delivery (1-2 Days)', fee: 30, isActive: true },
     { id: 'kumasi', name: 'Ashanti Region (Kumasi)', eta: 'Inter-city Transport (2-3 Days)', fee: 50, isActive: true },
@@ -45,15 +48,29 @@ export async function getSupplierSettings(): Promise<SupplierSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
-    const custom = (data?.settings_data as Record<string, unknown> | null)?.supplier_settings;
-    if (custom && typeof custom === 'object') {
-      return custom as unknown as SupplierSettings;
-    }
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data, store_email')
+      .eq('tenant_id', tenantId)
+      .single();
+    const custom = (data?.settings_data as Record<string, unknown> | null)?.supplier_settings as
+      Partial<SupplierSettings> | undefined;
+
+    return {
+      procurementEmail: custom?.procurementEmail || data?.store_email || user.email || '',
+      enableAutoPos: custom?.enableAutoPos ?? DEFAULT_SUPPLIERS.enableAutoPos,
+      receivingInstructions: custom?.receivingInstructions || DEFAULT_SUPPLIERS.receivingInstructions,
+      poPrefix: custom?.poPrefix || DEFAULT_SUPPLIERS.poPrefix,
+      defaultCurrency: custom?.defaultCurrency || DEFAULT_SUPPLIERS.defaultCurrency,
+      paymentTerms: custom?.paymentTerms || DEFAULT_SUPPLIERS.paymentTerms,
+    };
   } catch (err) {
     console.error('Error fetching supplier settings:', err);
+    return {
+      ...DEFAULT_SUPPLIERS,
+      procurementEmail: user.email || '',
+    };
   }
-  return DEFAULT_SUPPLIERS;
 }
 
 export async function updateSupplierSettings(payload: SupplierSettings) {

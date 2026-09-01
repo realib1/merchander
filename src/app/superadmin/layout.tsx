@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldAlert, Users, Database } from 'lucide-react';
+import { ShieldAlert, Users, CreditCard, Database } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -9,23 +9,20 @@ export default async function SuperadminLayout({ children }: { children: React.R
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect the superadmin route
   if (!user) {
     redirect('/');
   }
 
-  // Verify the user has the superadmin claim in their JWT app_metadata
   const isSuperadmin = user.app_metadata?.is_superadmin === true;
 
   if (!isSuperadmin) {
-    // If a regular user tries to access this, boot them back to their dashboard
     redirect('/dashboard');
   }
 
   return (
     <div className="flex h-screen bg-slate-900 text-slate-100">
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col hidden md:flex">
+      <aside className="w-64 bg-slate-950 border-r border-slate-800 hidden md:flex flex-col">
         <div className="p-6 border-b border-slate-800">
           <div className="flex items-center gap-2 text-2xl font-bold text-red-500">
             <ShieldAlert size={24} />
@@ -41,6 +38,13 @@ export default async function SuperadminLayout({ children }: { children: React.R
           >
             <Users size={20} />
             Tenants
+          </Link>
+          <Link
+            href="/superadmin/billing"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors font-medium mt-1"
+          >
+            <CreditCard size={20} />
+            Billing & MRR
           </Link>
           <Link
             href="/superadmin/infrastructure"

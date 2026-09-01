@@ -94,39 +94,26 @@ export async function getRecentAuditLogs(): Promise<AuditLogEntry[]> {
       }));
     }
 
-    // 2. Synthesize recent activity from recent orders/products if audit_logs table is new
+    // 2. Synthesize real activity from recent orders if audit_logs table has no custom rows yet
     const { data: recentOrders } = await supabase
       .from('orders')
       .select('id, created_at, status, total_amount')
       .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
-      .limit(5);
+      .limit(10);
 
-    const syntheticLogs: AuditLogEntry[] = [
-      {
-        id: 'log-sys-1',
-        actorName: user.user_metadata?.full_name || 'Store Owner',
-        actorEmail: user.email || 'owner@store.com',
-        action: 'Updated Store & Security Profile',
-        resource: 'Settings',
-        createdAt: new Date().toISOString(),
-      },
-    ];
-
-    if (recentOrders) {
-      recentOrders.forEach((o) => {
-        syntheticLogs.push({
-          id: `log-ord-${o.id}`,
-          actorName: 'Commerce Engine',
-          actorEmail: 'system@merchander.com',
-          action: `Processed Order #${o.id.slice(0, 8)} (${o.status})`,
-          resource: 'Orders',
-          createdAt: o.created_at,
-        });
-      });
+    if (recentOrders && recentOrders.length > 0) {
+      return recentOrders.map((o) => ({
+        id: `log-ord-${o.id}`,
+        actorName: 'Commerce Engine',
+        actorEmail: 'system@merchander.com',
+        action: `Processed Order #${o.id.slice(0, 8)} (${o.status})`,
+        resource: 'Orders',
+        createdAt: o.created_at,
+      }));
     }
 
-    return syntheticLogs;
+    return [];
   } catch (err) {
     console.error('Error fetching audit logs:', err);
     return [];
@@ -164,7 +151,7 @@ export async function fetchExportDataset(entity: 'products' | 'orders' | 'custom
         .from('orders')
         .select(
           `
-          id, created_at, status, total_amount, payment_method, channel, delivery_address,
+          id, created_at, status, total_amount, payment_method, sales_channel, delivery_address,
           customers(name, phone, email)
         `
         )

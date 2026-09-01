@@ -11,10 +11,14 @@ export default async function PrivacySettingsPage() {
   const settings = await getPrivacySettings();
 
   return (
-    <div className="max-w-3xl space-y-8 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Privacy & Data</h1>
-        <p className="text-sm text-secondary mt-1">Manage how customer data is handled on your storefront.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
+          Privacy & Data Policies
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Manage customer consent, tracking cookies, and data retention schedules.
+        </p>
       </div>
 
       <PrivacySettingsForm initialSettings={settings} />

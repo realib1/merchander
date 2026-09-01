@@ -140,7 +140,7 @@ export function ProfitabilityToolbar({
               className="w-full px-4 py-2.5 text-xs text-left font-medium text-foreground hover:bg-surface-elevated flex items-center gap-2.5 transition-colors cursor-pointer border-t border-separator/50"
             >
               <Printer size={15} className="text-brand-primary" />
-              <span>Print / PDF Income Statement</span>
+              <span>Print / PDF </span>
             </button>
           </div>
         )}

@@ -13,7 +13,7 @@ import { calculateTotalStock, getVariantPriceRange, generateSKU } from '@/utils/
 import type { Product } from '@/types/product';
 
 export const metadata = {
-  title: 'Catalog | Merchander',
+  title: 'Products | Merchander',
 };
 
 export default async function CatalogPage({

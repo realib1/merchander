@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageSquare, Plus, Trash2, CheckCircle2, Globe, Send, Phone } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, BadgeCheck, Globe, Send, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { linkCustomerIdentity, removeCustomerIdentity } from '@/app/actions/customers';
 import { Modal } from '@/components/ui/Modal';
@@ -153,7 +153,7 @@ export function CustomerIdentitiesCard({ customerId, initialIdentities }: Custom
                       <span className="text-xs font-bold text-foreground truncate">{config.name}</span>
                       {item.is_verified && (
                         <span title="Verified">
-                          <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
+                          <BadgeCheck size={12} className="text-emerald-500 shrink-0" />
                         </span>
                       )}
                     </div>

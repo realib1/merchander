@@ -1,25 +1,32 @@
 import React from 'react';
 import { getStorefrontConfig } from '@/app/actions/storefront';
-import { StorefrontShareCard } from './components/StorefrontShareCard';
+import { getCustomDomainConfig } from '@/app/actions/storefront-domain';
+import { getStorefrontOverview } from '@/app/actions/storefront-dashboard';
 import { StorefrontSettingsForm } from './components/StorefrontSettingsForm';
 
 export const metadata = {
   title: 'Online Store | Merchander',
-  description: 'Manage your public Link-in-Bio catalog, self-serve WhatsApp ordering, and storefront branding.',
+  description: 'Manage your public e-commerce catalog, self-serve WhatsApp ordering, and storefront branding.',
 };
 
 export default async function OnlineStorePage() {
-  const config = await getStorefrontConfig();
+  const [config, domainConfig, overviewData] = await Promise.all([
+    getStorefrontConfig(),
+    getCustomDomainConfig(),
+    getStorefrontOverview(),
+  ]);
 
   return (
-    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-6">
+    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-6 pb-12">
       <h1 className="sr-only">Online Store</h1>
 
-      {/* Share / Live Status Bar */}
-      <StorefrontShareCard config={config} />
-
-      {/* Storefront Customizer & Preview Grid */}
-      <StorefrontSettingsForm initialConfig={config} />
+      {/* Unified Online Store Hub */}
+      <StorefrontSettingsForm
+        initialConfig={config}
+        domainConfig={domainConfig}
+        products={overviewData?.allProducts || []}
+        featuredProductIds={overviewData?.featuredProductIds || []}
+      />
     </div>
   );
 }

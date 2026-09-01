@@ -171,17 +171,25 @@ export async function getKanbanOrders(status: OrderStatus, offset: number, limit
     .order('created_at', { ascending: false });
 
   if (query) {
-    // Basic search for Kanban Load More
-    const { data: matchingCustomers } = await supabase
-      .from('customers')
-      .select('id')
-      .or(`name.ilike.%${query}%,phone.ilike.%${query}%`);
-    const customerIds = matchingCustomers?.map((c) => c.id) || [];
-    if (customerIds.length > 0) {
-      const idsStr = customerIds.join(',');
-      queryBuilder = queryBuilder.or(`id::text.ilike.%${query}%,customer_id.in.(${idsStr})`);
-    } else {
-      queryBuilder = queryBuilder.or(`id::text.ilike.%${query}%`);
+    const cleanQuery = query.replace(/^#+/, '').trim();
+    if (cleanQuery) {
+      // Basic search for Kanban Load More
+      const { data: matchingCustomers } = await supabase
+        .from('customers')
+        .select('id')
+        .or(`name.ilike.%${cleanQuery}%,phone.ilike.%${cleanQuery}%`);
+      const customerIds = matchingCustomers?.map((c) => c.id) || [];
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanQuery);
+
+      const filterClauses: string[] = [`short_id.ilike.%${cleanQuery}%`];
+      if (isUuid) {
+        filterClauses.push(`id.eq.${cleanQuery}`);
+      }
+      if (customerIds.length > 0) {
+        filterClauses.push(`customer_id.in.(${customerIds.join(',')})`);
+      }
+
+      queryBuilder = queryBuilder.or(filterClauses.join(','));
     }
   }
 

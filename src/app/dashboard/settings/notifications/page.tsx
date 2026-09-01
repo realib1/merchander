@@ -22,10 +22,14 @@ export default async function NotificationsSettingsPage() {
   const settings = await getNotificationSettings();
 
   return (
-    <div className="max-w-3xl space-y-6 animate-fadeIn">
+    <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground font-display">Notifications</h1>
-        <p className="text-sm text-muted mt-1">Configure high-priority alerts and dispatch channels.</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
+          Notifications Settings
+        </h1>
+        <p className="text-xs sm:text-sm text-muted mt-1">
+          Configure high-priority operational alerts and message dispatch channels.
+        </p>
       </div>
 
       <NotificationsForm initialSettings={settings} userEmail={user.email || ''} />

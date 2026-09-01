@@ -6,29 +6,65 @@ import { revalidatePath } from 'next/cache';
 import { OrderSettings, InventorySettings, PaymentSettings } from '@/types/settings';
 
 const DEFAULT_ORDERS: OrderSettings = {
+  numbering: {
+    prefix: 'ORD',
+    format: 'ORD-{{YEAR}}-{{NUMBER}}',
+    nextNumber: 142,
+  },
+  creation: {
+    allowStorefront: true,
+    allowSocialConversations: true,
+    allowDashboard: true,
+    allowManual: true,
+    aiCreatedOrdersMode: 'require_confirmation',
+  },
+  confirmation: {
+    autoConfirmStorefront: true,
+    requireApprovalBeforeProcessing: false,
+    sendCustomerConfirmation: true,
+  },
+  statuses: {
+    enabledStatuses: [
+      'pending',
+      'confirmed',
+      'processing',
+      'ready',
+      'shipped',
+      'delivered',
+      'cancelled',
+      'returned',
+      'refunded',
+    ],
+  },
+  cancellation: {
+    allowMerchantCancellation: true,
+    allowCustomerCancellation: true,
+    customerCancellationWindowMinutes: 30,
+    requireApprovalAfterProcessing: true,
+  },
+  returnsRefunds: {
+    allowReturnRequests: true,
+    refundRequiresMerchantApproval: true,
+    defaultRefundMethod: 'original_payment',
+  },
+  inventory: {
+    onConfirmation: 'reserve_stock',
+    onCancellationReleaseStock: true,
+  },
+  notifications: {
+    newOrder: true,
+    orderCancelled: true,
+    paymentReceived: true,
+    orderReady: true,
+    orderDelivered: true,
+    returnRequested: true,
+  },
   orderConfirmationEmail: true,
   staffOrderNotifications: true,
-  orderPrefix: '#ORD-',
+  orderPrefix: 'ORD',
   orderSuffix: '',
   abandonedRecoveryEnabled: true,
   abandonedSendAfterHours: 12,
-};
-
-const DEFAULT_INVENTORY: InventorySettings = {
-  stopSellingWhenOutOfStock: true,
-  trackInventoryByDefault: true,
-  enableLowStockAlerts: true,
-  lowStockThreshold: 5,
-  autoGenerateSkus: false,
-};
-
-const DEFAULT_PAYMENTS: PaymentSettings = {
-  enableMtnMomo: true,
-  enableTelecelCash: true,
-  enableAtMoney: true,
-  enableCards: true,
-  enableCod: false,
-  codMaxOrderAmount: 500,
 };
 
 export async function getOrderSettings(): Promise<OrderSettings> {
@@ -40,15 +76,85 @@ export async function getOrderSettings(): Promise<OrderSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
-    const custom = (data?.settings_data as Record<string, unknown> | null)?.order_settings;
+    const [settingsRes, ordersCountRes] = await Promise.all([
+      supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single(),
+      supabase.from('orders').select('*', { count: 'exact', head: true }).eq('tenant_id', tenantId),
+    ]);
+
+    const realNextNumber = (ordersCountRes.count ?? 0) + 1;
+    const custom = (settingsRes.data?.settings_data as Record<string, unknown> | null)?.order_settings as
+      Record<string, unknown> | undefined;
+
     if (custom && typeof custom === 'object') {
-      return custom as unknown as OrderSettings;
+      const numberingCustom = (custom.numbering as Record<string, unknown>) || {};
+      const creationCustom = (custom.creation as Record<string, unknown>) || {};
+      const confirmationCustom = (custom.confirmation as Record<string, unknown>) || {};
+      const statusesCustom = (custom.statuses as Record<string, unknown>) || {};
+      const cancellationCustom = (custom.cancellation as Record<string, unknown>) || {};
+      const returnsRefundsCustom = (custom.returnsRefunds as Record<string, unknown>) || {};
+      const inventoryCustom = (custom.inventory as Record<string, unknown>) || {};
+      const notificationsCustom = (custom.notifications as Record<string, unknown>) || {};
+
+      return {
+        numbering: {
+          ...DEFAULT_ORDERS.numbering,
+          ...numberingCustom,
+          prefix: (numberingCustom.prefix ?? custom.orderPrefix ?? 'ORD') as string,
+          nextNumber: Number(numberingCustom.nextNumber) || realNextNumber,
+        },
+        creation: {
+          ...DEFAULT_ORDERS.creation,
+          ...creationCustom,
+        },
+        confirmation: {
+          ...DEFAULT_ORDERS.confirmation,
+          ...confirmationCustom,
+          sendCustomerConfirmation: Boolean(
+            confirmationCustom.sendCustomerConfirmation ?? custom.orderConfirmationEmail ?? true
+          ),
+        },
+        statuses: {
+          ...DEFAULT_ORDERS.statuses,
+          ...statusesCustom,
+        },
+        cancellation: {
+          ...DEFAULT_ORDERS.cancellation,
+          ...cancellationCustom,
+        },
+        returnsRefunds: {
+          ...DEFAULT_ORDERS.returnsRefunds,
+          ...returnsRefundsCustom,
+        },
+        inventory: {
+          ...DEFAULT_ORDERS.inventory,
+          ...inventoryCustom,
+        },
+        notifications: {
+          ...DEFAULT_ORDERS.notifications,
+          ...notificationsCustom,
+        },
+        orderConfirmationEmail: Boolean(
+          confirmationCustom.sendCustomerConfirmation ?? custom.orderConfirmationEmail ?? true
+        ),
+        staffOrderNotifications: Boolean(custom.staffOrderNotifications ?? true),
+        orderPrefix: (numberingCustom.prefix ?? custom.orderPrefix ?? 'ORD') as string,
+        orderSuffix: (custom.orderSuffix ?? '') as string,
+        abandonedRecoveryEnabled: Boolean(custom.abandonedRecoveryEnabled ?? true),
+        abandonedSendAfterHours: Number(custom.abandonedSendAfterHours ?? 12),
+      };
     }
+
+    return {
+      ...DEFAULT_ORDERS,
+      numbering: {
+        ...DEFAULT_ORDERS.numbering,
+        nextNumber: realNextNumber,
+      },
+    };
   } catch (err) {
     console.error('Error fetching order settings:', err);
+    return DEFAULT_ORDERS;
   }
-  return DEFAULT_ORDERS;
 }
 
 export async function updateOrderSettings(payload: OrderSettings) {
@@ -83,6 +189,62 @@ export async function updateOrderSettings(payload: OrderSettings) {
     return { error: 'Failed to update order settings' };
   }
 }
+
+const DEFAULT_INVENTORY: InventorySettings = {
+  stopSellingWhenOutOfStock: true,
+  trackInventoryByDefault: true,
+  enableLowStockAlerts: true,
+  lowStockThreshold: 5,
+  autoGenerateSkus: false,
+};
+
+const DEFAULT_PAYMENTS: PaymentSettings = {
+  methods: {
+    mobileMoney: true,
+    cash: true,
+    bankTransfer: true,
+    card: false,
+    other: false,
+  },
+  p2pAccounts: [],
+  momoDetails: {
+    mtnNumber: '',
+    mtnAccountName: '',
+    telecelNumber: '',
+    telecelAccountName: '',
+    atNumber: '',
+    atAccountName: '',
+  },
+  bankDetails: {
+    bankName: '',
+    accountNumber: '',
+    accountName: '',
+    branch: '',
+  },
+  codMaxOrderAmount: 500,
+  paymentInstructions: 'Please use your Order Short ID as your payment reference.',
+  providers: {
+    hubtel: { connected: true, isLive: true },
+    paystack: { connected: false },
+  },
+  defaultOrderGateway: 'hubtel',
+  currency: 'GHS',
+  recording: {
+    allowManualRecording: true,
+    requirePaymentReference: true,
+    allowPartialPayments: true,
+    recordSupplierPayments: true,
+  },
+  supplierPayments: {
+    enabled: true,
+    defaultMethods: ['momo', 'bank', 'cash'],
+  },
+  enableMtnMomo: true,
+  enableTelecelCash: true,
+  enableAtMoney: true,
+  enableCards: false,
+  enableCod: true,
+};
 
 export async function getInventorySettings(): Promise<InventorySettings> {
   const supabase = await createClient();
@@ -160,15 +322,92 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
-    const custom = (data?.settings_data as Record<string, unknown> | null)?.payment_settings;
-    if (custom && typeof custom === 'object') {
-      return custom as unknown as PaymentSettings;
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('store_currency, settings_data')
+      .eq('tenant_id', tenantId)
+      .single();
+
+    const currentCurrency = data?.store_currency || 'GHS';
+    const raw = (data?.settings_data as Record<string, unknown> | null)?.payment_settings as
+      Partial<PaymentSettings> | undefined;
+
+    if (raw && typeof raw === 'object') {
+      // Merge structured fields with defaults to guarantee all keys exist
+      return {
+        ...DEFAULT_PAYMENTS,
+        ...raw,
+        currency: raw.currency || currentCurrency,
+        methods: {
+          ...DEFAULT_PAYMENTS.methods,
+          ...(raw.methods || {}),
+          // support legacy toggles if methods not populated
+          mobileMoney:
+            raw.methods?.mobileMoney ?? (raw.enableMtnMomo || raw.enableTelecelCash || raw.enableAtMoney) ?? true,
+          card: raw.methods?.card ?? raw.enableCards ?? false,
+          cash: raw.methods?.cash ?? raw.enableCod ?? true,
+        },
+        p2pAccounts: Array.isArray(raw.p2pAccounts)
+          ? raw.p2pAccounts
+          : raw.momoDetails?.mtnNumber || raw.bankDetails?.accountNumber
+            ? [
+                ...(raw.momoDetails?.mtnNumber
+                  ? [
+                      {
+                        id: 'momo-1',
+                        type: 'mtn_momo' as const,
+                        providerName: 'MTN Mobile Money',
+                        accountNumber: raw.momoDetails.mtnNumber,
+                        accountName: raw.momoDetails.mtnAccountName || '',
+                        isPrimary: true,
+                      },
+                    ]
+                  : []),
+                ...(raw.bankDetails?.accountNumber
+                  ? [
+                      {
+                        id: 'bank-1',
+                        type: 'bank' as const,
+                        providerName: raw.bankDetails.bankName || 'Bank Account',
+                        accountNumber: raw.bankDetails.accountNumber,
+                        accountName: raw.bankDetails.accountName || '',
+                        bankBranch: raw.bankDetails.branch || '',
+                      },
+                    ]
+                  : []),
+              ]
+            : [],
+        momoDetails: {
+          ...DEFAULT_PAYMENTS.momoDetails,
+          ...(raw.momoDetails || {}),
+        },
+        bankDetails: {
+          ...DEFAULT_PAYMENTS.bankDetails,
+          ...(raw.bankDetails || {}),
+        },
+        recording: {
+          ...DEFAULT_PAYMENTS.recording,
+          ...(raw.recording || {}),
+        },
+        supplierPayments: {
+          ...DEFAULT_PAYMENTS.supplierPayments,
+          ...(raw.supplierPayments || {}),
+        },
+        providers: {
+          ...DEFAULT_PAYMENTS.providers,
+          ...(raw.providers || {}),
+        },
+      };
     }
+
+    return {
+      ...DEFAULT_PAYMENTS,
+      currency: currentCurrency,
+    };
   } catch (err) {
     console.error('Error fetching payment settings:', err);
+    return DEFAULT_PAYMENTS;
   }
-  return DEFAULT_PAYMENTS;
 }
 
 export async function updatePaymentSettings(payload: PaymentSettings) {
@@ -192,7 +431,10 @@ export async function updatePaymentSettings(payload: PaymentSettings) {
 
     const { error } = await supabase
       .from('tenant_settings')
-      .update({ settings_data: updatedData })
+      .update({
+        store_currency: payload.currency || 'GHS',
+        settings_data: updatedData,
+      })
       .eq('tenant_id', tenantId);
 
     if (error) throw error;

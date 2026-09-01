@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
-import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
-import { Switch } from '@/components/ui/Switch';
-import { CreditCard, Smartphone, Banknote, ShieldCheck, Loader2 } from 'lucide-react';
 import { PaymentSettings } from '@/types/settings';
 import { updatePaymentSettings } from '@/app/actions/settings-commerce';
+import { PaymentMethodsCard } from './PaymentMethodsCard';
+import { PaymentProvidersCard } from './PaymentProvidersCard';
+import { CurrencyCard } from './CurrencyCard';
+import { PaymentRecordingCard } from './PaymentRecordingCard';
+import { SupplierPaymentsCard } from './SupplierPaymentsCard';
+import { Check, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PaymentsSettingsFormProps {
@@ -16,157 +18,115 @@ interface PaymentsSettingsFormProps {
 
 export function PaymentsSettingsForm({ initialSettings }: PaymentsSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [settings, setSettings] = useState(initialSettings);
+  const [settings, setSettings] = useState<PaymentSettings>(initialSettings);
+  const [isSaved, setIsSaved] = useState(false);
 
-  const handleSave = () => {
+  const updateField = <K extends keyof PaymentSettings>(field: K, val: PaymentSettings[K]) => {
+    setSettings((prev) => ({ ...prev, [field]: val }));
+    setIsSaved(false);
+  };
+
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
     startTransition(async () => {
-      const res = await updatePaymentSettings(settings);
-      if (res.error) {
-        toast.error(res.error);
-      } else {
-        toast.success('Payment settings saved successfully');
+      try {
+        const res = await updatePaymentSettings(settings);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          toast.success('Payment settings saved successfully');
+          setIsSaved(true);
+          setTimeout(() => setIsSaved(false), 3000);
+        }
+      } catch (err) {
+        console.error('Save error:', err);
+        toast.error('Failed to save payment settings');
       }
     });
   };
 
   return (
-    <div className="space-y-8">
-      {/* Mobile Money */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500">
-                <Smartphone className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <CardTitle>Mobile Money (Ghana MoMo)</CardTitle>
-                <CardDescription>Accept automated and manual MoMo payments from local networks.</CardDescription>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-elevated border border-separator">
-              <div>
-                <p className="text-xs font-bold text-foreground">MTN MoMo</p>
-                <p className="text-[10px] text-muted">024 / 054 / 055 / 059</p>
-              </div>
-              <Switch
-                checked={Boolean(settings.enableMtnMomo)}
-                onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, enableMtnMomo: c }))}
-                aria-label="Enable MTN Mobile Money"
-              />
-            </div>
+    <form onSubmit={handleSave} className="space-y-6 sm:space-y-8">
+      {/* 1. Accepted Payment Methods & Recipient Details */}
+      <PaymentMethodsCard
+        settings={settings}
+        onChangeMethod={(key, val) => updateField('methods', { ...settings.methods, [key]: val })}
+        onChangeP2PAccounts={(accs) => updateField('p2pAccounts', accs)}
+        onChangeCodMax={(val) => updateField('codMaxOrderAmount', val)}
+        onChangeInstructions={(val) => updateField('paymentInstructions', val)}
+        disabled={isPending}
+      />
 
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-elevated border border-separator">
-              <div>
-                <p className="text-xs font-bold text-foreground">Telecel Cash</p>
-                <p className="text-[10px] text-muted">020 / 050</p>
-              </div>
-              <Switch
-                checked={Boolean(settings.enableTelecelCash)}
-                onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, enableTelecelCash: c }))}
-                aria-label="Enable Telecel Cash"
-              />
-            </div>
+      {/* 2. Payment Providers (Integrations) */}
+      <PaymentProvidersCard
+        settings={settings}
+        onUpdateProvider={(provider, state) =>
+          updateField('providers', {
+            ...settings.providers,
+            [provider]: state,
+          })
+        }
+        disabled={isPending}
+      />
 
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-elevated border border-separator">
-              <div>
-                <p className="text-xs font-bold text-foreground">AT Money</p>
-                <p className="text-[10px] text-muted">027 / 057 / 026</p>
-              </div>
-              <Switch
-                checked={Boolean(settings.enableAtMoney)}
-                onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, enableAtMoney: c }))}
-                aria-label="Enable AT Money"
-              />
-            </div>
-          </div>
+      {/* 3. Operating Currency */}
+      <CurrencyCard
+        currency={settings.currency || 'GHS'}
+        onChangeCurrency={(curr) => updateField('currency', curr)}
+        disabled={isPending}
+      />
 
-          <div className="p-4 bg-surface-elevated rounded-xl border border-separator flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-bold text-foreground">MoMo Reference Reconciliation</p>
-              <p className="text-xs text-muted mt-0.5">
-                Merchander automatically scans incoming transaction IDs and reconciles pending orders.
-              </p>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+      {/* 4. Payment Recording Policies */}
+      <PaymentRecordingCard
+        recording={settings.recording}
+        onChangeRecording={(key, val) => updateField('recording', { ...settings.recording, [key]: val })}
+        disabled={isPending}
+      />
 
-      {/* Credit & Debit Cards */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-                <CreditCard className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <CardTitle>Cards & Online Checkout</CardTitle>
-                <CardDescription>Accept Visa, Mastercard, and international bank cards.</CardDescription>
-              </div>
-            </div>
-            <Switch
-              checked={Boolean(settings.enableCards)}
-              onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, enableCards: c }))}
-              aria-label="Enable card payments"
-            />
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          <p className="text-xs text-muted">
-            Card transactions are encrypted via 3D-Secure 2.0 and settled directly to your linked settlement account.
-          </p>
-        </CardBody>
-      </Card>
+      {/* 5. Supplier Payment Preferences */}
+      <SupplierPaymentsCard
+        supplierPayments={settings.supplierPayments}
+        onChangeSupplierPayments={(updater) =>
+          updateField('supplierPayments', { ...settings.supplierPayments, ...updater })
+        }
+        disabled={isPending}
+      />
 
-      {/* Cash on Delivery */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-                <Banknote className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <CardTitle>Cash on Delivery (COD)</CardTitle>
-                <CardDescription>Allow customers to pay dispatch riders upon package arrival.</CardDescription>
-              </div>
-            </div>
-            <Switch
-              checked={Boolean(settings.enableCod)}
-              onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, enableCod: c }))}
-              aria-label="Enable Cash on Delivery"
-            />
-          </div>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          <p className="text-xs text-muted">
-            Recommended only for verified customer routes or specific Greater Accra dispatch zones.
-          </p>
-
-          {settings.enableCod && (
-            <FormField
-              label="Maximum Allowed Order for COD (GHS)"
-              type="number"
-              min={50}
-              value={settings.codMaxOrderAmount}
-              onChange={(e) => setSettings((s) => ({ ...s, codMaxOrderAmount: parseFloat(e.target.value) || 500 }))}
-              hint="Orders above this amount will require upfront MoMo or card payment."
-            />
+      {/* Bottom Sticky Save Bar */}
+      <div className="sticky bottom-2 sm:bottom-4 z-20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-surface/95 backdrop-blur-md border border-separator shadow-lg">
+        <div className="flex items-center gap-2">
+          {isSaved ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-500">
+              <Check size={15} />
+              <span>All changes saved</span>
+            </span>
+          ) : (
+            <span className="text-[11px] sm:text-xs text-muted">
+              Remember to save your changes before leaving this page.
+            </span>
           )}
-        </CardBody>
-        <CardFooter className="justify-end">
-          <Button variant="primary" size="sm" onClick={handleSave} disabled={isPending}>
-            {isPending && <Loader2 size={14} className="animate-spin mr-2" />}
-            <span>{isPending ? 'Saving...' : 'Save Payment Methods'}</span>
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={isPending}
+          className="w-full sm:w-auto min-w-35 shadow-xs cursor-pointer justify-center"
+        >
+          {isPending ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 size={15} className="animate-spin" />
+              <span>Saving...</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2">
+              <Save size={15} />
+              <span>Save Changes</span>
+            </span>
+          )}
+        </Button>
+      </div>
+    </form>
   );
 }
