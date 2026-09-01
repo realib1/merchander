@@ -92,7 +92,7 @@ export function ProductImageGallery({ images, productName, children }: ProductIm
 
       {/* Universal Thumbnail Strip (Mobile & Desktop) */}
       {hasMultiple && (
-        <div className="flex gap-2 sm:gap-2.5 overflow-x-auto pb-1 custom-scrollbar">
+        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 custom-scrollbar">
           {images.map((url, idx) => {
             const isSelected = idx === activeIndex;
             return (
@@ -100,9 +100,9 @@ export function ProductImageGallery({ images, productName, children }: ProductIm
                 key={url}
                 type="button"
                 onClick={() => setActiveIndex(idx)}
-                className={`relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition cursor-pointer ${
+                className={`relative shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden border-2 transition cursor-pointer ${
                   isSelected
-                    ? 'border-brand-primary ring-2 ring-brand-primary/30 shadow-xs scale-102'
+                    ? 'border-brand-primary ring-1.5 ring-brand-primary/30 shadow-2xs scale-102'
                     : 'border-separator hover:border-separator/90 opacity-70 hover:opacity-100'
                 }`}
                 aria-label={`View image ${idx + 1}`}
@@ -112,7 +112,7 @@ export function ProductImageGallery({ images, productName, children }: ProductIm
                   alt={`${productName} thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"
-                  sizes="64px"
+                  sizes="48px"
                 />
               </button>
             );
