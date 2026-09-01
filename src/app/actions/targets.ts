@@ -80,42 +80,6 @@ export async function getBusinessTargets(): Promise<{
       rawTargets = (customData.business_targets as BusinessTarget[]) || [];
     }
 
-    // Provision sensible defaults if brand new store with zero targets
-    if (rawTargets.length === 0) {
-      const now = new Date();
-      const monthStart = formatISO(startOfMonth(now));
-      const monthEnd = formatISO(endOfMonth(now));
-
-      rawTargets = [
-        {
-          id: 'default-rev-target',
-          tenant_id: tenantId,
-          name: 'Monthly Revenue Goal',
-          metric: 'revenue',
-          target_value: 20000,
-          start_date: monthStart,
-          end_date: monthEnd,
-          period: 'monthly',
-          currency,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: 'default-orders-target',
-          tenant_id: tenantId,
-          name: 'Monthly Orders Target',
-          metric: 'orders',
-          target_value: 100,
-          start_date: monthStart,
-          end_date: monthEnd,
-          period: 'monthly',
-          currency,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
-    }
-
     // 3. Fetch live commerce data to calculate target metrics
     const [ordersRes, customersRes] = await Promise.all([
       supabase

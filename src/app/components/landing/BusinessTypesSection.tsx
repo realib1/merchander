@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { Reveal } from '@/components/motion/Reveal';
-import { ShoppingBag, Sparkles, Store, Smartphone, Layers, Boxes, Check } from 'lucide-react';
+import { ShoppingBag, Heart, Store, Smartphone, Layers, Boxes, Check } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface Sector {
@@ -34,7 +34,7 @@ const sectors: Sector[] = [
   {
     id: 'beauty',
     name: 'Beauty & Cosmetics',
-    icon: Sparkles,
+    icon: Heart,
     tagline: 'Product shade variants, bundle promotions, and repeat buyer profiles.',
     highlights: [
       'Shade, scent, and bundle inventory',

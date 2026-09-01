@@ -5,7 +5,7 @@ import { TargetProgress, TargetsIntelligenceSummary } from '@/types/targets';
 import { TargetCard } from './TargetCard';
 import { TargetFormModal } from './TargetFormModal';
 import { Button } from '@/components/ui/Button';
-import { Target, Plus, Sparkles } from 'lucide-react';
+import { Target, Plus, BrainCircuit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface TargetsSectionProps {
@@ -64,7 +64,7 @@ export function TargetsSection({
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2">
             <span className="p-1 rounded bg-brand-primary/10 text-brand-primary">
-              <Sparkles size={13} />
+              <BrainCircuit size={13} />
             </span>
             <span className="text-xs font-bold text-foreground uppercase tracking-wider">
               Executive Performance Summary

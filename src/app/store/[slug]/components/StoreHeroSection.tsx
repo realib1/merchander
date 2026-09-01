@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { StorefrontConfig, StorefrontProduct } from '@/types/storefront';
-import { MessageCircle, ArrowDown, ShoppingBag, Sparkles, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MessageCircle, ArrowDown, ShoppingBag, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 
 interface StoreHeroSectionProps {
@@ -71,7 +71,7 @@ export function StoreHeroSection({ config, featuredProducts = [], onSelectProduc
 
             <div className="relative z-10 p-5 sm:p-8 text-white space-y-2 max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-bold tracking-wide uppercase border border-white/30">
-                <Sparkles size={12} className="text-amber-400" />
+                <Tag size={12} className="text-white" />
                 <span>Featured Promotion</span>
               </div>
 
@@ -116,8 +116,8 @@ export function StoreHeroSection({ config, featuredProducts = [], onSelectProduc
             {/* Left: Product Details Flex */}
             <div className="w-full md:w-1/2 flex flex-col justify-center space-y-4 z-10">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-bold">
-                  <Zap size={13} className="fill-current" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-bold">
+                  <Tag size={13} />
                   <span>Featured Spotlight</span>
                 </span>
                 <span className="text-xs font-bold text-muted uppercase tracking-wider">
@@ -235,7 +235,7 @@ export function StoreHeroSection({ config, featuredProducts = [], onSelectProduc
           <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-separator/80 shadow-md bg-surface p-6 sm:p-10 flex flex-col justify-between min-h-55">
             <div className="space-y-2.5 max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary text-[11px] font-bold">
-                <Sparkles size={12} />
+                <ShoppingBag size={12} />
                 <span>Official Online Store</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight leading-tight">

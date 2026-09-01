@@ -4,7 +4,7 @@ import React, { useTransition } from 'react';
 import { TargetProgress } from '@/types/targets';
 import { deleteBusinessTarget } from '@/app/actions/targets';
 import { formatCurrency } from '@/utils/format';
-import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Trash2, Zap } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Trash2, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TargetCardProps {
@@ -54,7 +54,7 @@ export function TargetCard({ progress, currency = 'GHS', onDeleted }: TargetCard
       case 'exceeded':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-            <Zap size={12} />
+            <CheckCircle2 size={12} />
             <span>{status === 'exceeded' ? 'Exceeded' : 'Achieved'}</span>
           </span>
         );
@@ -185,7 +185,7 @@ export function TargetCard({ progress, currency = 'GHS', onDeleted }: TargetCard
       {/* Actionable Suggestion */}
       {progress.recommendation && (
         <div className="p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-300 flex items-start gap-2">
-          <Zap size={14} className="shrink-0 mt-0.5" />
+          <Lightbulb size={14} className="shrink-0 mt-0.5" />
           <p className="leading-snug">{progress.recommendation}</p>
         </div>
       )}

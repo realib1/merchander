@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Trash2, Sparkles } from 'lucide-react';
+import { Plus, Trash2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { generateProductSku } from '@/utils/sku';
@@ -163,7 +163,7 @@ export function ProductVariantManager({
                       className="text-[11px] font-semibold text-brand-primary hover:text-brand-primary/80 inline-flex items-center gap-1 cursor-pointer transition-colors"
                       title="Auto-generate SKU from product name and options"
                     >
-                      <Sparkles className="w-3 h-3" />
+                      <RefreshCw className="w-3 h-3" />
                       <span>Auto</span>
                     </button>
                   </div>

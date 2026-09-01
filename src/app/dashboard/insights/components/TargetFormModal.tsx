@@ -5,7 +5,7 @@ import { CreateTargetInput, TargetMetric, TargetPeriod } from '@/types/targets';
 import { createBusinessTarget } from '@/app/actions/targets';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
-import { X, Target, Sparkles, Loader2 } from 'lucide-react';
+import { X, Target, Loader2, Check } from 'lucide-react';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, addMonths } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -285,7 +285,7 @@ export function TargetFormModal({
               Cancel
             </Button>
             <Button type="submit" variant="primary" size="sm" disabled={isPending} className="min-w-28 gap-1.5">
-              {isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
               <span>{isPending ? 'Saving...' : 'Set Target'}</span>
             </Button>
           </div>
