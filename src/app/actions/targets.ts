@@ -10,7 +10,6 @@ import {
   generateTargetsIntelligenceSummary,
   sortTargetsByPriority,
 } from '@/utils/targets-engine';
-import { startOfMonth, endOfMonth, formatISO } from 'date-fns';
 
 async function getAdminOrUserClient() {
   try {
