@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { PreorderBatch, PreorderFreightMode } from '@/types/preorder';
 import { formatArrivalWindow, getBatchCountdown } from '@/utils/preorder-batch';
 import { addDays, format } from 'date-fns';
-import { Clock, Ship, Plane, Plus, Layers, Calendar } from 'lucide-react';
+import { Plus, Layers } from 'lucide-react';
 
 export interface PreorderCustomBatchState {
   isNewBatch: boolean;

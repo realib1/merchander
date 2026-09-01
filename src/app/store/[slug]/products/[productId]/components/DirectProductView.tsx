@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { StorefrontConfig, StorefrontProduct, StorefrontProductVariant, StorefrontCartItem } from '@/types/storefront';
+import { StorefrontConfig, StorefrontProduct, StorefrontProductVariant } from '@/types/storefront';
 import { slugify } from '@/utils/format';
 import { useStorefrontWishlist, useStorefrontCart } from '@/hooks';
 import { StoreCartDrawer } from '@/app/store/[slug]/components/StoreCartDrawer';

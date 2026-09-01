@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { StorefrontCartItem, StorefrontCategory, StorefrontConfig, StorefrontProduct } from '@/types/storefront';
+import { StorefrontCategory, StorefrontConfig, StorefrontProduct } from '@/types/storefront';
 import { StoreCartDrawer } from './StoreCartDrawer';
 import { StoreWishlistDrawer } from './StoreWishlistDrawer';
 import { StoreNavbar } from './StoreNavbar';
@@ -215,7 +215,7 @@ export function StoreCatalog({ config, categories, products }: StoreCatalogProps
         onClose={() => setIsCartOpen(false)}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={(vId) => updateCart((prev) => prev.filter((i) => i.variantId !== vId))}
-        onClearCart={() => updateCart(() => [])}
+        onClearCart={clearCart}
       />
 
       <StoreWishlistDrawer
