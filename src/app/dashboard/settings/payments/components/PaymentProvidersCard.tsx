@@ -40,22 +40,18 @@ export function PaymentProvidersCard({ settings, onUpdateProvider, disabled = fa
             </div>
           </div>
         </CardHeader>
-        <CardBody className="space-y-4">
-          {/* 1. Hubtel Provider (Default for Ghana Orders) */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-brand-primary/30 bg-brand-primary/5">
+        <CardBody className="space-y-3.5">
+          {/* 1. Hubtel Gateway */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-separator bg-surface">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
                 <h4 className="text-xs font-bold text-foreground">Hubtel</h4>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                  <BadgeCheck size={11} />
-                  Default (Ghana Orders)
-                </span>
                 <Badge
                   variant={providers.hubtel?.connected ? 'success' : 'default'}
                   size="sm"
                   dot={providers.hubtel?.connected}
                 >
-                  {providers.hubtel?.connected ? 'Connected' : 'Not connected'}
+                  {providers.hubtel?.connected ? 'Connected' : 'Not configured'}
                 </Badge>
               </div>
               <p className="text-[11px] text-muted">
@@ -91,7 +87,7 @@ export function PaymentProvidersCard({ settings, onUpdateProvider, disabled = fa
               ) : (
                 <Button
                   type="button"
-                  variant="primary"
+                  variant="outline"
                   size="sm"
                   onClick={() => setActiveModal('hubtel')}
                   disabled={disabled}
@@ -103,7 +99,7 @@ export function PaymentProvidersCard({ settings, onUpdateProvider, disabled = fa
             </div>
           </div>
 
-          {/* 2. Paystack Provider */}
+          {/* 2. Paystack Gateway */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-separator bg-surface">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -113,7 +109,11 @@ export function PaymentProvidersCard({ settings, onUpdateProvider, disabled = fa
                   size="sm"
                   dot={providers.paystack?.connected}
                 >
-                  {providers.paystack?.connected ? (providers.paystack.isLive ? 'Live' : 'Connected') : 'Not connected'}
+                  {providers.paystack?.connected
+                    ? providers.paystack.isLive
+                      ? 'Live'
+                      : 'Connected'
+                    : 'Not configured'}
                 </Badge>
               </div>
               <p className="text-[11px] text-muted">

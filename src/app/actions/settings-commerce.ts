@@ -235,10 +235,9 @@ const DEFAULT_PAYMENTS: PaymentSettings = {
   codMaxOrderAmount: 500,
   paymentInstructions: 'Please use your Order Short ID as your payment reference.',
   providers: {
-    hubtel: { connected: true, isLive: true },
+    hubtel: { connected: false },
     paystack: { connected: false },
   },
-  defaultOrderGateway: 'hubtel',
   currency: 'GHS',
   recording: {
     allowManualRecording: true,
@@ -247,7 +246,7 @@ const DEFAULT_PAYMENTS: PaymentSettings = {
     recordSupplierPayments: true,
   },
   supplierPayments: {
-    enabled: true,
+    enabled: false,
     defaultMethods: ['momo', 'bank', 'cash'],
   },
   enableMtnMomo: true,
