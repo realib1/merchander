@@ -19,12 +19,11 @@ interface SettingsGroup {
 interface MobileSettingsSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenHelp: () => void;
   pathname: string;
   groups: SettingsGroup[];
 }
 
-export function MobileSettingsSheet({ isOpen, onClose, onOpenHelp, pathname, groups }: MobileSettingsSheetProps) {
+export function MobileSettingsSheet({ isOpen, onClose, pathname, groups }: MobileSettingsSheetProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -95,19 +94,16 @@ export function MobileSettingsSheet({ isOpen, onClose, onOpenHelp, pathname, gro
               ))}
             </div>
 
-            {/* Bottom Support Trigger */}
+            {/* Bottom Support Link */}
             <div className="p-4 border-t border-separator/80 bg-surface-elevated/40">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenHelp();
-                }}
-                className="w-full py-2.5 px-3 rounded-xl bg-surface border border-separator text-xs font-semibold text-foreground hover:bg-surface-elevated transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              <Link
+                href="/dashboard/help"
+                onClick={onClose}
+                className="w-full py-2.5 px-3 rounded-xl bg-surface border border-separator text-xs font-semibold text-foreground hover:bg-surface-elevated transition-colors flex items-center justify-center gap-2 shadow-2xs"
               >
                 <LifeBuoy size={15} className="text-brand-primary" />
                 <span>Need Assistance? Open Help & Support</span>
-              </button>
+              </Link>
             </div>
           </motion.div>
         </>

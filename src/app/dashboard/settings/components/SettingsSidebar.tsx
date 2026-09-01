@@ -28,7 +28,6 @@ import {
   Bot,
 } from 'lucide-react';
 import { MobileSettingsSheet } from './MobileSettingsSheet';
-import { HelpSupportModal } from '@/components/help/HelpSupportModal';
 
 export const settingsGroups = [
   {
@@ -84,7 +83,6 @@ export const settingsGroups = [
 export function SettingsSidebar() {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   // Find active item
   const allItems = settingsGroups.flatMap((group) => group.items);
@@ -93,30 +91,27 @@ export function SettingsSidebar() {
     href: '/dashboard/settings',
     icon: Settings,
   };
-  const ActiveIcon = activeItem.icon;
 
   return (
     <>
-      {/* 1. Mobile Top Section Selector Trigger (< md) */}
-      <div className="md:hidden w-full mb-4">
+      {/* 1. Mobile Drawer Trigger (< md) */}
+      <div className="md:hidden">
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
-          className="w-full flex items-center justify-between p-3 rounded-2xl bg-surface border border-separator/90 shadow-2xs text-left cursor-pointer hover:bg-surface-elevated transition-colors"
+          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-surface border border-separator/80 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
+          aria-label="Open settings menu"
         >
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center">
-              <ActiveIcon size={16} />
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-brand-primary/10 text-brand-primary">
+              <activeItem.icon size={18} />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-muted tracking-wider block">Settings Area</span>
               <span className="text-xs font-bold text-foreground font-display">{activeItem.name}</span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-xs text-muted font-medium bg-surface-elevated px-2.5 py-1 rounded-lg border border-separator/60">
-            <span>Switch</span>
-            <ChevronDown size={14} />
-          </div>
+          <ChevronDown size={16} className="text-muted" />
         </button>
       </div>
 
@@ -124,7 +119,6 @@ export function SettingsSidebar() {
       <MobileSettingsSheet
         isOpen={isMobileOpen}
         onClose={() => setIsMobileOpen(false)}
-        onOpenHelp={() => setIsHelpOpen(true)}
         pathname={pathname}
         groups={settingsGroups}
       />
@@ -180,23 +174,19 @@ export function SettingsSidebar() {
           );
         })}
 
-        {/* Desktop Help & Support Trigger */}
+        {/* Desktop Help & Support Page Link */}
         <div className="pt-2 border-t border-separator/80">
-          <button
-            type="button"
-            onClick={() => setIsHelpOpen(true)}
-            className="w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-semibold text-muted hover:bg-surface-elevated hover:text-foreground transition-all cursor-pointer"
+          <Link
+            href="/dashboard/help"
+            className="w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-semibold text-muted hover:bg-surface-elevated hover:text-foreground transition-all"
           >
             <div className="flex items-center gap-2.5">
               <LifeBuoy size={15} className="text-brand-primary" />
               <span>Help & Support</span>
             </div>
-          </button>
+          </Link>
         </div>
       </nav>
-
-      {/* Help & Support Modal */}
-      <HelpSupportModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </>
   );
 }

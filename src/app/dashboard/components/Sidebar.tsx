@@ -10,7 +10,6 @@ import { useMobileNav } from './MobileNavContext';
 import { toast } from 'sonner';
 import { navGroups } from './sidebar/sidebarNavigation';
 import { SidebarUserProfile } from './sidebar/SidebarUserProfile';
-import { HelpSupportModal } from '@/components/help/HelpSupportModal';
 
 export interface SidebarProps {
   userEmail: string;
@@ -34,7 +33,6 @@ export function Sidebar({
   const supabase = createClient();
   const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -160,21 +158,30 @@ export function Sidebar({
           ))}
         </nav>
 
-        {/* Help & Support Button */}
+        {/* Help & Support Page Link */}
         <div className="px-3 pb-2">
-          <button
-            type="button"
-            onClick={() => setIsHelpOpen(true)}
-            className="w-full group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold text-muted hover:bg-surface-elevated/70 hover:text-foreground transition-all cursor-pointer"
+          <Link
+            href="/dashboard/help"
+            onClick={() => setIsOpen(false)}
+            className={`w-full group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+              pathname === '/dashboard/help'
+                ? 'bg-brand-primary text-white shadow-xs'
+                : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
+            }`}
             title={isDesktopCollapsed ? 'Help & Support' : undefined}
           >
-            <LifeBuoy size={17} className="shrink-0 text-muted group-hover:text-brand-primary transition-colors" />
+            <LifeBuoy
+              size={17}
+              className={`shrink-0 transition-colors ${
+                pathname === '/dashboard/help' ? 'text-white' : 'text-muted group-hover:text-brand-primary'
+              }`}
+            />
             {!isDesktopCollapsed && (
               <div className="flex items-center justify-between flex-1 min-w-0">
                 <span className="truncate">Help & Support</span>
               </div>
             )}
-          </button>
+          </Link>
         </div>
 
         {/* Current User Profile Card & Sign Out */}
@@ -189,9 +196,6 @@ export function Sidebar({
           onNavigate={() => setIsOpen(false)}
         />
       </aside>
-
-      {/* Global Help & Support Hub Modal */}
-      <HelpSupportModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </>
   );
 }
