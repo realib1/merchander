@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Link2, Settings2, BadgeCheck } from 'lucide-react';
+import { Link2, Settings2 } from 'lucide-react';
 import { PaymentSettings, PaymentProviderState } from '@/types/settings';
 import { ProviderConnectModal } from './ProviderConnectModal';
 import { toast } from 'sonner';
