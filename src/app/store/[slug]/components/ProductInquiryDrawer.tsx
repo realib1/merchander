@@ -110,7 +110,7 @@ export function ProductInquiryDrawer({
   const lastQuestion =
     messages.filter((m) => m.sender === 'user').slice(-1)[0]?.text || 'I have a question about this product.';
   const contextPackText = encodeURIComponent(
-    `Hi ${config.store_name}, I have a question about *${product.name}* (${formatCurrency(product.min_price, config.currency)}).\n🔗 Link: ${productUrl}\n❓ Question: ${lastQuestion}`
+    `Hi ${config.store_name}, I have a question about *${product.name}* (${formatCurrency(product.min_price, config.currency)}).\nLink: ${productUrl}\nQuestion: ${lastQuestion}`
   );
   const whatsappEscalationUrl = `https://wa.me/${merchantPhone}?text=${contextPackText}`;
 

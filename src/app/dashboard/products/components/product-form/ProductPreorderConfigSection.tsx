@@ -31,12 +31,12 @@ interface ProductPreorderConfigSectionProps {
 }
 
 const durationPresets = [
-  { id: '1_week', label: '⚡ 1 Week (Express Air)', days: 7, freight: 'express' as PreorderFreightMode },
-  { id: '2_weeks', label: '✈️ 2 Weeks (Air Freight)', days: 14, freight: 'air' as PreorderFreightMode },
-  { id: '1_month', label: '🚢 1 Month (Sea / Road)', days: 30, freight: 'sea' as PreorderFreightMode },
-  { id: '6_weeks', label: '🚢 1.5 Months (Sea Freight)', days: 45, freight: 'sea' as PreorderFreightMode },
-  { id: '2_months', label: '🚢 2 Months (Standard Sea)', days: 60, freight: 'sea' as PreorderFreightMode },
-  { id: 'custom', label: '📅 Custom Date Range', days: 0, freight: 'sea' as PreorderFreightMode },
+  { id: '1_week', label: '1 Week (Express Air)', days: 7, freight: 'express' as PreorderFreightMode },
+  { id: '2_weeks', label: '2 Weeks (Air Freight)', days: 14, freight: 'air' as PreorderFreightMode },
+  { id: '1_month', label: '1 Month (Sea / Road)', days: 30, freight: 'sea' as PreorderFreightMode },
+  { id: '6_weeks', label: '1.5 Months (Sea Freight)', days: 45, freight: 'sea' as PreorderFreightMode },
+  { id: '2_months', label: '2 Months (Standard Sea)', days: 60, freight: 'sea' as PreorderFreightMode },
+  { id: 'custom', label: 'Custom Date Range', days: 0, freight: 'sea' as PreorderFreightMode },
 ];
 
 export function ProductPreorderConfigSection({

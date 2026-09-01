@@ -34,26 +34,26 @@ export function formatWhatsAppOrderMessage(
   const currency = config.currency || 'GHS';
 
   const lines: string[] = [
-    `🛍️ *NEW ORDER - ${config.store_name.toUpperCase()}*`,
+    `*NEW ORDER - ${config.store_name.toUpperCase()}*`,
     `--------------------------------`,
-    `👤 *Customer:* ${customer.name}`,
-    `📞 *Phone:* ${customer.phone}`,
+    `*Customer:* ${customer.name}`,
+    `*Phone:* ${customer.phone}`,
   ];
 
   if (customer.fulfillmentMode) {
-    lines.push(`🚚 *Fulfillment:* ${customer.fulfillmentMode === 'pickup' ? 'Store Pickup' : 'Doorstep Delivery'}`);
+    lines.push(`*Fulfillment:* ${customer.fulfillmentMode === 'pickup' ? 'Store Pickup' : 'Doorstep Delivery'}`);
   }
 
   if (customer.address) {
-    lines.push(`📍 *Address / Branch:* ${customer.address}`);
+    lines.push(`*Address / Branch:* ${customer.address}`);
   }
 
   if (customer.notes) {
-    lines.push(`📝 *Note:* ${customer.notes}`);
+    lines.push(`*Note:* ${customer.notes}`);
   }
 
   lines.push(`--------------------------------`);
-  lines.push(`📦 *ITEMS:*`);
+  lines.push(`*ITEMS:*`);
 
   cart.forEach((item, index) => {
     const itemTotal = formatCurrency(item.price * item.quantity, currency);
@@ -62,7 +62,7 @@ export function formatWhatsAppOrderMessage(
   });
 
   lines.push(`--------------------------------`);
-  lines.push(`💰 *TOTAL:* ${formatCurrency(subtotal, currency)}`);
+  lines.push(`*TOTAL:* ${formatCurrency(subtotal, currency)}`);
   lines.push(`--------------------------------`);
   lines.push(`Order created via Merchander Storefront`);
 

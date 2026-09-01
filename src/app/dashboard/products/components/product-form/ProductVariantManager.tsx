@@ -1,8 +1,9 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Sparkles } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { generateProductSku } from '@/utils/sku';
 
 export interface Store {
   id: string;
@@ -24,6 +25,8 @@ interface ProductVariantManagerProps {
   stores: Store[];
   basePrice: number | '';
   baseCostPrice: number | '';
+  productName?: string;
+  categoryName?: string;
   onAddVariant: () => void;
   onRemoveVariant: (id: string) => void;
   onUpdateVariant: (id: string, field: keyof VariantState, value: VariantState[keyof VariantState]) => void;
@@ -35,6 +38,8 @@ export function ProductVariantManager({
   stores,
   basePrice,
   baseCostPrice,
+  productName,
+  categoryName,
   onAddVariant,
   onRemoveVariant,
   onUpdateVariant,
@@ -142,13 +147,39 @@ export function ProductVariantManager({
 
                 {/* SKU */}
                 <div className="space-y-2 lg:col-span-1">
-                  <label className="text-body-sm font-medium">SKU</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-body-sm font-medium">SKU</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const generated = generateProductSku({
+                          productName: productName || 'PROD',
+                          variantName: variant.name,
+                          categoryName,
+                          options: { sequenceNumber: index + 1 },
+                        });
+                        onUpdateVariant(variant.id, 'sku', generated);
+                      }}
+                      className="text-[11px] font-semibold text-brand-primary hover:text-brand-primary/80 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                      title="Auto-generate SKU from product name and options"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>Auto</span>
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={variant.sku}
                     onChange={(e) => onUpdateVariant(variant.id, 'sku', e.target.value)}
-                    placeholder="e.g. KENTE-RED-L"
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase"
+                    placeholder={
+                      generateProductSku({
+                        productName: productName || 'PROD',
+                        variantName: variant.name,
+                        categoryName,
+                        options: { sequenceNumber: index + 1 },
+                      }) || 'e.g. KENTE-RED-L'
+                    }
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase font-mono text-xs"
                   />
                 </div>
               </div>

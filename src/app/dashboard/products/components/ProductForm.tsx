@@ -390,6 +390,8 @@ export function ProductForm({
             stores={stores}
             basePrice={basePrice}
             baseCostPrice={baseCostPrice}
+            productName={name}
+            categoryName={categories.find((c) => c.id === categoryId)?.name}
             onAddVariant={handleAddVariant}
             onRemoveVariant={removeVariant}
             onUpdateVariant={updateVariant}

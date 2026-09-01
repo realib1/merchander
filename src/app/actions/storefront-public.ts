@@ -79,14 +79,6 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
           `
           id, name, description, category_id, specifications, image_urls, availability_status, preorder_shipping_mode,
           category:product_categories(id, name),
-          product_preorder_batches (
-            is_active,
-            preorder_batches (
-              id, name, code, status, opens_at, closes_at, supplier_order_date,
-              expected_arrival_start, expected_arrival_end, actual_arrival_date,
-              freight_mode, origin_country, cargo_tracking_number, max_capacity, min_moq_target
-            )
-          ),
           variants:product_variants(id, sku, name, price, cost_price, compare_at_price, inventory:inventory_levels(quantity))
         `
         )
@@ -99,6 +91,32 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         .eq('tenant_id', tenantId)
         .maybeSingle(),
     ]);
+
+    // Resilient batch lookup (optional extension, does not block product loading)
+    const activeBatchesByProductId: Record<string, import('@/types/preorder').PreorderBatch> = {};
+    try {
+      const { data: batchLinks } = await supabase
+        .from('product_preorder_batches')
+        .select('product_id, batch_id, is_active')
+        .eq('tenant_id', tenantId)
+        .eq('is_active', true);
+
+      if (batchLinks && batchLinks.length > 0) {
+        const batchIds = Array.from(new Set(batchLinks.map((b) => b.batch_id).filter(Boolean)));
+        if (batchIds.length > 0) {
+          const { data: batches } = await supabase.from('preorder_batches').select('*').in('id', batchIds);
+          const batchesMap = new Map((batches || []).map((b) => [b.id, b]));
+          for (const link of batchLinks) {
+            const b = batchesMap.get(link.batch_id);
+            if (b) {
+              activeBatchesByProductId[link.product_id] = b as unknown as import('@/types/preorder').PreorderBatch;
+            }
+          }
+        }
+      }
+    } catch {
+      // Graceful fallback if batch tables are not yet present or query fails
+    }
 
     const tenantSettings = settingsRes.data as Record<string, unknown> | null;
     const customData = (tenantSettings?.settings_data as Record<string, unknown> | null) || {};
@@ -213,11 +231,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         ? p.category[0]?.name || 'General'
         : (p.category as { name?: string } | null)?.name || 'General';
 
-      const activeBatchRel = Array.isArray(p.product_preorder_batches)
-        ? p.product_preorder_batches.find((pb: { is_active?: boolean }) => pb.is_active !== false)
-        : p.product_preorder_batches;
-      const activeBatch =
-        (activeBatchRel?.preorder_batches as unknown as import('@/types/preorder').PreorderBatch) || null;
+      const activeBatch = activeBatchesByProductId[p.id] || null;
 
       return {
         id: p.id,

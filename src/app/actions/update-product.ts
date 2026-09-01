@@ -34,15 +34,27 @@ const updateProductSchema = z.object({
   preorderShippingMode: z.enum(['included', 'tbd']).optional().default('included'),
 });
 
+import { generateProductSku } from '@/utils/sku';
+
 export async function updateProductAction(formData: FormData) {
   let rawData;
   try {
+    const productName = (formData.get('name') as string) || 'Product';
+    const parsedVariants = JSON.parse((formData.get('variants') as string) || '[]');
+    const sanitizedVariants = parsedVariants.map((v: { sku?: string; name?: string }, idx: number) => ({
+      ...v,
+      sku:
+        v.sku && v.sku.trim() !== ''
+          ? v.sku.trim().toUpperCase()
+          : generateProductSku({ productName, variantName: v.name, options: { sequenceNumber: idx + 1 } }),
+    }));
+
     rawData = {
       id: formData.get('id'),
-      name: formData.get('name'),
+      name: productName,
       description: formData.get('description') || '',
       isActive: formData.get('isActive') === 'true',
-      variants: JSON.parse((formData.get('variants') as string) || '[]'),
+      variants: sanitizedVariants,
       categoryId: formData.get('categoryId') || null,
       vendor: formData.get('vendor') || null,
       stockUnit: formData.get('stockUnit') || 'pcs',

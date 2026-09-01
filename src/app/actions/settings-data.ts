@@ -20,7 +20,11 @@ export async function getPrivacySettings(): Promise<PrivacySettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.privacy_settings;
     if (custom && typeof custom === 'object') {
       return custom as unknown as PrivacySettings;
@@ -46,14 +50,18 @@ export async function updatePrivacySettings(payload: PrivacySettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, privacy_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/privacy');

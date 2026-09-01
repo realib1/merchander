@@ -84,9 +84,9 @@ export function ProductFlyerModal({ isOpen, onClose, product }: ProductFlyerModa
   };
 
   const handleWhatsAppShare = () => {
-    const text = `🛍️ *${product.name}*\n💰 Price: ${formatCurrency(product.price)}\n${
-      isPreorder ? '⏳ *Pre-Order Item*' : `✓ *${dynamicStockText}*`
-    }\n${product.description ? `📝 ${product.description.slice(0, 100)}\n` : ''}\n👉 View & order here:\n${fullShareUrl}`;
+    const text = `*${product.name}*\nPrice: ${formatCurrency(product.price)}\n${
+      isPreorder ? '*Pre-Order Item*' : `*${dynamicStockText}*`
+    }\n${product.description ? `${product.description.slice(0, 100)}\n` : ''}\nView & order here:\n${fullShareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 

@@ -84,9 +84,9 @@ export async function updateBusinessProfile(formData: FormData) {
     if (updateTenantError) throw updateTenantError;
 
     // Update Brand Color, Contact, Currency and Address
-    const { error: updateSettingsError } = await supabase
-      .from('tenant_settings')
-      .update({
+    const { error: updateSettingsError } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
         trading_name: tradingName || null,
         industry: industry || null,
         tax_id: taxId || null,
@@ -99,8 +99,10 @@ export async function updateBusinessProfile(formData: FormData) {
         business_state: businessState || null,
         business_zip: businessZip || null,
         business_country: businessCountry || null,
-      })
-      .eq('tenant_id', tenantId);
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (updateSettingsError) throw updateSettingsError;
 

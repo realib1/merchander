@@ -62,25 +62,25 @@ export function getDefaultQuickReplies(storeName = 'Our Store'): QuickReplyTempl
   return [
     {
       id: 'qr-1',
-      title: '📦 Send Product Catalog',
+      title: 'Send Product Catalog',
       text: `Hello from ${storeName}! You can browse our full live collection, check available sizes, and place your order directly on our storefront link here: https://merchander.app/store`,
       category: 'catalog',
     },
     {
       id: 'qr-2',
-      title: '📱 Request MoMo Reference',
+      title: 'Request MoMo Reference',
       text: `Thank you for your order! Please send payment to our official merchant MoMo line and reply with your transaction ID / screenshot so we can dispatch immediately.`,
       category: 'payment',
     },
     {
       id: 'qr-3',
-      title: '🚚 Accra Delivery Rates',
+      title: 'Accra Delivery Rates',
       text: `Delivery within Greater Accra is GHS 25 - GHS 35 depending on location (same-day delivery via dispatched riders). Deliveries outside Accra are sent via VIP / OA bus parcel.`,
       category: 'delivery',
     },
     {
       id: 'qr-4',
-      title: '🕒 Operating Hours',
+      title: 'Operating Hours',
       text: `Hello from ${storeName}! Our customer service team is active Monday to Saturday from 8:00 AM to 8:00 PM. Our automated assistant can capture your order anytime!`,
       category: 'greeting',
     },

@@ -68,11 +68,11 @@ export function OrderDetailsSheet({
       .map((it) => `• ${it.quantity}x ${it.variant?.product?.name || 'Product'} (${it.variant?.name || 'Standard'})`)
       .join('\n');
 
-    const msg = `🧾 *Order Receipt #${order.short_id || order.id.substring(0, 8).toUpperCase()}*\nHello ${
+    const msg = `*Order Receipt #${order.short_id || order.id.substring(0, 8).toUpperCase()}*\nHello ${
       order.customer.name || 'valued customer'
-    },\n\nHere is your order summary:\n${itemsText}\n\n💰 *Total Paid:* ${formatCurrency(
+    },\n\nHere is your order summary:\n${itemsText}\n\n*Total Paid:* ${formatCurrency(
       order.total_amount || 0
-    )}\n📍 *Delivery:* ${order.delivery_address || 'Standard Delivery'}\n\nThank you for shopping with us!`;
+    )}\n*Delivery:* ${order.delivery_address || 'Standard Delivery'}\n\nThank you for shopping with us!`;
 
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   };

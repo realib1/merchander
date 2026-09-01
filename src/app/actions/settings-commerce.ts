@@ -77,7 +77,7 @@ export async function getOrderSettings(): Promise<OrderSettings> {
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
     const [settingsRes, ordersCountRes] = await Promise.all([
-      supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single(),
+      supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).maybeSingle(),
       supabase.from('orders').select('*', { count: 'exact', head: true }).eq('tenant_id', tenantId),
     ]);
 
@@ -172,14 +172,18 @@ export async function updateOrderSettings(payload: OrderSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, order_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/orders');
@@ -195,7 +199,14 @@ const DEFAULT_INVENTORY: InventorySettings = {
   trackInventoryByDefault: true,
   enableLowStockAlerts: true,
   lowStockThreshold: 5,
-  autoGenerateSkus: false,
+  autoGenerateSkus: true,
+  skuSettings: {
+    autoGenerate: true,
+    style: 'initials',
+    prefix: 'SKU',
+    includeVariantName: true,
+    nextNumber: 1,
+  },
 };
 
 const DEFAULT_PAYMENTS: PaymentSettings = {
@@ -259,13 +270,19 @@ export async function getInventorySettings(): Promise<InventorySettings> {
       .from('tenant_settings')
       .select('low_stock_threshold, settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
 
     const custom = (data?.settings_data as Record<string, unknown> | null)?.inventory_settings;
     if (custom && typeof custom === 'object') {
+      const customInv = custom as unknown as InventorySettings;
       return {
-        ...(custom as unknown as InventorySettings),
-        lowStockThreshold: Number(data?.low_stock_threshold) || (custom as InventorySettings).lowStockThreshold || 5,
+        ...DEFAULT_INVENTORY,
+        ...customInv,
+        lowStockThreshold: Number(data?.low_stock_threshold) || customInv.lowStockThreshold || 5,
+        skuSettings: {
+          ...DEFAULT_INVENTORY.skuSettings!,
+          ...(customInv.skuSettings || {}),
+        },
       };
     }
     if (data?.low_stock_threshold) {
@@ -292,17 +309,19 @@ export async function updateInventorySettings(payload: InventorySettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, inventory_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
         low_stock_threshold: payload.lowStockThreshold,
         settings_data: updatedData,
-      })
-      .eq('tenant_id', tenantId);
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/inventory');
@@ -326,7 +345,7 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
       .from('tenant_settings')
       .select('store_currency, settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
 
     const currentCurrency = data?.store_currency || 'GHS';
     const raw = (data?.settings_data as Record<string, unknown> | null)?.payment_settings as
@@ -425,17 +444,19 @@ export async function updatePaymentSettings(payload: PaymentSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, payment_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
         store_currency: payload.currency || 'GHS',
         settings_data: updatedData,
-      })
-      .eq('tenant_id', tenantId);
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/payments');

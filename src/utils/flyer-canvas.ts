@@ -109,7 +109,7 @@ export async function exportFlyerToPng(options: FlyerCanvasOptions): Promise<voi
   ctx.font = '600 16px sans-serif';
   ctx.fillStyle = isPreorder ? '#9333ea' : isOutOfStock ? '#dc2626' : '#16a34a';
   ctx.fillText(
-    isPreorder ? '⏳ Available for Pre-Order' : isOutOfStock ? '✕ Out of Stock' : `✓ ${dynamicStockText}`,
+    isPreorder ? 'Available for Pre-Order' : isOutOfStock ? 'Out of Stock' : dynamicStockText,
     width / 2,
     490
   );

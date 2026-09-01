@@ -52,7 +52,7 @@ export async function getSupplierSettings(): Promise<SupplierSettings> {
       .from('tenant_settings')
       .select('settings_data, store_email')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.supplier_settings as
       Partial<SupplierSettings> | undefined;
 
@@ -88,14 +88,18 @@ export async function updateSupplierSettings(payload: SupplierSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, supplier_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/suppliers');
@@ -115,7 +119,11 @@ export async function getShipmentSettings(): Promise<ShipmentSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.shipment_settings;
     if (custom && typeof custom === 'object') {
       return custom as unknown as ShipmentSettings;
@@ -141,14 +149,18 @@ export async function updateShipmentSettings(payload: ShipmentSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, shipment_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/shipments');
@@ -168,7 +180,11 @@ export async function getFulfillmentSettings(): Promise<FulfillmentSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.fulfillment_settings;
     if (custom && typeof custom === 'object') {
       return custom as unknown as FulfillmentSettings;
@@ -194,14 +210,18 @@ export async function updateFulfillmentSettings(payload: FulfillmentSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, fulfillment_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/fulfillment');

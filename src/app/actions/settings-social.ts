@@ -61,7 +61,11 @@ export async function getChannelSettings(): Promise<ChannelSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.channel_settings as
       Record<string, unknown> | undefined;
     if (custom && typeof custom === 'object') {
@@ -128,14 +132,18 @@ export async function updateChannelSettings(payload: ChannelSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, channel_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/channels');
@@ -155,7 +163,11 @@ export async function getConversationSettings(): Promise<ConversationSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.conversation_settings;
     if (custom && typeof custom === 'object') {
       return custom as unknown as ConversationSettings;
@@ -181,14 +193,18 @@ export async function updateConversationSettings(payload: ConversationSettings) 
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, conversation_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/conversations');
@@ -208,7 +224,11 @@ export async function getAutomationSettings(): Promise<AutomationSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.automation_settings;
     if (custom && typeof custom === 'object') {
       return custom as unknown as AutomationSettings;
@@ -234,14 +254,18 @@ export async function updateAutomationSettings(payload: AutomationSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, automation_settings: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
     revalidatePath('/dashboard/settings/automation');

@@ -177,10 +177,10 @@ export function BatchFormModal({ isOpen, onClose, batch, availableProducts }: Ba
                 onChange={(e) => setFreightMode(e.target.value as PreorderFreightMode)}
                 className="w-full text-xs rounded-lg bg-surface border border-separator px-2.5 py-1.5 text-foreground"
               >
-                <option value="sea">🚢 Sea Freight (~6-8 wks)</option>
-                <option value="air">✈️ Air Cargo (~1-2 wks)</option>
-                <option value="express">⚡ Express Air (~3-5 days)</option>
-                <option value="road">🚛 Road Cargo</option>
+                <option value="sea">Sea Freight (~6-8 wks)</option>
+                <option value="air">Air Cargo (~1-2 wks)</option>
+                <option value="express">Express Air (~3-5 days)</option>
+                <option value="road">Road Cargo</option>
               </select>
             </div>
           </div>

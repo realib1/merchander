@@ -148,20 +148,154 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
             </div>
           </div>
         </CardHeader>
-        <CardBody className="pt-0">
+        <CardBody className="space-y-4 pt-0">
           <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
             <div className="space-y-0.5">
-              <p className="text-xs font-semibold text-foreground">Auto-generate SKUs on Product Creation</p>
+              <p className="text-xs font-semibold text-foreground">Auto-generate SKUs for Products & Variants</p>
               <p className="text-[11px] text-muted">
-                Automatically generate sequential SKUs based on category code and variant attributes.
+                Automatically generate readable, structured SKUs when creating products or adding variations.
               </p>
             </div>
             <Switch
-              checked={Boolean(settings.autoGenerateSkus)}
-              onCheckedChange={(c: boolean) => setSettings((s) => ({ ...s, autoGenerateSkus: c }))}
+              checked={Boolean(settings.autoGenerateSkus || settings.skuSettings?.autoGenerate)}
+              onCheckedChange={(c: boolean) =>
+                setSettings((s) => ({
+                  ...s,
+                  autoGenerateSkus: c,
+                  skuSettings: {
+                    autoGenerate: c,
+                    style: s.skuSettings?.style || 'initials',
+                    prefix: s.skuSettings?.prefix || 'SKU',
+                    includeVariantName: s.skuSettings?.includeVariantName ?? true,
+                    nextNumber: s.skuSettings?.nextNumber || 1,
+                  },
+                }))
+              }
               aria-label="Auto-generate SKUs"
             />
           </div>
+
+          {(settings.autoGenerateSkus || settings.skuSettings?.autoGenerate) && (
+            <div className="space-y-4 p-4 rounded-xl border border-separator bg-surface-elevated/20">
+              {/* Generation Style */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-foreground">SKU Generation Style</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {[
+                    {
+                      id: 'initials' as const,
+                      title: 'Product Initials',
+                      desc: 'e.g. Air Jordan Low -> AJL-01',
+                    },
+                    {
+                      id: 'prefix' as const,
+                      title: 'Custom Prefix',
+                      desc: 'e.g. Custom prefix -> SKU-01',
+                    },
+                    {
+                      id: 'category_initials' as const,
+                      title: 'Category + Initials',
+                      desc: 'e.g. Shoes Air Jordan -> SH-AJL-01',
+                    },
+                  ].map((styleOpt) => {
+                    const currentStyle = settings.skuSettings?.style || 'initials';
+                    const isSelected = currentStyle === styleOpt.id;
+                    return (
+                      <button
+                        key={styleOpt.id}
+                        type="button"
+                        onClick={() =>
+                          setSettings((s) => ({
+                            ...s,
+                            skuSettings: {
+                              autoGenerate: true,
+                              style: styleOpt.id,
+                              prefix: s.skuSettings?.prefix || 'SKU',
+                              includeVariantName: s.skuSettings?.includeVariantName ?? true,
+                              nextNumber: s.skuSettings?.nextNumber || 1,
+                            },
+                          }))
+                        }
+                        className={`p-3 text-left rounded-xl border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-brand-primary bg-brand-primary/10 ring-1 ring-brand-primary'
+                            : 'border-separator bg-surface hover:border-brand-primary/50'
+                        }`}
+                      >
+                        <p className="text-xs font-bold text-foreground">{styleOpt.title}</p>
+                        <p className="text-[11px] text-muted mt-0.5">{styleOpt.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom Prefix Field */}
+              {settings.skuSettings?.style === 'prefix' && (
+                <FormField
+                  label="Custom SKU Prefix"
+                  type="text"
+                  value={settings.skuSettings?.prefix || 'SKU'}
+                  onChange={(e) =>
+                    setSettings((s) => ({
+                      ...s,
+                      skuSettings: {
+                        ...(s.skuSettings || {
+                          autoGenerate: true,
+                          style: 'prefix',
+                          includeVariantName: true,
+                          nextNumber: 1,
+                        }),
+                        prefix: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''),
+                      },
+                    }))
+                  }
+                  hint="Prefix to prepend to sequential numbers (e.g. SKU, PRD, MER)."
+                />
+              )}
+
+              {/* Include Variant Option */}
+              <div className="flex items-center justify-between gap-4 p-3 rounded-lg border border-separator bg-surface">
+                <div className="space-y-0.5">
+                  <p className="text-xs font-medium text-foreground">Include Variant Name in SKU</p>
+                  <p className="text-[11px] text-muted">
+                    Appends color/size codes (e.g. <span className="font-mono">AJL-BLK-L-01</span> instead of{' '}
+                    <span className="font-mono">AJL-01</span>).
+                  </p>
+                </div>
+                <Switch
+                  checked={settings.skuSettings?.includeVariantName ?? true}
+                  onCheckedChange={(c: boolean) =>
+                    setSettings((s) => ({
+                      ...s,
+                      skuSettings: {
+                        ...(s.skuSettings || {
+                          autoGenerate: true,
+                          style: 'initials',
+                          prefix: 'SKU',
+                          nextNumber: 1,
+                        }),
+                        includeVariantName: c,
+                      },
+                    }))
+                  }
+                  aria-label="Include variant in SKU"
+                />
+              </div>
+
+              {/* Live Preview */}
+              <div className="p-3 rounded-xl bg-surface border border-separator flex items-center justify-between gap-3">
+                <span className="text-xs text-muted">SKU Example Preview:</span>
+                <span className="font-mono text-xs font-bold text-brand-primary px-2.5 py-1 rounded-md bg-brand-primary/10 border border-brand-primary/20">
+                  {settings.skuSettings?.style === 'prefix'
+                    ? `${settings.skuSettings.prefix || 'SKU'}${settings.skuSettings.includeVariantName ? '-RED-L' : ''}-01`
+                    : settings.skuSettings?.style === 'category_initials'
+                      ? `CAT-PRD${settings.skuSettings?.includeVariantName ? '-RED-L' : ''}-01`
+                      : `PRD${settings.skuSettings?.includeVariantName ? '-RED-L' : ''}-01`}
+                </span>
+              </div>
+            </div>
+          )}
         </CardBody>
       </Card>
 

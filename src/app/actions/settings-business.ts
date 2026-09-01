@@ -36,7 +36,11 @@ export async function getBusinessHours(): Promise<BusinessHoursSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.business_hours;
     if (custom && typeof custom === 'object') {
       return custom as unknown as BusinessHoursSettings;
@@ -64,14 +68,18 @@ export async function updateBusinessHours(payload: BusinessHoursSettings) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, business_hours: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
 
@@ -93,7 +101,11 @@ export async function getNotificationSettings(): Promise<NotificationSettings> {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const { data } = await supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).single();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.notifications;
     if (custom && typeof custom === 'object') {
       return custom as unknown as NotificationSettings;
@@ -121,14 +133,18 @@ export async function updateNotificationSettings(payload: NotificationSettings) 
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
     const updatedData = { ...currentData, notifications: payload };
 
-    const { error } = await supabase
-      .from('tenant_settings')
-      .update({ settings_data: updatedData })
-      .eq('tenant_id', tenantId);
+    const { error } = await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
+        settings_data: updatedData,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     if (error) throw error;
 

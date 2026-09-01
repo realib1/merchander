@@ -119,12 +119,23 @@ export interface OrderSettings {
   abandonedSendAfterHours?: number;
 }
 
+export type SkuGenerationStyle = 'initials' | 'prefix' | 'category_initials';
+
+export interface SkuSettings {
+  autoGenerate: boolean;
+  style: SkuGenerationStyle;
+  prefix: string;
+  includeVariantName: boolean;
+  nextNumber: number;
+}
+
 export interface InventorySettings {
   stopSellingWhenOutOfStock: boolean;
   trackInventoryByDefault: boolean;
   enableLowStockAlerts: boolean;
   lowStockThreshold: number;
   autoGenerateSkus: boolean;
+  skuSettings?: SkuSettings;
 }
 
 export interface PaymentMethodOptions {

@@ -156,9 +156,10 @@ export function StorefrontLivePreview({
         </div>
 
         {/* Status bar */}
-        <div className="py-1.5 px-3 bg-surface-elevated border-t border-separator/40 text-center">
-          <span className="text-[9px] font-semibold text-muted">
-            {isActive ? '🟢 Storefront is Active' : '🔴 Storefront is Offline'}
+        <div className="py-1.5 px-3 bg-surface-elevated border-t border-separator/40 text-center flex items-center justify-center gap-1.5">
+          <span className={`h-2 w-2 rounded-full ${isActive ? 'bg-success' : 'bg-danger'}`} />
+          <span className="text-[10px] font-semibold text-muted">
+            {isActive ? 'Storefront is Active' : 'Storefront is Offline'}
           </span>
         </div>
       </div>

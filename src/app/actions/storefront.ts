@@ -164,7 +164,7 @@ export async function updateStorefrontConfig(formData: FormData) {
       .from('tenant_settings')
       .select('settings_data')
       .eq('tenant_id', tenantId)
-      .single();
+      .maybeSingle();
 
     const currentSettingsData = (existingSettings?.settings_data as Record<string, unknown>) || {};
     const updatedSettingsData = {
@@ -189,17 +189,19 @@ export async function updateStorefrontConfig(formData: FormData) {
 
     // 2. Update tenants & tenant_settings
     await supabase.from('tenants').update({ name: val.storeName }).eq('id', tenantId);
-    await supabase
-      .from('tenant_settings')
-      .update({
+    await supabase.from('tenant_settings').upsert(
+      {
+        tenant_id: tenantId,
         trading_name: val.storeName,
         store_currency: val.currency,
         logo_url: val.logoUrl || null,
         brand_primary_color: val.primaryColor || '#3b82f6',
         brand_secondary_color: val.secondaryColor || '#1e40af',
         settings_data: updatedSettingsData,
-      })
-      .eq('tenant_id', tenantId);
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'tenant_id' }
+    );
 
     // 3. Upsert storefront_settings preserving featured_product_ids and banner_url
     const { data: existingSf } = await supabase

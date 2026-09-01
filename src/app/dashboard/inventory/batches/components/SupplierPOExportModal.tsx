@@ -33,7 +33,7 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
   const handleCopyText = () => {
     if (!summary) return;
     const lines = [
-      `📦 SUPPLIER PURCHASE ORDER: ${batch.name} (${batch.code})`,
+      `SUPPLIER PURCHASE ORDER: ${batch.name} (${batch.code})`,
       `Total Pieces: ${summary.totalUnits} | Total Customer Orders: ${summary.totalOrders}`,
       `Cutoff: ${batch.closes_at.slice(0, 10)} | Expected Arrival: ${batch.expected_arrival_start} to ${batch.expected_arrival_end}`,
       `------------------------------------------`,
