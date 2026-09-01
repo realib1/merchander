@@ -33,6 +33,12 @@ export function StoreNavbar({
 
   return (
     <header className="sticky top-0 z-40 w-full bg-surface/90 backdrop-blur-md border-b border-separator/80 transition-all shadow-xs">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-surface focus:text-foreground focus:top-0 focus:left-0 focus:outline-none focus:ring-2 focus:ring-brand-primary"
+      >
+        Skip to main content
+      </a>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4">
         {/* 1. Brand Identity */}
         <div className="flex items-center gap-6 min-w-0">

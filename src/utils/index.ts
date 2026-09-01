@@ -7,4 +7,4 @@ export {
   formatPhoneNumber,
   type FormatNumberOptions,
 } from './format';
-export { escapeHtml, sanitizeInput, slugify, truncate, sanitizeNumeric } from './sanitize';
+export { escapeHtml, sanitizeInput, slugify, truncate, sanitizeNumeric, sanitizeCssColor } from './sanitize';

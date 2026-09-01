@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { StorefrontCategory, StorefrontProduct } from '@/types/storefront';
 import { Search, X, ShoppingBag, ArrowRight, Package } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 
 interface StoreSearchModalProps {
   isOpen: boolean;
@@ -72,10 +73,13 @@ export function StoreSearchModal({
       .slice(0, 8);
   }, [products, query]);
 
+  const containerRef = useFocusTrap(isOpen);
+
   if (!isOpen) return null;
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 pt-16 sm:pt-20 animate-fadeIn"
       role="dialog"
       aria-modal="true"

@@ -18,12 +18,14 @@ const orderPayloadSchema = z.object({
   fulfillmentMode: z.enum(['delivery', 'pickup']).optional(),
   pickupStoreId: z.string().uuid().optional(),
   paymentMethod: z.enum(['whatsapp', 'mtn_momo', 'telecel_cash', 'cash_on_delivery', 'card']),
+  batchId: z.string().uuid().optional().nullable(),
   items: z
     .array(
       z.object({
         variantId: z.string().uuid(),
         quantity: z.number().int().positive('Quantity must be greater than 0'),
         unitPrice: z.number().nonnegative(),
+        batchId: z.string().uuid().optional().nullable(),
       })
     )
     .min(1, 'Cart cannot be empty'),
@@ -145,6 +147,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
         tenant_id: val.tenantId,
         store_id: storeId,
         customer_id: customerId,
+        batch_id: val.batchId || null,
         total_amount: totalAmount,
         status: val.paymentMethod === 'cash_on_delivery' ? 'pending_payment' : 'draft',
         sales_channel: 'storefront',
@@ -165,6 +168,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
     const orderItems = val.items.map((item) => ({
       order_id: order.id,
       variant_id: item.variantId,
+      batch_id: item.batchId || val.batchId || null,
       quantity: item.quantity,
       unit_price: item.unitPrice,
     }));

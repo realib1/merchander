@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { getInventory, getInventoryMetrics } from '@/app/actions/inventory-actions';
 import { InventoryPageClient } from './components/InventoryPageClient';
 import { InventoryTopMetrics } from './components/InventoryTopMetrics';
 import type { InventoryRowData } from './components/InventoryTable';
+import { Boxes, Layers } from 'lucide-react';
 
 export const metadata = {
   title: 'Inventory | Merchander',
@@ -62,8 +64,35 @@ export default async function InventoryPage({
   const statuses = ['All statuses', 'In stock', 'Low stock', 'Out of stock'];
 
   return (
-    <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full">
-      <h1 className="sr-only">Inventory Stock Levels</h1>
+    <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full pb-12">
+      {/* Header & Sub-Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/80 pb-4">
+        <div>
+          <h1 className="text-xl font-black text-foreground tracking-tight">Inventory &amp; Stock Levels</h1>
+          <p className="text-xs text-muted mt-0.5">
+            Monitor real-time warehouse inventory, low stock thresholds, and branch levels.
+          </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-elevated border border-separator/80">
+          <Link
+            href="/dashboard/inventory"
+            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-surface text-foreground shadow-2xs border border-separator/60 flex items-center gap-1.5"
+          >
+            <Boxes size={14} className="text-brand-primary" />
+            <span>Stock Levels</span>
+          </Link>
+          <Link
+            href="/dashboard/inventory/batches"
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition flex items-center gap-1.5"
+          >
+            <Layers size={14} />
+            <span>Pre-Order Batches</span>
+          </Link>
+        </div>
+      </div>
+
       <InventoryTopMetrics
         totalUnits={metrics.totalUnits}
         totalVariants={metrics.totalVariants}

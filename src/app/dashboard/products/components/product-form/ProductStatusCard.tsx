@@ -66,6 +66,22 @@ export function ProductStatusCard({
               <option value="tbd">TBD (Calculated on Arrival)</option>
             </select>
             <p className="text-xs text-muted mt-1.5">If TBD, customer pays shipping fee when goods arrive.</p>
+
+            <div className="mt-3 p-2.5 rounded-lg bg-surface-elevated border border-separator text-xs space-y-1">
+              <p className="font-semibold text-foreground">Pre-Order Procurement Batch</p>
+              <p className="text-muted">
+                Assign this product to an active batch in{' '}
+                <a
+                  href="/dashboard/inventory/batches"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-primary font-bold hover:underline inline-flex items-center gap-0.5"
+                >
+                  Pre-Order Batches
+                </a>{' '}
+                to display live closing countdowns and arrival windows.
+              </p>
+            </div>
           </div>
         )}
       </CardBody>

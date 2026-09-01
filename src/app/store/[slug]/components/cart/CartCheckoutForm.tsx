@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CreditCard, MessageCircle, Loader2, Truck, Store, MapPin, Navigation } from 'lucide-react';
+import { CreditCard, MessageCircle, Loader2, Truck, Store, MapPin, Navigation, Clock } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 
 export interface PickupBranchOption {
@@ -27,6 +27,7 @@ interface CartCheckoutFormProps {
   subtotal: number;
   currency: string;
   primaryColor?: string;
+  batchNames?: string[];
   isPending: boolean;
   onCustomerNameChange: (val: string) => void;
   onCustomerPhoneChange: (val: string) => void;
@@ -53,6 +54,7 @@ export function CartCheckoutForm({
   subtotal,
   currency,
   primaryColor = '#3b82f6',
+  batchNames = [],
   isPending,
   onCustomerNameChange,
   onCustomerPhoneChange,
@@ -234,6 +236,19 @@ export function CartCheckoutForm({
           </div>
         </div>
       </div>
+
+      {/* Pre-Order Batch Notice */}
+      {batchNames.length > 0 && (
+        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2.5">
+          <Clock size={15} className="shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="font-bold">You are joining: {batchNames.join(', ')}</p>
+            <p className="text-[11px] opacity-85 mt-0.5">
+              Goods will be procured from supplier when the batch closes. Delivery begins upon cargo arrival.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Itemized Cost Breakdown */}
       <div className="p-3.5 rounded-2xl bg-surface-elevated/70 border border-separator/80 space-y-2 text-xs">

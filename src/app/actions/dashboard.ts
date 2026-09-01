@@ -184,35 +184,42 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
   // Process low stock data and compute velocity (sales in last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const lowStockList = await Promise.all(
-    ((lowStockData as unknown as RawLowStockItem[]) || []).map(async (ls) => {
+  // Extract variant IDs for bulk sales query
+  const variantIds = ((lowStockData as unknown as RawLowStockItem[]) || [])
+    .map((ls) => {
       const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
-      const prod = variant?.products
-        ? Array.isArray(variant.products)
-          ? variant.products[0]
-          : variant.products
-        : null;
-
-      // Compute velocity dynamically for this variant
-      const { data: salesData } = await supabase
-        .from('order_items')
-        .select('quantity, orders!inner(created_at, status)')
-        .eq('variant_id', variant?.id)
-        .gte('orders.created_at', thirtyDaysAgo)
-        .in('orders.status', ['paid', 'dispatched', 'delivered']);
-
-      const totalSoldLast30Days = (salesData || []).reduce((acc, item) => acc + (item.quantity || 0), 0);
-      const avgWeeklySales = Math.max(1, Math.round(totalSoldLast30Days / 4.33)); // 4.33 weeks in a month
-
-      return {
-        id: variant?.id || 'unknown',
-        name: prod?.name || 'Unknown Product',
-        size: variant?.name || 'Default',
-        remaining: ls.quantity,
-        avgWeeklySales,
-      };
+      return variant?.id;
     })
-  );
+    .filter(Boolean) as string[];
+
+  let salesDataBatch: { variant_id: string; quantity: number }[] = [];
+  if (variantIds.length > 0) {
+    const { data } = await supabase
+      .from('order_items')
+      .select('variant_id, quantity, orders!inner(created_at, status)')
+      .in('variant_id', variantIds)
+      .gte('orders.created_at', thirtyDaysAgo)
+      .in('orders.status', ['paid', 'dispatched', 'delivered']);
+    salesDataBatch = data || [];
+  }
+
+  const lowStockList = ((lowStockData as unknown as RawLowStockItem[]) || []).map((ls) => {
+    const variant = Array.isArray(ls.product_variants) ? ls.product_variants[0] : ls.product_variants;
+    const prod = variant?.products ? (Array.isArray(variant.products) ? variant.products[0] : variant.products) : null;
+
+    const variantId = variant?.id;
+    const variantSales = salesDataBatch.filter((item) => item.variant_id === variantId);
+    const totalSoldLast30Days = variantSales.reduce((acc, item) => acc + (item.quantity || 0), 0);
+    const avgWeeklySales = Math.max(1, Math.round(totalSoldLast30Days / 4.33)); // 4.33 weeks in a month
+
+    return {
+      id: variantId || 'unknown',
+      name: prod?.name || 'Unknown Product',
+      size: variant?.name || 'Default',
+      remaining: ls.quantity,
+      avgWeeklySales,
+    };
+  });
 
   interface RawSupplierBalance {
     id: string;

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { StorefrontCategory, StorefrontConfig } from '@/types/storefront';
 import { getBusinessInitials } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 import {
   X,
   ShoppingBag,
@@ -36,6 +37,7 @@ export function StoreMenuDrawer({
   onOpenWishlist,
 }: StoreMenuDrawerProps) {
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
+  const containerRef = useFocusTrap(isOpen);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,6 +71,7 @@ export function StoreMenuDrawer({
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-start animate-fadeIn"
       onClick={onClose}
       role="dialog"

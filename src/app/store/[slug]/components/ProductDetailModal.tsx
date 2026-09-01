@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { StorefrontCartItem, StorefrontProduct } from '@/types/storefront';
 import { formatCurrency, slugify } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 import { X, Plus, Minus, ShoppingBag, ShoppingCart, Check, MessageCircle, ArrowRight } from 'lucide-react';
 
 interface ProductDetailModalProps {
@@ -27,6 +28,7 @@ export function ProductDetailModal({
   const [selectedVariantId, setSelectedVariantId] = useState<string>(product?.variants[0]?.id || '');
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const containerRef = useFocusTrap(!!product);
 
   if (!product) return null;
 
@@ -65,8 +67,18 @@ export function ProductDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-surface border border-separator rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleUp custom-scrollbar">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Product Details"
+    >
+      <div
+        className="bg-surface border border-separator rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleUp custom-scrollbar"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header Image */}
         <div className="relative h-72 sm:h-80 w-full bg-surface-elevated overflow-hidden flex items-center justify-center p-3 sm:p-4">
           {product.image_url ? (

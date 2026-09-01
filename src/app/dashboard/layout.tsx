@@ -5,7 +5,7 @@ import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
 import { MobileNavProvider } from './components/MobileNavContext';
 import { getUnreadNotifications } from '@/app/actions/notifications';
-
+import { sanitizeCssColor } from '@/utils';
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const {
@@ -78,8 +78,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     ]);
 
     if (settingsRes.data) {
-      brandPrimaryColor = settingsRes.data.brand_primary_color;
-      brandSecondaryColor = settingsRes.data.brand_secondary_color;
+      brandPrimaryColor = sanitizeCssColor(settingsRes.data.brand_primary_color || '');
+      brandSecondaryColor = sanitizeCssColor(settingsRes.data.brand_secondary_color || '');
       const custom = settingsRes.data.settings_data as Record<string, unknown> | null;
       if (custom?.logo_url) {
         businessLogoUrl = custom.logo_url as string;

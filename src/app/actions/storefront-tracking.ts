@@ -85,10 +85,15 @@ export async function getStorefrontOrderTracking({
       .select(
         `
         id, short_id, status, total_amount, delivery_address, notes, created_at, updated_at,
-        customer_id,
+        customer_id, batch_id,
         customers (id, name, phone),
+        preorder_batches (
+          id, name, code, status, opens_at, closes_at, supplier_order_date,
+          expected_arrival_start, expected_arrival_end, actual_arrival_date,
+          freight_mode, origin_country, cargo_tracking_number, max_capacity, min_moq_target
+        ),
         order_items (
-          id, variant_id, quantity, unit_price,
+          id, variant_id, quantity, unit_price, batch_id,
           product_variants (
             id, name,
             products (id, name, image_urls)
@@ -216,6 +221,7 @@ export async function getStorefrontOrderTracking({
       updatedAt: orderData.updated_at,
       customerName: orderCustomer?.name || 'Customer',
       customerPhone: orderCustomer?.phone || '',
+      batch: (orderData.preorder_batches as unknown as import('@/types/preorder').PreorderBatch) || null,
       items,
       waybill,
     };

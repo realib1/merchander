@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { X, Copy, Check, MessageCircle, Share2, QrCode } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 
 interface ProductShareModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function ProductShareModal({
 }: ProductShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const containerRef = useFocusTrap(isOpen);
 
   if (!isOpen) return null;
 
@@ -48,6 +50,7 @@ export function ProductShareModal({
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-50 overflow-y-auto"
       role="dialog"
       aria-modal="true"

@@ -28,7 +28,7 @@ export function calculateCartTotals(cart: StorefrontCartItem[]): { subtotal: num
 export function formatWhatsAppOrderMessage(
   config: StorefrontConfig,
   cart: StorefrontCartItem[],
-  customer: { name: string; phone: string; address?: string; notes?: string }
+  customer: { name: string; phone: string; address?: string; notes?: string; fulfillmentMode?: 'delivery' | 'pickup' }
 ): string {
   const { subtotal } = calculateCartTotals(cart);
   const currency = config.currency || 'GHS';
@@ -40,8 +40,12 @@ export function formatWhatsAppOrderMessage(
     `📞 *Phone:* ${customer.phone}`,
   ];
 
+  if (customer.fulfillmentMode) {
+    lines.push(`🚚 *Fulfillment:* ${customer.fulfillmentMode === 'pickup' ? 'Store Pickup' : 'Doorstep Delivery'}`);
+  }
+
   if (customer.address) {
-    lines.push(`📍 *Delivery Address:* ${customer.address}`);
+    lines.push(`📍 *Address / Branch:* ${customer.address}`);
   }
 
   if (customer.notes) {

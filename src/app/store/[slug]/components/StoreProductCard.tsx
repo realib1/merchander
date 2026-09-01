@@ -68,7 +68,7 @@ export function StoreProductCard({
           )}
           {isPreOrder && (
             <span className="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-bold shadow-xs">
-              Pre-Order
+              {product.active_batch ? `Pre-Order • ${product.active_batch.name || 'Batch'}` : 'Pre-Order'}
             </span>
           )}
           {!isPreOrder && (isOutOfStock || product.availability_status === 'OUT_OF_STOCK') && (

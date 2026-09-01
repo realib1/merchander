@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X, Send, MessageCircle, Bot, ShoppingBag } from 'lucide-react';
 import { StorefrontProduct, StorefrontConfig } from '@/types/storefront';
 import { formatCurrency } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 
 interface Message {
   id: string;
@@ -42,6 +43,8 @@ export function ProductInquiryDrawer({
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const msgCounterRef = useRef(1);
+
+  const containerRef = useFocusTrap(isOpen);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -113,6 +116,7 @@ export function ProductInquiryDrawer({
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-50 overflow-hidden"
       role="dialog"
       aria-modal="true"

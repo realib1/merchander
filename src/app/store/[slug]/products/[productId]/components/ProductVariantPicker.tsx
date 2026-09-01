@@ -118,7 +118,13 @@ export function ProductVariantPicker({
             className="w-full py-3.5 px-4 rounded-2xl text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             style={{ backgroundColor: primaryColor }}
           >
-            <span>Buy Now</span>
+            <span>
+              {product.active_batch
+                ? `Join ${product.active_batch.name || 'Batch'}`
+                : product.availability_status === 'PRE_ORDER'
+                  ? 'Pre-Order Now'
+                  : 'Buy Now'}
+            </span>
           </button>
         </div>
 

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X, Trash2, ShoppingBag, Heart, Smartphone, Loader2, CheckCircle2 } from 'lucide-react';
 import { StorefrontProduct } from '@/types/storefront';
 import { formatCurrency } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 
 interface StoreWishlistDrawerProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ export function StoreWishlistDrawer({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [syncMessage, setSyncMessage] = useState('');
+
+  const containerRef = useFocusTrap(isOpen);
 
   if (!isOpen) return null;
 
@@ -65,6 +68,7 @@ export function StoreWishlistDrawer({
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-0 z-50 overflow-hidden"
       role="dialog"
       aria-modal="true"

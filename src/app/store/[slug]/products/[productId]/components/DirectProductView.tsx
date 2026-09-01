@@ -14,6 +14,7 @@ import { StoreMenuDrawer } from '@/app/store/[slug]/components/StoreMenuDrawer';
 import { StoreNavbar } from '@/app/store/[slug]/components/StoreNavbar';
 import { ProductImageGallery } from './ProductImageGallery';
 import { ProductHeaderInfo } from './ProductHeaderInfo';
+import { ProductBatchInfoCard } from './ProductBatchInfoCard';
 import { ProductVariantPicker } from './ProductVariantPicker';
 import { ProductSpecsSection } from './ProductSpecsSection';
 import { ProductRelatedRow } from './ProductRelatedRow';
@@ -62,13 +63,13 @@ export function DirectProductView({ config, product, relatedProducts, slug }: Di
     });
   };
 
-  const isSelectedOutOfStock = selectedVariant
-    ? (selectedVariant.stock_quantity ?? 0) <= 0
-    : (product.total_stock ?? 0) <= 0;
-  const isAvailable = !isSelectedOutOfStock;
+  const isPreOrder = product.availability_status === 'PRE_ORDER' || Boolean(product.active_batch);
+  const isSelectedOutOfStock =
+    !isPreOrder && (selectedVariant ? (selectedVariant.stock_quantity ?? 0) <= 0 : (product.total_stock ?? 0) <= 0);
+  const isAvailable = isPreOrder || !isSelectedOutOfStock;
 
   const handleAddToCart = (openDrawer = true) => {
-    if (!selectedVariant || isSelectedOutOfStock) return;
+    if (!selectedVariant || (!isPreOrder && isSelectedOutOfStock)) return;
 
     updateCart((prev) => {
       const existing = prev.find((item) => item.variantId === selectedVariant.id);
@@ -88,6 +89,8 @@ export function DirectProductView({ config, product, relatedProducts, slug }: Di
           quantity,
           imageUrl: product.image_url,
           sku: selectedVariant.sku,
+          batchId: product.active_batch?.id || null,
+          batchName: product.active_batch?.name || null,
         },
       ];
     });
@@ -132,7 +135,7 @@ export function DirectProductView({ config, product, relatedProducts, slug }: Di
           onOpenTracking={() => router.push(`/store/${slug}/orders`)}
         />
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-12">
+        <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-12">
           {/* Main 2-Column Product Detail Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
             <ProductImageGallery
@@ -148,6 +151,10 @@ export function DirectProductView({ config, product, relatedProducts, slug }: Di
                 primaryColor={primaryColor}
                 currency={currency}
               />
+
+              {product.active_batch && (
+                <ProductBatchInfoCard batch={product.active_batch} primaryColor={primaryColor} />
+              )}
 
               <ProductVariantPicker
                 config={config}

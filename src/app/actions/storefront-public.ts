@@ -79,6 +79,14 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
           `
           id, name, description, category_id, specifications, image_urls, availability_status, preorder_shipping_mode,
           category:product_categories(id, name),
+          product_preorder_batches (
+            is_active,
+            preorder_batches (
+              id, name, code, status, opens_at, closes_at, supplier_order_date,
+              expected_arrival_start, expected_arrival_end, actual_arrival_date,
+              freight_mode, origin_country, cargo_tracking_number, max_capacity, min_moq_target
+            )
+          ),
           variants:product_variants(id, sku, name, price, cost_price, compare_at_price, inventory:inventory_levels(quantity))
         `
         )
@@ -205,6 +213,12 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         ? p.category[0]?.name || 'General'
         : (p.category as { name?: string } | null)?.name || 'General';
 
+      const activeBatchRel = Array.isArray(p.product_preorder_batches)
+        ? p.product_preorder_batches.find((pb: { is_active?: boolean }) => pb.is_active !== false)
+        : p.product_preorder_batches;
+      const activeBatch =
+        (activeBatchRel?.preorder_batches as unknown as import('@/types/preorder').PreorderBatch) || null;
+
       return {
         id: p.id,
         name: p.name,
@@ -222,6 +236,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         availability_status: p.availability_status || 'AVAILABLE',
         preorder_shipping_mode: p.preorder_shipping_mode || 'included',
         specifications: (p.specifications as Array<{ key: string; value: string }>) || [],
+        active_batch: activeBatch,
         variants,
       };
     });

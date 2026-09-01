@@ -1,3 +1,5 @@
+import { PreorderBatch } from './preorder';
+
 export type DomainVerificationStatus = 'valid' | 'pending' | 'invalid';
 
 export interface CustomDomainConfig {
@@ -70,6 +72,7 @@ export interface StorefrontProduct {
   availability_status?: 'AVAILABLE' | 'PRE_ORDER' | 'OUT_OF_STOCK' | string;
   preorder_shipping_mode?: 'included' | 'tbd' | string | null;
   specifications?: Array<{ key: string; value: string }>;
+  active_batch?: PreorderBatch | null;
   variants: StorefrontProductVariant[];
 }
 
@@ -94,6 +97,8 @@ export interface StorefrontCartItem {
   quantity: number;
   imageUrl: string | null;
   sku?: string | null;
+  batchId?: string | null;
+  batchName?: string | null;
 }
 
 export interface StoreOrderPayload {
@@ -107,10 +112,12 @@ export interface StoreOrderPayload {
   fulfillmentMode?: 'delivery' | 'pickup';
   pickupStoreId?: string;
   paymentMethod: 'whatsapp' | 'mtn_momo' | 'telecel_cash' | 'cash_on_delivery' | 'card';
+  batchId?: string | null;
   items: Array<{
     variantId: string;
     quantity: number;
     unitPrice: number;
+    batchId?: string | null;
   }>;
 }
 
@@ -149,6 +156,7 @@ export interface StorefrontTrackingOrder {
   updatedAt: string;
   customerName: string;
   customerPhone: string;
+  batch?: PreorderBatch | null;
   items: StorefrontTrackingItem[];
   waybill?: {
     courierName: string;

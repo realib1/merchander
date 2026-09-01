@@ -93,3 +93,18 @@ export function sanitizeNumeric(value: string | number, fallback: number = 0): n
   const parsed = parseFloat(cleaned);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
+
+/**
+ * Sanitizes a CSS color string to prevent CSS injection.
+ * Allows hex, rgb, rgba, hsl, hsla, and alphanumeric color names.
+ *
+ * @param color - Raw color string.
+ * @returns Cleaned color string or empty if invalid.
+ */
+export function sanitizeCssColor(color: string): string {
+  if (!color) return '';
+  // Allow hex, rgb/rgba, hsl/hsla, and standard CSS color names
+  // Blocks semicolons, braces, quotes, etc.
+  const cleaned = color.trim().replace(/[^a-zA-Z0-9#,().%\s]/g, '');
+  return cleaned;
+}

@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { X, Search, Package, Clock, CheckCircle2, Truck, Loader2, MessageCircle, AlertCircle } from 'lucide-react';
 import { lookupCustomerOrder, CustomerOrderLookupResult } from '@/app/actions/storefront-tracking';
 import { formatCurrency } from '@/utils/format';
+import { useFocusTrap } from '@/hooks';
 
 interface StoreOrderTrackingModalProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ export function StoreOrderTrackingModal({
   const [order, setOrder] = useState<CustomerOrderLookupResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const containerRef = useFocusTrap(isOpen);
 
   if (!isOpen) return null;
 
@@ -73,7 +76,13 @@ export function StoreOrderTrackingModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Track Your Order"
+    >
       <div className="bg-surface border border-separator rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-scaleUp">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-separator/80">

@@ -165,7 +165,7 @@ export function OrderTrackingView({
               </div>
             </div>
 
-            <TrackingTimeline status={order.status} primaryColor={primaryColor} />
+            <TrackingTimeline status={order.status} batch={order.batch} primaryColor={primaryColor} />
 
             <TrackingSummaryCards order={order} currency={currency} primaryColor={primaryColor} />
           </div>

@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useTransition } from 'react';
 import { StorefrontCartItem, StorefrontConfig, StoreOrderResponse } from '@/types/storefront';
-import { calculateCartTotals, formatWhatsAppOrderMessage, createWhatsAppOrderLink } from '@/utils/storefront';
+import { calculateCartTotals, formatWhatsAppOrderMessage } from '@/utils/storefront';
 import { submitStorefrontOrder } from '@/app/actions/storefront-order';
 import { getPublicStorefrontBranches } from '@/app/actions/branches';
 import { initiateOrderOnlinePayment } from '@/app/actions/payments-online';
 import { X, ShoppingBag, AlertCircle } from 'lucide-react';
+import { useFocusTrap } from '@/hooks';
 import { CartItemRow } from './cart/CartItemRow';
 import { CartCheckoutForm, PickupBranchOption } from './cart/CartCheckoutForm';
 import { CartSuccessView } from './cart/CartSuccessView';
@@ -43,6 +44,8 @@ export function StoreCartDrawer({
   const [orderSuccess, setOrderSuccess] = useState<StoreOrderResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const containerRef = useFocusTrap(isOpen);
+
   useEffect(() => {
     if (config?.slug) {
       getPublicStorefrontBranches(config.slug).then((branches) => {
@@ -59,6 +62,8 @@ export function StoreCartDrawer({
   const { subtotal, itemCount } = calculateCartTotals(cart);
   const currency = config.currency || 'GHS';
   const primaryColor = config.primary_color || '#3b82f6';
+  const batchNames = Array.from(new Set(cart.map((i) => i.batchName).filter(Boolean))) as string[];
+  const primaryBatchId = cart.find((i) => i.batchId)?.batchId || null;
 
   const selectedBranch = pickupBranches.find((b) => b.id === selectedBranchId) || pickupBranches[0];
   const formattedDeliveryAddress = [
@@ -84,32 +89,16 @@ export function StoreCartDrawer({
       phone: customerPhone,
       address: finalAddress,
       notes: deliveryNotes,
+      fulfillmentMode,
     });
 
-    const targetPhone = config.whatsapp_phone || '+233241234567';
-    const waLink = createWhatsAppOrderLink(targetPhone, message);
+    const whatsappNumber = config.whatsapp_phone?.replace(/[^0-9]/g, '');
+    if (!whatsappNumber) {
+      setErrorMsg('Merchant WhatsApp contact is not available right now.');
+      return;
+    }
 
-    startTransition(async () => {
-      await submitStorefrontOrder({
-        tenantId: config.tenant_id,
-        tenantSlug: config.slug,
-        customerName,
-        customerPhone,
-        deliveryAddress: finalAddress,
-        deliveryNotes,
-        fulfillmentMode,
-        pickupStoreId: fulfillmentMode === 'pickup' ? selectedBranch?.id : undefined,
-        paymentMethod: 'whatsapp',
-        items: cart.map((i) => ({
-          variantId: i.variantId,
-          quantity: i.quantity,
-          unitPrice: i.price,
-        })),
-      });
-      onClearCart();
-      window.open(waLink, '_blank');
-      onClose();
-    });
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleDirectCheckout = (e: React.FormEvent) => {
@@ -131,8 +120,10 @@ export function StoreCartDrawer({
         fulfillmentMode,
         pickupStoreId: fulfillmentMode === 'pickup' ? selectedBranch?.id : undefined,
         paymentMethod,
+        batchId: primaryBatchId,
         items: cart.map((i) => ({
           variantId: i.variantId,
+          batchId: i.batchId || null,
           quantity: i.quantity,
           unitPrice: i.price,
         })),
@@ -165,7 +156,13 @@ export function StoreCartDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Shopping Cart"
+    >
       <div className="w-full max-w-md bg-surface border-l border-separator h-full flex flex-col shadow-2xl animate-slideLeft">
         {/* Header */}
         <div className="p-4 border-b border-separator flex items-center justify-between">
@@ -243,6 +240,7 @@ export function StoreCartDrawer({
                 subtotal={subtotal}
                 currency={currency}
                 primaryColor={primaryColor}
+                batchNames={batchNames}
                 isPending={isPending}
                 onCustomerNameChange={setCustomerName}
                 onCustomerPhoneChange={setCustomerPhone}
