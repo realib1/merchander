@@ -46,33 +46,44 @@
 
 ## Next
 
-> Immediate operational priority (not a build-plan item): finish the in-flight
-> ad-hoc fix `fix/platform-authorization-seed-hardening` - tracked in
-> `blueprint/context/current-feature.md` and `blueprint/context/findings.md`,
-> pending `/audit` re-review and `/complete`. Do this before starting feature 16.
+> **Framing:** Merchander does not rebuild the chat inbox. Conversations happen
+> natively on the social channels (WhatsApp, Instagram, ...). Merchander connects
+> its Intelligence to those channels to understand what is happening and decide
+> what to say or do - and when - grounded in the merchant's real catalog,
+> inventory, orders, pre-orders and customers, under Green / Yellow / Red action
+> controls with human handoff. The merchant's touchpoint is an approval &
+> exceptions queue, not an in-app chat client.
 
-- [ ] 16. **Conversational message ingestion** - receive inbound messages from a
-  connected channel through the existing webhook routes, normalize them, and
-  surface them in the dashboard conversations view
-- [ ] 17. **Human-in-the-loop assist** - GREEN / YELLOW / RED action classes:
-  auto-reply, staff-approval queue, human-only; wire the conversations UI to it
-- [ ] 18. **Product Q&A and availability replies** - answer catalog and stock
-  questions from a conversation, backed by real catalog data
-- [ ] 19. **Conversation-to-order capture** - turn an agreed cart in a
-  conversation into a draft order (replaces the `extractCartFromChat` stub)
-- [ ] 20. **Intelligence service** - stand up the Python/FastAPI + queue service
-  the PRD describes; move extraction / multimodal search off the stub
-- [ ] 21. **Official WhatsApp Cloud API adapter** - Meta Tech Provider
-  integration: verified sender, template messages, media, delivery receipts
+- [ ] 16. **Official WhatsApp Cloud API connector** - Meta Tech Provider
+  integration on the merchant's existing business number: verified sender,
+  inbound + outbound messages, template messages, media, delivery receipts,
+  human-takeover coexistence. Includes normalizing inbound channel events into a
+  common model and resolving a channel identity to a `customer` via reliable
+  signals only (verified phone, explicit confirmation) - unresolved profile when
+  unknown, never a forced merge.
+- [ ] 17. **Merchander Intelligence service** - stand up the Python/FastAPI +
+  queue service the PRD describes; move extraction / grounded reasoning /
+  multimodal off the `src/lib/intelligence/extract.ts` and
+  `src/app/actions/conversations.ts` stubs.
+- [ ] 18. **Grounded product Q&A and availability replies** - answer price /
+  variant / stock / pre-order-ETA / order-status questions from real merchant
+  data, never fabricated; the reply is sent back out on the originating channel.
+- [ ] 19. **Green / Yellow / Red action safety and human handoff** - classify
+  every AI action: Green auto-send, Yellow to a merchant approval queue, Red
+  human-only; escalate on uncertainty rather than fabricate. The merchant
+  touchpoint is an approval & exceptions queue in the dashboard, not a chat view.
+- [ ] 20. **Conversation-to-order capture** - turn an agreed cart from a channel
+  exchange into a draft order against real inventory and pricing; Yellow-gated.
+  Replaces the `extractCartFromChat` stub.
+- [ ] 21. **Proactive customer outreach** - the Intelligence decides when to
+  message a customer and sends via the channel: payment reminders, pre-order
+  batch milestones, back-in-stock, delivery updates. Respects Green / Yellow /
+  Red and the notification-volume limits.
 - [ ] 22. **Live payment links & confirmations** - customer-facing payment links,
-  automated payment confirmation, payment reminders
+  automated payment confirmation, payment reminders, beyond record-first.
 - [ ] 23. **Fulfilment & delivery** - delivery zones, pickup, rider assignment
-  and tracking
+  and tracking.
 - [ ] 24. **Demand & supplier intelligence** - demand forecasting, restock
-  recommendations, supplier performance scoring
+  recommendations, supplier performance scoring.
 - [ ] 25. **Deployment readiness** - Vercel config, env var review, production
-  build + smoke-test path (`/release vercel`)
-
-> TODO (confirm): ordering of 16-25 is inferred from the PRD roadmap phases and
-> recent commit direction. Reorder to match your actual priorities before
-> spec'ing feature 16.
+  build + smoke-test path (`/release vercel`).

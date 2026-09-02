@@ -69,11 +69,16 @@ Already shipped (see `build-plan.md` for the checked list):
 
 Not yet built (roadmap - see `build-plan.md`):
 
-- Real conversational-commerce intelligence (currently a stub) and the
-  Python/FastAPI intelligence service
-- Official WhatsApp Cloud API and other channel adapters (webhook route stubs
-  exist; message ingestion, product Q&A, order capture, human-in-the-loop
-  GREEN/YELLOW/RED escalation do not)
+- Official channel connectors, WhatsApp Cloud API first, on the merchant's
+  existing business number - inbound/outbound messages, templates, media,
+  delivery receipts, human-takeover coexistence (webhook route stubs exist today)
+- Merchander Intelligence service (Python/FastAPI + queue): grounded reasoning
+  and multimodal, replacing the `src/lib/intelligence/extract.ts` stub
+- AI that acts *on the channel* - grounded product Q&A, conversation-to-order
+  capture, and proactively-timed outreach (payment reminders, pre-order
+  milestones, back-in-stock) - under Green/Yellow/Red safety with a merchant
+  approval & exceptions queue. Not an in-app chat inbox; the conversation stays
+  on the social channel where the customer already is.
 - Live payment provider integration (customer payment links, automated
   confirmations, reminders) beyond record-first
 - Fulfilment / delivery integrations (zones, pickup, rider tracking)

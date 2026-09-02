@@ -1,6 +1,6 @@
 # Merchander - Project Overview
 
-<!-- blueprint:source-hash bbf95c3ea84a74bd917bde85d09120bc0e9cc1a7d404f75ac6ceaa6dc836a927 -->
+<!-- blueprint:source-hash 344b474c458a9bf459b4e6cb0817d9e7c067f9ce1ac4abdca0a5ce99a1de6a2a -->
 
 > A social-commerce operating system that connects the supply side and sales side
 > of Ghanaian import/resale businesses into one operational system.
@@ -37,7 +37,11 @@ escrowed).
 
 Build-plan order. Items 1-15 are shipped; 16-25 are the roadmap. The headline
 capability is turning fragmented social-commerce operations into one connected
-system; the current build frontier is **conversational commerce** (16-19).
+system. The current build frontier is the **Intelligence layer acting on the
+social channels** (16-21): Merchander does not rebuild a chat inbox - the
+conversation stays on WhatsApp/IG where the customer already is - it connects
+its Intelligence to the channel to decide what to say or do, and when, grounded
+in real commerce data, under Green/Yellow/Red controls with human handoff.
 
 1. **Multi-tenant workspace & auth** - tenant registration, Supabase Auth, MFA +
    backup codes, tenant roles/permissions, `tenant_id` + RLS isolation.
@@ -73,18 +77,29 @@ system; the current build frontier is **conversational commerce** (16-19).
 15. **Platform / Superadmin console** - merchants, single-merchant context,
     revenue, plans & billing, domains, system health/incidents, communications,
     audit logs, staff RBAC, cross-tenant support inbox.
-16. **Conversational message ingestion** - receive inbound channel messages via
-    the webhook routes, normalize, surface in the conversations view.
-17. **Human-in-the-loop assist** - GREEN/YELLOW/RED action classes (auto,
-    approval queue, human-only) wired to the conversations UI.
-18. **Product Q&A and availability replies** - answer catalog/stock questions
-    from a conversation, backed by real catalog data.
-19. **Conversation-to-order capture** - turn an agreed cart in a conversation
-    into a draft order (replaces the `extractCartFromChat` stub).
-20. **Intelligence service** - stand up the Python/FastAPI + queue service; move
-    extraction / multimodal search off the stub.
-21. **Official WhatsApp Cloud API adapter** - Meta Tech Provider integration:
-    verified sender, templates, media, delivery receipts.
+16. **Official WhatsApp Cloud API connector** - Meta Tech Provider on the
+    merchant's existing business number: verified sender, inbound + outbound,
+    templates, media, delivery receipts, human-takeover coexistence. Normalizes
+    inbound events into a common model and resolves a channel identity to a
+    `customer` via reliable signals only (no forced merges).
+17. **Merchander Intelligence service** - stand up the Python/FastAPI + queue
+    service; move extraction / grounded reasoning / multimodal off the
+    `src/lib/intelligence/extract.ts` and `src/app/actions/conversations.ts`
+    stubs.
+18. **Grounded product Q&A and availability replies** - answer price / variant /
+    stock / pre-order-ETA / order-status questions from real merchant data,
+    never fabricated; reply is sent back on the originating channel.
+19. **Green/Yellow/Red action safety and human handoff** - Green auto-send,
+    Yellow to a merchant approval queue, Red human-only; escalate on
+    uncertainty. Merchant touchpoint is an approval & exceptions queue, not a
+    chat view.
+20. **Conversation-to-order capture** - turn an agreed cart from a channel
+    exchange into a draft order against real inventory/pricing; Yellow-gated.
+    Replaces the `extractCartFromChat` stub.
+21. **Proactive customer outreach** - the Intelligence decides when to message a
+    customer and sends via the channel: payment reminders, pre-order batch
+    milestones, back-in-stock, delivery updates. Respects Green/Yellow/Red and
+    notification-volume limits.
 22. **Live payment links & confirmations** - customer payment links, automated
     confirmation, reminders.
 23. **Fulfilment & delivery** - zones, pickup, rider assignment and tracking.
@@ -223,8 +238,9 @@ locked - later features build on them.
 - **recharts** (charts), **xlsx** (export), **date-fns**.
 - **Yarn 4**, ESLint 9, Prettier, **Vitest** (pure `src/utils` logic only),
   Husky pre-commit (lint + typecheck).
-- **Planned, not in repo:** Python/FastAPI + Celery/Redis intelligence service;
-  official channel adapters (features 20-21).
+- **Planned, not in repo:** Python/FastAPI + Celery/Redis Merchander Intelligence
+  service (feature 17); official channel connectors, WhatsApp Cloud API first
+  (feature 16).
 
 ## Monetization
 
@@ -278,11 +294,13 @@ Main routes:
 
 > - Package manager: `package-lock.json` still present alongside `yarn.lock`;
 >   yarn is canonical and the npm lockfile should be removed.
-> - Features 16-25 ordering is inferred from the PRD roadmap and recent commit
->   direction; confirm priority before spec'ing feature 16.
 > - Pricing model: tiered subscription is built; usage/hybrid was only floated.
-> - Intelligence service and channel adapters (20-21) are "in scope, not yet
->   built" - confirm they live in this repo vs a sibling repo.
+> - The Merchander Intelligence service (feature 17) is "in scope, not yet
+>   built" - confirm whether it lives in this repo or a sibling repo.
+> - A `/dashboard/conversations` scaffold ships today but is derived from order
+>   data, not real messages. The 16-21 rework reframes it as an approval &
+>   exceptions queue rather than a chat client; confirm the shipped view is
+>   reworked, not kept as-is.
 > - `tenant_settings.settings_data` still carries legacy embedded
 >   `support_tickets`; the Help hub and platform support inbox read from there.
 >   Whether to normalize into a real `support_tickets` table is undecided.
