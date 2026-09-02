@@ -35,8 +35,12 @@ export interface PlatformTenantStore {
   is_primary?: boolean;
 }
 
+/** `none` means the tenant has no `tenant_subscriptions` row at all - an
+ *  operational gap to surface, not a tier to silently default. */
+export type PlatformTier = 'none' | 'free' | 'starter' | 'growth' | 'business' | 'enterprise';
+
 export interface PlatformTenantSubscription {
-  tier: 'free' | 'starter' | 'growth' | 'business' | 'enterprise';
+  tier: PlatformTier;
   billingCycle: 'monthly' | 'annual';
   status: 'active' | 'past_due' | 'canceled' | 'trialing';
   priceMonthly: number;
@@ -63,7 +67,6 @@ export interface PlatformTenant {
   orderCount: number;
   totalGmv: number;
   connectedChannels?: string[];
-  connectedProviders?: string[];
   customDomain?: string | null;
   supportTicketCount?: number;
   lastActivityAt?: string;
@@ -82,20 +85,9 @@ export interface PlatformOverviewKPIs {
   totalGMV: number;
   platformMRR: number;
   projectedARR: number;
-  tierCounts: {
-    free: number;
-    starter: number;
-    growth: number;
-    business: number;
-    enterprise: number;
-  };
-  tierRevenue: {
-    free: number;
-    starter: number;
-    growth: number;
-    business: number;
-    enterprise: number;
-  };
+  tierCounts: Record<PlatformTier, number>;
+  tierRevenue: Record<PlatformTier, number>;
+  unprovisionedTenants: number;
   activeIntegrationsCount: number;
   integrationFailuresCount: number;
   openTicketsCount: number;
@@ -130,12 +122,15 @@ export interface PlatformPlan {
   updated_at: string;
 }
 
+/**
+ * Every field here is derived from `tenant_subscriptions` rows. No billing
+ * provider is connected, so this is contracted revenue, never collected
+ * revenue. Net revenue, churn and historical series need a billing ledger and
+ * are deliberately absent rather than estimated.
+ */
 export interface PlatformRevenueMetrics {
-  grossPlatformRevenue: number;
-  subscriptionMRR: number;
+  contractedMRR: number;
   projectedARR: number;
-  netRevenueGHS: number;
-  churnRatePercent: number;
   arpuGHS: number;
   failedBillingCount: number;
   revenueByPlan: Array<{
@@ -144,25 +139,19 @@ export interface PlatformRevenueMetrics {
     mrr: number;
     subscriberCount: number;
   }>;
-  revenueByPeriod: Array<{
-    period: string;
-    revenue: number;
-    subscribers: number;
-  }>;
 }
 
 
+/**
+ * What the merchant has configured. DNS and certificate state are not probed
+ * yet, so no status field exists here - see the Domains page notice.
+ */
 export interface DomainInfrastructureItem {
   id: string;
   tenantId: string;
   tenantName: string;
   domain: string;
   type: 'subdomain' | 'custom';
-  dnsStatus: 'verified' | 'pending' | 'failed';
-  sslStatus: 'active' | 'provisioning' | 'expired';
-  targetHost: string;
-  sslExpiresAt?: string;
-  lastVerifiedAt: string;
 }
 
 

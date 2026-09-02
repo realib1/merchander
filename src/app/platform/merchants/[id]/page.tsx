@@ -7,7 +7,6 @@ import {
   Network,
   CreditCard,
   CheckCircle2,
-  Activity,
   History,
   Store,
   Package,
@@ -120,8 +119,16 @@ export default async function MerchantContextPage({ params }: PageProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <MetricCard
           title="Plan Tier"
-          value={`${tenant.subscription.tier.toUpperCase()}`}
-          subtitle={`GH₵ ${tenant.subscription.priceMonthly}/mo • ${tenant.subscription.status}`}
+          value={
+            tenant.subscription.tier === 'none'
+              ? 'UNPROVISIONED'
+              : tenant.subscription.tier.toUpperCase()
+          }
+          subtitle={
+            tenant.subscription.tier === 'none'
+              ? 'No subscription record'
+              : `GH₵ ${tenant.subscription.priceMonthly}/mo • ${tenant.subscription.status}`
+          }
           icon={<CreditCard size={16} className="text-brand-primary" />}
           iconBg="bg-brand-primary/10"
         />
@@ -173,21 +180,16 @@ export default async function MerchantContextPage({ params }: PageProps) {
 
             <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-elevated border border-separator/40 text-xs">
               <div className="flex items-center gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-500" />
+                <CheckCircle2
+                  size={15}
+                  className={
+                    (tenant.connectedChannels || []).length > 0 ? 'text-emerald-500' : 'text-muted'
+                  }
+                />
                 <span className="font-semibold text-foreground">Active Channels</span>
               </div>
               <span className="text-muted">
-                {(tenant.connectedChannels || []).join(', ') || 'WhatsApp Cloud API'}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-elevated border border-separator/40 text-xs">
-              <div className="flex items-center gap-2.5">
-                <Activity size={15} className="text-blue-500" />
-                <span className="font-semibold text-foreground">Payment Connectors</span>
-              </div>
-              <span className="text-muted">
-                {(tenant.connectedProviders || []).join(', ') || 'Paystack MoMo, Hubtel'}
+                {(tenant.connectedChannels || []).join(', ') || 'None connected'}
               </span>
             </div>
           </div>

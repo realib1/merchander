@@ -1,6 +1,6 @@
 import React from 'react';
 import { getPlatformInfrastructureStatus } from '@/app/actions/platform';
-import { Database, Activity, HardDrive, ShieldCheck } from 'lucide-react';
+import { Database, Activity, ShieldCheck } from 'lucide-react';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { IncidentsManager } from './components/IncidentsManager';
 
@@ -10,6 +10,11 @@ export default async function SystemHealthPage() {
   const { incidents, systemMetrics, error } =
     await getPlatformInfrastructureStatus();
 
+  // Colour the latency reading off the measurement, not a fixed class.
+  const latencyMs = systemMetrics.queryRoundTripMs;
+  const latencyTone =
+    latencyMs < 300 ? 'text-emerald-500' : latencyMs < 1000 ? 'text-amber-500' : 'text-destructive';
+
   return (
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-8">
       {error && (
@@ -18,15 +23,14 @@ export default async function SystemHealthPage() {
         </div>
       )}
 
-      {/* 4 MetricCards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <MetricCard
-          title="Database Latency"
-          value={`${systemMetrics.dbPingMs} ms`}
-          subtitle="PostgreSQL Direct Probe"
-          subtitleColor="text-emerald-500"
-          icon={<Database size={16} className="text-emerald-500" />}
-          iconBg="bg-emerald-500/10"
+          title="Query Round-Trip"
+          value={`${latencyMs} ms`}
+          subtitle="4 platform queries via PostgREST"
+          subtitleColor={latencyTone}
+          icon={<Database size={16} className={latencyTone} />}
+          iconBg="bg-surface-elevated"
         />
 
         <MetricCard
@@ -43,14 +47,6 @@ export default async function SystemHealthPage() {
           subtitle="Tenants, products & orders"
           icon={<ShieldCheck size={16} className="text-purple-500" />}
           iconBg="bg-purple-500/10"
-        />
-
-        <MetricCard
-          title="Storage Allocated"
-          value={`${systemMetrics.storageUsageMb} MB`}
-          subtitle="Media, CDN & Assets"
-          icon={<HardDrive size={16} className="text-blue-500" />}
-          iconBg="bg-blue-500/10"
         />
       </div>
 

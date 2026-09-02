@@ -18,13 +18,17 @@ export default async function PlatformRevenuePage() {
 
   return (
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-8">
-      {/* 4 MetricCards */}
+      <div className="p-4 rounded-xl bg-surface-elevated border border-separator text-xs text-muted leading-relaxed">
+        Figures below are <span className="font-semibold text-foreground">contracted</span> subscription
+        value from <span className="font-mono">tenant_subscriptions</span>. No billing provider is
+        connected yet, so collected revenue, net revenue and churn are not available.
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <MetricCard
-          title="Monthly Recurring Revenue"
-          value={`GH₵ ${metrics.subscriptionMRR.toLocaleString()}`}
-          change={18.4}
-          periodText="last month"
+          title="Contracted MRR"
+          value={`GH₵ ${metrics.contractedMRR.toLocaleString()}`}
+          subtitle="Sum of active subscription prices"
           icon={<TrendingUp size={16} className="text-emerald-500" />}
           iconBg="bg-emerald-500/10"
         />
@@ -46,20 +50,21 @@ export default async function PlatformRevenuePage() {
         />
 
         <MetricCard
-          title="Subscription Churn"
-          value={`${metrics.churnRatePercent}%`}
-          subtitle="Benchmark < 5%"
-          subtitleColor="text-emerald-500"
+          title="Past Due Accounts"
+          value={metrics.failedBillingCount}
+          subtitle="Subscriptions flagged past_due"
           icon={<Users size={16} className="text-blue-500" />}
           iconBg="bg-blue-500/10"
         />
       </div>
 
-      {/* Revenue by Plan Tier & Period */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Tier breakdown */}
-        <div className="bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
-          <h2 className="text-base font-bold text-foreground">Revenue by Plan Tier</h2>
+      <div className="bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
+        <h2 className="text-base font-bold text-foreground">Contracted MRR by Plan</h2>
+        {metrics.revenueByPlan.length === 0 ? (
+          <p className="text-xs text-muted">
+            No plans configured. Add commercial tiers in Plans &amp; Billing to see the breakdown.
+          </p>
+        ) : (
           <div className="divide-y divide-separator/60">
             {metrics.revenueByPlan.map((tier) => (
               <div key={tier.planSlug} className="py-3 flex items-center justify-between text-xs">
@@ -68,32 +73,15 @@ export default async function PlatformRevenuePage() {
                   <div className="text-[11px] text-muted">{tier.subscriberCount} active subscribers</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-foreground">GH₵ {tier.mrr.toLocaleString()}</div>
-                  <div className="text-[11px] text-muted">MRR Contribution</div>
+                  <div className="font-bold text-foreground tabular-nums">
+                    GH₵ {tier.mrr.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-muted">MRR contribution</div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Historical periods */}
-        <div className="bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
-          <h2 className="text-base font-bold text-foreground">Monthly Billing Trajectory</h2>
-          <div className="divide-y divide-separator/60">
-            {metrics.revenueByPeriod.map((period) => (
-              <div key={period.period} className="py-3 flex items-center justify-between text-xs">
-                <div>
-                  <div className="font-semibold text-foreground">{period.period}</div>
-                  <div className="text-[11px] text-muted">{period.subscribers} paying stores</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-emerald-500">GH₵ {Math.round(period.revenue).toLocaleString()}</div>
-                  <div className="text-[11px] text-muted">Platform Income</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

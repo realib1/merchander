@@ -11,6 +11,7 @@ import {
   PlatformPlan,
   PlatformRevenueMetrics,
   DomainInfrastructureItem,
+  PlatformTier,
 } from '@/types/platform';
 import { SystemIncident, SupportAccessGrant } from '@/types/support';
 import { logPlatformAuditAction } from './platform-audit';
@@ -217,15 +218,17 @@ export async function getPlatformOverviewData(): Promise<{
     let suspendedTenantsCount = 0;
     let payingTenantsCount = 0;
 
-    const tierCounts = {
+    const tierCounts: Record<PlatformTier, number> = {
+      none: 0,
       free: 0,
       starter: 0,
       growth: 0,
       business: 0,
       enterprise: 0,
     };
-    
-    const tierRevenue = {
+
+    const tierRevenue: Record<PlatformTier, number> = {
+      none: 0,
       free: 0,
       starter: 0,
       growth: 0,
@@ -239,7 +242,8 @@ export async function getPlatformOverviewData(): Promise<{
       const customData = set?.customData || {};
       const sub = subscriptionsMap.get(t.id);
 
-      const tier = (sub?.tier || 'starter') as 'free' | 'starter' | 'growth' | 'business' | 'enterprise';
+      // No subscription row is a real state, not a Starter.
+      const tier: PlatformTier = sub?.tier ?? 'none';
       const cycle = (sub?.billing_cycle || 'monthly') as 'monthly' | 'annual';
       const subStatus = (sub?.status || 'active') as 'active' | 'past_due' | 'canceled' | 'trialing';
       const platformStatus = ((customData.platform_status as string) || 'active') as TenantPlatformStatus;
@@ -252,13 +256,8 @@ export async function getPlatformOverviewData(): Promise<{
       else if (platformStatus === 'past_due') pastDueTenantsCount++;
       else if (platformStatus === 'suspended') suspendedTenantsCount++;
 
-      if (tier in tierCounts) {
-        tierCounts[tier]++;
-        tierRevenue[tier] += priceMonthly;
-      } else {
-        tierCounts.starter++;
-        tierRevenue.starter += priceMonthly;
-      }
+      tierCounts[tier]++;
+      tierRevenue[tier] += priceMonthly;
 
       if (subStatus === 'active' && priceMonthly > 0) {
         totalMRR += priceMonthly;
@@ -266,7 +265,7 @@ export async function getPlatformOverviewData(): Promise<{
       }
 
       const storesList = Array.isArray(t.stores) ? t.stores : [];
-      const channels = channelMap.get(t.id) || ['WhatsApp'];
+      const channels = channelMap.get(t.id) || [];
 
       return {
         id: t.id,
@@ -290,7 +289,6 @@ export async function getPlatformOverviewData(): Promise<{
         orderCount: orderCountMap.get(t.id) || 0,
         totalGmv: gmvMap.get(t.id) || 0,
         connectedChannels: channels,
-        connectedProviders: ['Paystack MoMo', 'Hubtel'],
         customDomain: set?.customDomain || null,
       };
     });
@@ -312,6 +310,7 @@ export async function getPlatformOverviewData(): Promise<{
       projectedARR: totalMRR * 12,
       tierCounts,
       tierRevenue,
+      unprovisionedTenants: tierCounts.none,
       activeIntegrationsCount: (channelConnectionsRes.data || []).filter((c) => c.status === 'connected').length,
       integrationFailuresCount: (channelConnectionsRes.data || []).filter((c) => c.status === 'error').length,
       openTicketsCount,
@@ -339,8 +338,9 @@ export async function getPlatformOverviewData(): Promise<{
         totalGMV: 0,
         platformMRR: 0,
         projectedARR: 0,
-        tierCounts: { free: 0, starter: 0, growth: 0, business: 0, enterprise: 0 },
-        tierRevenue: { free: 0, starter: 0, growth: 0, business: 0, enterprise: 0 },
+        tierCounts: { none: 0, free: 0, starter: 0, growth: 0, business: 0, enterprise: 0 },
+        tierRevenue: { none: 0, free: 0, starter: 0, growth: 0, business: 0, enterprise: 0 },
+        unprovisionedTenants: 0,
         activeIntegrationsCount: 0,
         integrationFailuresCount: 0,
         openTicketsCount: 0,
@@ -453,7 +453,7 @@ export async function getMerchantContextAction(
       status: platformStatus,
       stores: Array.isArray(tenant.stores) ? tenant.stores : [],
       subscription: {
-        tier: (sub.tier as PlatformTenant['subscription']['tier']) || 'starter',
+        tier: (sub.tier as PlatformTier) ?? 'none',
         billingCycle: (sub.billing_cycle as 'monthly' | 'annual') || 'monthly',
         status: (sub.status as PlatformTenant['subscription']['status']) || 'active',
         priceMonthly: Number(sub.price_monthly || 0),
@@ -464,8 +464,7 @@ export async function getMerchantContextAction(
       orderCount: ordersRes.count || 0,
       totalGmv,
       customDomain: setting?.custom_domain || null,
-      connectedChannels: connectedChannels.length > 0 ? connectedChannels : ['WhatsApp'],
-      connectedProviders: ['Paystack MoMo', 'Hubtel'],
+      connectedChannels,
     };
 
     const auditTrail = (logsRes.data || []).map((l) => ({
@@ -544,76 +543,48 @@ export async function getPlatformRevenueMetricsAction(): Promise<{
 }> {
   try {
     await verifyPlatformStaff(['platform_owner', 'platform_admin', 'finance']);
-    const overview = await getPlatformOverviewData();
+    const adminSupabase = createAdminClient();
+
+    const [overview, plansRes] = await Promise.all([
+      getPlatformOverviewData(),
+      adminSupabase.from('platform_plans').select('slug, name, sort_order').order('sort_order', { ascending: false }),
+    ]);
     const kpis = overview.kpis;
 
-    const revenueByPlan = [
-      {
-        planSlug: 'enterprise',
-        planName: 'Enterprise Custom',
-        mrr: kpis.tierRevenue.enterprise,
-        subscriberCount: kpis.tierCounts.enterprise,
-      },
-      {
-        planSlug: 'business',
-        planName: 'Business Pro',
-        mrr: kpis.tierRevenue.business,
-        subscriberCount: kpis.tierCounts.business,
-      },
-      {
-        planSlug: 'growth',
-        planName: 'Growth Tier',
-        mrr: kpis.tierRevenue.growth,
-        subscriberCount: kpis.tierCounts.growth,
-      },
-      {
-        planSlug: 'starter',
-        planName: 'Starter Tier',
-        mrr: kpis.tierRevenue.starter,
-        subscriberCount: kpis.tierCounts.starter,
-      },
-      {
-        planSlug: 'free',
-        planName: 'Free Explorer',
-        mrr: kpis.tierRevenue.free,
-        subscriberCount: kpis.tierCounts.free,
-      },
-    ];
+    // Plan display names come from platform_plans; the console must not carry a
+    // second copy of the commercial catalogue.
+    const revenueByPlan = (plansRes.data || [])
+      .filter((p) => p.slug in kpis.tierRevenue)
+      .map((p) => {
+        const slug = p.slug as keyof typeof kpis.tierRevenue;
+        return {
+          planSlug: p.slug,
+          planName: p.name,
+          mrr: kpis.tierRevenue[slug],
+          subscriberCount: kpis.tierCounts[slug],
+        };
+      });
 
     const arpu = kpis.payingTenants > 0 ? Math.round(kpis.platformMRR / kpis.payingTenants) : 0;
 
     return {
       metrics: {
-        grossPlatformRevenue: kpis.platformMRR,
-        subscriptionMRR: kpis.platformMRR,
+        contractedMRR: kpis.platformMRR,
         projectedARR: kpis.projectedARR,
-        netRevenueGHS: Math.round(kpis.platformMRR * 0.975),
-        churnRatePercent: 0,
         arpuGHS: arpu,
         failedBillingCount: kpis.pastDueTenants,
         revenueByPlan,
-        revenueByPeriod: [
-          {
-            period: new Date().toLocaleString('default', { month: 'short', year: 'numeric' }),
-            revenue: kpis.platformMRR,
-            subscribers: kpis.payingTenants,
-          },
-        ],
       },
     };
   } catch (err) {
     console.error('Error fetching revenue metrics:', err);
     return {
       metrics: {
-        grossPlatformRevenue: 0,
-        subscriptionMRR: 0,
+        contractedMRR: 0,
         projectedARR: 0,
-        netRevenueGHS: 0,
-        churnRatePercent: 0,
         arpuGHS: 0,
         failedBillingCount: 0,
         revenueByPlan: [],
-        revenueByPeriod: [],
       },
       error: err instanceof Error ? err.message : 'Failed to fetch revenue metrics',
     };
@@ -654,10 +625,6 @@ export async function getDomainInfrastructureAction(): Promise<{
           tenantName: tName,
           domain: `${s.slug}.merchander.app`,
           type: 'subdomain',
-          dnsStatus: 'pending',
-          sslStatus: 'provisioning',
-          targetHost: 'cname.merchander.app',
-          lastVerifiedAt: new Date().toISOString(),
         });
       }
 
@@ -668,11 +635,6 @@ export async function getDomainInfrastructureAction(): Promise<{
           tenantName: tName,
           domain: s.custom_domain,
           type: 'custom',
-          dnsStatus: 'pending',
-          sslStatus: 'provisioning',
-          targetHost: 'custom.merchander.app',
-          sslExpiresAt: new Date(Date.now() + 80 * 24 * 60 * 60 * 1000).toISOString(),
-          lastVerifiedAt: new Date().toISOString(),
         });
       }
     });
@@ -699,11 +661,18 @@ export async function updateTenantPlanAction(
     const { user, role } = await verifyPlatformStaff(['platform_owner', 'platform_admin']);
     const adminSupabase = createAdminClient();
 
-    const price =
-      tier === 'enterprise' ? 1800 :
-      tier === 'business' ? 750 :
-      tier === 'growth' ? 350 :
-      tier === 'starter' ? 150 : 0;
+    // Price comes from platform_plans, never a second copy of the catalogue.
+    const { data: plan } = await adminSupabase
+      .from('platform_plans')
+      .select('price_ghs')
+      .eq('slug', tier)
+      .maybeSingle();
+
+    if (!plan) {
+      return { error: `No plan configured for tier "${tier}". Add it in Plans & Billing first.` };
+    }
+
+    const price = Number(plan.price_ghs);
     const renewalDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
     await adminSupabase.from('tenant_subscriptions').upsert(
@@ -797,10 +766,9 @@ export async function updateTenantStatusAction(
 export async function getPlatformInfrastructureStatus(): Promise<{
   incidents: SystemIncident[];
   systemMetrics: {
-    dbPingMs: number;
+    queryRoundTripMs: number;
     totalRowsEstimate: number;
     activeTenantsCount: number;
-    storageUsageMb: number;
   };
   error?: string;
 }> {
@@ -815,7 +783,8 @@ export async function getPlatformInfrastructureStatus(): Promise<{
       adminSupabase.from('orders').select('id', { count: 'exact', head: true }),
       adminSupabase.from('platform_incidents').select('*').order('created_at', { ascending: false }),
     ]);
-    const dbPingMs = Date.now() - startTime;
+    // Wall time of the four PostgREST round-trips above, not a direct DB probe.
+    const queryRoundTripMs = Date.now() - startTime;
 
     const totalRowsEstimate =
       (tenantsRes.count || 0) + (productsRes.count || 0) + (ordersRes.count || 0);
@@ -835,10 +804,9 @@ export async function getPlatformInfrastructureStatus(): Promise<{
     return {
       incidents: formattedIncidents,
       systemMetrics: {
-        dbPingMs,
+        queryRoundTripMs,
         totalRowsEstimate,
         activeTenantsCount: tenantsRes.count || 0,
-        storageUsageMb: Math.round((productsRes.count || 0) * 1.8 + 14),
       },
     };
   } catch (err) {
@@ -846,10 +814,9 @@ export async function getPlatformInfrastructureStatus(): Promise<{
     return {
       incidents: [],
       systemMetrics: {
-        dbPingMs: 0,
+        queryRoundTripMs: 0,
         totalRowsEstimate: 0,
         activeTenantsCount: 0,
-        storageUsageMb: 0,
       },
       error: err instanceof Error ? err.message : 'Failed to fetch infrastructure status',
     };
@@ -986,13 +953,20 @@ export async function provisionMerchantTenantAction(params: {
       },
     });
 
-    // 6. Create Subscription
+    // 6. Create Subscription — price from platform_plans, not a local matrix.
+    const provisionTier = params.tier || 'free';
+    const { data: provisionPlan } = await adminSupabase
+      .from('platform_plans')
+      .select('price_ghs')
+      .eq('slug', provisionTier)
+      .maybeSingle();
+
     await adminSupabase.from('tenant_subscriptions').insert({
       tenant_id: tenant.id,
-      tier: params.tier || 'free',
+      tier: provisionTier,
       billing_cycle: 'monthly',
       status: 'active',
-      price_monthly: params.tier === 'growth' ? 350 : params.tier === 'starter' ? 150 : 0,
+      price_monthly: Number(provisionPlan?.price_ghs ?? 0),
       renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     });
 

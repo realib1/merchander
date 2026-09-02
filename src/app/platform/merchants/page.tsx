@@ -1,11 +1,14 @@
 import React from 'react';
-import { getPlatformOverviewData } from '@/app/actions/platform';
+import { getPlatformOverviewData, getPlatformPlansAction } from '@/app/actions/platform';
 import { MerchantsClient } from './components/MerchantsClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function MerchantsPage() {
-  const { tenants, error } = await getPlatformOverviewData();
+  const [{ tenants, error }, { plans }] = await Promise.all([
+    getPlatformOverviewData(),
+    getPlatformPlansAction(),
+  ]);
 
   if (error) {
     return (
@@ -17,7 +20,7 @@ export default async function MerchantsPage() {
 
   return (
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-6">
-      <MerchantsClient initialTenants={tenants} />
+      <MerchantsClient initialTenants={tenants} plans={plans} />
     </div>
   );
 }

@@ -8,13 +8,24 @@ import {
   Network,
   ArrowRight,
 } from 'lucide-react';
-import { getPlatformOverviewData } from '@/app/actions/platform';
+import { getPlatformOverviewData, getPlatformPlansAction } from '@/app/actions/platform';
 import { MetricCard } from '@/components/ui/MetricCard';
 
 export const dynamic = 'force-dynamic';
 
+const TIER_DOT: Record<string, string> = {
+  enterprise: 'bg-purple-500',
+  business: 'bg-brand-primary',
+  growth: 'bg-blue-500',
+  starter: 'bg-emerald-500',
+  free: 'bg-muted',
+};
+
 export default async function PlatformOverviewPage() {
-  const { tenants, kpis, error } = await getPlatformOverviewData();
+  const [{ tenants, kpis, error }, { plans }] = await Promise.all([
+    getPlatformOverviewData(),
+    getPlatformPlansAction(),
+  ]);
 
   if (error) {
     return (
@@ -61,6 +72,16 @@ export default async function PlatformOverviewPage() {
       title: `${kpis.pastDueTenants} Billing Accounts Past Due`,
       description: 'Subscription billing renewals failed on connected payment rails.',
       actionLabel: 'Inspect Accounts',
+      actionHref: '/platform/merchants',
+    });
+  }
+
+  if (kpis.unprovisionedTenants > 0) {
+    attentionItems.push({
+      id: 'att-unprovisioned',
+      title: `${kpis.unprovisionedTenants} Merchants Without a Subscription`,
+      description: 'Workspaces with no tenant_subscriptions row — on no plan and contributing no MRR.',
+      actionLabel: 'Assign Plans',
       actionHref: '/platform/merchants',
     });
   }
@@ -154,28 +175,34 @@ export default async function PlatformOverviewPage() {
             </Link>
           </div>
 
-          <div className="space-y-2.5">
-            {[
-              { label: 'Enterprise Custom', count: kpis.tierCounts.enterprise, price: 'GH₵ 1,800/mo', color: 'bg-purple-500' },
-              { label: 'Business Pro', count: kpis.tierCounts.business, price: 'GH₵ 750/mo', color: 'bg-brand-primary' },
-              { label: 'Growth Tier', count: kpis.tierCounts.growth, price: 'GH₵ 350/mo', color: 'bg-blue-500' },
-              { label: 'Starter Tier', count: kpis.tierCounts.starter, price: 'GH₵ 150/mo', color: 'bg-emerald-500' },
-              { label: 'Free Explorer', count: kpis.tierCounts.free, price: 'GH₵ 0/mo', color: 'bg-muted' },
-            ].map((tier) => (
-              <div key={tier.label} className="flex items-center justify-between text-xs p-3 rounded-xl bg-surface-elevated border border-separator/40">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${tier.color}`} />
-                  <span className="font-medium text-foreground">{tier.label}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-muted">{tier.price}</span>
-                  <span className="px-2 py-0.5 rounded bg-surface border border-separator font-bold text-foreground tabular-nums">
-                    {tier.count}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {plans.length === 0 ? (
+            <p className="text-xs text-muted leading-relaxed">
+              No plans configured. Add commercial tiers in Plans &amp; Billing — pricing shown
+              across the console reads from that table.
+            </p>
+          ) : (
+            <div className="space-y-2.5">
+              {plans.map((plan) => {
+                const count = kpis.tierCounts[plan.slug as keyof typeof kpis.tierCounts] ?? 0;
+                return (
+                  <div key={plan.id} className="flex items-center justify-between text-xs p-3 rounded-xl bg-surface-elevated border border-separator/40">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${TIER_DOT[plan.slug] || 'bg-muted'}`} />
+                      <span className="font-medium text-foreground">{plan.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-muted tabular-nums">
+                        GH₵ {plan.price_ghs.toLocaleString()}/mo
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-surface border border-separator font-bold text-foreground tabular-nums">
+                        {count}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Real Merchants Snapshot */}
@@ -198,7 +225,8 @@ export default async function PlatformOverviewPage() {
                   <div className="min-w-0">
                     <div className="font-semibold text-foreground truncate">{tenant.name}</div>
                     <div className="text-[11px] text-muted truncate">
-                      {tenant.email || 'No email registered'} • {tenant.subscription.tier.toUpperCase()} • Joined {new Date(tenant.createdAt).toLocaleDateString()}
+                      {tenant.email || 'No email registered'} •{' '}
+                      {tenant.subscription.tier === 'none' ? 'UNPROVISIONED' : tenant.subscription.tier.toUpperCase()} • Joined {new Date(tenant.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>

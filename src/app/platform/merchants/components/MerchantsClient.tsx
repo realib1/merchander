@@ -16,14 +16,15 @@ import {
   CreditCard,
   AlertTriangle,
 } from 'lucide-react';
-import { PlatformTenant, TenantPlatformStatus } from '@/types/platform';
+import { PlatformTenant, PlatformPlan, TenantPlatformStatus } from '@/types/platform';
 import { updateTenantStatusAction, updateTenantPlanAction } from '@/app/actions/platform';
 
 interface MerchantsClientProps {
   initialTenants: PlatformTenant[];
+  plans: PlatformPlan[];
 }
 
-export function MerchantsClient({ initialTenants }: MerchantsClientProps) {
+export function MerchantsClient({ initialTenants, plans }: MerchantsClientProps) {
   const [tenants, setTenants] = useState<PlatformTenant[]>(initialTenants);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -70,7 +71,8 @@ export function MerchantsClient({ initialTenants }: MerchantsClientProps) {
 
   const handleOpenPlanModal = (tenant: PlatformTenant) => {
     setSelectedTenant(tenant);
-    setTargetTier(tenant.subscription.tier);
+    // 'none' means unprovisioned; the operator has to pick a real tier to assign.
+    setTargetTier(tenant.subscription.tier === 'none' ? 'free' : tenant.subscription.tier);
     setTargetCycle(tenant.subscription.billingCycle);
     setPlanReason('');
     setModalError(null);
@@ -178,11 +180,12 @@ export function MerchantsClient({ initialTenants }: MerchantsClientProps) {
               className="bg-transparent text-foreground text-xs focus:outline-hidden font-medium cursor-pointer"
             >
               <option value="all">All Tiers</option>
-              <option value="enterprise">Enterprise</option>
-              <option value="business">Business</option>
-              <option value="growth">Growth</option>
-              <option value="starter">Starter</option>
-              <option value="free">Free</option>
+              {plans.map((plan) => (
+                <option key={plan.id} value={plan.slug}>
+                  {plan.name}
+                </option>
+              ))}
+              <option value="none">Unprovisioned</option>
             </select>
           </div>
         </div>
@@ -268,8 +271,13 @@ export function MerchantsClient({ initialTenants }: MerchantsClientProps) {
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold capitalize border border-separator bg-surface-elevated hover:border-brand-primary transition-colors cursor-pointer"
                           title="Override Plan Tier"
                         >
-                          <CreditCard size={11} className="text-muted" />
-                          <span>{t.subscription.tier}</span>
+                          <CreditCard
+                            size={11}
+                            className={t.subscription.tier === 'none' ? 'text-amber-500' : 'text-muted'}
+                          />
+                          <span className={t.subscription.tier === 'none' ? 'text-amber-500' : undefined}>
+                            {t.subscription.tier === 'none' ? 'Unprovisioned' : t.subscription.tier}
+                          </span>
                         </button>
                       </td>
 
@@ -457,12 +465,17 @@ export function MerchantsClient({ initialTenants }: MerchantsClientProps) {
                     }
                     className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden font-medium capitalize"
                   >
-                    <option value="free">Free Explorer (GH₵ 0)</option>
-                    <option value="starter">Starter Tier (GH₵ 150)</option>
-                    <option value="growth">Growth Tier (GH₵ 350)</option>
-                    <option value="business">Business Pro (GH₵ 750)</option>
-                    <option value="enterprise">Enterprise Custom (GH₵ 1,800)</option>
+                    {plans.map((plan) => (
+                      <option key={plan.id} value={plan.slug}>
+                        {plan.name} (GH₵ {plan.price_ghs.toLocaleString()})
+                      </option>
+                    ))}
                   </select>
+                  {plans.length === 0 && (
+                    <p className="text-[11px] text-destructive">
+                      No plans configured — add commercial tiers in Plans &amp; Billing first.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
