@@ -1,15 +1,23 @@
--- 1. Create a dummy Auth User (Merchant)
--- Password is 'password123'
+-- Local-only demo accounts. This file runs solely on `supabase db reset` against
+-- the local stack; it is never applied to a linked/remote project. Do not move
+-- credential seeding into a migration (audit finding F-01).
+--   merchant@example.com   / password123  -> merchant, "Afia's Boutique" (/dashboard)
+--   admin@merchander.com   / admin123     -> platform_owner (/platform)
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token)
-values 
+values
 ('a1b2c3d4-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'merchant@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
-('f9e8d7c6-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'superadmin@merchander.com', crypt('superadmin123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"], "is_superadmin": true}', '{}', now(), now(), '', '', '', '');
+('f9e8d7c6-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@merchander.com', crypt('admin123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{"name":"Platform Owner","role":"platform_owner"}', now(), now(), '', '', '', '');
 
 -- 1b. Create matching auth.identities (required by GoTrue for signInWithPassword)
 insert into auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
 values
 ('a1b2c3d4-0000-0000-0000-000000000000', 'a1b2c3d4-0000-0000-0000-000000000000', '{"sub":"a1b2c3d4-0000-0000-0000-000000000000","email":"merchant@example.com"}', 'email', 'a1b2c3d4-0000-0000-0000-000000000000', now(), now(), now()),
-('f9e8d7c6-0000-0000-0000-000000000000', 'f9e8d7c6-0000-0000-0000-000000000000', '{"sub":"f9e8d7c6-0000-0000-0000-000000000000","email":"superadmin@merchander.com"}', 'email', 'f9e8d7c6-0000-0000-0000-000000000000', now(), now(), now());
+('f9e8d7c6-0000-0000-0000-000000000000', 'f9e8d7c6-0000-0000-0000-000000000000', '{"sub":"f9e8d7c6-0000-0000-0000-000000000000","email":"admin@merchander.com"}', 'email', 'f9e8d7c6-0000-0000-0000-000000000000', now(), now(), now());
+
+-- 1c. Link the platform admin into platform_staff_users (strict staff/merchant separation)
+insert into public.platform_staff_users (user_id, email, role, is_active, mfa_enabled)
+values ('f9e8d7c6-0000-0000-0000-000000000000', 'admin@merchander.com', 'platform_owner', true, false)
+on conflict (user_id) do update set role = 'platform_owner', is_active = true;
 
 -- 2. Create a Tenant
 insert into public.tenants (id, name)

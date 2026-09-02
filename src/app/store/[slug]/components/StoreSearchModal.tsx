@@ -95,7 +95,7 @@ export function StoreSearchModal({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products, categories, specs..."
-            className="w-full bg-transparent text-sm sm:text-base font-medium text-foreground placeholder:text-muted focus:outline-none"
+            className="w-full bg-transparent text-sm sm:text-base font-medium placeholder:text-muted focus:outline-none"
           />
           {query ? (
             <button

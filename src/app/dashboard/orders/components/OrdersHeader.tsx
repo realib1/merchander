@@ -36,10 +36,9 @@ export function OrdersHeader() {
     setIsMobileMenuOpen(false);
   };
 
-  const handleExport = () => {
-    // Simple stub for export
-    alert('Export functionality will generate a CSV of the current view.');
-  };
+  // const handleExport = () => {
+  //   alert('Export functionality will generate a CSV of the current view.');
+  // };
 
   const tabs = [
     { id: 'all', label: 'All' },
@@ -130,6 +129,7 @@ export function OrdersHeader() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 shrink-0">
+          {/* TODO: Implement CSV export and uncomment
           <button
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium  hover:bg-surface-elevated transition-colors"
@@ -151,6 +151,7 @@ export function OrdersHeader() {
             </svg>
             Export
           </button>
+          */}
 
           <div className="h-6 w-px bg-separator mx-1" />
 

@@ -17,9 +17,9 @@ export async function extractCartFromChat(message: NormalizedMessage): Promise<E
   // });
   // return await response.json();
 
-  // Simulated Stub Response for testing the commerce pipeline
+  // Return empty extraction until backend is wired up
   return {
-    items: [{ sku: 'FAKE-SKU-123', quantity: 1 }],
-    confidence: 0.85,
+    items: [],
+    confidence: 0,
   };
 }

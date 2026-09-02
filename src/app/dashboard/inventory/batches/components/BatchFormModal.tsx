@@ -214,7 +214,7 @@ export function BatchFormModal({ isOpen, onClose, batch, availableProducts }: Ba
               <label className="block font-bold text-foreground">
                 Assigned Catalog Products ({selectedProductIds.length} selected)
               </label>
-              <div className="max-h-28 overflow-y-auto p-2 rounded-xl bg-surface-elevated border border-separator divide-y divide-separator/40 custom-scrollbar">
+              <div className="max-h-28 overflow-y-auto p-2 rounded-xl bg-surface-elevated border divide-y divide-separator/40 custom-scrollbar">
                 {availableProducts.map((p) => (
                   <label
                     key={p.id}

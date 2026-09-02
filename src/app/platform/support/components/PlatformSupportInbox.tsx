@@ -2,17 +2,17 @@
 
 import React, { useState, useMemo, useTransition } from 'react';
 import { SupportTicket, TicketStatus, TicketPriority } from '@/types/support';
-import { updateSuperadminTicket } from '@/app/actions/support';
+import { updatePlatformTicket } from '@/app/actions/support';
 import { Button } from '@/components/ui/Button';
 import { Search, LifeBuoy, Send, Loader2, FileText, ShieldCheck, Building } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-interface SuperadminSupportInboxProps {
+interface PlatformSupportInboxProps {
   initialTickets: SupportTicket[];
 }
 
-export function SuperadminSupportInbox({ initialTickets }: SuperadminSupportInboxProps) {
+export function PlatformSupportInbox({ initialTickets }: PlatformSupportInboxProps) {
   const [filterStatus, setFilterStatus] = useState<TicketStatus | 'all' | 'escalated'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(initialTickets[0]?.id || null);
@@ -44,7 +44,7 @@ export function SuperadminSupportInbox({ initialTickets }: SuperadminSupportInbo
     if (!selectedTicket || !replyText.trim()) return;
 
     startTransition(async () => {
-      const res = await updateSuperadminTicket(selectedTicket.tenant_id, selectedTicket.id, {
+      const res = await updatePlatformTicket(selectedTicket.tenant_id, selectedTicket.id, {
         replyMessage: replyText.trim(),
         isInternalNote,
         status: isInternalNote ? selectedTicket.status : 'waiting_for_merchant',
@@ -62,7 +62,7 @@ export function SuperadminSupportInbox({ initialTickets }: SuperadminSupportInbo
   const handleStatusChange = (newStatus: TicketStatus) => {
     if (!selectedTicket) return;
     startTransition(async () => {
-      const res = await updateSuperadminTicket(selectedTicket.tenant_id, selectedTicket.id, {
+      const res = await updatePlatformTicket(selectedTicket.tenant_id, selectedTicket.id, {
         status: newStatus,
       });
       if (res.error) toast.error(res.error);
@@ -73,7 +73,7 @@ export function SuperadminSupportInbox({ initialTickets }: SuperadminSupportInbo
   const handleEscalateToggle = () => {
     if (!selectedTicket) return;
     startTransition(async () => {
-      const res = await updateSuperadminTicket(selectedTicket.tenant_id, selectedTicket.id, {
+      const res = await updatePlatformTicket(selectedTicket.tenant_id, selectedTicket.id, {
         is_escalated: !selectedTicket.is_escalated,
       });
       if (res.error) toast.error(res.error);

@@ -98,3 +98,19 @@ export interface CreateTicketPayload {
   system_context?: SystemContext;
   attachments?: string[];
 }
+
+export interface SupportAccessGrant {
+  id: string;
+  tenant_id: string;
+  granted_by: string;
+  granted_by_email?: string;
+  ticket_id?: string | null;
+  // Only returned to the tenant that owns the grant; platform-side reads omit it.
+  token?: string;
+  reason: string;
+  duration_hours: number;
+  status: 'active' | 'revoked' | 'expired';
+  expires_at: string;
+  created_at: string;
+  revoked_at?: string | null;
+}

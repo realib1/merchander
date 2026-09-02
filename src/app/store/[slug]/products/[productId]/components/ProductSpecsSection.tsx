@@ -27,7 +27,7 @@ export function ProductSpecsSection({ config, product }: ProductSpecsSectionProp
       {specs.length > 0 && (
         <div className="space-y-2.5">
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Specifications</h3>
-          <div className="rounded-2xl border border-separator overflow-hidden bg-surface divide-y divide-separator/60">
+          <div className="rounded-2xl border overflow-hidden bg-surface divide-y divide-separator/60">
             {specs.map((item, idx) => (
               <div key={idx} className="grid grid-cols-2 p-3 text-xs">
                 <span className="font-semibold text-muted">{item.key}</span>

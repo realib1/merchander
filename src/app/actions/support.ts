@@ -14,6 +14,16 @@ import {
   TicketPriority,
 } from '@/types/support';
 import { HELP_ARTICLES } from '@/utils/help-center-data';
+import { verifyPlatformStaff } from './platform';
+import type { PlatformRole } from '@/types/platform';
+
+const PLATFORM_SUPPORT_ROLES: PlatformRole[] = [
+  'platform_owner',
+  'platform_admin',
+  'operations',
+  'support',
+  'compliance',
+];
 
 async function getAdminOrUserClient() {
   try {
@@ -221,7 +231,7 @@ export async function createSupportTicket(payload: CreateTicketPayload): Promise
     );
 
     revalidatePath('/dashboard/help');
-    revalidatePath('/superadmin/support');
+    revalidatePath('/platform/support');
     return { success: true, ticket: newTicket };
   } catch (err) {
     console.error('Error creating support ticket:', err);
@@ -294,7 +304,7 @@ export async function addTicketMessage(
     );
 
     revalidatePath('/dashboard/help');
-    revalidatePath('/superadmin/support');
+    revalidatePath('/platform/support');
     return { success: true };
   } catch (err) {
     console.error('Error adding ticket message:', err);
@@ -303,12 +313,13 @@ export async function addTicketMessage(
 }
 
 /**
- * Superadmin: Fetch all tickets across all tenants
+ * Admin: Fetch all tickets across all tenants
  */
-export async function getSuperadminSupportInbox(): Promise<{ tickets: SupportTicket[]; error?: string }> {
-  const adminSupabase = await getAdminOrUserClient();
-
+export async function getPlatformSupportInbox(): Promise<{ tickets: SupportTicket[]; error?: string }> {
   try {
+    await verifyPlatformStaff(PLATFORM_SUPPORT_ROLES);
+    const adminSupabase = await getAdminOrUserClient();
+
     // Load all settings_data from tenants to aggregate tickets
     const { data: tenantsSettings } = await adminSupabase
       .from('tenant_settings')
@@ -338,15 +349,15 @@ export async function getSuperadminSupportInbox(): Promise<{ tickets: SupportTic
 
     return { tickets: allTickets };
   } catch (err) {
-    console.error('Error loading superadmin support inbox:', err);
+    console.error('Error loading admin support inbox:', err);
     return { tickets: [], error: 'Failed to load support inbox' };
   }
 }
 
 /**
- * Superadmin: Update ticket status, escalation, or priority
+ * Admin: Update ticket status, escalation, or priority
  */
-export async function updateSuperadminTicket(
+export async function updatePlatformTicket(
   tenantId: string,
   ticketId: string,
   updates: {
@@ -357,9 +368,10 @@ export async function updateSuperadminTicket(
     isInternalNote?: boolean;
   }
 ): Promise<{ success?: boolean; error?: string }> {
-  const adminSupabase = await getAdminOrUserClient();
-
   try {
+    await verifyPlatformStaff(PLATFORM_SUPPORT_ROLES);
+    const adminSupabase = await getAdminOrUserClient();
+
     const { data: settings } = await adminSupabase
       .from('tenant_settings')
       .select('settings_data')
@@ -380,7 +392,7 @@ export async function updateSuperadminTicket(
         id: `msg_${Date.now()}`,
         ticket_id: ticketId,
         sender_type: 'support',
-        sender_id: 'superadmin',
+        sender_id: 'admin',
         sender_name: updates.isInternalNote ? 'Internal Note' : 'Merchander Support Specialist',
         message: updates.replyMessage.trim(),
         is_internal_note: updates.isInternalNote,
@@ -410,10 +422,10 @@ export async function updateSuperadminTicket(
     );
 
     revalidatePath('/dashboard/help');
-    revalidatePath('/superadmin/support');
+    revalidatePath('/platform/support');
     return { success: true };
   } catch (err) {
-    console.error('Error updating superadmin ticket:', err);
+    console.error('Error updating admin ticket:', err);
     return { error: 'Failed to update ticket' };
   }
 }

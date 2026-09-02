@@ -65,11 +65,11 @@ CREATE POLICY "Public read product preorder batches"
 CREATE POLICY "Tenant manage preorder batches"
   ON preorder_batches FOR ALL
   TO authenticated
-  USING (tenant_id = (SELECT tenant_id FROM profiles WHERE id = auth.uid()))
-  WITH CHECK (tenant_id = (SELECT tenant_id FROM profiles WHERE id = auth.uid()));
+  USING (tenant_id IN (SELECT tenant_id FROM tenant_users WHERE user_id = auth.uid()))
+  WITH CHECK (tenant_id IN (SELECT tenant_id FROM tenant_users WHERE user_id = auth.uid()));
 
 CREATE POLICY "Tenant manage product preorder batches"
   ON product_preorder_batches FOR ALL
   TO authenticated
-  USING (tenant_id = (SELECT tenant_id FROM profiles WHERE id = auth.uid()))
-  WITH CHECK (tenant_id = (SELECT tenant_id FROM profiles WHERE id = auth.uid()));
+  USING (tenant_id IN (SELECT tenant_id FROM tenant_users WHERE user_id = auth.uid()))
+  WITH CHECK (tenant_id IN (SELECT tenant_id FROM tenant_users WHERE user_id = auth.uid()));

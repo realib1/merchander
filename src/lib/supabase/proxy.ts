@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { isActivePlatformStaff } from '@/lib/auth/platform-staff';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -32,7 +33,7 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     const isProtectedPath =
-      request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/superadmin');
+      request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/platform');
 
     // Route protection: redirect to /login if unauthenticated and accessing protected routes
     if (!user && isProtectedPath) {
@@ -56,14 +57,16 @@ export async function updateSession(request: NextRequest) {
       }
     }
 
-    // If fully authenticated user visits /login via direct GET navigation, redirect to /dashboard
+    // If fully authenticated user visits /login via direct GET navigation without error parameters, redirect to appropriate portal
     const isServerAction = request.headers.has('next-action');
-    if (user && request.nextUrl.pathname === '/login' && request.method === 'GET' && !isServerAction) {
+    const hasLoginError = request.nextUrl.searchParams.has('error');
+    if (user && request.nextUrl.pathname === '/login' && request.method === 'GET' && !isServerAction && !hasLoginError) {
       const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       const needsMfa = aalData && aalData.currentLevel === 'aal1' && aalData.nextLevel === 'aal2';
       if (!needsMfa) {
+        const destination = (await isActivePlatformStaff(supabase, user.id)) ? '/platform' : '/dashboard';
         const url = request.nextUrl.clone();
-        url.pathname = '/dashboard';
+        url.pathname = destination;
         const redirectResponse = NextResponse.redirect(url);
         supabaseResponse.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
         return redirectResponse;

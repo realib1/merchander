@@ -51,23 +51,52 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
   if (period === '7d') days = 7;
   if (period === '90d') days = 90;
 
-  const { data: tenantUser } = await supabase.from('tenant_users').select('tenant_id').eq('user_id', user.id).single();
+  const { data: tenantUser } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!tenantUser?.tenant_id) {
+    return {
+      totalSales: { value: 0, diff: 0 },
+      totalOrders: { value: 0, diff: 0 },
+      totalCustomers: { value: 0, diff: 0 },
+      grossMargin: { value: 0, diff: 0 },
+      topProducts: [],
+      salesChart: [],
+      attention: {
+        purchaseOrders: [],
+        lowStock: [],
+        supplierBalances: [],
+      },
+      intelligence: {
+        velocityInsight: 'No store data found for this account.',
+        supplyInsight: [],
+        recommendation: 'Please contact support or complete merchant onboarding.',
+      },
+      incoming: null,
+    };
+  }
+
+  let lowStockThreshold = 10;
   const { data: settings } = await supabase
     .from('tenant_settings')
     .select('low_stock_threshold')
-    .eq('tenant_id', tenantUser?.tenant_id)
-    .single();
+    .eq('tenant_id', tenantUser.tenant_id)
+    .maybeSingle();
 
-  const lowStockThreshold = ((settings as Record<string, unknown>)?.low_stock_threshold as number) ?? 10;
+  if (settings && typeof (settings as Record<string, unknown>).low_stock_threshold === 'number') {
+    lowStockThreshold = (settings as Record<string, unknown>).low_stock_threshold as number;
+  }
 
-  // Call the new RPC for aggregated metrics
+  // Call RPC for aggregated metrics with graceful fallback
   const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', {
     p_days: days,
   });
 
   if (metricsError) {
-    console.error('Error fetching dashboard metrics RPC:', metricsError);
-    throw new Error('Failed to load dashboard metrics');
+    console.error('Error fetching dashboard metrics RPC:', JSON.stringify(metricsError));
   }
 
   interface DashboardMetricsRpcResult {

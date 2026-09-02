@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SupportTicket, SystemIncident, HelpArticle, TicketCategory } from '@/types/support';
+import { SupportTicket, SystemIncident, HelpArticle, TicketCategory, SupportAccessGrant } from '@/types/support';
 import { HelpCenterView } from './HelpCenterView';
 import { ContactSupportForm } from './ContactSupportForm';
 import { MyRequestsView } from './MyRequestsView';
 import { SystemStatusView } from './SystemStatusView';
-import { BookOpen, MessageSquare, Ticket, Activity, LifeBuoy } from 'lucide-react';
+import { SupportAccessDelegationView } from './SupportAccessDelegationView';
+import { BookOpen, MessageSquare, Ticket, Activity, LifeBuoy, Key } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface HelpHubContainerProps {
@@ -14,9 +15,17 @@ interface HelpHubContainerProps {
   initialIncidents: SystemIncident[];
   articles: HelpArticle[];
   diagnostics: unknown;
+  activeGrant?: SupportAccessGrant | null;
+  grantHistory?: SupportAccessGrant[];
 }
 
-export function HelpHubContainer({ initialTickets, initialIncidents, articles }: HelpHubContainerProps) {
+export function HelpHubContainer({
+  initialTickets,
+  initialIncidents,
+  articles,
+  activeGrant,
+  grantHistory = [],
+}: HelpHubContainerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
@@ -24,9 +33,17 @@ export function HelpHubContainer({ initialTickets, initialIncidents, articles }:
   const errorParam = searchParams.get('error');
 
   const initialTab =
-    tabParam === 'contact' || tabParam === 'requests' || tabParam === 'status' ? tabParam : 'help_center';
+    tabParam === 'contact' ||
+    tabParam === 'requests' ||
+    tabParam === 'status' ||
+    tabParam === 'access'
+      ? tabParam
+      : 'help_center';
 
-  const [activeTab, setActiveTab] = useState<'help_center' | 'contact' | 'requests' | 'status'>(initialTab);
+  const [activeTab, setActiveTab] = useState<
+    'help_center' | 'contact' | 'requests' | 'status' | 'access'
+  >(initialTab);
+
   const [prefillSubject, setPrefillSubject] = useState<string>(
     areaParam ? `Issue reported in ${areaParam}${errorParam ? `: ${errorParam}` : ''}` : ''
   );
@@ -64,7 +81,7 @@ export function HelpHubContainer({ initialTickets, initialIncidents, articles }:
             <h2 className="text-xl font-bold font-display text-foreground tracking-tight">Help & Support Hub</h2>
           </div>
           <p className="text-xs text-muted">
-            Find answers, contact technical engineering, review active cases, and monitor platform health.
+            Find answers, contact technical engineering, review active cases, and govern diagnostic access.
           </p>
         </div>
 
@@ -111,6 +128,22 @@ export function HelpHubContainer({ initialTickets, initialIncidents, articles }:
 
           <button
             type="button"
+            onClick={() => setActiveTab('access')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeTab === 'access'
+                ? 'bg-brand-primary text-white shadow-xs font-bold'
+                : 'text-muted hover:text-foreground'
+            }`}
+          >
+            <Key size={13} />
+            <span>Support Access</span>
+            {activeGrant && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+            )}
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('status')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'status'
@@ -125,7 +158,9 @@ export function HelpHubContainer({ initialTickets, initialIncidents, articles }:
       </div>
 
       {/* Tab Panels */}
-      {activeTab === 'help_center' && <HelpCenterView articles={articles} onOpenContact={handleOpenContactWithTopic} />}
+      {activeTab === 'help_center' && (
+        <HelpCenterView articles={articles} onOpenContact={handleOpenContactWithTopic} />
+      )}
 
       {activeTab === 'contact' && (
         <ContactSupportForm
@@ -144,10 +179,19 @@ export function HelpHubContainer({ initialTickets, initialIncidents, articles }:
         />
       )}
 
+      {activeTab === 'access' && (
+        <SupportAccessDelegationView
+          initialActiveGrant={activeGrant || null}
+          initialHistory={grantHistory}
+        />
+      )}
+
       {activeTab === 'status' && (
         <SystemStatusView
           incidents={initialIncidents}
-          onOpenReport={() => handleOpenContactWithTopic('System Outage / Degradation Report', 'other')}
+          onOpenReport={() =>
+            handleOpenContactWithTopic('System Outage / Degradation Report', 'other')
+          }
         />
       )}
     </div>

@@ -5,7 +5,10 @@ export function createAdminClient() {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase environment variables for admin client');
+    throw new Error(
+      'FATAL: Missing SUPABASE_SERVICE_ROLE_KEY. Platform admin operations require the service role key. ' +
+        'Set SUPABASE_SERVICE_ROLE_KEY in your environment variables.'
+    );
   }
 
   return createClient(supabaseUrl, supabaseServiceKey, {

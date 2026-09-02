@@ -75,3 +75,15 @@ export interface BatchBroadcastRecipient {
   itemsSummary: string;
   trackingUrl: string;
 }
+
+export interface BatchMilestoneBroadcast {
+  id: string;
+  tenant_id: string;
+  batch_id: string;
+  milestone: PreorderBatchStatus;
+  channel: 'whatsapp' | 'sms' | 'email';
+  recipient_count: number;
+  message_template: string;
+  status: 'queued' | 'sent' | 'failed';
+  created_at: string;
+}

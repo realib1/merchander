@@ -27,7 +27,7 @@ describe('Help & Support Utility Logic', () => {
     expect(matches[0].id).toBe('1');
   });
 
-  it('correctly weighs ticket priorities for superadmin inbox triage', () => {
+  it('correctly weighs ticket priorities for admin inbox triage', () => {
     const priorityWeight: Record<string, number> = {
       urgent: 4,
       high: 3,

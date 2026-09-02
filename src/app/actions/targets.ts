@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { revalidatePath } from 'next/cache';
+import crypto from 'crypto';
 import { BusinessTarget, TargetProgress, TargetsIntelligenceSummary, CreateTargetInput } from '@/types/targets';
 import {
   calculateTargetProgress,
@@ -178,8 +179,9 @@ export async function createBusinessTarget(payload: CreateTargetInput): Promise<
     }
 
     const adminSupabase = await getAdminOrUserClient();
+    const targetId = crypto.randomUUID();
     const newTarget: BusinessTarget = {
-      id: `target_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: targetId,
       tenant_id: tenantId,
       name: payload.name.trim(),
       metric: payload.metric,

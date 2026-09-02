@@ -6,6 +6,7 @@ import { Topbar } from './components/Topbar';
 import { MobileNavProvider } from './components/MobileNavContext';
 import { getUnreadNotifications } from '@/app/actions/notifications';
 import { sanitizeCssColor } from '@/utils';
+import { isActivePlatformStaff } from '@/lib/auth/platform-staff';
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const {
@@ -17,12 +18,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/login');
   }
 
+  // If user is platform staff, redirect to platform management console
+  if (await isActivePlatformStaff(supabase, user.id)) {
+    redirect('/platform');
+  }
+
   // Fetch tenant name for sidebar display and tenant_id for settings
   const { data: tenantUser } = await supabase
     .from('tenant_users')
     .select('tenant_id, role, tenants(name), tenant_roles(permissions)')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
+
+  if (!tenantUser) {
+    redirect('/login?error=no-tenant');
+  }
 
   const userRole = tenantUser?.role || 'member';
   const tenantRoles = tenantUser?.tenant_roles as unknown as { permissions: string[] } | null;

@@ -8,7 +8,7 @@ import { SubscriptionTier, BillingCycle, PaymentSettings, SubscriptionPaymentMet
 import { revalidatePath } from 'next/cache';
 
 /**
- * Initiates an online payment checkout for SaaS Subscription upgrade (Merchander Superadmin billing)
+ * Initiates an online payment checkout for SaaS Subscription upgrade (Merchander Admin billing)
  */
 export async function initiateSubscriptionUpgradePayment(
   tier: SubscriptionTier,

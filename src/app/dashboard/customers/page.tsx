@@ -1,13 +1,18 @@
 import { Suspense } from 'react';
-import { getCustomers, getCustomerPageMetrics } from '@/app/actions/customers';
+import {
+  getCustomers,
+  getCustomerPageMetrics,
+  getCustomerAttributionBreakdownAction,
+} from '@/app/actions/customers';
 import { CustomersHeader } from './components/CustomersHeader';
 import { CustomersTopMetrics } from './components/CustomersTopMetrics';
 import { CustomersTable } from './components/CustomersTable';
+import { CustomerAttributionCard } from './components/CustomerAttributionCard';
 import { Loader2 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Customers | Merchander',
-  description: 'Manage your customer base.',
+  title: 'Customers & Attribution | Merchander',
+  description: 'Manage customer records and track first-touch acquisition channels.',
 };
 
 export default async function CustomersPage({
@@ -27,9 +32,10 @@ export default async function CustomersPage({
       ? resolvedParams.sortOrder
       : 'desc';
 
-  const [{ data: customers, count }, metrics] = await Promise.all([
+  const [{ data: customers, count }, metrics, attribution] = await Promise.all([
     getCustomers(query, page, pageSize, sortBy, sortOrder),
     getCustomerPageMetrics(),
+    getCustomerAttributionBreakdownAction(),
   ]);
 
   const {
@@ -51,8 +57,8 @@ export default async function CustomersPage({
   const totalPages = Math.ceil(count / pageSize);
 
   return (
-    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
-      <h1 className="sr-only">Customers CRM</h1>
+    <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full pb-12">
+      <h1 className="sr-only">Customers CRM & Attribution</h1>
 
       {/* 1. Top 4 KPI Metrics */}
       <CustomersTopMetrics
@@ -64,10 +70,13 @@ export default async function CustomersPage({
         totalRevenue={totalRevenue}
       />
 
-      {/* 2. Search & Action Toolbar */}
+      {/* 2. Customer Acquisition & Attribution Channels */}
+      <CustomerAttributionCard attribution={attribution} />
+
+      {/* 3. Search & Action Toolbar */}
       <CustomersHeader />
 
-      {/* 3. Customer Data Table */}
+      {/* 4. Customer Data Table */}
       <Suspense
         fallback={
           <div className="flex-1 flex items-center justify-center p-12">

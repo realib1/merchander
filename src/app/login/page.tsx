@@ -30,6 +30,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               <div>
                 {resolvedSearchParams.error === 'auth-failed'
                   ? 'Authentication failed. Please check your credentials and try again.'
+                  : resolvedSearchParams.error === 'no-tenant'
+                  ? 'No merchant store is linked to this account. Please sign in with your merchant credentials or contact support.'
                   : 'Invalid email or password.'}
               </div>
             </div>
