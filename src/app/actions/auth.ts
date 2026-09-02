@@ -53,7 +53,9 @@ export async function login(prevState: unknown, formData: FormData) {
     });
 
     if (error) {
-      await logAuthEvent(email, 'auth.login_failed', error.message);
+      // Do not write failed logins to platform_audit_logs: the caller is
+      // unauthenticated here and `email` is attacker-controlled, so recording it
+      // lets anyone flood the immutable audit trail with caller-shaped rows.
       return { error: error.message, email };
     }
 
@@ -70,12 +72,12 @@ export async function login(prevState: unknown, formData: FormData) {
     } = await supabase.auth.getUser();
 
     if (user && (await isPlatformStaffUser(user.id))) {
-      await logAuthEvent(email, 'auth.platform_login_success', 'Platform staff authenticated', user.id);
+      await logAuthEvent(user.email || email, 'auth.platform_login_success', 'Platform staff authenticated', user.id);
       redirect('/platform');
     }
 
     if (user) {
-      await logAuthEvent(email, 'auth.merchant_login_success', 'Merchant authenticated', user.id);
+      await logAuthEvent(user.email || email, 'auth.merchant_login_success', 'Merchant authenticated', user.id);
     }
   } catch (err) {
     if (isRedirectError(err)) {

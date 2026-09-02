@@ -2,30 +2,14 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { computeCustomerAttribution } from '@/utils/customer-attribution';
+import type {
+  CustomerAttributionSource,
+  CustomerAttributionChannel,
+  CustomerAttributionBreakdown,
+} from '@/utils/customer-attribution';
 
-export type CustomerAttributionSource =
-  | 'instagram'
-  | 'whatsapp'
-  | 'tiktok'
-  | 'facebook'
-  | 'referral'
-  | 'direct'
-  | 'preorder_batch'
-  | 'storefront';
-
-export interface CustomerAttributionChannel {
-  source: CustomerAttributionSource;
-  label: string;
-  customerCount: number;
-  percentage: number;
-  totalGmv: number;
-}
-
-export interface CustomerAttributionBreakdown {
-  channels: CustomerAttributionChannel[];
-  topChannel: string;
-  totalAttributedCustomers: number;
-}
+export type { CustomerAttributionSource, CustomerAttributionChannel, CustomerAttributionBreakdown };
 
 export interface CustomerStats {
   id: string;
@@ -356,20 +340,12 @@ export async function removeCustomerIdentity(identityId: string, customerId: str
 }
 
 /**
- * Calculates customer acquisition channel attribution and GMV breakdown
+ * Calculates customer acquisition channel attribution and GMV breakdown.
+ * Fetching lives here; the tally/ranking logic is in
+ * `@/utils/customer-attribution` (unit-tested).
  */
 export async function getCustomerAttributionBreakdownAction(): Promise<CustomerAttributionBreakdown> {
-  const emptyResult: CustomerAttributionBreakdown = {
-    channels: [
-      { source: 'instagram', label: 'Instagram DM & Bio', customerCount: 0, percentage: 0, totalGmv: 0 },
-      { source: 'whatsapp', label: 'WhatsApp Catalog & Chat', customerCount: 0, percentage: 0, totalGmv: 0 },
-      { source: 'tiktok', label: 'TikTok Shop / Link', customerCount: 0, percentage: 0, totalGmv: 0 },
-      { source: 'referral', label: 'Customer Referrals', customerCount: 0, percentage: 0, totalGmv: 0 },
-      { source: 'direct', label: 'Direct Storefront', customerCount: 0, percentage: 0, totalGmv: 0 },
-    ],
-    topChannel: 'Direct Storefront',
-    totalAttributedCustomers: 0,
-  };
+  const emptyResult = computeCustomerAttribution([], []);
 
   try {
     const supabase = await createClient();
@@ -395,57 +371,7 @@ export async function getCustomerAttributionBreakdownAction(): Promise<CustomerA
         .neq('status', 'cancelled'),
     ]);
 
-    const customers = customersRes.data || [];
-    const orders = ordersRes.data || [];
-
-    const channelMap: Record<
-      string,
-      { label: string; customerCount: number; totalGmv: number }
-    > = {
-      instagram: { label: 'Instagram DM & Bio', customerCount: 0, totalGmv: 0 },
-      whatsapp: { label: 'WhatsApp Catalog & Chat', customerCount: 0, totalGmv: 0 },
-      tiktok: { label: 'TikTok Shop / Link', customerCount: 0, totalGmv: 0 },
-      facebook: { label: 'Facebook Page & Ads', customerCount: 0, totalGmv: 0 },
-      referral: { label: 'Customer Referrals', customerCount: 0, totalGmv: 0 },
-      preorder_batch: { label: 'Pre-Order Batches', customerCount: 0, totalGmv: 0 },
-      direct: { label: 'Direct Storefront', customerCount: 0, totalGmv: 0 },
-    };
-
-    // Tally customers by first touch source
-    const customerSourceMap = new Map<string, string>();
-    for (const c of customers) {
-      const src = (c.first_touch_source || 'direct').toLowerCase();
-      const normalizedSrc = channelMap[src] ? src : 'direct';
-      channelMap[normalizedSrc].customerCount += 1;
-      customerSourceMap.set(c.id, normalizedSrc);
-    }
-
-    // Tally GMV by order attribution source (or fallback to customer's first touch)
-    for (const o of orders) {
-      const orderSrc = (o.attribution_source || customerSourceMap.get(o.customer_id) || 'direct').toLowerCase();
-      const normalizedSrc = channelMap[orderSrc] ? orderSrc : 'direct';
-      channelMap[normalizedSrc].totalGmv += Number(o.total_amount || 0);
-    }
-
-    const totalCustomers = customers.length;
-    const channels: CustomerAttributionChannel[] = Object.entries(channelMap)
-      .map(([key, data]) => ({
-        source: key as CustomerAttributionSource,
-        label: data.label,
-        customerCount: data.customerCount,
-        percentage: totalCustomers > 0 ? Math.round((data.customerCount / totalCustomers) * 100) : 0,
-        totalGmv: data.totalGmv,
-      }))
-      .filter((c) => c.customerCount > 0 || c.source === 'direct' || c.source === 'instagram' || c.source === 'whatsapp')
-      .sort((a, b) => b.customerCount - a.customerCount);
-
-    const top = channels[0]?.label || 'Direct Storefront';
-
-    return {
-      channels,
-      topChannel: top,
-      totalAttributedCustomers: totalCustomers,
-    };
+    return computeCustomerAttribution(customersRes.data || [], ordersRes.data || []);
   } catch (err) {
     console.warn('Error computing customer attribution breakdown:', err);
     return emptyResult;

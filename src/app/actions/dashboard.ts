@@ -112,6 +112,21 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
     top_products: { name: string; revenue: number; quantity: number }[];
   }
 
+  // When the RPC errors or returns nothing, fall back to a fully zeroed result
+  // so downstream arithmetic yields 0, not NaN, from `undefined` fields.
+  const DEFAULT_DASHBOARD_METRICS: DashboardMetricsRpcResult = {
+    current_sales: 0,
+    previous_sales: 0,
+    current_orders: 0,
+    previous_orders: 0,
+    current_cost: 0,
+    previous_cost: 0,
+    current_customers: 0,
+    total_customers: 0,
+    sales_chart: [],
+    top_products: [],
+  };
+
   const {
     current_sales,
     previous_sales,
@@ -123,7 +138,12 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
     total_customers,
     sales_chart,
     top_products,
-  } = (metricsData || {}) as unknown as DashboardMetricsRpcResult;
+  } = {
+    ...DEFAULT_DASHBOARD_METRICS,
+    ...((metricsData && typeof metricsData === 'object' && !Array.isArray(metricsData)
+      ? metricsData
+      : {}) as Partial<DashboardMetricsRpcResult>),
+  } as DashboardMetricsRpcResult;
 
   const salesDiff = current_sales - previous_sales;
   const salesChange = previous_sales === 0 ? (current_sales > 0 ? undefined : 0) : (salesDiff / previous_sales) * 100;

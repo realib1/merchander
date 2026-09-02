@@ -69,6 +69,15 @@ export function detectGhanaNetwork(phoneInput: string | null | undefined): Ghana
 }
 
 /**
+ * Returns the digits-only MSISDN for WhatsApp deep links (`233XXXXXXXXX`, no
+ * leading `+`), or null when the input is not a valid Ghana number.
+ */
+export function toWhatsAppMsisdn(phoneInput: string | null | undefined): string | null {
+  const normalized = normalizeGhanaPhone(phoneInput);
+  return normalized ? normalized.slice(1) : null;
+}
+
+/**
  * Formats E.164 Ghana phone into local display format: 024 123 4567
  */
 export function formatGhanaLocalDisplay(phone: string): string {

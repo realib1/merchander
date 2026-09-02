@@ -2,7 +2,9 @@
 // helper called by other server actions; exposing it as a callable endpoint would
 // let any authenticated user write arbitrary rows into the immutable audit trail.
 // getPlatformAuditLogsAction is invoked directly from the server component page.
-
+// `server-only` makes an accidental client import a build error, not a silent
+// bundle leak.
+import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { AuditLogEntry, PlatformRole } from '@/types/platform';

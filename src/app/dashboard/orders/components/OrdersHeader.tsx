@@ -36,10 +36,6 @@ export function OrdersHeader() {
     setIsMobileMenuOpen(false);
   };
 
-  // const handleExport = () => {
-  //   alert('Export functionality will generate a CSV of the current view.');
-  // };
-
   const tabs = [
     { id: 'all', label: 'All' },
     { id: 'draft', label: 'New / Draft' },
@@ -129,32 +125,6 @@ export function OrdersHeader() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 shrink-0">
-          {/* TODO: Implement CSV export and uncomment
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-surface border border-separator rounded-lg text-sm font-medium  hover:bg-surface-elevated transition-colors"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-muted"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" x2="12" y1="15" y2="3" />
-            </svg>
-            Export
-          </button>
-          */}
-
-          <div className="h-6 w-px bg-separator mx-1" />
-
           {/* View Toggles */}
           <div className="hidden sm:flex bg-surface border border-separator rounded-lg p-1">
             <button

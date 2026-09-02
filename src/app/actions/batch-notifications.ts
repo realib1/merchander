@@ -8,21 +8,8 @@ import {
   BatchMilestoneBroadcast,
 } from '@/types/preorder';
 import { formatBatchMilestoneMessage } from '@/utils/preorder-batch';
+import { toWhatsAppMsisdn } from '@/utils/phone';
 import { revalidatePath } from 'next/cache';
-
-/**
- * Normalizes Ghanaian phone numbers for WhatsApp and SMS links
- */
-function normalizePhone(phone: string): string {
-  const cleaned = phone.replace(/[^0-9]/g, '');
-  if (cleaned.startsWith('0') && cleaned.length === 10) {
-    return `233${cleaned.slice(1)}`;
-  }
-  if (cleaned.startsWith('233')) {
-    return cleaned;
-  }
-  return cleaned;
-}
 
 /**
  * Fetch all customer recipients who ordered in a specific preorder batch
@@ -76,11 +63,12 @@ export async function getBatchBroadcastRecipientsAction(
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
 
     const recipients = orders
-      .filter((o) => !!o.customer_phone)
       .map((o) => {
+        const waMsisdn = toWhatsAppMsisdn(o.customer_phone);
+        if (!waMsisdn) return null;
+
         const tenantSlug = (o.tenants as unknown as { slug: string })?.slug || 'store';
         const shortId = (o.order_number || o.id.slice(0, 6)).toUpperCase();
-        const formattedPhone = normalizePhone(o.customer_phone || '');
         const trackingUrl = `${appUrl}/store/${tenantSlug}/orders/${shortId}`;
 
         const baseRecipient: BatchBroadcastRecipient = {
@@ -98,14 +86,15 @@ export async function getBatchBroadcastRecipientsAction(
           'IN_TRANSIT'
         );
 
-        const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(defaultMsg)}`;
+        const whatsappUrl = `https://wa.me/${waMsisdn}?text=${encodeURIComponent(defaultMsg)}`;
 
         return {
           ...baseRecipient,
           rawPhone: o.customer_phone || '',
           whatsappUrl,
         };
-      });
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
 
     return { recipients };
   } catch (err) {

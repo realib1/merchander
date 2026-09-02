@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeGhanaPhone, isValidGhanaPhone, detectGhanaNetwork, formatGhanaLocalDisplay } from './phone';
+import {
+  normalizeGhanaPhone,
+  isValidGhanaPhone,
+  detectGhanaNetwork,
+  formatGhanaLocalDisplay,
+  toWhatsAppMsisdn,
+} from './phone';
 
 describe('Phone Utilities (Ghana MSISDN)', () => {
   describe('normalizeGhanaPhone', () => {
@@ -72,6 +78,21 @@ describe('Phone Utilities (Ghana MSISDN)', () => {
     it('formats E.164 phone into readable local representation', () => {
       expect(formatGhanaLocalDisplay('+233244123456')).toBe('024 412 3456');
       expect(formatGhanaLocalDisplay('0244123456')).toBe('024 412 3456');
+    });
+  });
+
+  describe('toWhatsAppMsisdn', () => {
+    it('returns digits-only 233 MSISDN with no leading plus', () => {
+      expect(toWhatsAppMsisdn('0244123456')).toBe('233244123456');
+      expect(toWhatsAppMsisdn('+233244123456')).toBe('233244123456');
+      expect(toWhatsAppMsisdn('233 24 412 3456')).toBe('233244123456');
+    });
+
+    it('returns null for numbers that do not normalize', () => {
+      expect(toWhatsAppMsisdn('12345')).toBeNull();
+      expect(toWhatsAppMsisdn('')).toBeNull();
+      expect(toWhatsAppMsisdn(null)).toBeNull();
+      expect(toWhatsAppMsisdn(undefined)).toBeNull();
     });
   });
 });
