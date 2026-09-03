@@ -4,6 +4,12 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { StorefrontTrackingOrder, OrderProgressStatus, StorefrontTrackingItem } from '@/types/storefront';
 import { hashOrderToken } from '@/utils/order-token';
 import { normalizeGhanaPhone } from '@/utils/phone';
+import { enforceRateLimit } from '@/lib/security/rate-limit';
+import { getRequestIp } from '@/lib/security/request-ip';
+
+/** Anonymous order-tracking attempts allowed per IP per 10 minutes. */
+const TRACK_MAX_PER_WINDOW = 12;
+const TRACK_WINDOW_SECONDS = 600;
 
 interface TrackOrderInput {
   tenantSlug: string;
@@ -51,6 +57,13 @@ export async function getStorefrontOrderTracking({
         success: false,
         error: 'Tracking token or customer phone number is required to track this order.',
       };
+    }
+
+    // Lock out order-id / phone guessing: this runs on the admin client, and the
+    // phone branch below authorizes on a plain number match.
+    const trackIp = await getRequestIp();
+    if (!(await enforceRateLimit(`track:ip:${trackIp}`, TRACK_MAX_PER_WINDOW, TRACK_WINDOW_SECONDS))) {
+      return { success: false, error: 'Too many attempts. Please wait a few minutes and try again.' };
     }
 
     // 1. Resolve tenant
@@ -248,6 +261,11 @@ export async function lookupCustomerOrder(
   const supabase = createAdminClient();
 
   try {
+    const lookupIp = await getRequestIp();
+    if (!(await enforceRateLimit(`track:ip:${lookupIp}`, TRACK_MAX_PER_WINDOW, TRACK_WINDOW_SECONDS))) {
+      return { error: 'Too many attempts. Please wait a few minutes and try again.' };
+    }
+
     const { data: storefront } = await supabase
       .from('storefront_settings')
       .select('tenant_id')
@@ -279,17 +297,16 @@ export async function lookupCustomerOrder(
 
     if (isUuid) {
       queryBuilder = queryBuilder.eq('id', cleanQuery);
-    } else if (normalizedPhone || /^(\+?233|0)[0-9]{8,10}$/.test(cleanQuery.replace(/[\s-]/g, ''))) {
-      const rawDigits = cleanQuery.replace(/[^0-9]/g, '');
-      const searchPhones = [cleanQuery];
-      if (normalizedPhone) searchPhones.push(normalizedPhone);
-      if (rawDigits.length >= 9) searchPhones.push(rawDigits.slice(-9)); // Match last 9 digits
-
+    } else if (normalizedPhone) {
+      // Exact match on the normalised number only. A fuzzy `ilike %<input>%`
+      // scan let a short numeric string ("233") select an unrelated customer's
+      // latest order, and interpolated user input into a PostgREST `.or()`
+      // filter string.
       const { data: custs } = await supabase
         .from('customers')
         .select('id')
         .eq('tenant_id', tenantId)
-        .or(searchPhones.map((p) => `phone.ilike.%${p}%`).join(','));
+        .eq('phone', normalizedPhone);
 
       const customerIds = custs?.map((c) => c.id) || [];
       if (customerIds.length === 0) return { error: 'No orders found matching this phone number.' };

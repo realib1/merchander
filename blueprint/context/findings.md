@@ -40,37 +40,6 @@ unevenly.
 normalising rather than adding files ad hoc.
 **Resolution:**
 
-### F-15 [P2] open - Anonymous order creation is unthrottled
-
-**File:** src/app/actions/storefront-order.ts:47
-**Found:** 2026-09-03 by /audit (scope: full; lens: security)
-**Why it matters:** The action is reachable by any anonymous visitor and creates
-`customers`, `customer_identities`, `orders`, `order_items`, and
-`order_access_tokens` rows per call, with no rate limit, captcha, or duplicate
-window. It also creates a `stores` row when a tenant has none (line 128), so an
-unauthenticated caller can cause store creation. A script can fill a merchant's
-order board and customer list.
-**Suggested fix:** Rate-limit per IP and per normalised phone, and never create a
-`stores` row from an anonymous path; fail the order instead.
-**Resolution:**
-
-### F-16 [P2] open - Phone number alone unlocks order tracking
-
-**File:** src/app/actions/storefront-tracking.ts:50
-**Found:** 2026-09-03 by /audit (scope: full; lens: security)
-**Why it matters:** `getStorefrontOrderTracking` accepts a valid token **or** a
-matching phone number. The order short id is short and sequential-looking and a
-Ghanaian mobile number is low-entropy and often public, so the phone branch is
-close to guessable. It exposes delivery address, items, and totals.
-**Suggested fix:** Treat the token as the real authenticator. For the phone
-branch, add rate limiting and lockout, and consider a one-time code to the number
-instead of a direct match.
-**Resolution:** Still open. Re-reviewed by /audit (scope: current) 2026-09-03:
-the F-04 fix moved this action onto the admin client, so the phone-only branch is
-now a functioning path where RLS previously made it return nothing. Severity kept
-at P2 (attacker needs both a valid `ORD-XXXXXX` and the customer's phone) but the
-exposure is now real, not theoretical.
-
 ### F-17 [P3] open - Session reset is a state-changing GET
 
 **File:** src/app/api/auth/reset/route.ts:4
@@ -163,3 +132,21 @@ paths are unchanged. `yarn check` / `yarn lint` / `yarn build` / `yarn test`
 (184) all clean. No live non-admin staff login was available, so route behavior
 is inferred from the shared `verifyPlatformStaff` gate (used by every other
 platform action) plus the green build. Awaiting `/audit` re-review to close.
+
+### F-22 [P3] open - Order-tracking throttle also rate-limits the valid-token path
+
+**File:** src/app/actions/storefront-tracking.ts:63
+**Found:** 2026-09-03 by /audit (scope: current; lens: security)
+**Why it matters:** The F-16 fix enforces `track:ip:<ip>` at 12 / 10 min at the
+top of `getStorefrontOrderTracking`, before the token check. The storefront
+order page (`store/[slug]/orders/[orderId]/page.tsx:40`) calls this action on
+every SSR render with the token from the URL. A customer who holds a valid
+256-bit tracking token and reloads their tracking link more than 12 times in 10
+minutes (plausible while waiting on a delivery) is locked out of their own
+order for a few minutes. The token path is not a brute-force risk, so it does
+not need the same ceiling as the guessable phone path.
+**Suggested fix:** Either raise the tracking limit to ~30 / 10 min (clears
+realistic reload behaviour, still stops phone enumeration), or only enforce the
+throttle on the phone-auth fallback (check the token first; throttle before the
+`phone` comparison). The limit change is the smaller diff.
+**Resolution:**

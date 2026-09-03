@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { StoreOrderPayload, StoreOrderResponse } from '@/types/storefront';
 import { normalizeGhanaPhone } from '@/utils/phone';
 import { generateOrderAccessToken, hashOrderToken, buildStorefrontTrackingUrl } from '@/utils/order-token';
+import { enforceRateLimit } from '@/lib/security/rate-limit';
+import { getRequestIp } from '@/lib/security/request-ip';
 
 const orderPayloadSchema = z.object({
   tenantSlug: z.string().min(1, 'Store identifier is required'),
@@ -72,6 +74,22 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
     const tenantId = storefront?.tenant_id;
     if (!tenantId) {
       return { success: false, error: 'Store not found.' };
+    }
+
+    // 1a-ii. Throttle anonymous order creation on two dimensions: the device
+    // (IP) and the phone number. This action runs on the admin client with no
+    // session, so this is the only backpressure on a script filling the order
+    // board and customer list.
+    const ip = await getRequestIp();
+    const [ipAllowed, phoneAllowed] = await Promise.all([
+      enforceRateLimit(`order:ip:${ip}`, 10, 3600),
+      enforceRateLimit(`order:phone:${normalizedPhone}`, 5, 3600),
+    ]);
+    if (!ipAllowed || !phoneAllowed) {
+      return {
+        success: false,
+        error: 'Too many orders from this device or number. Please try again later.',
+      };
     }
 
     // 1b. Price the order from the catalogue. Variants are fetched scoped to the
@@ -164,16 +182,9 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       if (primaryStore) {
         storeId = primaryStore.id;
       } else {
-        const { data: createdStore } = await supabase
-          .from('stores')
-          .insert({
-            tenant_id: tenantId,
-            name: 'Main Store',
-            is_primary: true,
-          })
-          .select('id')
-          .single();
-        storeId = createdStore?.id || null;
+        // Never create a `stores` row from the anonymous order path. If the
+        // tenant has no store yet, they have not finished setting up.
+        return { success: false, error: 'This store is not set up to receive orders yet.' };
       }
     }
 

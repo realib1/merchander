@@ -1643,6 +1643,24 @@ export type Database = {
           },
         ]
       }
+      storefront_rate_limits: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       storefront_sessions: {
         Row: {
           cart_data: Json
@@ -2424,7 +2442,6 @@ export type Database = {
         Args: { items: Json; target_store_id: string }
         Returns: undefined
       }
-      is_platform_staff: { Args: never; Returns: boolean }
       normalize_ghana_phone_text: { Args: { p_phone: string }; Returns: string }
       transfer_inventory_between_branches: {
         Args: {
