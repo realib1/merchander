@@ -23,19 +23,22 @@ once an aggregation fans out this far.
 aggregate row, and page or drop `listUsers` in favour of a targeted lookup.
 **Resolution:**
 
-### F-14 [P2] open - Pure logic modules ship with no tests despite the declared test gate
+### F-27 [P3] open - profitabilityExport.ts mixes pure row-building with I/O, so it cannot be unit-tested
 
-**File:** src/utils/analyticsMath.ts:1
-**Found:** 2026-09-03 by /audit (scope: full; lens: tests)
-**Why it matters:** The test gate is declared on in `AGENTS.md` and
-`coding-standards.md` scopes it to pure logic in `src/utils/`. Five such modules
-have no test file: `analyticsMath.ts` (487 lines), `insightRules.ts` (226),
-`profitabilityExport.ts` (274), `conversationsMath.ts` (105), and
-`backup-codes.ts` (51). `backup-codes.ts` generates and verifies MFA backup
-codes, so it is the one where an untested edge case has a security consequence.
-The 25 existing suites all pass and the gate is real; it is being applied
-unevenly.
-**Suggested fix:** Add focused tests for `backup-codes.ts` first, then
-`analyticsMath.ts` and `insightRules.ts`. Run `/tests` if the scope needs
-normalising rather than adding files ad hoc.
+**File:** src/utils/profitabilityExport.ts:5
+**Found:** 2026-09-03 by /audit (scope: current; lens: tests)
+**Why it matters:** `exportProfitabilityToExcel`, `exportProfitabilityToCSV`, and
+`exportProfitabilityToPDF` each build their tabular data inline and then
+immediately perform a side effect (`XLSX.writeFile` to disk, a DOM `Blob`
+anchor-click download, `window.open` + `document.write` + `print`). There is no
+exported pure function that returns the rows, so `coding-standards.md`'s
+`src/utils` test scope cannot reach any of it - the module is the one F-14
+listee left without coverage. The row math (per-line `toFixed`, the
+`/ (grossRevenue || 1)` percentage guards, the CSV `"` escaping) is exactly the
+kind of logic the gate exists for, and it is currently unverified.
+**Suggested fix:** Extract the pure parts - e.g. `buildProfitabilitySummaryRows(data)`,
+`buildProductMarginRows(data)`, `buildProfitabilityCsv(data): string` - as
+exported functions the three exporters call, then unit-test those. The
+`writeFile` / `Blob` / `window.open` shells stay untested (thin I/O). Small,
+mechanical refactor; no behaviour change.
 **Resolution:**
