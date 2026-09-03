@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { PlatformRole, PlatformStaffUser } from '@/types/platform';
 import { verifyPlatformStaff } from './platform';
+import { PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
 import { logPlatformAuditAction } from './platform-audit';
 
 
@@ -16,7 +17,7 @@ export async function getPlatformStaffListAction(): Promise<{
   error?: string;
 }> {
   try {
-    await verifyPlatformStaff();
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/security']);
     const adminSupabase = createAdminClient();
 
     const { data } = await adminSupabase

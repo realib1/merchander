@@ -1,5 +1,6 @@
 import React from 'react';
 import { getPlatformInfrastructureStatus } from '@/app/actions/platform';
+import { requirePlatformRoute } from '@/lib/auth/require-platform-route';
 import { Database, Activity, ShieldCheck } from 'lucide-react';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { IncidentsManager } from './components/IncidentsManager';
@@ -7,6 +8,8 @@ import { IncidentsManager } from './components/IncidentsManager';
 export const dynamic = 'force-dynamic';
 
 export default async function SystemHealthPage() {
+  await requirePlatformRoute('/platform/system-health');
+
   const { incidents, systemMetrics, error } =
     await getPlatformInfrastructureStatus();
 

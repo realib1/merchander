@@ -7,8 +7,14 @@ import { normalizeGhanaPhone } from '@/utils/phone';
 import { enforceRateLimit } from '@/lib/security/rate-limit';
 import { getRequestIp } from '@/lib/security/request-ip';
 
-/** Anonymous order-tracking attempts allowed per IP per 10 minutes. */
-const TRACK_MAX_PER_WINDOW = 12;
+/**
+ * Anonymous order-tracking attempts allowed per IP per 10 minutes. Set well
+ * above any realistic reload pattern (the tracking page re-runs this on every
+ * SSR render with the URL token) while still making brute force of the ~10^8
+ * Ghana-mobile space plus a valid ORD-XXXXXX infeasible. A fuller fix would
+ * check the token first and only throttle the phone-auth fallback.
+ */
+const TRACK_MAX_PER_WINDOW = 30;
 const TRACK_WINDOW_SECONDS = 600;
 
 interface TrackOrderInput {

@@ -61,74 +61,28 @@ Hence P3, but it is the same hygiene gap F-01 named for `variantId`.
 same way an unresolved `variantId` is rejected.
 **Resolution:**
 
-### F-21 [P2] fixed - Widening the plan-read gate leaves /platform/plans-billing with no role guard
+### F-25 [P3] open - Some /platform pages render an interactive shell to out-of-RBAC roles
 
-**File:** src/app/platform/plans-billing/page.tsx:8
+**File:** src/app/platform/communications/page.tsx:8
 **Found:** 2026-09-03 by /audit (scope: current; lens: security)
-**Why it matters:** The F-07 fix regated `getPlatformPlansAction` from
-owner/admin to all seven staff roles (correct: the plan catalogue is shown on
-`/platform` and `/platform/merchants`). But `/platform/plans-billing` has **no
-route-level RBAC** - `platform/layout.tsx` only checks "active platform staff",
-and `PLATFORM_RBAC_RULES['/platform/plans-billing']` is enforced nowhere except
-`PlatformNav` link visibility. Previously the owner/admin gate *inside*
-`getPlatformPlansAction` incidentally blocked the page for other roles (they got
-`{ plans: [], error: 'Forbidden' }` and an error box). After the change, an
-`operations`/`support`/`finance`/`tech_admin`/`compliance` user who navigates to
-`/platform/plans-billing` by URL now sees the full `PlansBillingClient` with real
-plan data and interactive Create/Edit/Toggle controls; the write actions still
-403 on click (their gate is unchanged), so this is not privilege escalation and
-the data is non-sensitive by F-07's own reasoning - but it breaks the spec's
-stated "must not break" invariant ("`/platform/plans-billing` as `operations`:
-still 403") and shows an editor full of dead controls to five roles.
-**Suggested fix:** Add an explicit guard at the top of `PlansBillingPage` (and/or
-the plan-write section of the client): `await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing'])`
-wrapped to `redirect('/platform')` on throw, so the route 403s for non-admins
-independently of the read action. Keeps the F-07 widening for the overview and
-merchants pages while restoring the plans-billing route boundary.
-**Resolution:** Fixed on `fix/platform-console-consolidation` (spec step 4).
-`PlansBillingPage` now runs
-`try { await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing']) } catch { redirect('/platform') }`
-before the plan read, so the route redirects away for the five non-owner/admin
-roles independently of the widened read action; owner/admin render and write
-paths are unchanged. `yarn check` / `yarn lint` / `yarn build` / `yarn test`
-(184) all clean. No live non-admin staff login was available, so route behavior
-is inferred from the shared `verifyPlatformStaff` gate (used by every other
-platform action) plus the green build. Awaiting `/audit` re-review to close.
-
-### F-22 [P3] open - Order-tracking throttle also rate-limits the valid-token path
-
-**File:** src/app/actions/storefront-tracking.ts:63
-**Found:** 2026-09-03 by /audit (scope: current; lens: security)
-**Why it matters:** The F-16 fix enforces `track:ip:<ip>` at 12 / 10 min at the
-top of `getStorefrontOrderTracking`, before the token check. The storefront
-order page (`store/[slug]/orders/[orderId]/page.tsx:40`) calls this action on
-every SSR render with the token from the URL. A customer who holds a valid
-256-bit tracking token and reloads their tracking link more than 12 times in 10
-minutes (plausible while waiting on a delivery) is locked out of their own
-order for a few minutes. The token path is not a brute-force risk, so it does
-not need the same ceiling as the guessable phone path.
-**Suggested fix:** Either raise the tracking limit to ~30 / 10 min (clears
-realistic reload behaviour, still stops phone enumeration), or only enforce the
-throttle on the phone-auth fallback (check the token first; throttle before the
-`phone` comparison). The limit change is the smaller diff.
-**Resolution:**
-
-### F-23 [P3] open - /api/auth/reset redirect and origin check have minor residuals
-
-**File:** src/app/api/auth/reset/route.ts:20
-**Found:** 2026-09-03 by /audit (scope: current; lens: security)
-**Why it matters:** Two small issues left by the F-17 fix, neither a security
-regression. (1) The handler returns `NextResponse.redirect(new URL('/login', ...))`,
-which is a `307` — a browser following it re-issues the request as `POST /login`.
-It happens to render 200 today (App Router pages answer POST), but a `303 See
-Other` is the correct status for "this POST changed state, now GET that page".
-(2) The cross-origin check compares the `Origin` header against
-`new URL(request.url).origin`. On the stated Vercel-direct deployment these
-match, but behind a reverse proxy or custom-domain edge where `request.url`
-carries an internal host, a legitimate same-origin `POST` would get a false
-`403`. It fails safe (deny, not bypass) and there is no in-code caller, so
-impact is low; `Sec-Fetch-Site` is the primary guard regardless.
-**Suggested fix:** Use `NextResponse.redirect(url, 303)`, and either compare
-`Origin` against the `host` / `x-forwarded-host` header or drop the `Origin`
-branch and rely on `POST` + `Sec-Fetch-Site` alone.
+**Why it matters:** F-24 added `requirePlatformRoute` to `security`,
+`system-health`, and `plans-billing`. The remaining `/platform` pages still rely
+on the action gate alone, and two of them swallow the auth error and render an
+interactive client component anyway:
+- `communications/page.tsx` calls `getPlatformBroadcastsAction()` (roles:
+  owner/admin/operations), ignores the returned `error`, and renders
+  `<CommunicationsClient initialBroadcasts={[]} />` — a `support`/`finance`/
+  `tech_admin`/`compliance` user reaching the URL sees the full broadcast
+  composer with create/edit controls.
+- `support/page.tsx` does the same with `getPlatformSupportTicketsAction()`
+  (roles: owner/admin/support/operations/tech_admin) and `<SupportClient>`, so
+  `finance`/`compliance` see an empty support-inbox shell.
+No data is exposed (the actions return empty arrays) and every write stays
+role-gated, so this is a dead-UI disclosure, not escalation — the same class as
+F-21/F-24 but lower stakes. `revenue` (early `return` on error) and `domains`/
+`audit-logs` (read-only tables + visible error banner) are not affected the same
+way. The spec deliberately scoped this out; recording it so it is not lost.
+**Suggested fix:** Add `await requirePlatformRoute('/platform/communications')`
+and `'/platform/support'` at the top of those two pages (helper already exists),
+or have the pages render the error state instead of the client on `error`.
 **Resolution:**

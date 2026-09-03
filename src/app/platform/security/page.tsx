@@ -1,12 +1,12 @@
 import React from 'react';
-import { verifyPlatformStaff } from '@/app/actions/platform';
 import { getPlatformStaffListAction } from '@/app/actions/platform-staff';
+import { requirePlatformRoute } from '@/lib/auth/require-platform-route';
 import { StaffManagementClient } from './components/StaffManagementClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SecurityCompliancePage() {
-  const { role: userRole } = await verifyPlatformStaff();
+  const { role: userRole } = await requirePlatformRoute('/platform/security');
   const { staff, error } = await getPlatformStaffListAction();
 
   return (

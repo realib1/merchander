@@ -757,7 +757,7 @@ export async function getPlatformInfrastructureStatus(): Promise<{
   error?: string;
 }> {
   try {
-    await verifyPlatformStaff();
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/system-health']);
     const adminSupabase = createAdminClient();
 
     const startTime = Date.now();
