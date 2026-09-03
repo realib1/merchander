@@ -881,9 +881,20 @@ export async function provisionMerchantTenantAction(params: {
     const cleanName = params.businessName.trim();
     const tempPassword = params.initialPassword || 'Merchant@' + Math.floor(100000 + Math.random() * 900000);
 
-    // 1. Create or fetch Auth User
-    const { data: userList } = await adminSupabase.auth.admin.listUsers();
-    let authUser = userList?.users.find((u) => u.email === cleanEmail);
+    // 1. Create or fetch Auth User. listUsers() has no email filter, so page
+    // through it (bounded) rather than scanning only the default first 50 rows.
+    type ProvisionAuthUser = Awaited<ReturnType<typeof adminSupabase.auth.admin.createUser>>['data']['user'];
+    let authUser: ProvisionAuthUser = null;
+    for (let page = 1; page <= 20; page++) {
+      const { data: userList } = await adminSupabase.auth.admin.listUsers({ page, perPage: 1000 });
+      const users = userList?.users ?? [];
+      const match = users.find((u) => u.email === cleanEmail);
+      if (match) {
+        authUser = match;
+        break;
+      }
+      if (users.length < 1000) break;
+    }
 
     if (!authUser) {
       const { data: created, error: createErr } = await adminSupabase.auth.admin.createUser({
