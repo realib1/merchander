@@ -1,124 +1,32 @@
 import * as XLSX from 'xlsx';
 import { ProfitabilityData } from '@/types/profitability';
 import { formatCurrency } from './format';
+import {
+  buildProfitabilitySummaryRows,
+  buildProductMarginRows,
+  buildCategoryRows,
+  buildChannelRows,
+  buildProfitabilityCsv,
+  percentOfRevenue,
+} from './profitabilityRows';
 
 export function exportProfitabilityToExcel(data: ProfitabilityData, businessName: string = 'Business'): void {
   const wb = XLSX.utils.book_new();
 
   // 1. Executive Summary Sheet
-  const summaryRows = [
-    ['FINANCIAL PROFITABILITY STATEMENT'],
-    ['Business Name:', businessName],
-    ['Period:', data.period.toUpperCase()],
-    ['Date Range:', `${data.dateRange.from} to ${data.dateRange.to}`],
-    ['Generated At:', new Date().toLocaleString()],
-    [],
-    ['KEY FINANCIAL METRICS', 'AMOUNT (GHS)', '% OF REVENUE'],
-    ['Gross Revenue', data.metrics.grossRevenue, '100.0%'],
-    [
-      'Cost of Goods Sold (COGS)',
-      data.metrics.cogs,
-      `${((data.metrics.cogs / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%`,
-    ],
-    ['Gross Profit', data.metrics.grossProfit, `${data.metrics.grossMarginPct.toFixed(1)}%`],
-    [
-      'Operating Expenses (OPEX)',
-      data.metrics.operatingExpenses,
-      `${((data.metrics.operatingExpenses / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%`,
-    ],
-    [
-      'Inbound Freight & Customs',
-      data.metrics.logisticsFreightCost,
-      `${((data.metrics.logisticsFreightCost / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%`,
-    ],
-    [
-      'Gateway & Payment Fees',
-      data.metrics.gatewayFees,
-      `${((data.metrics.gatewayFees / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%`,
-    ],
-    [
-      'Total Operating Outlays',
-      data.metrics.totalExpenses,
-      `${((data.metrics.totalExpenses / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%`,
-    ],
-    ['NET PROFIT', data.metrics.netProfit, `${data.metrics.netMarginPct.toFixed(1)}%`],
-    [],
-    ['Total Orders:', data.metrics.totalOrdersCount],
-    ['Total Units Sold:', data.metrics.totalUnitsSold],
-  ];
-  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  const wsSummary = XLSX.utils.aoa_to_sheet(buildProfitabilitySummaryRows(data, businessName));
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Executive Summary');
 
   // 2. Product Unit Margins Sheet
-  const productRows = [
-    [
-      'Product Name',
-      'Category',
-      'SKU',
-      'Units Sold',
-      'Avg Cost (GHS)',
-      'Avg Price (GHS)',
-      'Total Revenue (GHS)',
-      'Total COGS (GHS)',
-      'Gross Profit (GHS)',
-      'Margin %',
-      'Health Status',
-    ],
-    ...data.products.map((p) => [
-      p.name,
-      p.categoryName,
-      p.sku || '-',
-      p.unitsSold,
-      Number(p.averageCostPrice.toFixed(2)),
-      Number(p.averageSellingPrice.toFixed(2)),
-      Number(p.totalRevenue.toFixed(2)),
-      Number(p.totalCogs.toFixed(2)),
-      Number(p.grossProfit.toFixed(2)),
-      Number(p.marginPct.toFixed(1)),
-      p.healthStatus.toUpperCase(),
-    ]),
-  ];
-  const wsProducts = XLSX.utils.aoa_to_sheet(productRows);
+  const wsProducts = XLSX.utils.aoa_to_sheet(buildProductMarginRows(data));
   XLSX.utils.book_append_sheet(wb, wsProducts, 'Product Margins');
 
   // 3. Category Profitability Sheet
-  const categoryRows = [
-    [
-      'Category Name',
-      'Products Count',
-      'Units Sold',
-      'Total Revenue (GHS)',
-      'Total COGS (GHS)',
-      'Gross Profit (GHS)',
-      'Margin %',
-      'Profit Share %',
-    ],
-    ...data.categories.map((c) => [
-      c.categoryName,
-      c.productCount,
-      c.unitsSold,
-      Number(c.totalRevenue.toFixed(2)),
-      Number(c.totalCogs.toFixed(2)),
-      Number(c.grossProfit.toFixed(2)),
-      Number(c.marginPct.toFixed(1)),
-      Number(c.profitSharePct.toFixed(1)),
-    ]),
-  ];
-  const wsCategories = XLSX.utils.aoa_to_sheet(categoryRows);
+  const wsCategories = XLSX.utils.aoa_to_sheet(buildCategoryRows(data));
   XLSX.utils.book_append_sheet(wb, wsCategories, 'Categories');
 
   // 4. Channels Sheet
-  const channelRows = [
-    ['Sales Channel', 'Orders Count', 'Total Revenue (GHS)', 'Gross Profit (GHS)', 'Margin %'],
-    ...data.channels.map((ch) => [
-      ch.label,
-      ch.orderCount,
-      Number(ch.totalRevenue.toFixed(2)),
-      Number(ch.grossProfit.toFixed(2)),
-      Number(ch.marginPct.toFixed(1)),
-    ]),
-  ];
-  const wsChannels = XLSX.utils.aoa_to_sheet(channelRows);
+  const wsChannels = XLSX.utils.aoa_to_sheet(buildChannelRows(data));
   XLSX.utils.book_append_sheet(wb, wsChannels, 'Sales Channels');
 
   const fileName = `Profitability_Report_${data.period}_${data.dateRange.from}_to_${data.dateRange.to}.xlsx`;
@@ -126,36 +34,7 @@ export function exportProfitabilityToExcel(data: ProfitabilityData, businessName
 }
 
 export function exportProfitabilityToCSV(data: ProfitabilityData): void {
-  const rows = [
-    [
-      'Product Name',
-      'Category',
-      'SKU',
-      'Units Sold',
-      'Avg Cost (GHS)',
-      'Avg Price (GHS)',
-      'Total Revenue (GHS)',
-      'Total COGS (GHS)',
-      'Gross Profit (GHS)',
-      'Margin %',
-      'Status',
-    ],
-    ...data.products.map((p) => [
-      `"${p.name.replace(/"/g, '""')}"`,
-      `"${p.categoryName.replace(/"/g, '""')}"`,
-      `"${(p.sku || '').replace(/"/g, '""')}"`,
-      p.unitsSold,
-      p.averageCostPrice.toFixed(2),
-      p.averageSellingPrice.toFixed(2),
-      p.totalRevenue.toFixed(2),
-      p.totalCogs.toFixed(2),
-      p.grossProfit.toFixed(2),
-      `${p.marginPct.toFixed(1)}%`,
-      p.healthStatus,
-    ]),
-  ];
-
-  const csvContent = rows.map((e) => e.join(',')).join('\n');
+  const csvContent = buildProfitabilityCsv(data);
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -217,11 +96,11 @@ export function exportProfitabilityToPDF(data: ProfitabilityData, businessName: 
           </thead>
           <tbody>
             <tr class="highlight"><td>Gross Revenue</td><td class="text-right">${formatCurrency(data.metrics.grossRevenue, 'GHS')}</td><td class="text-right">100.0%</td></tr>
-            <tr><td>Cost of Goods Sold (COGS)</td><td class="text-right">${formatCurrency(data.metrics.cogs, 'GHS')}</td><td class="text-right">${((data.metrics.cogs / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%</td></tr>
+            <tr><td>Cost of Goods Sold (COGS)</td><td class="text-right">${formatCurrency(data.metrics.cogs, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.cogs, data.metrics.grossRevenue)}</td></tr>
             <tr class="font-bold"><td>Gross Profit</td><td class="text-right">${formatCurrency(data.metrics.grossProfit, 'GHS')}</td><td class="text-right">${data.metrics.grossMarginPct.toFixed(1)}%</td></tr>
-            <tr><td>Operating Expenses (OPEX)</td><td class="text-right">${formatCurrency(data.metrics.operatingExpenses, 'GHS')}</td><td class="text-right">${((data.metrics.operatingExpenses / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%</td></tr>
-            <tr><td>Inbound Freight & Customs Duties</td><td class="text-right">${formatCurrency(data.metrics.logisticsFreightCost, 'GHS')}</td><td class="text-right">${((data.metrics.logisticsFreightCost / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%</td></tr>
-            <tr><td>Gateway & Payment Processing Fees</td><td class="text-right">${formatCurrency(data.metrics.gatewayFees, 'GHS')}</td><td class="text-right">${((data.metrics.gatewayFees / (data.metrics.grossRevenue || 1)) * 100).toFixed(1)}%</td></tr>
+            <tr><td>Operating Expenses (OPEX)</td><td class="text-right">${formatCurrency(data.metrics.operatingExpenses, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.operatingExpenses, data.metrics.grossRevenue)}</td></tr>
+            <tr><td>Inbound Freight & Customs Duties</td><td class="text-right">${formatCurrency(data.metrics.logisticsFreightCost, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.logisticsFreightCost, data.metrics.grossRevenue)}</td></tr>
+            <tr><td>Gateway & Payment Processing Fees</td><td class="text-right">${formatCurrency(data.metrics.gatewayFees, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.gatewayFees, data.metrics.grossRevenue)}</td></tr>
             <tr class="net-profit-row"><td>NET PROFIT</td><td class="text-right">${formatCurrency(data.metrics.netProfit, 'GHS')}</td><td class="text-right">${data.metrics.netMarginPct.toFixed(1)}%</td></tr>
           </tbody>
         </table>
