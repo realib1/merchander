@@ -107,6 +107,8 @@ in real commerce data, under Green/Yellow/Red controls with human handoff.
     supplier performance scoring.
 25. **Deployment readiness** - Vercel config, env review, production build +
     smoke-test path.
+26. **Platform General Settings** - global platform configuration, branding,
+    integrations, and feature flags backed by a singleton `platform_settings` table.
 
 ## Data model
 
@@ -213,6 +215,8 @@ locked - later features build on them.
   `token`, `reason`, `duration_hours`, `status` (`active` | `revoked` |
   `expired`), `expires_at`. RLS: tenant members SELECT, tenant owner/admin write,
   platform staff SELECT.
+- **platform_settings**: singleton (id=1). `platform_name`, `support_email`,
+  `default_currency`, `maintenance_mode`, `disable_new_signups`, `integrations` (jsonb).
 
 ### helpers
 

@@ -2438,6 +2438,7 @@ export type Database = {
       get_customer_page_metrics: { Args: never; Returns: Json }
       get_dashboard_metrics: { Args: { p_days?: number }; Returns: Json }
       get_inventory_metrics: { Args: never; Returns: Json }
+      get_platform_overview_snapshot: { Args: never; Returns: Json }
       increment_inventory_batch: {
         Args: { items: Json; target_store_id: string }
         Returns: undefined

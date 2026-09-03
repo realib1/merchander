@@ -34,6 +34,7 @@ export const PLATFORM_RBAC_RULES: Record<string, PlatformRole[]> = {
   '/platform/communications': ['platform_owner', 'platform_admin', 'operations'],
   '/platform/security': ['platform_owner', 'platform_admin', 'compliance'],
   '/platform/audit-logs': ['platform_owner', 'platform_admin', 'compliance'],
+  '/platform/settings': ['platform_owner', 'platform_admin'],
 };
 
 /**

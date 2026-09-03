@@ -87,3 +87,4 @@
   recommendations, supplier performance scoring.
 - [ ] 25. **Deployment readiness** - Vercel config, env var review, production
   build + smoke-test path (`/release vercel`).
+- [x] 26. **Platform General Settings** - global platform configuration, branding, integrations, and feature flags backed by a singleton `platform_settings` table.

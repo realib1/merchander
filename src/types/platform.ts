@@ -217,3 +217,15 @@ export interface AuditLogEntry {
   ip_address?: string;
   created_at: string;
 }
+
+export interface PlatformSettings {
+  id: number;
+  platform_name: string;
+  support_email: string | null;
+  default_currency: string;
+  maintenance_mode: boolean;
+  disable_new_signups: boolean;
+  integrations: Record<string, unknown>;
+  updated_at: string;
+}
+

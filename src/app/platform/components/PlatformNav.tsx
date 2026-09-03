@@ -17,6 +17,7 @@ import {
   LogOut,
   X,
   Shield,
+  Settings,
 } from 'lucide-react';
 import { useMobileNav } from '@/app/dashboard/components/MobileNavContext';
 import { PlatformRole } from '@/types/platform';
@@ -145,6 +146,11 @@ export function PlatformNav({
           href: '/platform/audit-logs',
           label: 'Audit Logs',
           icon: History,
+        },
+        {
+          href: '/platform/settings',
+          label: 'Platform Settings',
+          icon: Settings,
         },
 
       ].filter((item) => isRoleAllowed(item.href)),

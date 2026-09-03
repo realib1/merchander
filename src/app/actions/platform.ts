@@ -53,6 +53,29 @@ export async function verifyPlatformStaff(allowedRoles?: PlatformRole[]) {
   return { user, role: userRole };
 }
 
+type AdminClient = ReturnType<typeof createAdminClient>;
+type PlatformAuthUser = Awaited<ReturnType<AdminClient['auth']['admin']['listUsers']>>['data']['users'][number];
+
+/**
+ * Page through every auth user for the platform console. `listUsers` caps a
+ * single call at its page size, so a bare call silently drops users past the
+ * first page (finding F-13).
+ */
+async function listAllPlatformAuthUsers(admin: AdminClient): Promise<PlatformAuthUser[]> {
+  const users: PlatformAuthUser[] = [];
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) {
+      console.error('Error listing platform auth users:', error);
+      break;
+    }
+    const batch = data?.users ?? [];
+    users.push(...batch);
+    if (batch.length < 1000) break;
+  }
+  return users;
+}
+
 /**
  * 1. Overview & Merchants: Fetch real platform data from database
  */
@@ -65,33 +88,45 @@ export async function getPlatformOverviewData(): Promise<{
     await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform']);
     const adminSupabase = createAdminClient();
 
-    // Query all real database tables simultaneously
+    // Bounded selects (tenants, staff, settings, channels, subscriptions,
+    // incidents) plus one aggregate RPC that replaces the old whole-table scans
+    // of `orders` and `products` (finding F-13).
     const [
       tenantsRes,
-      usersListRes,
+      authUsers,
       tenantUsersRes,
       settingsRes,
-      productsRes,
-      ordersRes,
       channelConnectionsRes,
       incidentsRes,
       subscriptionsRes,
+      snapshotRes,
     ] = await Promise.all([
       adminSupabase
         .from('tenants')
         .select('id, name, created_at, stores(id, name, location, is_primary)')
         .order('created_at', { ascending: false }),
-      adminSupabase.auth.admin.listUsers({ perPage: 1000 }),
+      listAllPlatformAuthUsers(adminSupabase),
       adminSupabase.from('tenant_users').select('tenant_id, user_id, role'),
       adminSupabase
         .from('tenant_settings')
         .select('tenant_id, store_name, slug, store_email, business_phone, business_country, custom_domain, settings_data'),
-      adminSupabase.from('products').select('id, tenant_id'),
-      adminSupabase.from('orders').select('id, tenant_id, total_amount, status, created_at'),
       adminSupabase.from('channel_connections').select('tenant_id, channel, status'),
       adminSupabase.from('platform_incidents').select('*').eq('is_active', true),
       adminSupabase.from('tenant_subscriptions').select('tenant_id, tier, status, billing_cycle, price_monthly, renewal_date, payment_method'),
+      adminSupabase.rpc('get_platform_overview_snapshot'),
     ]);
+
+    interface OverviewSnapshot {
+      tenant_stats: Array<{ tenant_id: string; order_count: number; gmv: number; product_count: number }>;
+      totals: { total_orders: number; total_products: number; total_gmv: number };
+    }
+    const snapshot: OverviewSnapshot = (snapshotRes.data as OverviewSnapshot | null) ?? {
+      tenant_stats: [],
+      totals: { total_orders: 0, total_products: 0, total_gmv: 0 },
+    };
+    if (snapshotRes.error) {
+      console.error('Error fetching platform overview snapshot:', snapshotRes.error);
+    }
 
     if (tenantsRes.error) {
       console.error('Error fetching tenants for admin:', tenantsRes.error);
@@ -102,7 +137,7 @@ export async function getPlatformOverviewData(): Promise<{
       string,
       { email: string; name: string; phone: string }
     >();
-    (usersListRes.data?.users || []).forEach((u) => {
+    authUsers.forEach((u) => {
       const meta = (u.user_metadata as Record<string, unknown>) || {};
       const fullName = (meta.full_name as string) || (meta.name as string) || '';
       const phone = (meta.phone as string) || u.phone || '';
@@ -127,15 +162,17 @@ export async function getPlatformOverviewData(): Promise<{
       }
     });
 
-    // Map product counts
+    // Per-tenant product / order / GMV counts come from the aggregate RPC.
     const productCountMap = new Map<string, number>();
-    (productsRes.data || []).forEach((p) => {
-      productCountMap.set(p.tenant_id, (productCountMap.get(p.tenant_id) || 0) + 1);
-    });
-
-    // Map order counts & GMV
     const orderCountMap = new Map<string, number>();
     const gmvMap = new Map<string, number>();
+    snapshot.tenant_stats.forEach((s) => {
+      productCountMap.set(s.tenant_id, Number(s.product_count) || 0);
+      orderCountMap.set(s.tenant_id, Number(s.order_count) || 0);
+      gmvMap.set(s.tenant_id, Number(s.gmv) || 0);
+    });
+    const totalPlatformGMV = Number(snapshot.totals.total_gmv) || 0;
+
     // Map subscriptions
     interface TenantSubRow {
       tenant_id: string;
@@ -149,16 +186,6 @@ export async function getPlatformOverviewData(): Promise<{
     const subscriptionsMap = new Map<string, TenantSubRow>();
     ((subscriptionsRes.data as TenantSubRow[] | null) || []).forEach((s) => {
       subscriptionsMap.set(s.tenant_id, s);
-    });
-
-    let totalPlatformGMV = 0;
-    (ordersRes.data || []).forEach((o) => {
-      orderCountMap.set(o.tenant_id, (orderCountMap.get(o.tenant_id) || 0) + 1);
-      const amt = Number(o.total_amount || 0);
-      if (o.status === 'paid' || o.status === 'completed' || o.status === 'delivered') {
-        gmvMap.set(o.tenant_id, (gmvMap.get(o.tenant_id) || 0) + amt);
-        totalPlatformGMV += amt;
-      }
     });
 
     // Map channel connections
@@ -303,8 +330,8 @@ export async function getPlatformOverviewData(): Promise<{
       suspendedTenants: suspendedTenantsCount,
       payingTenants: payingTenantsCount,
       totalStores,
-      totalProducts: (productsRes.data || []).length,
-      totalOrders: (ordersRes.data || []).length,
+      totalProducts: Number(snapshot.totals.total_products) || 0,
+      totalOrders: Number(snapshot.totals.total_orders) || 0,
       totalGMV: totalPlatformGMV,
       platformMRR: totalMRR,
       tierCounts,
