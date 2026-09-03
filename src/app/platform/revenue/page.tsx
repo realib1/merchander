@@ -1,6 +1,6 @@
 import React from 'react';
 import { getPlatformRevenueMetricsAction } from '@/app/actions/platform';
-import { TrendingUp, CreditCard, DollarSign, Users } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { MetricCard } from '@/components/ui/MetricCard';
 
 export const dynamic = 'force-dynamic';
@@ -31,30 +31,6 @@ export default async function PlatformRevenuePage() {
           subtitle="Sum of active subscription prices"
           icon={<TrendingUp size={16} className="text-emerald-500" />}
           iconBg="bg-emerald-500/10"
-        />
-
-        <MetricCard
-          title="Projected ARR"
-          value={`GH₵ ${metrics.projectedARR.toLocaleString()}`}
-          subtitle="12-month run rate projection"
-          icon={<DollarSign size={16} className="text-brand-primary" />}
-          iconBg="bg-brand-primary/10"
-        />
-
-        <MetricCard
-          title="ARPU (Per Paid Account)"
-          value={`GH₵ ${metrics.arpuGHS.toLocaleString()}`}
-          subtitle="Blended across commercial tiers"
-          icon={<CreditCard size={16} className="text-purple-500" />}
-          iconBg="bg-purple-500/10"
-        />
-
-        <MetricCard
-          title="Past Due Accounts"
-          value={metrics.failedBillingCount}
-          subtitle="Subscriptions flagged past_due"
-          icon={<Users size={16} className="text-blue-500" />}
-          iconBg="bg-blue-500/10"
         />
       </div>
 

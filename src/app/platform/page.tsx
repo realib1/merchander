@@ -111,7 +111,6 @@ export default async function PlatformOverviewPage() {
         <MetricCard
           title="Platform MRR"
           value={`GH₵ ${kpis.platformMRR.toLocaleString()}`}
-          diffText={`ARR: GH₵ ${kpis.projectedARR.toLocaleString()}`}
           icon={<TrendingUp size={16} className="text-emerald-500" />}
           iconBg="bg-emerald-500/10"
         />

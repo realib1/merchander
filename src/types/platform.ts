@@ -84,7 +84,6 @@ export interface PlatformOverviewKPIs {
   totalOrders: number;
   totalGMV: number;
   platformMRR: number;
-  projectedARR: number;
   tierCounts: Record<PlatformTier, number>;
   tierRevenue: Record<PlatformTier, number>;
   unprovisionedTenants: number;
@@ -130,9 +129,6 @@ export interface PlatformPlan {
  */
 export interface PlatformRevenueMetrics {
   contractedMRR: number;
-  projectedARR: number;
-  arpuGHS: number;
-  failedBillingCount: number;
   revenueByPlan: Array<{
     planSlug: string;
     planName: string;

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useMobileNav } from '@/app/dashboard/components/MobileNavContext';
 import { PlatformRole } from '@/types/platform';
+import { PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
@@ -68,26 +69,9 @@ export function PlatformNav({
     }
   };
 
-  const PAGE_ROLES: Record<string, PlatformRole[]> = {
-    '/platform': ['platform_owner', 'platform_admin', 'operations', 'support', 'finance', 'tech_admin', 'compliance'],
-    '/platform/merchants': ['platform_owner', 'platform_admin', 'operations', 'support', 'finance', 'tech_admin', 'compliance'],
-    '/platform/plans-billing': ['platform_owner', 'platform_admin'],
-    '/platform/revenue': ['platform_owner', 'platform_admin', 'finance'],
-
-
-    '/platform/domains': ['platform_owner', 'platform_admin', 'tech_admin'],
-
-    '/platform/system-health': ['platform_owner', 'platform_admin', 'tech_admin', 'operations'],
-    '/platform/support': ['platform_owner', 'platform_admin', 'support', 'operations', 'tech_admin'],
-    '/platform/communications': ['platform_owner', 'platform_admin', 'operations'],
-    '/platform/security': ['platform_owner', 'platform_admin', 'compliance'],
-    '/platform/audit-logs': ['platform_owner', 'platform_admin', 'compliance'],
-
-  };
-
   const isRoleAllowed = (href: string) => {
     if (userRole === 'platform_owner') return true;
-    const allowed = PAGE_ROLES[href];
+    const allowed = PLATFORM_RBAC_RULES[href];
     if (!allowed) return true;
     return allowed.includes(userRole as PlatformRole);
   };

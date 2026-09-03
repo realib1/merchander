@@ -15,7 +15,7 @@ import {
 } from '@/types/platform';
 import { SystemIncident, SupportAccessGrant } from '@/types/support';
 import { logPlatformAuditAction } from './platform-audit';
-import { getPlatformStaffRecord } from '@/lib/auth/platform-staff';
+import { getPlatformStaffRecord, PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
 
 
 
@@ -62,7 +62,7 @@ export async function getPlatformOverviewData(): Promise<{
   error?: string;
 }> {
   try {
-    await verifyPlatformStaff();
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform']);
     const adminSupabase = createAdminClient();
 
     // Query all real database tables simultaneously
@@ -307,7 +307,6 @@ export async function getPlatformOverviewData(): Promise<{
       totalOrders: (ordersRes.data || []).length,
       totalGMV: totalPlatformGMV,
       platformMRR: totalMRR,
-      projectedARR: totalMRR * 12,
       tierCounts,
       tierRevenue,
       unprovisionedTenants: tierCounts.none,
@@ -337,7 +336,6 @@ export async function getPlatformOverviewData(): Promise<{
         totalOrders: 0,
         totalGMV: 0,
         platformMRR: 0,
-        projectedARR: 0,
         tierCounts: { none: 0, free: 0, starter: 0, growth: 0, business: 0, enterprise: 0 },
         tierRevenue: { none: 0, free: 0, starter: 0, growth: 0, business: 0, enterprise: 0 },
         unprovisionedTenants: 0,
@@ -368,13 +366,7 @@ export async function getMerchantContextAction(
   error?: string;
 }> {
   try {
-    const { user, role } = await verifyPlatformStaff([
-      'platform_owner',
-      'platform_admin',
-      'operations',
-      'support',
-      'tech_admin',
-    ]);
+    const { user, role } = await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/merchants']);
     const adminSupabase = createAdminClient();
 
     // 1. Audit this merchant context inspection in immutable audit logs
@@ -500,7 +492,7 @@ export async function getMerchantContextAction(
  */
 export async function getPlatformPlansAction(): Promise<{ plans: PlatformPlan[]; error?: string }> {
   try {
-    await verifyPlatformStaff();
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing']);
     const adminSupabase = createAdminClient();
     const { data, error } = await adminSupabase
       .from('platform_plans')
@@ -542,7 +534,7 @@ export async function getPlatformRevenueMetricsAction(): Promise<{
   error?: string;
 }> {
   try {
-    await verifyPlatformStaff(['platform_owner', 'platform_admin', 'finance']);
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/revenue']);
     const adminSupabase = createAdminClient();
 
     const [overview, plansRes] = await Promise.all([
@@ -565,14 +557,9 @@ export async function getPlatformRevenueMetricsAction(): Promise<{
         };
       });
 
-    const arpu = kpis.payingTenants > 0 ? Math.round(kpis.platformMRR / kpis.payingTenants) : 0;
-
     return {
       metrics: {
         contractedMRR: kpis.platformMRR,
-        projectedARR: kpis.projectedARR,
-        arpuGHS: arpu,
-        failedBillingCount: kpis.pastDueTenants,
         revenueByPlan,
       },
     };
@@ -581,9 +568,6 @@ export async function getPlatformRevenueMetricsAction(): Promise<{
     return {
       metrics: {
         contractedMRR: 0,
-        projectedARR: 0,
-        arpuGHS: 0,
-        failedBillingCount: 0,
         revenueByPlan: [],
       },
       error: err instanceof Error ? err.message : 'Failed to fetch revenue metrics',
@@ -599,7 +583,7 @@ export async function getDomainInfrastructureAction(): Promise<{
   error?: string;
 }> {
   try {
-    await verifyPlatformStaff(['platform_owner', 'platform_admin', 'tech_admin']);
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/domains']);
     const adminSupabase = createAdminClient();
 
     const [

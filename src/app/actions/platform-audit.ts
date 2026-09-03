@@ -86,19 +86,21 @@ export async function logPlatformAuditAction(params: {
  */
 export async function getPlatformAuditLogsAction(options?: {
   limit?: number;
+  offset?: number;
   targetType?: string;
   actorEmail?: string;
-}): Promise<{ logs: AuditLogEntry[]; error?: string }> {
+}): Promise<{ logs: AuditLogEntry[]; error?: string; count?: number }> {
   try {
     await verifyPlatformStaff(['platform_owner', 'platform_admin', 'compliance']);
     const adminSupabase = createAdminClient();
     const limit = options?.limit || 50;
+    const offset = options?.offset || 0;
 
     let query = adminSupabase
       .from('platform_audit_logs')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
-      .limit(limit);
+      .range(offset, offset + limit - 1);
 
     if (options?.targetType && options.targetType !== 'all') {
       query = query.eq('target_type', options.targetType);
@@ -107,12 +109,11 @@ export async function getPlatformAuditLogsAction(options?: {
       query = query.ilike('actor_email', `%${options.actorEmail}%`);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       console.warn('Audit logs table query error:', error.message);
-      // Fallback empty if migration is fresh
-      return { logs: [] };
+      return { logs: [], error: `Database error: ${error.message}` };
     }
 
     const formattedLogs: AuditLogEntry[] = (data || []).map((row) => ({
@@ -130,7 +131,7 @@ export async function getPlatformAuditLogsAction(options?: {
       created_at: row.created_at,
     }));
 
-    return { logs: formattedLogs };
+    return { logs: formattedLogs, count: count || undefined };
   } catch (err) {
     console.error('Error fetching platform audit logs:', err);
     return { logs: [], error: err instanceof Error ? err.message : 'Failed to fetch audit logs' };

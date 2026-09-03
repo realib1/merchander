@@ -4,7 +4,21 @@ import type { PlatformRole } from '@/types/platform';
 export interface PlatformStaffRecord {
   role: PlatformRole;
   is_active: boolean;
+  mfa_enabled: boolean;
 }
+
+export const PLATFORM_RBAC_RULES: Record<string, PlatformRole[]> = {
+  '/platform': ['platform_owner', 'platform_admin', 'operations', 'support', 'finance', 'tech_admin', 'compliance'],
+  '/platform/merchants': ['platform_owner', 'platform_admin', 'operations', 'support', 'finance', 'tech_admin', 'compliance'],
+  '/platform/plans-billing': ['platform_owner', 'platform_admin'],
+  '/platform/revenue': ['platform_owner', 'platform_admin', 'finance'],
+  '/platform/domains': ['platform_owner', 'platform_admin', 'tech_admin'],
+  '/platform/system-health': ['platform_owner', 'platform_admin', 'tech_admin', 'operations'],
+  '/platform/support': ['platform_owner', 'platform_admin', 'support', 'operations', 'tech_admin'],
+  '/platform/communications': ['platform_owner', 'platform_admin', 'operations'],
+  '/platform/security': ['platform_owner', 'platform_admin', 'compliance'],
+  '/platform/audit-logs': ['platform_owner', 'platform_admin', 'compliance'],
+};
 
 /**
  * Look up the caller's platform_staff_users row. Returns null when there is none.
@@ -17,12 +31,16 @@ export async function getPlatformStaffRecord(
 ): Promise<PlatformStaffRecord | null> {
   const { data } = await client
     .from('platform_staff_users')
-    .select('role, is_active')
+    .select('role, is_active, mfa_enabled')
     .eq('user_id', userId)
     .maybeSingle();
 
   if (!data) return null;
-  return { role: data.role as PlatformRole, is_active: data.is_active === true };
+  return { 
+    role: data.role as PlatformRole, 
+    is_active: data.is_active === true,
+    mfa_enabled: data.mfa_enabled === true
+  };
 }
 
 /** True only for a user with an active platform_staff_users row. */

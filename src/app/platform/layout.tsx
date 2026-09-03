@@ -32,6 +32,25 @@ export default async function PlatformLayout({ children }: { children: React.Rea
 
   const userRole: PlatformRole = staff.role;
 
+  if (staff.mfa_enabled) {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.currentLevel !== 'aal2') {
+      return (
+        <div className="flex h-screen items-center justify-center bg-background text-foreground">
+          <div className="max-w-md w-full p-8 bg-surface border border-separator rounded-3xl shadow-xl text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 border border-destructive/20 text-destructive flex items-center justify-center mx-auto mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h1 className="text-2xl font-bold font-display text-foreground">Authentication Incomplete</h1>
+            <p className="text-sm text-muted mb-6">
+              Platform administration requires Multi-Factor Authentication. Please complete your secondary verification to continue.
+            </p>
+          </div>
+        </div>
+      );
+    }
+  }
+
   let openTicketsCount = 0;
   let activeIncidentsCount = 0;
 

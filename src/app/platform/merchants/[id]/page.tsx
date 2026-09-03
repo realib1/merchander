@@ -14,6 +14,7 @@ import {
   Key,
   ShieldAlert,
   Clock,
+  Lock,
 } from 'lucide-react';
 import { getMerchantContextAction } from '@/app/actions/platform';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -22,13 +23,91 @@ export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function MerchantContextPage({ params }: PageProps) {
+export default async function MerchantContextPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const resolvedParams = await searchParams;
+  
+  const reason = typeof resolvedParams.reason === 'string' ? resolvedParams.reason : undefined;
+  const ticketId = typeof resolvedParams.ticket_id === 'string' ? resolvedParams.ticket_id : undefined;
+
+  // Gate Check
+  if (!reason) {
+    return (
+      <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-6">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/platform/merchants"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-foreground transition-colors"
+          >
+            <ArrowLeft size={14} />
+            <span>Back to Merchants</span>
+          </Link>
+        </div>
+
+        <div className="max-w-md mx-auto mt-12 p-8 bg-surface border border-separator rounded-2xl shadow-xl w-full">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary">
+              <Lock size={28} />
+            </div>
+          </div>
+          <h2 className="text-xl font-bold font-display text-center mb-2">Access Protected</h2>
+          <p className="text-sm text-muted text-center mb-8">
+            You are attempting to access sensitive merchant data. This action will be recorded in the immutable audit log.
+          </p>
+
+          <form method="GET" action={`/platform/merchants/${id}`} className="space-y-5">
+            <div className="space-y-1.5">
+              <label htmlFor="reason" className="text-xs font-bold text-foreground">
+                Reason for Access <span className="text-destructive">*</span>
+              </label>
+              <select
+                id="reason"
+                name="reason"
+                required
+                className="w-full px-3 py-2 bg-background border border-separator rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all appearance-none"
+              >
+                <option value="">Select a reason...</option>
+                <option value="Customer Support Investigation">Customer Support Investigation</option>
+                <option value="Billing & Subscription Review">Billing & Subscription Review</option>
+                <option value="Security Incident Investigation">Security Incident Investigation</option>
+                <option value="Compliance Audit">Compliance Audit</option>
+                <option value="Account Suspension/Reactivation">Account Suspension/Reactivation</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="ticket_id" className="text-xs font-bold text-foreground">
+                Support Ticket ID <span className="text-muted font-normal">(Optional)</span>
+              </label>
+              <input
+                id="ticket_id"
+                name="ticket_id"
+                type="text"
+                placeholder="e.g. TKT-8492"
+                className="w-full px-3 py-2 bg-background border border-separator rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-brand-primary text-brand-primary-foreground text-sm font-bold rounded-xl hover:bg-brand-primary/90 transition-colors shadow-sm mt-2"
+            >
+              Confirm Access
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  const fullReason = ticketId ? `${reason} (Ticket #${ticketId})` : reason;
+
   const { tenant, activeGrant, auditTrail, error } = await getMerchantContextAction(
     id,
-    'Admin platform context diagnosis'
+    fullReason
   );
 
   if (error || !tenant) {
