@@ -5,8 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { PlatformSupportTicket } from '@/types/platform';
 import { logPlatformAuditAction } from './platform-audit';
 import { verifyPlatformStaff } from './platform';
-
-const SUPPORT_INBOX_ROLES = ['platform_owner', 'platform_admin', 'operations', 'support', 'compliance'] as const;
+import { PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
 
 /**
  * Admin: Fetch support tickets across all tenants with filter & SLA tags
@@ -17,7 +16,7 @@ export async function getPlatformSupportTicketsAction(filters?: {
   category?: string;
 }): Promise<{ tickets: PlatformSupportTicket[]; error?: string }> {
   try {
-    await verifyPlatformStaff([...SUPPORT_INBOX_ROLES]);
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/support']);
     const adminSupabase = createAdminClient();
 
     const [
@@ -112,7 +111,7 @@ export async function updateSupportTicketStatusAction(
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { user } = await verifyPlatformStaff([...SUPPORT_INBOX_ROLES]);
+    const { user } = await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/support']);
     const adminSupabase = createAdminClient();
 
     const { data: setting } = await adminSupabase
