@@ -7,25 +7,6 @@
 > finding is `open` or `fixed`, then archives resolved findings with the work
 > and resets this file.
 
-### F-12 [P2] open - Policy-rewrite migration is fragile in four ways
-
-**File:** supabase/migrations/20260903002200_move_platform_staff_to_private.sql:48
-**Found:** 2026-09-03 by /audit (scope: full; lens: quality)
-**Why it matters:** Four defects in the same DO block. The nested REPLACE turns
-`public.is_platform_staff()` into `private.private.is_platform_staff()`, because
-the second pass matches the substring inside the first pass's output; it survives
-today only because the earlier `is_superadmin` purge left the stored expressions
-unqualified, which depends on `search_path`. Re-running the migration breaks for
-the same reason. `array_to_string(pol.roles, ', ')` does not quote role
-identifiers. `permissive` is not read, so a RESTRICTIVE policy would be recreated
-as PERMISSIVE and silently weakened (none exist today). And unlike every other
-migration in the project, it omits `NOTIFY pgrst, 'reload schema'` after changing
-the REST surface.
-**Suggested fix:** Normalise first, then substitute once:
-`REPLACE(REPLACE(qual, 'public.is_platform_staff()', 'is_platform_staff()'), 'is_platform_staff()', 'private.is_platform_staff()')`.
-Carry `permissive` through, quote roles with `%I`, and add the NOTIFY.
-**Resolution:**
-
 ### F-13 [P2] open - Platform overview fetches whole tables on every page load
 
 **File:** src/app/actions/platform.ts:88
@@ -148,3 +129,37 @@ regression-risk and consistency issue, not a live defect.
 **Suggested fix:** Move a generic `timingSafeStringEqual(a, b)` into
 `webhook-signature.ts`, use it from both routes, and add a focused test.
 **Resolution:**
+
+### F-21 [P2] fixed - Widening the plan-read gate leaves /platform/plans-billing with no role guard
+
+**File:** src/app/platform/plans-billing/page.tsx:8
+**Found:** 2026-09-03 by /audit (scope: current; lens: security)
+**Why it matters:** The F-07 fix regated `getPlatformPlansAction` from
+owner/admin to all seven staff roles (correct: the plan catalogue is shown on
+`/platform` and `/platform/merchants`). But `/platform/plans-billing` has **no
+route-level RBAC** - `platform/layout.tsx` only checks "active platform staff",
+and `PLATFORM_RBAC_RULES['/platform/plans-billing']` is enforced nowhere except
+`PlatformNav` link visibility. Previously the owner/admin gate *inside*
+`getPlatformPlansAction` incidentally blocked the page for other roles (they got
+`{ plans: [], error: 'Forbidden' }` and an error box). After the change, an
+`operations`/`support`/`finance`/`tech_admin`/`compliance` user who navigates to
+`/platform/plans-billing` by URL now sees the full `PlansBillingClient` with real
+plan data and interactive Create/Edit/Toggle controls; the write actions still
+403 on click (their gate is unchanged), so this is not privilege escalation and
+the data is non-sensitive by F-07's own reasoning - but it breaks the spec's
+stated "must not break" invariant ("`/platform/plans-billing` as `operations`:
+still 403") and shows an editor full of dead controls to five roles.
+**Suggested fix:** Add an explicit guard at the top of `PlansBillingPage` (and/or
+the plan-write section of the client): `await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing'])`
+wrapped to `redirect('/platform')` on throw, so the route 403s for non-admins
+independently of the read action. Keeps the F-07 widening for the overview and
+merchants pages while restoring the plans-billing route boundary.
+**Resolution:** Fixed on `fix/platform-console-consolidation` (spec step 4).
+`PlansBillingPage` now runs
+`try { await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing']) } catch { redirect('/platform') }`
+before the plan read, so the route redirects away for the five non-owner/admin
+roles independently of the widened read action; owner/admin render and write
+paths are unchanged. `yarn check` / `yarn lint` / `yarn build` / `yarn test`
+(184) all clean. No live non-admin staff login was available, so route behavior
+is inferred from the shared `verifyPlatformStaff` gate (used by every other
+platform action) plus the green build. Awaiting `/audit` re-review to close.

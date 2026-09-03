@@ -15,7 +15,7 @@ import {
 } from '@/types/platform';
 import { SystemIncident, SupportAccessGrant } from '@/types/support';
 import { logPlatformAuditAction } from './platform-audit';
-import { getPlatformStaffRecord, PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
+import { getPlatformStaffRecord, PLATFORM_RBAC_RULES, PLATFORM_PLAN_READ_ROLES } from '@/lib/auth/platform-staff';
 
 
 
@@ -492,7 +492,7 @@ export async function getMerchantContextAction(
  */
 export async function getPlatformPlansAction(): Promise<{ plans: PlatformPlan[]; error?: string }> {
   try {
-    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing']);
+    await verifyPlatformStaff(PLATFORM_PLAN_READ_ROLES);
     const adminSupabase = createAdminClient();
     const { data, error } = await adminSupabase
       .from('platform_plans')

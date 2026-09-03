@@ -7,6 +7,22 @@ export interface PlatformStaffRecord {
   mfa_enabled: boolean;
 }
 
+/**
+ * Roles allowed to *read* the commercial plan catalogue. The plan list and
+ * prices are shown on `/platform` and `/platform/merchants`, both open to every
+ * staff role, so the read is gated to all seven. Plan *writes* stay owner/admin
+ * only (see `actions/platform-plans.ts`).
+ */
+export const PLATFORM_PLAN_READ_ROLES: PlatformRole[] = [
+  'platform_owner',
+  'platform_admin',
+  'operations',
+  'support',
+  'finance',
+  'tech_admin',
+  'compliance',
+];
+
 export const PLATFORM_RBAC_RULES: Record<string, PlatformRole[]> = {
   '/platform': ['platform_owner', 'platform_admin', 'operations', 'support', 'finance', 'tech_admin', 'compliance'],
   '/platform/merchants': ['platform_owner', 'platform_admin', 'operations', 'support', 'finance', 'tech_admin', 'compliance'],

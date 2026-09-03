@@ -1,10 +1,20 @@
 import React from 'react';
-import { getPlatformPlansAction } from '@/app/actions/platform';
+import { redirect } from 'next/navigation';
+import { getPlatformPlansAction, verifyPlatformStaff } from '@/app/actions/platform';
+import { PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
 import { PlansBillingClient } from './components/PlansBillingClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PlansBillingPage() {
+  // The plan-read action is open to all staff roles (it also feeds the overview
+  // and merchants pages); this route stays owner/admin only.
+  try {
+    await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/plans-billing']);
+  } catch {
+    redirect('/platform');
+  }
+
   const { plans, error } = await getPlatformPlansAction();
 
   return (
