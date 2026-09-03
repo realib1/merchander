@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { normalizeGhanaPhone } from '@/utils/phone';
 import { NormalizedMessage } from '@/types/messaging';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
-
-// Verification token for WhatsApp Cloud API
-const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'merchander_verify_token';
+import { verifyMetaSignature } from '@/utils/webhook-signature';
 
 /**
- * Handles Webhook Verification from Meta
+ * Handles webhook verification from Meta. Requires WHATSAPP_VERIFY_TOKEN to be
+ * configured; there is no fallback value.
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -15,7 +14,13 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
-  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+  const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
+  if (!verifyToken) {
+    console.error('WhatsApp webhook: WHATSAPP_VERIFY_TOKEN is not configured');
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 403 });
+  }
+
+  if (mode === 'subscribe' && token === verifyToken) {
     return new NextResponse(challenge, { status: 200 });
   }
 
@@ -27,7 +32,14 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+
+    if (!verifyMetaSignature(rawBody, request.headers.get('x-hub-signature-256'), process.env.WHATSAPP_APP_SECRET)) {
+      console.warn('WhatsApp webhook signature verification failed');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
+    }
+
+    const body = JSON.parse(rawBody);
 
     // 1. Validate WhatsApp Cloud API structure
     if (body.object === 'whatsapp_business_account') {

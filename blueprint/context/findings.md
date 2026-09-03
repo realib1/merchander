@@ -133,3 +133,18 @@ Hence P3, but it is the same hygiene gap F-01 named for `variantId`.
 `product_preorder_batches` row for its variant). Reject the order otherwise, the
 same way an unresolved `variantId` is rejected.
 **Resolution:**
+
+### F-20 [P3] open - Telegram secret check is a new pure security function that is neither shared nor tested
+
+**File:** src/app/api/webhooks/telegram/route.ts:10
+**Found:** 2026-09-03 by /audit (scope: current; lens: tests)
+**Why it matters:** The channel-webhook-auth fix extracts the WhatsApp signature
+check to `src/utils/webhook-signature.ts` with a 7-case test, but the sibling
+Telegram check (`secretTokenValid`, a constant-time header compare) stays inline
+in the route and has no test. The test gate is on, both are pure logic on a
+security path, and F-14 already flags this exact drift. The function is correct
+and runtime-verified (403 without the header, 200 with it), so this is a
+regression-risk and consistency issue, not a live defect.
+**Suggested fix:** Move a generic `timingSafeStringEqual(a, b)` into
+`webhook-signature.ts`, use it from both routes, and add a focused test.
+**Resolution:**

@@ -1,18 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { NormalizedMessage } from '@/types/messaging';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
 
-// Secret token configured in Telegram webhook setup
-const TELEGRAM_SECRET_TOKEN = process.env.TELEGRAM_SECRET_TOKEN || 'merchander_telegram_token';
+/**
+ * Constant-time equality for the Telegram secret token. Returns false when the
+ * header is absent or the expected token is not configured.
+ */
+function secretTokenValid(header: string | null): boolean {
+  const expected = process.env.TELEGRAM_SECRET_TOKEN;
+  if (!header || !expected) return false;
+  const a = Buffer.from(header);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
 
 /**
  * Handles incoming Telegram messages
  */
 export async function POST(request: NextRequest) {
   try {
-    // 1. Validate Telegram Secret Token
-    const secretToken = request.headers.get('x-telegram-bot-api-secret-token');
-    if (process.env.NODE_ENV === 'production' && secretToken !== TELEGRAM_SECRET_TOKEN) {
+    if (!secretTokenValid(request.headers.get('x-telegram-bot-api-secret-token'))) {
+      console.warn('Telegram webhook secret token verification failed');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -21,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (update.message && update.message.text) {
       const message = update.message;
 
-      // 2. Convert to Merchander NormalizedMessage
+      // Convert to Merchander NormalizedMessage
       const normalizedMsg: NormalizedMessage = {
         platform: 'telegram',
         external_id: message.message_id.toString(),
@@ -31,10 +41,10 @@ export async function POST(request: NextRequest) {
         timestamp: new Date(message.date * 1000).toISOString(),
       };
 
-      // 3. Pass to the Intelligence Brain Interface
+      // Pass to the Intelligence Brain Interface
       const extractedCart = await extractCartFromChat(normalizedMsg);
 
-      // 4. TODO: Trigger order state machine (Ticket 4)
+      // TODO: Trigger order state machine (Ticket 4)
       console.log('[Telegram Webhook] Extracted cart:', extractedCart);
     }
 
