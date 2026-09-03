@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export interface HubtelPromptParams {
   customerPhone: string;
   amount: number;
@@ -46,7 +48,8 @@ export function formatPhoneForHubtel(phone: string): string {
 }
 
 /**
- * Validates Hubtel Basic Auth / webhook authorization header
+ * Validates Hubtel Basic Auth / webhook authorization header.
+ * Fails closed: a missing header or unconfigured credentials never authenticate.
  */
 export function validateHubtelAuth(
   authHeader: string | null,
@@ -60,7 +63,12 @@ export function validateHubtelAuth(
 
   try {
     const expected = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    return authHeader === expected;
+    const received = Buffer.from(authHeader);
+    const expectedBuffer = Buffer.from(expected);
+
+    // Compare in constant time so a wrong header cannot be narrowed byte by byte.
+    if (received.length !== expectedBuffer.length) return false;
+    return crypto.timingSafeEqual(received, expectedBuffer);
   } catch (err) {
     console.error('Error validating Hubtel auth:', err);
     return false;

@@ -61,7 +61,7 @@ export function OrderTrackingView({
           setError(res.error || 'Could not verify order with this phone number.');
         }
       } else {
-        const res = await lookupCustomerOrder(config.tenant_id, query);
+        const res = await lookupCustomerOrder(slug, query);
         if (res.error) {
           setError(res.error);
         } else if (res.order) {

@@ -2,21 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { revalidatePath } from 'next/cache';
-import { StorefrontConfig, StorefrontPublicData, StoreOrderPayload } from '@/types/storefront';
+import { StorefrontConfig, StorefrontPublicData } from '@/types/storefront';
 import { generateStoreSlug } from '@/utils/storefront';
-
-function extractErrorMessage(err: unknown): string {
-  if (typeof err === 'object' && err !== null) {
-    if ('message' in err && typeof (err as { message: unknown }).message === 'string') {
-      return (err as { message: string }).message;
-    }
-  }
-  if (err instanceof Error) {
-    return err.message;
-  }
-  return 'Failed to process storefront order';
-}
 
 async function getStorefrontSupabase() {
   try {
@@ -284,74 +271,5 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
   } catch (err) {
     console.error('Error loading public storefront:', err);
     return null;
-  }
-}
-
-export async function submitPublicStoreOrder(payload: StoreOrderPayload) {
-  const supabase = await getStorefrontSupabase();
-
-  try {
-    const { tenantId, customerName, customerPhone, deliveryAddress, paymentMethod, items } = payload;
-    if (!items || items.length === 0) return { error: 'Cart is empty' };
-
-    // 1. Find or create customer
-    const { data: existingCustomer } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('tenant_id', tenantId)
-      .eq('phone', customerPhone)
-      .maybeSingle();
-
-    let customerId = existingCustomer?.id;
-    if (!customerId) {
-      const { data: newCust, error: custErr } = await supabase
-        .from('customers')
-        .insert({
-          tenant_id: tenantId,
-          name: customerName,
-          phone: customerPhone,
-        })
-        .select('id')
-        .single();
-      if (custErr) throw custErr;
-      customerId = newCust.id;
-    }
-
-    const totalAmount = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-
-    // 2. Create order
-    const { data: order, error: orderErr } = await supabase
-      .from('orders')
-      .insert({
-        tenant_id: tenantId,
-        customer_id: customerId,
-        total_amount: totalAmount,
-        status: 'pending_payment',
-        sales_channel: 'storefront',
-        payment_method: paymentMethod,
-        delivery_address: deliveryAddress,
-        notes: payload.deliveryNotes || null,
-      })
-      .select('id')
-      .single();
-
-    if (orderErr) throw orderErr;
-
-    // 3. Insert order items
-    const orderItems = items.map((item) => ({
-      order_id: order.id,
-      variant_id: item.variantId,
-      quantity: item.quantity,
-      unit_price: item.unitPrice,
-    }));
-
-    const { error: itemsErr } = await supabase.from('order_items').insert(orderItems);
-    if (itemsErr) throw itemsErr;
-
-    revalidatePath('/dashboard/orders');
-    return { success: true, orderId: order.id };
-  } catch (err: unknown) {
-    const message = extractErrorMessage(err);
-    return { error: message };
   }
 }

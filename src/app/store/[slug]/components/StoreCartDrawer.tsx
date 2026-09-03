@@ -111,7 +111,6 @@ export function StoreCartDrawer({
     setErrorMsg(null);
     startTransition(async () => {
       const res = await submitStorefrontOrder({
-        tenantId: config.tenant_id,
         tenantSlug: config.slug,
         customerName,
         customerPhone,
@@ -125,7 +124,6 @@ export function StoreCartDrawer({
           variantId: i.variantId,
           batchId: i.batchId || null,
           quantity: i.quantity,
-          unitPrice: i.price,
         })),
       });
 

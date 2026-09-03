@@ -7,14 +7,13 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { StorefrontConfig } from '@/types/storefront';
 import { generateStoreSlug } from '@/utils/storefront';
-import { getPublicStorefrontBySlug, submitPublicStoreOrder } from './storefront-public';
+import { getPublicStorefrontBySlug } from './storefront-public';
 import { submitStorefrontOrder } from './storefront-order';
 import { getStorefrontOrderTracking } from './storefront-tracking';
 import { syncGuestWishlist } from './storefront-wishlist';
 
 export {
   getPublicStorefrontBySlug,
-  submitPublicStoreOrder,
   submitStorefrontOrder,
   getStorefrontOrderTracking,
   syncGuestWishlist,

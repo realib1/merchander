@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { StorefrontTrackingOrder, OrderProgressStatus, StorefrontTrackingItem } from '@/types/storefront';
 import { hashOrderToken } from '@/utils/order-token';
 import { normalizeGhanaPhone } from '@/utils/phone';
@@ -43,7 +43,7 @@ export async function getStorefrontOrderTracking({
   token,
   phone,
 }: TrackOrderInput): Promise<TrackOrderResult> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     if (!orderIdOrShortId || (!token && !phone)) {
@@ -106,7 +106,9 @@ export async function getStorefrontOrderTracking({
     if (isUuid) {
       query = query.eq('id', cleanId);
     } else {
-      query = query.ilike('short_id', `%${cleanId}%`);
+      // Exact match only. A LIKE pattern here would let a wildcard select an
+      // arbitrary order now that this query runs without RLS.
+      query = query.eq('short_id', cleanId.toUpperCase());
     }
 
     const { data: orderData, error: orderErr } = await query.limit(1).maybeSingle();
@@ -240,12 +242,23 @@ export async function getStorefrontOrderTracking({
  * Backward compatibility helper for simple order lookup by Order ID or phone query.
  */
 export async function lookupCustomerOrder(
-  tenantId: string,
+  tenantSlug: string,
   query: string
 ): Promise<{ order?: CustomerOrderLookupResult; error?: string }> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
+    const { data: storefront } = await supabase
+      .from('storefront_settings')
+      .select('tenant_id')
+      .eq('slug', tenantSlug)
+      .maybeSingle();
+
+    const tenantId = storefront?.tenant_id;
+    if (!tenantId) {
+      return { error: 'Store not found.' };
+    }
+
     const cleanQuery = query.replace(/^#+/, '').trim();
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanQuery);
     const normalizedPhone = normalizeGhanaPhone(cleanQuery);
@@ -282,7 +295,7 @@ export async function lookupCustomerOrder(
       if (customerIds.length === 0) return { error: 'No orders found matching this phone number.' };
       queryBuilder = queryBuilder.in('customer_id', customerIds).order('created_at', { ascending: false }).limit(1);
     } else {
-      queryBuilder = queryBuilder.ilike('short_id', `%${cleanQuery}%`).order('created_at', { ascending: false });
+      queryBuilder = queryBuilder.eq('short_id', cleanQuery.toUpperCase()).order('created_at', { ascending: false });
     }
 
     const { data, error } = await queryBuilder.limit(1).maybeSingle();

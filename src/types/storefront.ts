@@ -103,8 +103,7 @@ export interface StorefrontCartItem {
 }
 
 export interface StoreOrderPayload {
-  tenantId: string;
-  tenantSlug?: string;
+  tenantSlug: string;
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
@@ -117,7 +116,6 @@ export interface StoreOrderPayload {
   items: Array<{
     variantId: string;
     quantity: number;
-    unitPrice: number;
     batchId?: string | null;
   }>;
 }

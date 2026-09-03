@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { StoreOrderPayload, StoreOrderResponse } from '@/types/storefront';
@@ -8,8 +8,7 @@ import { normalizeGhanaPhone } from '@/utils/phone';
 import { generateOrderAccessToken, hashOrderToken, buildStorefrontTrackingUrl } from '@/utils/order-token';
 
 const orderPayloadSchema = z.object({
-  tenantId: z.string().uuid('Invalid tenant identifier'),
-  tenantSlug: z.string().optional(),
+  tenantSlug: z.string().min(1, 'Store identifier is required'),
   customerName: z.string().min(2, 'Name must be at least 2 characters').max(100),
   customerPhone: z.string().min(8, 'Phone number is too short').max(20),
   customerEmail: z.string().email().optional().or(z.literal('')),
@@ -24,7 +23,6 @@ const orderPayloadSchema = z.object({
       z.object({
         variantId: z.string().uuid(),
         quantity: z.number().int().positive('Quantity must be greater than 0'),
-        unitPrice: z.number().nonnegative(),
         batchId: z.string().uuid().optional().nullable(),
       })
     )
@@ -44,7 +42,7 @@ function extractErrorMessage(err: unknown): string {
  * Places a public storefront order with progressive identity resolution and cryptographic tracking token.
  */
 export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise<StoreOrderResponse> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     const validation = orderPayloadSchema.safeParse(payload);
@@ -63,11 +61,52 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       };
     }
 
+    // 1a. Resolve the tenant from the storefront slug. The browser must never
+    // choose which workspace an order lands in.
+    const { data: storefront } = await supabase
+      .from('storefront_settings')
+      .select('tenant_id')
+      .eq('slug', val.tenantSlug)
+      .maybeSingle();
+
+    const tenantId = storefront?.tenant_id;
+    if (!tenantId) {
+      return { success: false, error: 'Store not found.' };
+    }
+
+    // 1b. Price the order from the catalogue. Variants are fetched scoped to the
+    // resolved tenant, so a variant id from another store resolves to nothing.
+    const variantIds = Array.from(new Set(val.items.map((item) => item.variantId)));
+    const { data: variantRows, error: variantErr } = await supabase
+      .from('product_variants')
+      .select('id, price, products!inner(tenant_id)')
+      .in('id', variantIds)
+      .eq('products.tenant_id', tenantId);
+
+    if (variantErr) {
+      console.error('Error loading variants for storefront order:', variantErr);
+      return { success: false, error: 'Could not price this order. Please try again.' };
+    }
+
+    const priceByVariant = new Map<string, number>(
+      (variantRows || []).map((row) => [row.id as string, Number(row.price) || 0])
+    );
+
+    const unpriced = variantIds.filter((id) => !priceByVariant.has(id));
+    if (unpriced.length > 0) {
+      return { success: false, error: 'One or more items are no longer available in this store.' };
+    }
+
+    const pricedItems = val.items.map((item) => ({
+      ...item,
+      unitPrice: priceByVariant.get(item.variantId) as number,
+    }));
+
     // 2. Upsert customer in customers table (scoped to tenant)
     const { data: existingCustomer } = await supabase
       .from('customers')
       .select('id, short_id')
-      .eq('tenant_id', val.tenantId)
+      .eq('tenant_id', tenantId)
       .eq('phone', normalizedPhone)
       .maybeSingle();
 
@@ -76,7 +115,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       const { data: newCustomer, error: custErr } = await supabase
         .from('customers')
         .insert({
-          tenant_id: val.tenantId,
+          tenant_id: tenantId,
           name: val.customerName.trim(),
           phone: normalizedPhone,
           email: val.customerEmail || null,
@@ -95,7 +134,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
     try {
       await supabase.from('customer_identities').upsert(
         {
-          tenant_id: val.tenantId,
+          tenant_id: tenantId,
           customer_id: customerId,
           channel: 'storefront',
           identifier: normalizedPhone,
@@ -117,7 +156,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       const { data: primaryStore } = await supabase
         .from('stores')
         .select('id')
-        .eq('tenant_id', val.tenantId)
+        .eq('tenant_id', tenantId)
         .order('is_primary', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -128,7 +167,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
         const { data: createdStore } = await supabase
           .from('stores')
           .insert({
-            tenant_id: val.tenantId,
+            tenant_id: tenantId,
             name: 'Main Store',
             is_primary: true,
           })
@@ -138,13 +177,13 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       }
     }
 
-    const totalAmount = val.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    const totalAmount = pricedItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 
     // 5. Create Order
     const { data: order, error: orderErr } = await supabase
       .from('orders')
       .insert({
-        tenant_id: val.tenantId,
+        tenant_id: tenantId,
         store_id: storeId,
         customer_id: customerId,
         batch_id: val.batchId || null,
@@ -165,7 +204,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
     }
 
     // 6. Insert Order Items
-    const orderItems = val.items.map((item) => ({
+    const orderItems = pricedItems.map((item) => ({
       order_id: order.id,
       variant_id: item.variantId,
       batch_id: item.batchId || val.batchId || null,
@@ -185,7 +224,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
 
     try {
       await supabase.from('order_access_tokens').insert({
-        tenant_id: val.tenantId,
+        tenant_id: tenantId,
         order_id: order.id,
         token_hash: tokenHash,
       });
@@ -193,7 +232,7 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       console.warn('order_access_tokens insert warning:', tokenErr);
     }
 
-    const slug = val.tenantSlug || 'store';
+    const slug = val.tenantSlug;
     const trackingUrl = buildStorefrontTrackingUrl(
       '',
       slug,

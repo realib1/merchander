@@ -421,7 +421,7 @@ export async function initiateOrderOnlinePayment(params: {
   // Fetch the order and its tenant
   const { data: order, error: orderError } = await supabase
     .from('orders')
-    .select('id, tenant_id, total_amount, status')
+    .select('id, short_id, tenant_id, total_amount, status')
     .eq('id', params.orderId)
     .single();
 
@@ -442,7 +442,10 @@ export async function initiateOrderOnlinePayment(params: {
   const providerConfig = customSettings?.providers?.[activeProvider];
 
   const totalGhs = Number(order.total_amount) || 0;
-  const reference = `ord_${order.id.slice(0, 8)}_${Date.now()}`;
+  // Carry the unique short_id (ORD-XXXXXX, never contains an underscore) so the
+  // Hubtel callback can resolve the order with an exact match instead of a
+  // prefix search over the UUID.
+  const reference = `ord_${order.short_id}_${Date.now()}`;
 
   if (activeProvider === 'paystack') {
     try {

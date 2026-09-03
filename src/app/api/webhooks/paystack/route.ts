@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { validatePaystackSignature, pesewasToGhs } from '@/lib/payments/paystack';
 
 export async function POST(req: NextRequest) {
@@ -30,7 +30,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'ignored', message: `Unhandled event: ${event}` }, { status: 200 });
     }
 
-    const supabase = await createClient();
+    // Service role: a provider callback carries no user session, so the anon
+    // client's RLS context would refuse every write here.
+    const supabase = createAdminClient();
     const metadata = data.metadata || {};
     const reference = data.reference || `pst_${Date.now()}`;
     const amountGhs = pesewasToGhs(data.amount || 0);
@@ -102,7 +104,7 @@ export async function POST(req: NextRequest) {
         invoices: [newInvoice, ...existingInvoices],
       };
 
-      await supabase
+      const { error: subErr } = await supabase
         .from('tenant_settings')
         .update({
           settings_data: {
@@ -111,6 +113,11 @@ export async function POST(req: NextRequest) {
           },
         })
         .eq('tenant_id', tenantId);
+
+      if (subErr) {
+        console.error('Paystack webhook: failed to update subscription:', subErr);
+        return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 });
+      }
 
       return NextResponse.json({ status: 'success', type: 'saas_subscription', reference }, { status: 200 });
     }
@@ -146,7 +153,7 @@ export async function POST(req: NextRequest) {
       const currentData = (existingSettings?.settings_data as Record<string, unknown>) || {};
       const existingSub = (currentData.subscription as Record<string, unknown>) || {};
 
-      await supabase
+      const { error: methodErr } = await supabase
         .from('tenant_settings')
         .update({
           settings_data: {
@@ -159,6 +166,11 @@ export async function POST(req: NextRequest) {
         })
         .eq('tenant_id', tenantId);
 
+      if (methodErr) {
+        console.error('Paystack webhook: failed to store billing method:', methodErr);
+        return NextResponse.json({ error: 'Failed to store billing method' }, { status: 500 });
+      }
+
       return NextResponse.json({ status: 'success', type: 'setup_billing_method', reference }, { status: 200 });
     }
 
@@ -170,11 +182,16 @@ export async function POST(req: NextRequest) {
       const tenantId = metadata.tenantId;
 
       // Idempotency check: Ensure payment reference hasn't been recorded already
-      const { data: existingPayment } = await supabase
+      const { data: existingPayment, error: existingErr } = await supabase
         .from('payments')
         .select('id')
         .eq('transaction_ref', reference)
-        .single();
+        .maybeSingle();
+
+      if (existingErr) {
+        console.error('Paystack webhook: failed to check for existing payment:', existingErr);
+        return NextResponse.json({ error: 'Failed to verify payment idempotency' }, { status: 500 });
+      }
 
       if (existingPayment) {
         return NextResponse.json({ status: 'already_processed', reference }, { status: 200 });
@@ -184,7 +201,7 @@ export async function POST(req: NextRequest) {
       const feeGhs = pesewasToGhs(data.fees || 0);
       const netAmountGhs = amountGhs - feeGhs;
 
-      await supabase.from('payments').insert({
+      const { error: paymentErr } = await supabase.from('payments').insert({
         tenant_id: tenantId,
         order_id: orderId || null,
         provider: 'paystack',
@@ -199,14 +216,24 @@ export async function POST(req: NextRequest) {
         payment_date: data.paid_at || new Date().toISOString(),
       });
 
+      if (paymentErr) {
+        console.error('Paystack webhook: failed to record payment:', paymentErr);
+        return NextResponse.json({ error: 'Failed to record payment' }, { status: 500 });
+      }
+
       // Update linked order status to 'processing' / 'confirmed'
       if (orderId) {
-        await supabase
+        const { error: statusErr } = await supabase
           .from('orders')
           .update({
             status: 'processing',
           })
           .eq('id', orderId);
+
+        if (statusErr) {
+          console.error('Paystack webhook: payment recorded but order status update failed:', statusErr);
+          return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+        }
       }
 
       return NextResponse.json({ status: 'success', type: 'store_order', reference }, { status: 200 });

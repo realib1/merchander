@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { normalizeGhanaPhone } from '@/utils/phone';
 
 interface SyncWishlistInput {
@@ -34,7 +34,7 @@ export async function syncGuestWishlist({
   phone,
   productIds,
 }: SyncWishlistInput): Promise<SyncWishlistResult> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     const normalizedPhone = normalizeGhanaPhone(phone);
