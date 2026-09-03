@@ -1,6 +1,19 @@
 import crypto from 'crypto';
 
 /**
+ * Constant-time string comparison. Returns false when the lengths differ (which
+ * `crypto.timingSafeEqual` would throw on) and otherwise compares in time that
+ * does not depend on where the first mismatch is. Use for comparing a
+ * caller-supplied token or signature against an expected value.
+ */
+export function timingSafeStringEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+/**
  * Verifies a Meta (WhatsApp Cloud API) webhook signature.
  *
  * Meta signs the raw request body with the app secret and sends the result as
@@ -18,9 +31,5 @@ export function verifyMetaSignature(
 
   const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
 
-  const received = Buffer.from(signatureHeader);
-  const expectedBuffer = Buffer.from(expected);
-  if (received.length !== expectedBuffer.length) return false;
-
-  return crypto.timingSafeEqual(received, expectedBuffer);
+  return timingSafeStringEqual(signatureHeader, expected);
 }

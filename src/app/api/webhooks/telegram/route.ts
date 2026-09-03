@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { NormalizedMessage } from '@/types/messaging';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
+import { timingSafeStringEqual } from '@/utils/webhook-signature';
 
 /**
  * Constant-time equality for the Telegram secret token. Returns false when the
@@ -10,10 +10,7 @@ import { extractCartFromChat } from '@/lib/intelligence/extract';
 function secretTokenValid(header: string | null): boolean {
   const expected = process.env.TELEGRAM_SECRET_TOKEN;
   if (!header || !expected) return false;
-  const a = Buffer.from(header);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+  return timingSafeStringEqual(header, expected);
 }
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import crypto from 'crypto';
-import { verifyMetaSignature } from './webhook-signature';
+import { verifyMetaSignature, timingSafeStringEqual } from './webhook-signature';
 
 const SECRET = 'test_app_secret';
 const BODY = JSON.stringify({ object: 'whatsapp_business_account', entry: [{ id: '1' }] });
@@ -40,5 +40,33 @@ describe('verifyMetaSignature', () => {
 
   it('rejects an empty body', () => {
     expect(verifyMetaSignature('', sign('', SECRET), SECRET)).toBe(false);
+  });
+});
+
+describe('timingSafeStringEqual', () => {
+  it('returns true for identical strings', () => {
+    expect(timingSafeStringEqual('a-secret-token', 'a-secret-token')).toBe(true);
+  });
+
+  it('returns false for different strings of the same length', () => {
+    expect(timingSafeStringEqual('abcdef', 'abcxef')).toBe(false);
+  });
+
+  it('returns false for strings of different length', () => {
+    expect(timingSafeStringEqual('short', 'longer-value')).toBe(false);
+  });
+
+  it('returns false for empty vs non-empty', () => {
+    expect(timingSafeStringEqual('', 'x')).toBe(false);
+  });
+
+  it('returns true for empty vs empty', () => {
+    expect(timingSafeStringEqual('', '')).toBe(true);
+  });
+
+  it('treats multi-byte characters by byte length', () => {
+    // 'é' is two UTF-8 bytes, 'e' is one - different byte length, not equal.
+    expect(timingSafeStringEqual('é', 'e')).toBe(false);
+    expect(timingSafeStringEqual('é', 'é')).toBe(true);
   });
 });

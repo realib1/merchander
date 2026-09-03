@@ -40,29 +40,6 @@ unevenly.
 normalising rather than adding files ad hoc.
 **Resolution:**
 
-### F-17 [P3] open - Session reset is a state-changing GET
-
-**File:** src/app/api/auth/reset/route.ts:4
-**Found:** 2026-09-03 by /audit (scope: full; lens: security)
-**Why it matters:** A GET clears every cookie, so any third-party page can force a
-merchant to log out with an `<img>` tag. Impact is denial of session only, but a
-mutation behind GET is the wrong shape.
-**Suggested fix:** Make it POST with the framework's CSRF handling, or move it to
-a Server Action.
-**Resolution:**
-
-### F-18 [P3] open - Active branch cookie is written without validation
-
-**File:** src/app/actions/branch.ts:6
-**Found:** 2026-09-03 by /audit (scope: full; lens: security)
-**Why it matters:** `setActiveBranch` writes any caller-supplied string to
-`merchander_active_store` with no check that the id is a store in the caller's
-tenant. Consumers filter with the RLS-bound client, so cross-tenant reads should
-still be refused, but the value is untrusted input that reaches query builders.
-**Suggested fix:** Verify the store belongs to the caller's tenant before setting
-the cookie.
-**Resolution:**
-
 ### F-19 [P3] open - Storefront order still trusts batchId and pickupStoreId from the payload
 
 **File:** src/app/actions/storefront-order.ts:154
@@ -82,21 +59,6 @@ Hence P3, but it is the same hygiene gap F-01 named for `variantId`.
 `pickupStoreId` belong to it (and, ideally, that each item's `batchId` matches a
 `product_preorder_batches` row for its variant). Reject the order otherwise, the
 same way an unresolved `variantId` is rejected.
-**Resolution:**
-
-### F-20 [P3] open - Telegram secret check is a new pure security function that is neither shared nor tested
-
-**File:** src/app/api/webhooks/telegram/route.ts:10
-**Found:** 2026-09-03 by /audit (scope: current; lens: tests)
-**Why it matters:** The channel-webhook-auth fix extracts the WhatsApp signature
-check to `src/utils/webhook-signature.ts` with a 7-case test, but the sibling
-Telegram check (`secretTokenValid`, a constant-time header compare) stays inline
-in the route and has no test. The test gate is on, both are pure logic on a
-security path, and F-14 already flags this exact drift. The function is correct
-and runtime-verified (403 without the header, 200 with it), so this is a
-regression-risk and consistency issue, not a live defect.
-**Suggested fix:** Move a generic `timingSafeStringEqual(a, b)` into
-`webhook-signature.ts`, use it from both routes, and add a focused test.
 **Resolution:**
 
 ### F-21 [P2] fixed - Widening the plan-read gate leaves /platform/plans-billing with no role guard
@@ -149,4 +111,24 @@ not need the same ceiling as the guessable phone path.
 realistic reload behaviour, still stops phone enumeration), or only enforce the
 throttle on the phone-auth fallback (check the token first; throttle before the
 `phone` comparison). The limit change is the smaller diff.
+**Resolution:**
+
+### F-23 [P3] open - /api/auth/reset redirect and origin check have minor residuals
+
+**File:** src/app/api/auth/reset/route.ts:20
+**Found:** 2026-09-03 by /audit (scope: current; lens: security)
+**Why it matters:** Two small issues left by the F-17 fix, neither a security
+regression. (1) The handler returns `NextResponse.redirect(new URL('/login', ...))`,
+which is a `307` — a browser following it re-issues the request as `POST /login`.
+It happens to render 200 today (App Router pages answer POST), but a `303 See
+Other` is the correct status for "this POST changed state, now GET that page".
+(2) The cross-origin check compares the `Origin` header against
+`new URL(request.url).origin`. On the stated Vercel-direct deployment these
+match, but behind a reverse proxy or custom-domain edge where `request.url`
+carries an internal host, a legitimate same-origin `POST` would get a false
+`403`. It fails safe (deny, not bypass) and there is no in-code caller, so
+impact is low; `Sec-Fetch-Site` is the primary guard regardless.
+**Suggested fix:** Use `NextResponse.redirect(url, 303)`, and either compare
+`Origin` against the `host` / `x-forwarded-host` header or drop the `Origin`
+branch and rely on `POST` + `Sec-Fetch-Site` alone.
 **Resolution:**
