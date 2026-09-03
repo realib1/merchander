@@ -1,10 +1,12 @@
 import React from 'react';
 import { getPlatformBroadcastsAction } from '@/app/actions/platform-comms';
+import { requirePlatformRoute } from '@/lib/auth/require-platform-route';
 import { CommunicationsClient } from './components/CommunicationsClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CommunicationsPage() {
+  await requirePlatformRoute('/platform/communications');
   const { broadcasts } = await getPlatformBroadcastsAction();
 
   return (

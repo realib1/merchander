@@ -40,49 +40,32 @@ unevenly.
 normalising rather than adding files ad hoc.
 **Resolution:**
 
-### F-19 [P3] open - Storefront order still trusts batchId and pickupStoreId from the payload
+### F-26 [P3] open - /platform/support route guard and data action disagree on which roles are allowed
 
-**File:** src/app/actions/storefront-order.ts:154
+**File:** src/app/platform/support/page.tsx:9
 **Found:** 2026-09-03 by /audit (scope: current; lens: security)
-**Why it matters:** The F-01 fix validates `variantId` against the slug-resolved
-tenant but leaves the sibling reference fields unchecked. `submitStorefrontOrder`
-still reads `val.batchId`, per-item `item.batchId`, and `val.pickupStoreId` from
-the payload and writes them into `orders.batch_id`, `order_items.batch_id`, and
-`orders.store_id` with no tenant check. This action now runs on the admin client
-(F-04), so RLS no longer filters these writes. A crafted payload can attach a
-tenant's own order to another tenant's `preorder_batch` or `store`. Impact is
-contained: the order's `tenant_id` is still server-resolved, so other tenants'
-batch and store views (RLS-scoped) exclude the poisoned row, and the damage is
-mostly the attacker corrupting the batch/store reference on their own order.
-Hence P3, but it is the same hygiene gap F-01 named for `variantId`.
-**Suggested fix:** After resolving the tenant, verify any supplied `batchId` and
-`pickupStoreId` belong to it (and, ideally, that each item's `batchId` matches a
-`product_preorder_batches` row for its variant). Reject the order otherwise, the
-same way an unresolved `variantId` is rejected.
-**Resolution:**
-
-### F-25 [P3] open - Some /platform pages render an interactive shell to out-of-RBAC roles
-
-**File:** src/app/platform/communications/page.tsx:8
-**Found:** 2026-09-03 by /audit (scope: current; lens: security)
-**Why it matters:** F-24 added `requirePlatformRoute` to `security`,
-`system-health`, and `plans-billing`. The remaining `/platform` pages still rely
-on the action gate alone, and two of them swallow the auth error and render an
-interactive client component anyway:
-- `communications/page.tsx` calls `getPlatformBroadcastsAction()` (roles:
-  owner/admin/operations), ignores the returned `error`, and renders
-  `<CommunicationsClient initialBroadcasts={[]} />` — a `support`/`finance`/
-  `tech_admin`/`compliance` user reaching the URL sees the full broadcast
-  composer with create/edit controls.
-- `support/page.tsx` does the same with `getPlatformSupportTicketsAction()`
-  (roles: owner/admin/support/operations/tech_admin) and `<SupportClient>`, so
-  `finance`/`compliance` see an empty support-inbox shell.
-No data is exposed (the actions return empty arrays) and every write stays
-role-gated, so this is a dead-UI disclosure, not escalation — the same class as
-F-21/F-24 but lower stakes. `revenue` (early `return` on error) and `domains`/
-`audit-logs` (read-only tables + visible error banner) are not affected the same
-way. The spec deliberately scoped this out; recording it so it is not lost.
-**Suggested fix:** Add `await requirePlatformRoute('/platform/communications')`
-and `'/platform/support'` at the top of those two pages (helper already exists),
-or have the pages render the error state instead of the client on `error`.
+**Why it matters:** The F-25 fix added
+`await requirePlatformRoute('/platform/support')`, which enforces
+`PLATFORM_RBAC_RULES['/platform/support']` =
+`['platform_owner','platform_admin','support','operations','tech_admin']`. But
+`getPlatformSupportTicketsAction` (and every support write action) gates on
+`SUPPORT_INBOX_ROLES` =
+`['platform_owner','platform_admin','operations','support','compliance']`. The
+two sets disagree on two roles:
+- `tech_admin` passes the route guard but the data action denies, so the page
+  still renders `<SupportClient initialTickets={[]} />` — the exact F-25
+  dead-shell symptom, now only for this one role.
+- `compliance` is in `SUPPORT_INBOX_ROLES` (the action would authorize it) but
+  not in the RBAC rule, so the guard redirects it away from a page its own data
+  action considers in-scope. `PlatformNav` also hides the link from
+  `compliance`, so this role can currently reach support tickets nowhere.
+No data is exposed (the action still denies `tech_admin`) and writes stay gated,
+so P3, same class as F-25. `/platform/communications` does not have this problem
+(`BROADCAST_ROLES` equals its RBAC rule).
+**Suggested fix:** Pick the intended support-triage role set and make
+`SUPPORT_INBOX_ROLES` and `PLATFORM_RBAC_RULES['/platform/support']` identical
+(decide `tech_admin` vs `compliance` deliberately). Reconciling the constant
+with the RBAC table — the documented source of truth used by `PlatformNav` — is
+the smaller change; audit-logs/security already use `compliance`, which hints
+`compliance` belongs and `tech_admin` was the stray.
 **Resolution:**

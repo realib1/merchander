@@ -120,6 +120,33 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       unitPrice: priceByVariant.get(item.variantId) as number,
     }));
 
+    // 1c. Any pre-order batch id in the payload must belong to this tenant.
+    // batch_id is written to orders and order_items on the admin client, so an
+    // unchecked id would let a crafted payload attach the order to another
+    // tenant's batch (same trust gap the variant check above closes).
+    const batchIds = Array.from(
+      new Set(
+        [val.batchId, ...val.items.map((item) => item.batchId)].filter(
+          (id): id is string => typeof id === 'string'
+        )
+      )
+    );
+    if (batchIds.length > 0) {
+      const { data: batchRows, error: batchErr } = await supabase
+        .from('preorder_batches')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .in('id', batchIds);
+
+      if (batchErr) {
+        console.error('Error validating preorder batches for storefront order:', batchErr);
+        return { success: false, error: 'Could not verify the pre-order batch. Please try again.' };
+      }
+      if ((batchRows?.length ?? 0) !== batchIds.length) {
+        return { success: false, error: 'One or more items reference a pre-order batch that is not available in this store.' };
+      }
+    }
+
     // 2. Upsert customer in customers table (scoped to tenant)
     const { data: existingCustomer } = await supabase
       .from('customers')
@@ -168,8 +195,23 @@ export async function submitStorefrontOrder(payload: StoreOrderPayload): Promise
       console.warn('customer_identities upsert non-critical warning:', identityErr);
     }
 
-    // 4. Resolve branch store for the tenant
-    let storeId: string | null = val.pickupStoreId || null;
+    // 4. Resolve branch store for the tenant. A payload-supplied pickup store is
+    // verified against the tenant, not trusted: this runs on the admin client,
+    // so an unchecked id would set orders.store_id to another tenant's branch.
+    let storeId: string | null = null;
+    if (val.pickupStoreId) {
+      const { data: pickupStore } = await supabase
+        .from('stores')
+        .select('id')
+        .eq('id', val.pickupStoreId)
+        .eq('tenant_id', tenantId)
+        .maybeSingle();
+
+      if (!pickupStore) {
+        return { success: false, error: 'The selected pickup location is not valid for this store.' };
+      }
+      storeId = pickupStore.id;
+    }
     if (!storeId) {
       const { data: primaryStore } = await supabase
         .from('stores')
