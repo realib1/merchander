@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { verifyPlatformStaff } from './platform';
 import { PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
@@ -20,7 +21,7 @@ const updateSettingsSchema = z.object({
 export async function getPlatformSettingsAction(): Promise<{ data: PlatformSettings | null; error: string | null }> {
   try {
     await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/settings']);
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase.from('platform_settings').select('*').eq('id', 1).single();
 
     if (error) {
@@ -43,7 +44,7 @@ export async function updatePlatformSettingsAction(
     
     const parsed = updateSettingsSchema.parse(updates);
     
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     
     const finalUpdates: Record<string, unknown> = { ...parsed };
     
