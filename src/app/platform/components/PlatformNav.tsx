@@ -185,9 +185,6 @@ export function PlatformNav({
                 <div className="font-bold text-sm tracking-tight text-foreground font-display truncate">
                   Merchander
                 </div>
-                <div className="text-[10px] font-mono text-muted uppercase tracking-wider font-semibold">
-                  Control Plane
-                </div>
               </div>
             )}
           </div>

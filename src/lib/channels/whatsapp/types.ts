@@ -47,3 +47,56 @@ export interface WhatsAppWebhookStatus {
   timestamp: string;
   recipient_id: string;
 }
+
+// --- Outbound API Types ---
+
+export interface WhatsAppOutboundRequestBase {
+  messaging_product: 'whatsapp';
+  recipient_type: 'individual';
+  to: string;
+  type: 'text' | 'template';
+}
+
+export interface WhatsAppOutboundTextRequest extends WhatsAppOutboundRequestBase {
+  type: 'text';
+  text: {
+    preview_url?: boolean;
+    body: string;
+  };
+}
+
+export interface WhatsAppTemplateLanguage {
+  code: string;
+}
+
+export interface WhatsAppTemplateParameter {
+  type: 'text' | 'currency' | 'date_time' | 'image' | 'document' | 'video';
+  text?: string;
+}
+
+export interface WhatsAppTemplateComponent {
+  type: 'header' | 'body' | 'button';
+  parameters: WhatsAppTemplateParameter[];
+}
+
+export interface WhatsAppOutboundTemplateRequest extends WhatsAppOutboundRequestBase {
+  type: 'template';
+  template: {
+    name: string;
+    language: WhatsAppTemplateLanguage;
+    components?: WhatsAppTemplateComponent[];
+  };
+}
+
+export type WhatsAppOutboundRequest = WhatsAppOutboundTextRequest | WhatsAppOutboundTemplateRequest;
+
+export interface WhatsAppOutboundResponse {
+  messaging_product: string;
+  contacts: {
+    input: string;
+    wa_id: string;
+  }[];
+  messages: {
+    id: string;
+  }[];
+}

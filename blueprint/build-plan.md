@@ -57,7 +57,7 @@
 - [ ] 16. **Official WhatsApp Cloud API connector**
   - [x] 16a. **Omnichannel Data Model & Identity Scaffolding** - Create channel-agnostic database schemas for `messages` and `channel_identities`. Build core identity resolution utility linking channel handles to `customer_id`.
   - [x] 16b. **WhatsApp Webhook & Inbound Parsing** - Set up `/api/webhooks/whatsapp` to handle Meta's verification challenge and parse incoming POST payloads into the `messages` table.
-  - [ ] 16c. **WhatsApp Outbound Messaging & Templates** - Build Meta Graph API client to send text/template messages back to users.
+  - [x] 16c. **WhatsApp Outbound Messaging & Templates** - Build Meta Graph API client to send text/template messages back to users.
   - [ ] 16d. **WhatsApp Media Handling & Delivery Receipts** - Download/store inbound media attachments and map Meta's delivery events to message statuses.
 - [ ] 17. **Merchander Intelligence service** - stand up the Python/FastAPI +
   queue service the PRD describes; move extraction / grounded reasoning /
