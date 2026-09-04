@@ -68,12 +68,15 @@ describe('parseWhatsAppMessages', () => {
       from: '123456789',
       profileName: 'Test User',
       messageId: 'wamid-123',
+      type: 'text',
       text: 'Hello world',
+      mediaId: undefined,
+      mimeType: undefined,
       timestamp: '1690000000',
     });
   });
 
-  it('ignores non-text messages', () => {
+  it('extracts media messages correctly', () => {
     const payload = {
       object: 'whatsapp_business_account',
       entry: [
@@ -87,7 +90,8 @@ describe('parseWhatsAppMessages', () => {
                 metadata: { display_phone_number: '1', phone_number_id: '1' },
                 messages: [
                   {
-                    from: '123', id: 'wamid-2', timestamp: '1', type: 'image'
+                    from: '123', id: 'wamid-2', timestamp: '1', type: 'image',
+                    image: { id: 'media-1', mime_type: 'image/jpeg', sha256: 'abc' }
                   }
                 ]
               }
@@ -97,7 +101,10 @@ describe('parseWhatsAppMessages', () => {
       ]
     };
     const parsed = parseWhatsAppMessages(payload as unknown as WhatsAppWebhookPayload);
-    expect(parsed).toHaveLength(0);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].type).toBe('image');
+    expect(parsed[0].mediaId).toBe('media-1');
+    expect(parsed[0].mimeType).toBe('image/jpeg');
   });
 
   it('returns empty array for unrelated events', () => {
@@ -117,5 +124,41 @@ describe('parseWhatsAppMessages', () => {
     };
     const parsed = parseWhatsAppMessages(payload as unknown as WhatsAppWebhookPayload);
     expect(parsed).toHaveLength(0);
+  });
+});
+
+import { parseWhatsAppStatuses } from './webhook';
+
+describe('parseWhatsAppStatuses', () => {
+  it('extracts statuses correctly', () => {
+    const payload = {
+      object: 'whatsapp_business_account',
+      entry: [
+        {
+          id: 'entry-1',
+          changes: [
+            {
+              field: 'messages',
+              value: {
+                messaging_product: 'whatsapp',
+                metadata: { display_phone_number: '1', phone_number_id: 'phone-1' },
+                statuses: [
+                  { id: 'wamid-1', status: 'delivered', timestamp: '1', recipient_id: '123' }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    };
+    const parsed = parseWhatsAppStatuses(payload as unknown as WhatsAppWebhookPayload);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]).toEqual({
+      phoneNumberId: 'phone-1',
+      messageId: 'wamid-1',
+      status: 'delivered',
+      timestamp: '1',
+      recipientId: '123'
+    });
   });
 });

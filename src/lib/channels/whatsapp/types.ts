@@ -35,10 +35,14 @@ export interface WhatsAppWebhookMessage {
   from: string;
   id: string;
   timestamp: string;
+  type: string;
   text?: {
     body: string;
   };
-  type: string;
+  image?: { id: string; mime_type: string; sha256: string };
+  audio?: { id: string; mime_type: string; sha256: string };
+  document?: { id: string; mime_type: string; sha256: string; filename?: string };
+  video?: { id: string; mime_type: string; sha256: string };
 }
 
 export interface WhatsAppWebhookStatus {

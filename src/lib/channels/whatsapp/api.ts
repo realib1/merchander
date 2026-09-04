@@ -82,3 +82,48 @@ export async function sendWhatsAppTemplateMessage(
     }
   });
 }
+
+/**
+ * Fetches media from WhatsApp by media ID.
+ * Returns the binary buffer and mime type.
+ */
+export async function fetchWhatsAppMedia(
+  mediaId: string,
+  accessToken: string
+): Promise<{ buffer: ArrayBuffer; mimeType: string }> {
+  // 1. Get the media URL
+  const metaUrl = `${GRAPH_API_BASE_URL}/${mediaId}`;
+  const metaResponse = await fetch(metaUrl, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!metaResponse.ok) {
+    const errorData = await metaResponse.json().catch(() => ({}));
+    throw new WhatsAppAPIError(metaResponse.status, errorData);
+  }
+
+  const metadata = await metaResponse.json();
+  const mediaUrl = metadata.url;
+  const mimeType = metadata.mime_type;
+
+  if (!mediaUrl) {
+    throw new Error(`WhatsApp API returned no URL for media ${mediaId}`);
+  }
+
+  // 2. Download the binary data
+  const downloadResponse = await fetch(mediaUrl, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!downloadResponse.ok) {
+    throw new Error(`Failed to download media from ${mediaUrl}: ${downloadResponse.statusText}`);
+  }
+
+  const buffer = await downloadResponse.arrayBuffer();
+  
+  return { buffer, mimeType };
+}

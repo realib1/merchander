@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyWhatsAppSignature, parseWhatsAppMessages } from '@/lib/channels/whatsapp/webhook';
+import { verifyWhatsAppSignature, parseWhatsAppMessages, parseWhatsAppStatuses } from '@/lib/channels/whatsapp/webhook';
 import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
+
 // TODO: Replace with environment variable or platform_settings fetcher
 const META_APP_SECRET = process.env.META_APP_SECRET || ''; 
+const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || '';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -31,8 +34,9 @@ export async function POST(request: NextRequest) {
 
     const payload = JSON.parse(rawBody);
     const messages = parseWhatsAppMessages(payload);
+    const statuses = parseWhatsAppStatuses(payload);
 
-    if (messages.length === 0) {
+    if (messages.length === 0 && statuses.length === 0) {
       return new NextResponse('OK', { status: 200 }); // Acknowledge non-message payloads
     }
 
@@ -66,17 +70,46 @@ export async function POST(request: NextRequest) {
         msg.profileName
       );
 
-      // 3. Insert the inbound message (ignoring unique constraint errors for idempotency)
+      const contentObj: Record<string, unknown> = { type: msg.type, text: msg.text };
+
+      // 3. Download and store media if present
+      if (msg.mediaId && META_ACCESS_TOKEN) {
+        try {
+          const { buffer, mimeType } = await fetchWhatsAppMedia(msg.mediaId, META_ACCESS_TOKEN);
+          
+          const ext = mimeType.split('/')[1] || 'bin';
+          const filePath = `${tenantId}/whatsapp/${msg.messageId}.${ext}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('message-media')
+            .upload(filePath, buffer, {
+              contentType: mimeType,
+              upsert: true,
+            });
+
+          if (uploadError) {
+            console.error(`Failed to upload media ${msg.mediaId}`, uploadError);
+          } else {
+            contentObj.mediaUrl = filePath;
+            contentObj.mimeType = mimeType;
+          }
+        } catch (mediaError) {
+          console.error(`Failed to fetch media ${msg.mediaId}`, mediaError);
+        }
+      }
+
+      // 4. Insert the inbound message (ignoring unique constraint errors for idempotency)
       const { error: insertError } = await supabase
         .from('messages')
         .insert({
           tenant_id: tenantId,
           channel_identity_id: identity.id,
           direction: 'inbound',
-          type: 'text',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          type: msg.type as any,
           status: 'received',
           external_id: msg.messageId,
-          content: { text: msg.text },
+          content: contentObj,
           created_at: new Date(parseInt(msg.timestamp) * 1000).toISOString(),
         });
       
@@ -87,6 +120,18 @@ export async function POST(request: NextRequest) {
         } else {
           console.error(`Failed to insert message ${msg.messageId}`, insertError);
         }
+      }
+    }
+
+    for (const status of statuses) {
+      const { error: updateError } = await supabase
+        .from('messages')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update({ status: status.status as any }) // Supabase enum casting
+        .eq('external_id', status.messageId);
+        
+      if (updateError) {
+        console.error(`Failed to update status for message ${status.messageId}`, updateError);
       }
     }
 
