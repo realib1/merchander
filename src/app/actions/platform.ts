@@ -96,6 +96,7 @@ export async function getPlatformOverviewData(): Promise<{
       authUsers,
       tenantUsersRes,
       settingsRes,
+      storefrontRes,
       channelConnectionsRes,
       incidentsRes,
       subscriptionsRes,
@@ -109,7 +110,9 @@ export async function getPlatformOverviewData(): Promise<{
       adminSupabase.from('tenant_users').select('tenant_id, user_id, role'),
       adminSupabase
         .from('tenant_settings')
-        .select('tenant_id, store_name, slug, store_email, business_phone, business_country, custom_domain, settings_data'),
+        .select('tenant_id, store_email, business_phone, business_country, settings_data'),
+      // store_name / slug / custom_domain live on storefront_settings, not tenant_settings.
+      adminSupabase.from('storefront_settings').select('tenant_id, store_name, slug, custom_domain'),
       adminSupabase.from('channel_connections').select('tenant_id, channel, status'),
       adminSupabase.from('platform_incidents').select('*').eq('is_active', true),
       adminSupabase.from('tenant_subscriptions').select('tenant_id, tier, status, billing_cycle, price_monthly, renewal_date, payment_method'),
@@ -131,6 +134,22 @@ export async function getPlatformOverviewData(): Promise<{
     if (tenantsRes.error) {
       console.error('Error fetching tenants for admin:', tenantsRes.error);
     }
+    if (settingsRes.error) {
+      console.error('Error fetching tenant settings for admin:', settingsRes.error);
+    }
+    if (storefrontRes.error) {
+      console.error('Error fetching storefront settings for admin:', storefrontRes.error);
+    }
+
+    // Storefront identity (name / slug / custom domain) keyed by tenant.
+    const storefrontMap = new Map<string, { storeName: string; slug: string; customDomain: string | null }>();
+    (storefrontRes.data || []).forEach((sf) => {
+      storefrontMap.set(sf.tenant_id, {
+        storeName: sf.store_name || '',
+        slug: sf.slug || '',
+        customDomain: sf.custom_domain || null,
+      });
+    });
 
     // Map auth users
     const authUsersMap = new Map<
@@ -202,12 +221,9 @@ export async function getPlatformOverviewData(): Promise<{
     const settingsMap = new Map<
       string,
       {
-        storeName: string;
-        slug: string;
         email: string;
         phone: string;
         country: string;
-        customDomain?: string | null;
         customData: Record<string, unknown>;
       }
     >();
@@ -218,12 +234,9 @@ export async function getPlatformOverviewData(): Promise<{
     (settingsRes.data || []).forEach((s) => {
       const customData = (s.settings_data as Record<string, unknown>) || {};
       settingsMap.set(s.tenant_id, {
-        storeName: s.store_name || '',
-        slug: s.slug || '',
         email: s.store_email || '',
         phone: s.business_phone || '',
         country: s.business_country || 'GH',
-        customDomain: s.custom_domain || null,
         customData,
       });
 
@@ -265,8 +278,10 @@ export async function getPlatformOverviewData(): Promise<{
 
     const enrichedTenants: PlatformTenant[] = (tenantsRes.data || []).map((t) => {
       const set = settingsMap.get(t.id);
+      const storefront = storefrontMap.get(t.id);
       const owner = tenantOwnerMap.get(t.id);
       const customData = set?.customData || {};
+      const provisionedName = (customData.store_name as string) || '';
       const sub = subscriptionsMap.get(t.id);
 
       // No subscription row is a real state, not a Starter.
@@ -296,8 +311,8 @@ export async function getPlatformOverviewData(): Promise<{
 
       return {
         id: t.id,
-        name: t.name || set?.storeName || 'Merchant Store',
-        slug: set?.slug || '',
+        name: t.name || storefront?.storeName || provisionedName || 'Merchant Store',
+        slug: storefront?.slug || '',
         email: owner?.email || set?.email || '',
         phone: owner?.phone || set?.phone || '',
         country: set?.country || 'GH',
@@ -316,7 +331,7 @@ export async function getPlatformOverviewData(): Promise<{
         orderCount: orderCountMap.get(t.id) || 0,
         totalGmv: gmvMap.get(t.id) || 0,
         connectedChannels: channels,
-        customDomain: set?.customDomain || null,
+        customDomain: storefront?.customDomain || null,
       };
     });
 
@@ -410,6 +425,7 @@ export async function getMerchantContextAction(
     const [
       tenantRes,
       settingRes,
+      storefrontRes,
       productsRes,
       ordersRes,
       channelsRes,
@@ -419,6 +435,11 @@ export async function getMerchantContextAction(
     ] = await Promise.all([
       adminSupabase.from('tenants').select('id, name, created_at, stores(*)').eq('id', tenantId).single(),
       adminSupabase.from('tenant_settings').select('*').eq('tenant_id', tenantId).maybeSingle(),
+      adminSupabase
+        .from('storefront_settings')
+        .select('store_name, slug, custom_domain')
+        .eq('tenant_id', tenantId)
+        .maybeSingle(),
       adminSupabase.from('products').select('id', { count: 'exact' }).eq('tenant_id', tenantId),
       adminSupabase
         .from('orders')
@@ -448,7 +469,9 @@ export async function getMerchantContextAction(
 
     const tenant = tenantRes.data;
     const setting = settingRes.data;
+    const storefront = storefrontRes.data;
     const customData = (setting?.settings_data as Record<string, unknown>) || {};
+    const provisionedName = (customData.store_name as string) || '';
     const sub = subRes?.data || {};
     const platformStatus = ((customData.platform_status as string) || 'active') as TenantPlatformStatus;
 
@@ -463,8 +486,8 @@ export async function getMerchantContextAction(
 
     const formattedTenant: PlatformTenant = {
       id: tenant.id,
-      name: tenant.name || setting?.store_name || 'Store',
-      slug: setting?.slug || '',
+      name: tenant.name || storefront?.store_name || provisionedName || 'Store',
+      slug: storefront?.slug || '',
       email: setting?.store_email || '',
       phone: setting?.business_phone || '',
       country: setting?.business_country || 'GH',
@@ -482,7 +505,7 @@ export async function getMerchantContextAction(
       productCount: productsRes.count || 0,
       orderCount: ordersRes.count || 0,
       totalGmv,
-      customDomain: setting?.custom_domain || null,
+      customDomain: storefront?.custom_domain || null,
       connectedChannels,
     };
 
@@ -617,7 +640,7 @@ export async function getDomainInfrastructureAction(): Promise<{
       { data: settings },
       { data: tenants },
     ] = await Promise.all([
-      adminSupabase.from('tenant_settings').select('tenant_id, store_name, slug, custom_domain'),
+      adminSupabase.from('storefront_settings').select('tenant_id, store_name, slug, custom_domain'),
       adminSupabase.from('tenants').select('id, name'),
     ]);
 
