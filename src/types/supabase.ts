@@ -151,6 +151,61 @@ export type Database = {
           },
         ]
       }
+      channel_identities: {
+        Row: {
+          channel: Database["public"]["Enums"]["channel_type"]
+          channel_handle: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          last_seen_at: string
+          profile_name: string | null
+          tenant_id: string
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["channel_type"]
+          channel_handle: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_seen_at?: string
+          profile_name?: string | null
+          tenant_id: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["channel_type"]
+          channel_handle?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_seen_at?: string
+          profile_name?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_identities_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customer_stats_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_identities_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_identities_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_identities: {
         Row: {
           channel: string
@@ -480,6 +535,60 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          channel_identity_id: string
+          content: Json
+          created_at: string
+          direction: Database["public"]["Enums"]["message_direction"]
+          error_details: Json | null
+          external_id: string | null
+          id: string
+          status: Database["public"]["Enums"]["message_status"]
+          tenant_id: string
+          type: Database["public"]["Enums"]["message_type"]
+        }
+        Insert: {
+          channel_identity_id: string
+          content?: Json
+          created_at?: string
+          direction: Database["public"]["Enums"]["message_direction"]
+          error_details?: Json | null
+          external_id?: string | null
+          id?: string
+          status: Database["public"]["Enums"]["message_status"]
+          tenant_id: string
+          type: Database["public"]["Enums"]["message_type"]
+        }
+        Update: {
+          channel_identity_id?: string
+          content?: Json
+          created_at?: string
+          direction?: Database["public"]["Enums"]["message_direction"]
+          error_details?: Json | null
+          external_id?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["message_status"]
+          tenant_id?: string
+          type?: Database["public"]["Enums"]["message_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_channel_identity_id_fkey"
+            columns: ["channel_identity_id"]
+            isOneToOne: false
+            referencedRelation: "channel_identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -968,6 +1077,39 @@ export type Database = {
           slug?: string
           sort_order?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          default_currency: string | null
+          disable_new_signups: boolean
+          id: number
+          integrations: Json
+          maintenance_mode: boolean
+          platform_name: string
+          support_email: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          default_currency?: string | null
+          disable_new_signups?: boolean
+          id: number
+          integrations?: Json
+          maintenance_mode?: boolean
+          platform_name?: string
+          support_email?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          default_currency?: string | null
+          disable_new_signups?: boolean
+          id?: number
+          integrations?: Json
+          maintenance_mode?: boolean
+          platform_name?: string
+          support_email?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -2456,6 +2598,22 @@ export type Database = {
     }
     Enums: {
       billing_cycle: "monthly" | "annual"
+      channel_type:
+        | "whatsapp"
+        | "instagram"
+        | "telegram"
+        | "facebook"
+        | "storefront"
+        | "email"
+      message_direction: "inbound" | "outbound"
+      message_status:
+        | "received"
+        | "queued"
+        | "sent"
+        | "delivered"
+        | "read"
+        | "failed"
+      message_type: "text" | "template" | "media" | "interactive" | "system"
       subscription_status: "active" | "past_due" | "canceled" | "trialing"
       subscription_tier:
         | "free"
@@ -2594,6 +2752,24 @@ export const Constants = {
   public: {
     Enums: {
       billing_cycle: ["monthly", "annual"],
+      channel_type: [
+        "whatsapp",
+        "instagram",
+        "telegram",
+        "facebook",
+        "storefront",
+        "email",
+      ],
+      message_direction: ["inbound", "outbound"],
+      message_status: [
+        "received",
+        "queued",
+        "sent",
+        "delivered",
+        "read",
+        "failed",
+      ],
+      message_type: ["text", "template", "media", "interactive", "system"],
       subscription_status: ["active", "past_due", "canceled", "trialing"],
       subscription_tier: [
         "free",
