@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyWhatsAppSignature, parseWhatsAppMessages, parseWhatsAppStatuses } from '@/lib/channels/whatsapp/webhook';
+import { parseWhatsAppMessages, parseWhatsAppStatuses } from '@/lib/channels/whatsapp/webhook';
+import { verifyMetaSignature, timingSafeStringEqual } from '@/utils/webhook-signature';
 import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
 
-// TODO: Replace with environment variable or platform_settings fetcher
-const META_APP_SECRET = process.env.META_APP_SECRET || ''; 
-const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || '';
+// Meta Cloud API credentials. Names match .env.example. A future per-tenant
+// connector will source these from platform_settings instead.
+const WHATSAPP_APP_SECRET = process.env.WHATSAPP_APP_SECRET;
+const WHATSAPP_VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
+const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || '';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -15,8 +18,12 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
-  // TODO: Compare token with environment variable or platform_settings
-  if (mode === 'subscribe' && token === (process.env.META_VERIFY_TOKEN || 'merchander_webhook_verify_token')) {
+  if (
+    mode === 'subscribe' &&
+    !!WHATSAPP_VERIFY_TOKEN &&
+    !!token &&
+    timingSafeStringEqual(token, WHATSAPP_VERIFY_TOKEN)
+  ) {
     return new NextResponse(challenge, { status: 200 });
   }
 
@@ -28,7 +35,7 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
     const signature = request.headers.get('x-hub-signature-256');
 
-    if (!verifyWhatsAppSignature(rawBody, signature, META_APP_SECRET)) {
+    if (!verifyMetaSignature(rawBody, signature, WHATSAPP_APP_SECRET)) {
       return new NextResponse('Invalid signature', { status: 401 });
     }
 
@@ -73,9 +80,9 @@ export async function POST(request: NextRequest) {
       const contentObj: Record<string, unknown> = { type: msg.type, text: msg.text };
 
       // 3. Download and store media if present
-      if (msg.mediaId && META_ACCESS_TOKEN) {
+      if (msg.mediaId && WHATSAPP_ACCESS_TOKEN) {
         try {
-          const { buffer, mimeType } = await fetchWhatsAppMedia(msg.mediaId, META_ACCESS_TOKEN);
+          const { buffer, mimeType } = await fetchWhatsAppMedia(msg.mediaId, WHATSAPP_ACCESS_TOKEN);
           
           const ext = mimeType.split('/')[1] || 'bin';
           const filePath = `${tenantId}/whatsapp/${msg.messageId}.${ext}`;

@@ -1,34 +1,4 @@
-import crypto from 'crypto';
 import { WhatsAppWebhookPayload } from './types';
-
-/**
- * Verifies the Meta webhook signature.
- * @param payload - Raw body string
- * @param signatureHeader - X-Hub-Signature-256 header value
- * @param appSecret - Meta App Secret
- * @returns true if valid
- */
-export function verifyWhatsAppSignature(
-  payload: string,
-  signatureHeader: string | null | undefined,
-  appSecret: string
-): boolean {
-  if (!signatureHeader || !signatureHeader.startsWith('sha256=')) {
-    return false;
-  }
-  const signature = signatureHeader.split('sha256=')[1];
-  const expectedSignature = crypto
-    .createHmac('sha256', appSecret)
-    .update(payload, 'utf8')
-    .digest('hex');
-  
-  try {
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
-  } catch {
-    // timingSafeEqual throws if buffer lengths mismatch
-    return false;
-  }
-}
 
 export interface ParsedWhatsAppMessage {
   phoneNumberId: string;

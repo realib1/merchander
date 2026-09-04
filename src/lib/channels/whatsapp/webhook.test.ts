@@ -1,30 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { verifyWhatsAppSignature, parseWhatsAppMessages } from './webhook';
+import { parseWhatsAppMessages } from './webhook';
 import { WhatsAppWebhookPayload } from './types';
-import crypto from 'crypto';
-
-describe('verifyWhatsAppSignature', () => {
-  const secret = 'my-secret';
-  const payload = JSON.stringify({ test: 'data' });
-
-  it('returns true for a valid signature', () => {
-    const signature = crypto
-      .createHmac('sha256', secret)
-      .update(payload, 'utf8')
-      .digest('hex');
-    
-    expect(verifyWhatsAppSignature(payload, `sha256=${signature}`, secret)).toBe(true);
-  });
-
-  it('returns false for an invalid signature', () => {
-    expect(verifyWhatsAppSignature(payload, 'sha256=invalid-signature', secret)).toBe(false);
-  });
-
-  it('returns false for a missing or malformed signature header', () => {
-    expect(verifyWhatsAppSignature(payload, null, secret)).toBe(false);
-    expect(verifyWhatsAppSignature(payload, 'invalid-format', secret)).toBe(false);
-  });
-});
 
 describe('parseWhatsAppMessages', () => {
   it('extracts text messages correctly', () => {
