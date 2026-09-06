@@ -1,6 +1,6 @@
 # Merchander - Project Overview
 
-<!-- blueprint:source-hash 344b474c458a9bf459b4e6cb0817d9e7c067f9ce1ac4abdca0a5ce99a1de6a2a -->
+<!-- blueprint:source-hash 1dc9782c3d80ef64d8c90377aa155e0a55985b4adafb976d9a8324e0999654c1 -->
 
 > A social-commerce operating system that connects the supply side and sales side
 > of Ghanaian import/resale businesses into one operational system.
@@ -146,12 +146,18 @@ locked - later features build on them.
 - **inventory_levels**: `variant_id`, `store_id`, `quantity`.
 - **product_waitlist**: `product_id`, customer interest rows.
 
-### customers
+### customers & omnichannel
 
 - **customers**: `id`, `tenant_id`, `name`, `phone`, `first_touch_source`
   (attribution channel), timestamps.
-- **customer_identities**: maps a channel handle (WhatsApp/IG/FB/Telegram/
-  storefront) to one `customer_id` - unified identity without false merges.
+- **channel_identities**: maps a channel handle (WhatsApp/IG/FB/Telegram/
+  storefront) to a `customer_id` (`id`, `tenant_id`, `customer_id`, `channel`,
+  `channel_handle`, `profile_name`, `last_seen_at`) - unified identity without
+  false merges.
+- **messages**: `id`, `tenant_id`, `channel_identity_id` -> channel_identities,
+  `direction` (`inbound` | `outbound`), `type` (`text` | `template` | `media` |
+  `interactive` | `system`), `content` (jsonb), `status` (`received` | `queued` |
+  `sent` | `delivered` | `read` | `failed`), `external_id`, `created_at`.
 
 ### orders & payments
 

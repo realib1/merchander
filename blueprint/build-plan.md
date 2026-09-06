@@ -54,7 +54,7 @@
 > controls with human handoff. The merchant's touchpoint is an approval &
 > exceptions queue, not an in-app chat client.
 
-- [ ] 16. **Official WhatsApp Cloud API connector**
+- [x] 16. **Official WhatsApp Cloud API connector**
   - [x] 16a. **Omnichannel Data Model & Identity Scaffolding** - Create channel-agnostic database schemas for `messages` and `channel_identities`. Build core identity resolution utility linking channel handles to `customer_id`.
   - [x] 16b. **WhatsApp Webhook & Inbound Parsing** - Set up `/api/webhooks/whatsapp` to handle Meta's verification challenge and parse incoming POST payloads into the `messages` table.
   - [x] 16c. **WhatsApp Outbound Messaging & Templates** - Build Meta Graph API client to send text/template messages back to users.
@@ -63,6 +63,10 @@
   queue service the PRD describes; move extraction / grounded reasoning /
   multimodal off the `src/lib/intelligence/extract.ts` and
   `src/app/actions/conversations.ts` stubs.
+  - [x] 17a. **Service Scaffold & API Contract** - Stand up Python/FastAPI service in `services/intelligence`, configure dependencies, settings, API key auth, health endpoint, and core extraction schemas.
+  - [ ] 17b. **Grounded Catalog Retrieval & LLM Extraction** - Connect to Supabase to fetch tenant products/inventory/preorders, and implement LLM structured extraction endpoint (`POST /extract`).
+  - [ ] 17c. **Next.js Integration & Dispatch Pipeline** - Replace `src/lib/intelligence/extract.ts` stub with live HTTP client, trigger extraction on inbound messages, and address log privacy (F-08).
+  - [ ] 17d. **Async Queue & Background Task Worker** - Stand up Celery + Redis worker scaffolding for asynchronous background tasks and throttled notifications.
 - [ ] 18. **Grounded product Q&A and availability replies** - answer price /
   variant / stock / pre-order-ETA / order-status questions from real merchant
   data, never fabricated; the reply is sent back out on the originating channel.
