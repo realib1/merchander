@@ -90,7 +90,7 @@ backfill picked a five-module subset and skipped these.
 (status filter, empty inputs, single vs multi-word names, id vs no-id SKU).
 **Resolution:**
 
-### F-08 [P3] open - customer message content written to application logs in cleartext
+### F-08 [P3] fixed - customer message content written to application logs in cleartext
 
 **File:** src/lib/intelligence/extract.ts:10
 **Found:** 2026-09-03 by /audit (scope: full; lens: security)
@@ -101,4 +101,5 @@ content (addresses, phone numbers, payment details) lands in platform logs that
 have a broader access boundary than the tenant.
 **Suggested fix:** Drop the message body from the log line (log platform +
 external id + length), or gate it behind a debug flag that is off in production.
-**Resolution:**
+**Resolution:** Fixed in Feature 17c. `extractCartFromChat` now logs only sanitized metadata (platform, external ID, message length, and tenant ID), omitting raw message text. Webhook handlers (`whatsapp` and `telegram`) log structured extraction metrics (intent, item count, confidence) without dumping customer PII or raw cart payloads. Covered by unit tests in `src/lib/intelligence/extract.test.ts`.
+

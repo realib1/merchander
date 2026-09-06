@@ -65,7 +65,7 @@
   `src/app/actions/conversations.ts` stubs.
   - [x] 17a. **Service Scaffold & API Contract** - Stand up Python/FastAPI service in `services/intelligence`, configure dependencies, settings, API key auth, health endpoint, and core extraction schemas.
   - [x] 17b. **Grounded Catalog Retrieval & LLM Extraction** - Connect to Supabase to fetch tenant products/inventory/preorders, and implement LLM structured extraction endpoint (`POST /extract`).
-  - [ ] 17c. **Next.js Integration & Dispatch Pipeline** - Replace `src/lib/intelligence/extract.ts` stub with live HTTP client, trigger extraction on inbound messages, and address log privacy (F-08).
+  - [x] 17c. **Next.js Integration & Dispatch Pipeline** - Replace `src/lib/intelligence/extract.ts` stub with live HTTP client, trigger extraction on inbound messages, and address log privacy (F-08).
   - [ ] 17d. **Async Queue & Background Task Worker** - Stand up Celery + Redis worker scaffolding for asynchronous background tasks and throttled notifications.
 - [ ] 18. **Grounded product Q&A and availability replies** - answer price /
   variant / stock / pre-order-ETA / order-status questions from real merchant

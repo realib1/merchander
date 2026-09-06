@@ -15,4 +15,11 @@ export interface ExtractedCart {
     quantity: number;
   }>;
   confidence: number;
+  intent?: string;
+  notes?: string | null;
+}
+
+export interface ExtractionRequest {
+  tenant_id?: string | null;
+  message: NormalizedMessage;
 }

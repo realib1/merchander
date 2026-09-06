@@ -5,6 +5,8 @@ import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
+import { extractCartFromChat } from '@/lib/intelligence/extract';
+import { NormalizedMessage } from '@/types/messaging';
 
 // Meta Cloud API credentials. Names match .env.example. A future per-tenant
 // connector will source these from platform_settings instead.
@@ -126,6 +128,26 @@ export async function POST(request: NextRequest) {
           console.log(`Duplicate message skipped: ${msg.messageId}`);
         } else {
           console.error(`Failed to insert message ${msg.messageId}`, insertError);
+        }
+      }
+
+      // 5. Dispatch inbound text messages to the Intelligence extraction pipeline
+      if (msg.type === 'text' && msg.text && (!insertError || insertError.code === '23505')) {
+        const normalizedMsg: NormalizedMessage = {
+          platform: 'whatsapp',
+          external_id: msg.messageId,
+          sender_id: msg.from,
+          text: msg.text,
+          timestamp: new Date(parseInt(msg.timestamp, 10) * 1000).toISOString(),
+        };
+
+        try {
+          const extractedCart = await extractCartFromChat(normalizedMsg, tenantId);
+          console.log(
+            `[WhatsApp Webhook] Extracted intent=${extractedCart.intent} items=${extractedCart.items.length} confidence=${extractedCart.confidence}`
+          );
+        } catch (extractErr) {
+          console.warn('[WhatsApp Webhook] Extraction dispatch failed', extractErr);
         }
       }
     }

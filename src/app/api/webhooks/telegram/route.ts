@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
       const extractedCart = await extractCartFromChat(normalizedMsg);
 
       // TODO: Trigger order state machine (Ticket 4)
-      console.log('[Telegram Webhook] Extracted cart:', extractedCart);
+      console.log(
+        `[Telegram Webhook] Extracted intent=${extractedCart.intent} items=${extractedCart.items.length} confidence=${extractedCart.confidence}`
+      );
     }
 
     // Always return 200 OK
