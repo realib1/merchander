@@ -16,9 +16,15 @@ class Settings(BaseSettings):
     INTELLIGENCE_SERVICE_API_KEY: str = "dev_secret_key_change_in_production"
     ALLOWED_ORIGINS: Union[List[str], str] = ["http://localhost:3000"]
 
-    # Optional Supabase integration for grounding in 17b
+    # Supabase Database & PostgREST configuration
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
+
+    # LLM Provider settings
+    GEMINI_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    LLM_PROVIDER: str = "gemini"  # "gemini" | "openai" | "offline"
+    LLM_MODEL: str = "gemini-2.5-flash"
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
@@ -32,6 +38,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"
+
+    @property
+    def has_llm_key(self) -> bool:
+        return bool(self.GEMINI_API_KEY or self.OPENAI_API_KEY)
 
 
 settings = Settings()

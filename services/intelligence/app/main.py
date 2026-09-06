@@ -9,6 +9,8 @@ from app.schemas import (
     ExtractionRequest,
     ExtractedCart,
 )
+from app.services.catalog import fetch_tenant_catalog, TenantCatalogContext
+from app.services.extractor import extract_intent_and_cart
 
 app = FastAPI(
     title="Merchander Intelligence Service",
@@ -57,13 +59,12 @@ async def health_check():
 async def extract_cart_intent(payload: ExtractionRequest) -> ExtractedCart:
     """
     Authenticated extraction endpoint.
-    Accepts normalized channel message and returns extracted cart and intent.
-    Grounding with live catalog will be implemented in Feature 17b.
+    Retrieves tenant catalog grounding data from Supabase and extracts intent and cart items.
     """
-    # 17a contract stub: returns valid ExtractedCart structure
-    return ExtractedCart(
-        items=[],
-        confidence=0.0,
-        intent="unknown",
-        notes="Scaffold endpoint: schema and auth verified. Grounding engine connects in 17b."
-    )
+    if payload.tenant_id:
+        catalog = await fetch_tenant_catalog(payload.tenant_id)
+    else:
+        catalog = TenantCatalogContext(tenant_id="anonymous")
+
+    return await extract_intent_and_cart(payload.message, catalog)
+
