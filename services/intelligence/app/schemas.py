@@ -48,3 +48,18 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     service: str = "merchander-intelligence"
     version: str = "0.1.0"
+
+
+class AsyncTaskResponse(BaseModel):
+    """Response returned when a background task is enqueued."""
+    task_id: str
+    status: str = "queued"
+
+
+class TaskStatusResponse(BaseModel):
+    """Response returned when polling task status."""
+    task_id: str
+    status: str = Field(description="Celery task status (PENDING, STARTED, SUCCESS, FAILURE)")
+    result: Optional[dict] = None
+    error: Optional[str] = None
+

@@ -1,13 +1,18 @@
 from fastapi import FastAPI, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 
+from celery.result import AsyncResult
 from app import __version__
 from app.config import settings
 from app.security import verify_api_key
+from app.worker import celery_app
+from app.tasks.extraction import extract_cart_async_task
 from app.schemas import (
     HealthResponse,
     ExtractionRequest,
     ExtractedCart,
+    AsyncTaskResponse,
+    TaskStatusResponse,
 )
 from app.services.catalog import fetch_tenant_catalog, TenantCatalogContext
 from app.services.extractor import extract_intent_and_cart
@@ -67,4 +72,43 @@ async def extract_cart_intent(payload: ExtractionRequest) -> ExtractedCart:
         catalog = TenantCatalogContext(tenant_id="anonymous")
 
     return await extract_intent_and_cart(payload.message, catalog)
+
+
+@app.post(
+    "/api/v1/extract/async",
+    response_model=AsyncTaskResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    tags=["Extraction"],
+    dependencies=[Depends(verify_api_key)],
+)
+async def extract_cart_intent_async(payload: ExtractionRequest) -> AsyncTaskResponse:
+    """
+    Asynchronous extraction endpoint.
+    Enqueues extraction task into Celery worker and returns task ID for background polling.
+    """
+    task = extract_cart_async_task.delay(payload.model_dump())
+    return AsyncTaskResponse(task_id=task.id, status="queued")
+
+
+@app.get(
+    "/api/v1/tasks/{task_id}",
+    response_model=TaskStatusResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Tasks"],
+    dependencies=[Depends(verify_api_key)],
+)
+async def get_task_status(task_id: str) -> TaskStatusResponse:
+    """
+    Inspect the status and result of an asynchronous background task.
+    """
+    async_result = AsyncResult(task_id, app=celery_app)
+    state = async_result.state
+
+    if state == "SUCCESS":
+        return TaskStatusResponse(task_id=task_id, status=state, result=async_result.result)
+    elif state == "FAILURE":
+        return TaskStatusResponse(task_id=task_id, status=state, error=str(async_result.result))
+    else:
+        return TaskStatusResponse(task_id=task_id, status=state)
+
 

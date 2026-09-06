@@ -2,6 +2,16 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.config import settings
+from app.worker import celery_app
+
+# Configure Celery eager mode and in-memory backend for testing
+celery_app.conf.update(
+    task_always_eager=True,
+    task_eager_propagates=True,
+    task_store_eager_result=True,
+    result_backend="cache+memory://",
+)
+celery_app._backend = celery_app._get_backend()
 
 @pytest.fixture(autouse=True)
 def set_test_settings(monkeypatch):

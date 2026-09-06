@@ -59,14 +59,14 @@
   - [x] 16b. **WhatsApp Webhook & Inbound Parsing** - Set up `/api/webhooks/whatsapp` to handle Meta's verification challenge and parse incoming POST payloads into the `messages` table.
   - [x] 16c. **WhatsApp Outbound Messaging & Templates** - Build Meta Graph API client to send text/template messages back to users.
   - [x] 16d. **WhatsApp Media Handling & Delivery Receipts** - Download/store inbound media attachments and map Meta's delivery events to message statuses.
-- [ ] 17. **Merchander Intelligence service** - stand up the Python/FastAPI +
+- [x] 17. **Merchander Intelligence service** - stand up the Python/FastAPI +
   queue service the PRD describes; move extraction / grounded reasoning /
   multimodal off the `src/lib/intelligence/extract.ts` and
   `src/app/actions/conversations.ts` stubs.
   - [x] 17a. **Service Scaffold & API Contract** - Stand up Python/FastAPI service in `services/intelligence`, configure dependencies, settings, API key auth, health endpoint, and core extraction schemas.
   - [x] 17b. **Grounded Catalog Retrieval & LLM Extraction** - Connect to Supabase to fetch tenant products/inventory/preorders, and implement LLM structured extraction endpoint (`POST /extract`).
   - [x] 17c. **Next.js Integration & Dispatch Pipeline** - Replace `src/lib/intelligence/extract.ts` stub with live HTTP client, trigger extraction on inbound messages, and address log privacy (F-08).
-  - [ ] 17d. **Async Queue & Background Task Worker** - Stand up Celery + Redis worker scaffolding for asynchronous background tasks and throttled notifications.
+  - [x] 17d. **Async Queue & Background Task Worker** - Stand up Celery + Redis worker scaffolding for asynchronous background tasks and throttled notifications.
 - [ ] 18. **Grounded product Q&A and availability replies** - answer price /
   variant / stock / pre-order-ETA / order-status questions from real merchant
   data, never fabricated; the reply is sent back out on the originating channel.

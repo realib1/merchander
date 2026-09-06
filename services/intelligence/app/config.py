@@ -26,6 +26,19 @@ class Settings(BaseSettings):
     LLM_PROVIDER: str = "gemini"  # "gemini" | "openai" | "offline"
     LLM_MODEL: str = "gemini-2.5-flash"
 
+    # Redis & Celery Task Queue
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CELERY_BROKER_URL: str = ""
+    CELERY_RESULT_BACKEND: str = ""
+
+    @property
+    def effective_celery_broker(self) -> str:
+        return self.CELERY_BROKER_URL or self.REDIS_URL
+
+    @property
+    def effective_celery_backend(self) -> str:
+        return self.CELERY_RESULT_BACKEND or self.REDIS_URL
+
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:

@@ -34,7 +34,20 @@ pytest
 uvicorn app.main:app --reload --port 8000
 ```
 
+### Background Task Worker (Celery + Redis)
+Ensure Redis is running (or configured via `REDIS_URL` in `.env`), then launch the Celery worker:
+
+```bash
+# On Windows (prefork is unsupported on Windows; use solo pool):
+uv run celery -A app.worker.celery_app worker --pool=solo -l info
+
+# On Linux / macOS / Docker:
+uv run celery -A app.worker.celery_app worker --pool=prefork -c 4 -l info
+```
+
 ## Endpoints
 - `GET /` - Service metadata
 - `GET /health` - Health check (unauthenticated)
-- `POST /api/v1/extract` - Authenticated intent extraction (requires `X-API-Key` header)
+- `POST /api/v1/extract` - Synchronous intent extraction (requires `X-API-Key` header)
+- `POST /api/v1/extract/async` - Enqueue asynchronous extraction task (returns `202 Accepted` with `task_id`)
+- `GET /api/v1/tasks/{task_id}` - Query asynchronous task status and extracted results (requires `X-API-Key` header)
