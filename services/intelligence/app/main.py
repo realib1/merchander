@@ -13,9 +13,13 @@ from app.schemas import (
     ExtractedCart,
     AsyncTaskResponse,
     TaskStatusResponse,
+    ReplyRequest,
+    ReplyResponse,
 )
 from app.services.catalog import fetch_tenant_catalog, TenantCatalogContext
+from app.services.orders import fetch_customer_active_orders
 from app.services.extractor import extract_intent_and_cart
+from app.services.qa import generate_grounded_reply
 
 app = FastAPI(
     title="Merchander Intelligence Service",
@@ -110,5 +114,37 @@ async def get_task_status(task_id: str) -> TaskStatusResponse:
         return TaskStatusResponse(task_id=task_id, status=state, error=str(async_result.result))
     else:
         return TaskStatusResponse(task_id=task_id, status=state)
+
+
+@app.post(
+    "/api/v1/reply",
+    response_model=ReplyResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Q&A"],
+    dependencies=[Depends(verify_api_key)],
+)
+async def get_grounded_reply(payload: ReplyRequest) -> ReplyResponse:
+    """
+    Generate grounded, conversational reply to customer inquiries (price, variant, stock, pre-order ETA, order status).
+    Strictly grounded in real merchant catalog, open pre-orders, and customer active orders.
+    """
+    if payload.tenant_id:
+        catalog = await fetch_tenant_catalog(payload.tenant_id)
+        customer_id = payload.customer.customer_id if payload.customer else None
+        phone_number = (
+            (payload.customer.phone_number if payload.customer else None)
+            or payload.message.sender_id
+        )
+        orders = await fetch_customer_active_orders(
+            tenant_id=payload.tenant_id,
+            customer_id=customer_id,
+            phone_number=phone_number,
+        )
+    else:
+        catalog = TenantCatalogContext(tenant_id="anonymous")
+        orders = []
+
+    return await generate_grounded_reply(payload.message, catalog, orders)
+
 
 

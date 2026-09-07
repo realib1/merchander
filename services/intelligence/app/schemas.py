@@ -63,3 +63,47 @@ class TaskStatusResponse(BaseModel):
     result: Optional[dict] = None
     error: Optional[str] = None
 
+
+class CustomerContext(BaseModel):
+    """Optional customer identity information for grounding order inquiries."""
+    customer_id: Optional[str] = None
+    phone_number: Optional[str] = None
+    name: Optional[str] = None
+
+
+class CustomerOrderItem(BaseModel):
+    """Line item in a customer order summary."""
+    name: str
+    sku: Optional[str] = None
+    quantity: int = 1
+    unit_price: float = 0.0
+
+
+class CustomerOrderSummary(BaseModel):
+    """Summary of a customer's active or recent order for conversational Q&A grounding."""
+    id: str
+    order_number: str
+    status: str
+    total_amount: float
+    currency: str = "GHS"
+    items: List[CustomerOrderItem] = Field(default_factory=list)
+    created_at: Optional[str] = None
+    delivery_address: Optional[str] = None
+
+
+class ReplyRequest(BaseModel):
+    """Request payload for grounded Q&A and conversational replies."""
+    tenant_id: Optional[str] = None
+    message: NormalizedMessage
+    customer: Optional[CustomerContext] = None
+
+
+class ReplyResponse(BaseModel):
+    """Response returned by the grounded Q&A engine."""
+    reply_text: str = Field(description="Conversational reply formatted in Ghanaian merchant tone")
+    intent: str = Field(default="unknown", description="Detected customer intent")
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Confidence score")
+    grounded_facts: List[str] = Field(default_factory=list, description="List of verified facts retrieved from database")
+    requires_human_approval: bool = Field(default=False, description="Flag indicating interaction requires human merchant approval")
+    escalation_reason: Optional[str] = Field(default=None, description="Reason for human escalation if required")
+
