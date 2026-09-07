@@ -5,26 +5,29 @@ import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
+import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
-import { NormalizedMessage } from '@/types/messaging';
+import { generateGroundedReply } from '@/lib/intelligence/reply';
+import { NormalizedMessage, CustomerContext } from '@/types/messaging';
 
 // Meta Cloud API credentials. Names match .env.example. A future per-tenant
 // connector will source these from platform_settings instead.
-const WHATSAPP_APP_SECRET = process.env.WHATSAPP_APP_SECRET;
-const WHATSAPP_VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
-const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || '';
+const getAppSecret = () => process.env.WHATSAPP_APP_SECRET;
+const getVerifyToken = () => process.env.WHATSAPP_VERIFY_TOKEN;
+const getAccessToken = () => process.env.WHATSAPP_ACCESS_TOKEN || '';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('hub.mode');
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
+  const verifyToken = getVerifyToken();
 
   if (
     mode === 'subscribe' &&
-    !!WHATSAPP_VERIFY_TOKEN &&
+    !!verifyToken &&
     !!token &&
-    timingSafeStringEqual(token, WHATSAPP_VERIFY_TOKEN)
+    timingSafeStringEqual(token, verifyToken)
   ) {
     return new NextResponse(challenge, { status: 200 });
   }
@@ -36,8 +39,10 @@ export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
     const signature = request.headers.get('x-hub-signature-256');
+    const appSecret = getAppSecret();
+    const accessToken = getAccessToken();
 
-    if (!verifyMetaSignature(rawBody, signature, WHATSAPP_APP_SECRET)) {
+    if (!verifyMetaSignature(rawBody, signature, appSecret)) {
       return new NextResponse('Invalid signature', { status: 401 });
     }
 
@@ -82,9 +87,9 @@ export async function POST(request: NextRequest) {
       const contentObj: Record<string, unknown> = { type: msg.type, text: msg.text };
 
       // 3. Download and store media if present
-      if (msg.mediaId && WHATSAPP_ACCESS_TOKEN) {
+      if (msg.mediaId && accessToken) {
         try {
-          const { buffer, mimeType } = await fetchWhatsAppMedia(msg.mediaId, WHATSAPP_ACCESS_TOKEN);
+          const { buffer, mimeType } = await fetchWhatsAppMedia(msg.mediaId, accessToken);
           
           const ext = mimeType.split('/')[1] || 'bin';
           const filePath = `${tenantId}/whatsapp/${msg.messageId}.${ext}`;
@@ -131,7 +136,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // 5. Dispatch inbound text messages to the Intelligence extraction pipeline
+      // 5. Dispatch inbound text messages to the Intelligence pipeline
       if (msg.type === 'text' && msg.text && (!insertError || insertError.code === '23505')) {
         const normalizedMsg: NormalizedMessage = {
           platform: 'whatsapp',
@@ -141,13 +146,66 @@ export async function POST(request: NextRequest) {
           timestamp: new Date(parseInt(msg.timestamp, 10) * 1000).toISOString(),
         };
 
+        const customerContext: CustomerContext = {
+          customer_id: identity.customer_id ?? undefined,
+          phone_number: identity.channel_handle || msg.from,
+          name: identity.profile_name ?? undefined,
+        };
+
+        // 5a. Run cart extraction for order intents
+        let isCartOrder = false;
         try {
           const extractedCart = await extractCartFromChat(normalizedMsg, tenantId);
           console.log(
             `[WhatsApp Webhook] Extracted intent=${extractedCart.intent} items=${extractedCart.items.length} confidence=${extractedCart.confidence}`
           );
+          if (extractedCart.items && extractedCart.items.length > 0) {
+            isCartOrder = true;
+          }
         } catch (extractErr) {
           console.warn('[WhatsApp Webhook] Extraction dispatch failed', extractErr);
+        }
+
+        // 5b. For inquiry messages (non-cart orders), generate grounded reply and dispatch outbound
+        if (!isCartOrder) {
+          try {
+            const reply = await generateGroundedReply({
+              tenant_id: tenantId,
+              message: normalizedMsg,
+              customer: customerContext,
+            });
+
+            console.log(
+              `[WhatsApp Webhook] Generated reply intent=${reply.intent} confidence=${reply.confidence} requires_human_approval=${reply.requires_human_approval}`
+            );
+
+            if (reply.reply_text) {
+              try {
+                await sendOutboundWhatsAppMessage({
+                  supabase,
+                  tenantId,
+                  channelIdentityId: identity.id,
+                  to: msg.from,
+                  messageType: 'text',
+                  text: reply.reply_text,
+                  metadata: {
+                    intent: reply.intent,
+                    confidence: reply.confidence,
+                    grounded_facts: reply.grounded_facts,
+                    requires_human_approval: reply.requires_human_approval,
+                    escalation_reason: reply.escalation_reason,
+                  },
+                });
+              } catch (dispatchErr) {
+                console.warn(
+                  `[WhatsApp Webhook] Outbound reply dispatch failed for tenant ${tenantId}:`,
+                  dispatchErr
+                );
+              }
+            }
+          } catch (replyErr) {
+            console.warn('[WhatsApp Webhook] Reply generation failed', replyErr);
+          }
         }
       }
     }

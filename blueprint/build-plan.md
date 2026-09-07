@@ -67,11 +67,11 @@
   - [x] 17b. **Grounded Catalog Retrieval & LLM Extraction** - Connect to Supabase to fetch tenant products/inventory/preorders, and implement LLM structured extraction endpoint (`POST /extract`).
   - [x] 17c. **Next.js Integration & Dispatch Pipeline** - Replace `src/lib/intelligence/extract.ts` stub with live HTTP client, trigger extraction on inbound messages, and address log privacy (F-08).
   - [x] 17d. **Async Queue & Background Task Worker** - Stand up Celery + Redis worker scaffolding for asynchronous background tasks and throttled notifications.
-- [ ] 18. **Grounded product Q&A and availability replies** - answer price /
+- [x] 18. **Grounded product Q&A and availability replies** - answer price /
   variant / stock / pre-order-ETA / order-status questions from real merchant
   data, never fabricated; the reply is sent back out on the originating channel.
   - [x] 18a. **Grounded Q&A Engine & Intelligence Service Contract** - Stand up `POST /api/v1/reply` in `services/intelligence`, implement catalog, batch ETA, and pending customer order grounding (by phone & customer ID), anti-hallucination prompt, confidence scoring, human escalation fallback, and pytest suite.
-  - [ ] 18b. **Channel Reply Dispatch & Webhook Pipeline** - Create Next.js `generateGroundedReply` client, wire inbound WhatsApp webhook inquiry intents to generate replies, dispatch outbound via Meta Graph API, and persist in `messages`.
+  - [x] 18b. **Channel Reply Dispatch & Webhook Pipeline** - Create Next.js `generateGroundedReply` client, wire inbound WhatsApp webhook inquiry intents to generate replies, dispatch outbound via Meta Graph API, and persist in `messages`.
 - [ ] 19. **Green / Yellow / Red action safety and human handoff** - classify
   every AI action: Green auto-send, Yellow to a merchant approval queue, Red
   human-only; escalate on uncertainty rather than fabricate. The merchant

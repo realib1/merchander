@@ -23,3 +23,25 @@ export interface ExtractionRequest {
   tenant_id?: string | null;
   message: NormalizedMessage;
 }
+
+export interface CustomerContext {
+  customer_id?: string | null;
+  phone_number?: string | null;
+  name?: string | null;
+}
+
+export interface ReplyRequest {
+  tenant_id?: string | null;
+  message: NormalizedMessage;
+  customer?: CustomerContext | null;
+}
+
+export interface ReplyResponse {
+  reply_text: string;
+  intent: string;
+  confidence: number;
+  grounded_facts: string[];
+  requires_human_approval: boolean;
+  escalation_reason?: string | null;
+}
+

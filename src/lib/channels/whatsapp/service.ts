@@ -27,7 +27,8 @@ export async function sendOutboundWhatsAppMessage({
   text,
   templateName,
   templateLanguage,
-  templateComponents
+  templateComponents,
+  metadata
 }: {
   supabase: SupabaseClient<Database>;
   tenantId: string;
@@ -38,6 +39,7 @@ export async function sendOutboundWhatsAppMessage({
   templateName?: string;
   templateLanguage?: string;
   templateComponents?: WhatsAppTemplateComponent[];
+  metadata?: Record<string, unknown>;
 }) {
   const config = await getTenantWhatsAppConfig(tenantId);
   
@@ -63,9 +65,13 @@ export async function sendOutboundWhatsAppMessage({
   // Insert into messages table
   const externalId = response.messages[0]?.id;
   
-  const content = messageType === 'text' 
+  const content: Record<string, unknown> = messageType === 'text' 
     ? { text } 
     : { template: { name: templateName, language: templateLanguage, components: templateComponents } };
+
+  if (metadata) {
+    content.metadata = metadata;
+  }
 
   const { error } = await supabase
     .from('messages')
