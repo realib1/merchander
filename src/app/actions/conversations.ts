@@ -118,18 +118,3 @@ export async function getConversationsData(): Promise<ConversationsData> {
   }
 }
 
-export async function sendChatMessage(threadId: string, text: string, senderType: 'agent' | 'bot' = 'agent') {
-  revalidatePath('/dashboard/conversations');
-  return {
-    success: true,
-    message: {
-      id: `msg-${Date.now()}`,
-      threadId,
-      senderType,
-      senderName: senderType === 'bot' ? 'Merchander Bot' : 'Store Staff',
-      text,
-      createdAt: new Date().toISOString(),
-      status: 'sent',
-    } as ChatMessage,
-  };
-}

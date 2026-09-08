@@ -72,12 +72,12 @@
   data, never fabricated; the reply is sent back out on the originating channel.
   - [x] 18a. **Grounded Q&A Engine & Intelligence Service Contract** - Stand up `POST /api/v1/reply` in `services/intelligence`, implement catalog, batch ETA, and pending customer order grounding (by phone & customer ID), anti-hallucination prompt, confidence scoring, human escalation fallback, and pytest suite.
   - [x] 18b. **Channel Reply Dispatch & Webhook Pipeline** - Create Next.js `generateGroundedReply` client, wire inbound WhatsApp webhook inquiry intents to generate replies, dispatch outbound via Meta Graph API, and persist in `messages`.
-- [ ] 19. **Green / Yellow / Red action safety and human handoff** - classify
+- [x] 19. **Green / Yellow / Red action safety and human handoff** - classify
   every AI action: Green auto-send, Yellow to a merchant approval queue, Red
   human-only; escalate on uncertainty rather than fabricate. The merchant
   touchpoint is an approval & exceptions queue in the dashboard, not a chat view.
   - [x] 19a. **Action Safety Classifier, Queue Schema & Execution Engine** - Stand up `ai_action_queue` table with RLS, build action safety classifier (Green/Yellow/Red), wire WhatsApp webhook to route Yellow/Red actions to queue while sending customer assurance notices, and implement server actions for merchant approval/rejection/edit.
-  - [ ] 19b. **Merchant Approval & Exceptions Queue Surface** - Replace the chat stream in `/dashboard/conversations` with a focused Approvals & Exceptions queue (KPI cards, pending Yellow approvals, urgent Red exceptions with direct WhatsApp takeover links `wa.me/<phone>`).
+  - [x] 19b. **Merchant Approval & Exceptions Queue Surface** - Replace the chat stream in `/dashboard/conversations` with a focused Approvals & Exceptions queue (KPI cards, pending Yellow approvals, urgent Red exceptions with direct WhatsApp takeover links `wa.me/<phone>`).
 - [ ] 20. **Conversation-to-order capture** - turn an agreed cart from a channel
   exchange into a draft order against real inventory and pricing; Yellow-gated.
   Replaces the `extractCartFromChat` stub.

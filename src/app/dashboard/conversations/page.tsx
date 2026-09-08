@@ -1,26 +1,34 @@
 import React from 'react';
-import { getConversationsData } from '@/app/actions/conversations';
-import { ConversationsTopMetrics } from './components/ConversationsTopMetrics';
-import { ConversationsWorkspace } from './components/ConversationsWorkspace';
+import { getPendingApprovals, getApprovalsQueueMetrics } from '@/app/actions/approvals';
+import { ApprovalsTopMetrics } from './components/ApprovalsTopMetrics';
+import { ApprovalsWorkspace } from './components/ApprovalsWorkspace';
 
 export const metadata = {
-  title: 'Conversations | Merchander',
+  title: 'Approvals & Inquiries | Merchander',
   description:
-    'Manage WhatsApp, Telegram, and social customer conversations with smart bot intelligence and order conversion.',
+    'Operational approval and exceptions queue for AI actions, payment claims, and WhatsApp customer handoffs.',
 };
 
 export default async function ConversationsPage() {
-  const data = await getConversationsData();
+  const [metrics, actions] = await Promise.all([
+    getApprovalsQueueMetrics(),
+    getPendingApprovals({ status: 'all', limit: 100 }),
+  ]);
 
   return (
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
-      <h1 className="sr-only">Conversations</h1>
+      <div className="flex flex-col gap-1 mb-6">
+        <h1 className="text-xl font-bold text-foreground">Approvals & Inquiries</h1>
+        <p className="text-xs text-muted">
+          Review commercial actions requiring approval, verify payment claims, and take over urgent WhatsApp conversations.
+        </p>
+      </div>
 
       {/* Top 4 KPI Metrics */}
-      <ConversationsTopMetrics metrics={data.metrics} />
+      <ApprovalsTopMetrics metrics={metrics} />
 
-      {/* Conversations Master-Detail Workspace */}
-      <ConversationsWorkspace data={data} />
+      {/* Approvals & Exceptions Workspace */}
+      <ApprovalsWorkspace initialActions={actions} />
     </div>
   );
 }

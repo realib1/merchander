@@ -2,13 +2,13 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
-import { AIActionRecord, ActionTier, ActionStatus } from '@/types/actions';
+import { AIActionRecord, ActionTier, ActionStatus, ApprovalsQueueMetrics } from '@/types/actions';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
 import { revalidatePath } from 'next/cache';
 
 export interface GetApprovalsFilter {
   tier?: ActionTier;
-  status?: ActionStatus;
+  status?: ActionStatus | 'all';
   limit?: number;
 }
 
@@ -44,9 +44,9 @@ export async function getPendingApprovals(
       query = query.eq('tier', filters.tier);
     }
 
-    if (filters?.status) {
+    if (filters?.status && filters.status !== 'all') {
       query = query.eq('status', filters.status);
-    } else {
+    } else if (!filters?.status) {
       query = query.eq('status', 'pending');
     }
 
@@ -226,6 +226,150 @@ export async function rejectAction(
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown error';
     console.error('[Approvals Action] Reject action failed:', errorMsg);
+    return { success: false, error: errorMsg };
+  }
+}
+
+/**
+ * Computes queue KPI metrics for the current tenant.
+ */
+export async function getApprovalsQueueMetrics(): Promise<ApprovalsQueueMetrics> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      pendingYellowCount: 0,
+      urgentRedCount: 0,
+      executedTodayCount: 0,
+      avgConfidencePct: 0,
+    };
+  }
+
+  try {
+    const { tenantId } = await getTenantInfo(supabase, user.id);
+
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const { data: actions, error } = await supabase
+      .from('ai_action_queue')
+      .select('tier, status, confidence, updated_at')
+      .eq('tenant_id', tenantId);
+
+    if (error || !actions) {
+      console.error('[Approvals Action] Failed to fetch metrics:', error);
+      return {
+        pendingYellowCount: 0,
+        urgentRedCount: 0,
+        executedTodayCount: 0,
+        avgConfidencePct: 0,
+      };
+    }
+
+    let pendingYellowCount = 0;
+    let urgentRedCount = 0;
+    let executedTodayCount = 0;
+    let pendingConfidenceSum = 0;
+    let pendingCount = 0;
+
+    for (const act of actions) {
+      if (act.status === 'pending') {
+        if (act.tier === 'yellow') pendingYellowCount++;
+        if (act.tier === 'red') urgentRedCount++;
+        pendingConfidenceSum += Number(act.confidence) || 0;
+        pendingCount++;
+      }
+      if (act.status === 'executed' && act.updated_at && new Date(act.updated_at) >= startOfToday) {
+        executedTodayCount++;
+      }
+    }
+
+    const avgConfidencePct =
+      pendingCount > 0 ? Math.round((pendingConfidenceSum / pendingCount) * 100) : 100;
+
+    return {
+      pendingYellowCount,
+      urgentRedCount,
+      executedTodayCount,
+      avgConfidencePct,
+    };
+  } catch (err) {
+    console.error('[Approvals Action] Error fetching metrics:', err);
+    return {
+      pendingYellowCount: 0,
+      urgentRedCount: 0,
+      executedTodayCount: 0,
+      avgConfidencePct: 0,
+    };
+  }
+}
+
+/**
+ * Resolves a Red tier urgent exception after merchant manual takeover.
+ */
+export async function resolveRedException(
+  actionId: string,
+  resolutionNote?: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
+  try {
+    const { tenantId } = await getTenantInfo(supabase, user.id);
+
+    const { data: action, error: fetchErr } = await supabase
+      .from('ai_action_queue')
+      .select('id, tier, status, proposed_payload')
+      .eq('id', actionId)
+      .eq('tenant_id', tenantId)
+      .single();
+
+    if (fetchErr || !action) {
+      return { success: false, error: 'Action not found or unauthorized' };
+    }
+
+    if (action.status !== 'pending') {
+      return { success: false, error: `Action is already ${action.status}` };
+    }
+
+    const proposed = (action.proposed_payload as Record<string, unknown>) || {};
+    const updatedPayload = {
+      ...proposed,
+      resolution_note: resolutionNote || 'Resolved via merchant WhatsApp takeover',
+      resolved_via_takeover: true,
+    };
+
+    const { error: updateErr } = await supabase
+      .from('ai_action_queue')
+      .update({
+        status: 'executed',
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+        proposed_payload: updatedPayload,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', actionId)
+      .eq('tenant_id', tenantId);
+
+    if (updateErr) {
+      console.error('[Approvals Action] Failed to resolve red exception:', updateErr);
+      return { success: false, error: 'Failed to update action status' };
+    }
+
+    revalidatePath('/dashboard/conversations');
+    return { success: true };
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Approvals Action] Resolve red exception failed:', errorMsg);
     return { success: false, error: errorMsg };
   }
 }

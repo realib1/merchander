@@ -45,7 +45,7 @@ the channel-connection settings table (or gate the route off until it exists).
 Same for `getTenantWhatsAppConfig`.
 **Resolution:**
 
-### F-05 [P2] open - sendChatMessage is a no-op that reports success
+### F-05 [P2] fixed - sendChatMessage is a no-op that reports success
 
 **File:** src/app/actions/conversations.ts:121
 **Found:** 2026-09-03 by /audit (scope: full; lens: quality)
@@ -60,7 +60,7 @@ scaffold pending the 16-21 rework; this is the write-path half of that.
 **Suggested fix:** As part of the 16-21 rework, either wire this to the real
 outbound path (Green/Yellow/Red gated) or make the composer clearly inert
 (disabled, "not yet connected") instead of faking a successful send.
-**Resolution:**
+**Resolution:** Fixed in Feature 19b. Decommissioned `ChatStreamView.tsx` and removed synthetic `sendChatMessage`. Reframed `/dashboard/conversations` into a genuine Approvals & Exceptions queue where merchant actions call `approveAction` (dispatches real outbound WhatsApp messages via `sendOutboundWhatsAppMessage` with tenant audit records) and `rejectAction`.
 
 ### F-06 [P3] open - duplicate WhatsApp signature helper and unused outbound module
 

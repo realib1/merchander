@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getPendingApprovals, approveAction, rejectAction } from './approvals';
+import {
+  getPendingApprovals,
+  approveAction,
+  rejectAction,
+  getApprovalsQueueMetrics,
+  resolveRedException,
+} from './approvals';
 
 // Mock dependencies
 vi.mock('@/lib/supabase/server', () => ({
@@ -220,6 +226,91 @@ describe('Approval Queue Server Actions', () => {
           reviewed_by: mockUserId,
         })
       );
+    });
+  });
+
+  describe('getApprovalsQueueMetrics', () => {
+    it('returns zeroes when unauthenticated', async () => {
+      const mockClient = createMockSupabase();
+      mockClient.auth.getUser.mockResolvedValueOnce({ data: { user: null } });
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      const metrics = await getApprovalsQueueMetrics();
+      expect(metrics).toEqual({
+        pendingYellowCount: 0,
+        urgentRedCount: 0,
+        executedTodayCount: 0,
+        avgConfidencePct: 0,
+      });
+    });
+
+    it('aggregates pending yellow, red, executed today, and confidence', async () => {
+      const todayIso = new Date().toISOString();
+      const mockActions = [
+        { tier: 'yellow', status: 'pending', confidence: 0.80, updated_at: todayIso },
+        { tier: 'yellow', status: 'pending', confidence: 0.90, updated_at: todayIso },
+        { tier: 'red', status: 'pending', confidence: 0.40, updated_at: todayIso },
+        { tier: 'yellow', status: 'executed', confidence: 0.85, updated_at: todayIso },
+      ];
+
+      const mockClient = createMockSupabase();
+      // eq on tenant_id terminates select
+      mockClient.chain.eq.mockResolvedValueOnce({ data: mockActions, error: null });
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      const metrics = await getApprovalsQueueMetrics();
+      expect(metrics.pendingYellowCount).toBe(2);
+      expect(metrics.urgentRedCount).toBe(1);
+      expect(metrics.executedTodayCount).toBe(1);
+      // Average confidence across pending: (0.80 + 0.90 + 0.40) / 3 = 0.70 -> 70%
+      expect(metrics.avgConfidencePct).toBe(70);
+    });
+  });
+
+  describe('resolveRedException', () => {
+    it('resolves pending red exception with resolution note', async () => {
+      const mockAction = {
+        id: 'red-action-1',
+        tier: 'red',
+        status: 'pending',
+        proposed_payload: { customer_phone: '233244123456' },
+      };
+
+      const mockClient = createMockSupabase();
+      mockClient.chain.single.mockResolvedValueOnce({ data: mockAction, error: null });
+      mockClient.chain.update.mockReturnValue(mockClient.chain);
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      const res = await resolveRedException('red-action-1', 'Called customer directly, complaint settled');
+      expect(res.success).toBe(true);
+
+      expect(mockClient.chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'executed',
+          reviewed_by: mockUserId,
+          proposed_payload: expect.objectContaining({
+            customer_phone: '233244123456',
+            resolution_note: 'Called customer directly, complaint settled',
+            resolved_via_takeover: true,
+          }),
+        })
+      );
+    });
+
+    it('rejects resolving if action is already executed', async () => {
+      const mockAction = {
+        id: 'red-action-2',
+        tier: 'red',
+        status: 'executed',
+      };
+
+      const mockClient = createMockSupabase();
+      mockClient.chain.single.mockResolvedValueOnce({ data: mockAction, error: null });
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      const res = await resolveRedException('red-action-2');
+      expect(res.success).toBe(false);
+      expect(res.error).toContain('already executed');
     });
   });
 });

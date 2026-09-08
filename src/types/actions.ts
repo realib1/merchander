@@ -53,3 +53,11 @@ export interface ActionSafetyClassification {
   customerAssuranceNotice?: string;
   escalationReason?: string | null;
 }
+
+export interface ApprovalsQueueMetrics {
+  pendingYellowCount: number;
+  urgentRedCount: number;
+  executedTodayCount: number;
+  avgConfidencePct: number;
+}
+
