@@ -28,17 +28,33 @@ import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
+import {
+  PAYMENT_ASSURANCE_NOTICE,
+  GENERAL_YELLOW_ASSURANCE_NOTICE,
+  HUMAN_HANDOFF_NOTICE,
+} from '@/lib/intelligence/safety';
 
 describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
   const originalEnv = process.env;
 
+  const mockInsertMessages = vi.fn().mockResolvedValue({ error: null });
+  const mockInsertActionQueue = vi.fn().mockResolvedValue({ error: null });
+  const mockUpdateMessages = vi.fn().mockReturnValue({
+    eq: vi.fn().mockResolvedValue({ error: null }),
+  });
+
   const mockSupabase = {
-    from: vi.fn().mockReturnValue({
-      insert: vi.fn().mockResolvedValue({ error: null }),
-      update: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ error: null }),
-      }),
-      select: vi.fn().mockReturnThis(),
+    from: vi.fn((table: string) => {
+      if (table === 'ai_action_queue') {
+        return {
+          insert: mockInsertActionQueue,
+        };
+      }
+      return {
+        insert: mockInsertMessages,
+        update: mockUpdateMessages,
+        select: vi.fn().mockReturnThis(),
+      };
     }),
     storage: {
       from: vi.fn().mockReturnValue({
@@ -49,6 +65,8 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockInsertMessages.mockResolvedValue({ error: null });
+    mockInsertActionQueue.mockResolvedValue({ error: null });
     process.env = {
       ...originalEnv,
       WHATSAPP_APP_SECRET: 'test-app-secret',
@@ -216,8 +234,278 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
           grounded_facts: ['Grounded price: GH₵120.00'],
           requires_human_approval: false,
           escalation_reason: null,
+          action_tier: 'green',
         },
       });
+
+      // No action queued for green tier
+      expect(mockInsertActionQueue).not.toHaveBeenCalled();
+    });
+
+    it('queues payment claim into ai_action_queue (Yellow tier) and dispatches customer assurance notice', async () => {
+      (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [],
+        confidence: 0.85,
+        intent: 'inquiry',
+      });
+
+      (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        reply_text: 'Thank you, I will confirm your MoMo payment.',
+        intent: 'confirm_payment',
+        confidence: 0.90,
+        grounded_facts: ['MoMo ref 123456'],
+        requires_human_approval: true,
+        escalation_reason: 'Payment claim requires merchant verification',
+      });
+
+      const req = await createPostRequest(makeMessagePayload('I sent 150 GHS to your MoMo'));
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
+
+      // Yellow action queued
+      expect(mockInsertActionQueue).toHaveBeenCalledWith({
+        tenant_id: 'tenant-123',
+        channel_identity_id: 'identity-uuid-123',
+        customer_id: 'cust-uuid-789',
+        action_type: 'confirm_payment',
+        tier: 'yellow',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'Thank you, I will confirm your MoMo payment.',
+          to: '233244123456',
+          customer_phone: '233244123456',
+          customer_name: 'Ama Serwaa',
+        },
+        grounded_facts: ['MoMo ref 123456'],
+        confidence: 0.90,
+        escalation_reason: 'Payment claim requires merchant verification',
+        customer_notice_sent: PAYMENT_ASSURANCE_NOTICE,
+      });
+
+      // Customer assurance notice sent immediately
+      expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith({
+        supabase: mockSupabase,
+        tenantId: 'tenant-123',
+        channelIdentityId: 'identity-uuid-123',
+        to: '233244123456',
+        messageType: 'text',
+        text: PAYMENT_ASSURANCE_NOTICE,
+        metadata: {
+          intent: 'confirm_payment',
+          confidence: 0.90,
+          grounded_facts: ['MoMo ref 123456'],
+          requires_human_approval: true,
+          escalation_reason: 'Payment claim requires merchant verification',
+          action_tier: 'yellow',
+          is_assurance_notice: true,
+        },
+      });
+    });
+
+    it('queues medium-confidence inquiry into ai_action_queue (Yellow tier) with general assurance notice', async () => {
+      (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [],
+        confidence: 0.70,
+        intent: 'inquiry',
+      });
+
+      (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        reply_text: 'We may restock tomorrow.',
+        intent: 'inquire_product',
+        confidence: 0.65,
+        grounded_facts: [],
+        requires_human_approval: false,
+        escalation_reason: null,
+      });
+
+      const req = await createPostRequest(makeMessagePayload('Will you restock tomorrow?'));
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
+
+      // Yellow action queued due to medium confidence
+      expect(mockInsertActionQueue).toHaveBeenCalledWith({
+        tenant_id: 'tenant-123',
+        channel_identity_id: 'identity-uuid-123',
+        customer_id: 'cust-uuid-789',
+        action_type: 'reply',
+        tier: 'yellow',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'We may restock tomorrow.',
+          to: '233244123456',
+          customer_phone: '233244123456',
+          customer_name: 'Ama Serwaa',
+        },
+        grounded_facts: [],
+        confidence: 0.65,
+        escalation_reason: 'Medium AI confidence (65%)',
+        customer_notice_sent: GENERAL_YELLOW_ASSURANCE_NOTICE,
+      });
+
+      expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith({
+        supabase: mockSupabase,
+        tenantId: 'tenant-123',
+        channelIdentityId: 'identity-uuid-123',
+        to: '233244123456',
+        messageType: 'text',
+        text: GENERAL_YELLOW_ASSURANCE_NOTICE,
+        metadata: {
+          intent: 'inquire_product',
+          confidence: 0.65,
+          grounded_facts: [],
+          requires_human_approval: true,
+          escalation_reason: 'Medium AI confidence (65%)',
+          action_tier: 'yellow',
+          is_assurance_notice: true,
+        },
+      });
+    });
+
+    it('queues explicit human agent request into ai_action_queue (Red tier) and dispatches human handoff notice', async () => {
+      (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [],
+        confidence: 0.95,
+        intent: 'human_agent',
+      });
+
+      (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        reply_text: 'Connecting you to our team.',
+        intent: 'human_agent',
+        confidence: 0.95,
+        grounded_facts: [],
+        requires_human_approval: true,
+        escalation_reason: 'Human agent requested',
+      });
+
+      const req = await createPostRequest(makeMessagePayload('Let me speak to someone in charge'));
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
+
+      // Red action queued
+      expect(mockInsertActionQueue).toHaveBeenCalledWith({
+        tenant_id: 'tenant-123',
+        channel_identity_id: 'identity-uuid-123',
+        customer_id: 'cust-uuid-789',
+        action_type: 'human_handoff',
+        tier: 'red',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'Connecting you to our team.',
+          to: '233244123456',
+          customer_phone: '233244123456',
+          customer_name: 'Ama Serwaa',
+        },
+        grounded_facts: [],
+        confidence: 0.95,
+        escalation_reason: 'Human agent requested',
+        customer_notice_sent: HUMAN_HANDOFF_NOTICE,
+      });
+
+      // Human handoff notice dispatched
+      expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith({
+        supabase: mockSupabase,
+        tenantId: 'tenant-123',
+        channelIdentityId: 'identity-uuid-123',
+        to: '233244123456',
+        messageType: 'text',
+        text: HUMAN_HANDOFF_NOTICE,
+        metadata: {
+          intent: 'human_agent',
+          confidence: 0.95,
+          grounded_facts: [],
+          requires_human_approval: true,
+          escalation_reason: 'Human agent requested',
+          action_tier: 'red',
+          is_assurance_notice: true,
+        },
+      });
+    });
+
+    it('queues low-confidence inquiry into ai_action_queue (Red tier) and dispatches human handoff notice', async () => {
+      (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [],
+        confidence: 0.30,
+        intent: 'inquiry',
+      });
+
+      (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        reply_text: 'Uncertain reply.',
+        intent: 'inquire_product',
+        confidence: 0.40,
+        grounded_facts: [],
+        requires_human_approval: false,
+        escalation_reason: null,
+      });
+
+      const req = await createPostRequest(makeMessagePayload('Do you have something that smells like purple rain?'));
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
+
+      // Low confidence (< 0.50) triggers Red tier
+      expect(mockInsertActionQueue).toHaveBeenCalledWith({
+        tenant_id: 'tenant-123',
+        channel_identity_id: 'identity-uuid-123',
+        customer_id: 'cust-uuid-789',
+        action_type: 'human_handoff',
+        tier: 'red',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'Uncertain reply.',
+          to: '233244123456',
+          customer_phone: '233244123456',
+          customer_name: 'Ama Serwaa',
+        },
+        grounded_facts: [],
+        confidence: 0.40,
+        escalation_reason: 'Low AI confidence (40%)',
+        customer_notice_sent: HUMAN_HANDOFF_NOTICE,
+      });
+
+      expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith({
+        supabase: mockSupabase,
+        tenantId: 'tenant-123',
+        channelIdentityId: 'identity-uuid-123',
+        to: '233244123456',
+        messageType: 'text',
+        text: HUMAN_HANDOFF_NOTICE,
+        metadata: {
+          intent: 'inquire_product',
+          confidence: 0.40,
+          grounded_facts: [],
+          requires_human_approval: true,
+          escalation_reason: 'Low AI confidence (40%)',
+          action_tier: 'red',
+          is_assurance_notice: true,
+        },
+      });
+    });
+
+    it('remains resilient when queue insertion fails and still returns 200 OK', async () => {
+      (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [],
+        confidence: 0.90,
+        intent: 'inquiry',
+      });
+
+      (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        reply_text: 'Payment received.',
+        intent: 'confirm_payment',
+        confidence: 0.90,
+        grounded_facts: [],
+        requires_human_approval: true,
+        escalation_reason: 'Payment verification needed',
+      });
+
+      mockInsertActionQueue.mockRejectedValueOnce(new Error('PostgreSQL database connection refused'));
+
+      const req = await createPostRequest(makeMessagePayload('I paid via MoMo'));
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
     });
 
     it('does NOT call generateGroundedReply when message is a cart order with items', async () => {

@@ -8,6 +8,7 @@ import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
+import { classifyActionSafety } from '@/lib/intelligence/safety';
 import { NormalizedMessage, CustomerContext } from '@/types/messaging';
 
 // Meta Cloud API credentials. Names match .env.example. A future per-tenant
@@ -179,7 +180,19 @@ export async function POST(request: NextRequest) {
               `[WhatsApp Webhook] Generated reply intent=${reply.intent} confidence=${reply.confidence} requires_human_approval=${reply.requires_human_approval}`
             );
 
-            if (reply.reply_text) {
+            const classification = classifyActionSafety({
+              intent: reply.intent,
+              confidence: reply.confidence,
+              requires_human_approval: reply.requires_human_approval,
+              escalation_reason: reply.escalation_reason,
+            });
+
+            console.log(
+              `[WhatsApp Webhook] Safety classification tier=${classification.tier} actionType=${classification.actionType} autoDispatch=${classification.autoDispatch}`
+            );
+
+            if (classification.autoDispatch && reply.reply_text) {
+              // Green Tier: Auto-dispatch immediate grounded reply
               try {
                 await sendOutboundWhatsAppMessage({
                   supabase,
@@ -192,8 +205,9 @@ export async function POST(request: NextRequest) {
                     intent: reply.intent,
                     confidence: reply.confidence,
                     grounded_facts: reply.grounded_facts,
-                    requires_human_approval: reply.requires_human_approval,
-                    escalation_reason: reply.escalation_reason,
+                    requires_human_approval: false,
+                    escalation_reason: null,
+                    action_tier: 'green',
                   },
                 });
               } catch (dispatchErr) {
@@ -201,6 +215,67 @@ export async function POST(request: NextRequest) {
                   `[WhatsApp Webhook] Outbound reply dispatch failed for tenant ${tenantId}:`,
                   dispatchErr
                 );
+              }
+            } else {
+              // Yellow or Red Tier: Queue action for merchant review / urgent exception
+              try {
+                const { error: queueInsertErr } = await supabase
+                  .from('ai_action_queue')
+                  .insert({
+                    tenant_id: tenantId,
+                    channel_identity_id: identity.id,
+                    customer_id: identity.customer_id ?? null,
+                    action_type: classification.actionType,
+                    tier: classification.tier,
+                    status: 'pending',
+                    proposed_payload: {
+                      reply_text: reply.reply_text,
+                      to: msg.from,
+                      customer_phone: identity.channel_handle || msg.from,
+                      customer_name: identity.profile_name ?? undefined,
+                    },
+                    grounded_facts: reply.grounded_facts || [],
+                    confidence: reply.confidence,
+                    escalation_reason: classification.escalationReason,
+                    customer_notice_sent: classification.customerAssuranceNotice ?? null,
+                  });
+
+                if (queueInsertErr) {
+                  console.error(
+                    `[WhatsApp Webhook] Failed to insert ${classification.tier} action into queue:`,
+                    queueInsertErr
+                  );
+                }
+              } catch (queueErr) {
+                console.error('[WhatsApp Webhook] Queue insert error:', queueErr);
+              }
+
+              // Send customer assurance / handoff notice immediately if specified
+              if (classification.customerAssuranceNotice) {
+                try {
+                  await sendOutboundWhatsAppMessage({
+                    supabase,
+                    tenantId,
+                    channelIdentityId: identity.id,
+                    to: msg.from,
+                    messageType: 'text',
+                    text: classification.customerAssuranceNotice,
+                    metadata: {
+                      intent: reply.intent,
+                      confidence: reply.confidence,
+                      grounded_facts: reply.grounded_facts,
+                      requires_human_approval: true,
+                      escalation_reason: classification.escalationReason,
+                      action_tier: classification.tier,
+                      is_assurance_notice: true,
+                    },
+                  });
+                } catch (noticeErr) {
+                  console.warn(
+                    `[WhatsApp Webhook] Customer notice dispatch failed for tenant ${tenantId}:`,
+                    noticeErr
+                  );
+                }
               }
             }
           } catch (replyErr) {
