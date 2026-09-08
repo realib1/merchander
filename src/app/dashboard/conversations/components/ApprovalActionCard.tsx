@@ -18,6 +18,10 @@ import {
   AlertCircle,
   Package,
   AlertTriangle,
+  CreditCard,
+  Truck,
+  Sparkles,
+  Layers,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -196,6 +200,82 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
               </span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* 3c. Proactive Outreach Context Banner (when action_type === 'proactive_outreach') */}
+      {action.action_type === 'proactive_outreach' && (
+        <div className="bg-surface-muted/40 border border-brand-primary/20 rounded-xl p-3.5 flex flex-col gap-2.5 text-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {proposed.trigger_type === 'payment_reminder' && (
+                <>
+                  <CreditCard size={14} className="text-amber-500" />
+                  <span className="font-semibold text-foreground">
+                    Payment Reminder {proposed.order_number ? `(#${String(proposed.order_number)})` : ''}
+                  </span>
+                </>
+              )}
+              {proposed.trigger_type === 'batch_milestone' && (
+                <>
+                  <Layers size={14} className="text-blue-500" />
+                  <span className="font-semibold text-foreground">
+                    Pre-Order Milestone {proposed.batch_name ? `("${String(proposed.batch_name)}")` : ''}
+                  </span>
+                </>
+              )}
+              {proposed.trigger_type === 'back_in_stock' && (
+                <>
+                  <Sparkles size={14} className="text-emerald-500" />
+                  <span className="font-semibold text-foreground">
+                    Back in Stock: {String(proposed.product_name || 'Product')}
+                    {proposed.variant_name ? ` (${String(proposed.variant_name)})` : ''}
+                  </span>
+                </>
+              )}
+              {proposed.trigger_type === 'delivery_update' && (
+                <>
+                  <Truck size={14} className="text-indigo-500" />
+                  <span className="font-semibold text-foreground">
+                    Delivery Update {proposed.order_number ? `(#${String(proposed.order_number)})` : ''}
+                  </span>
+                </>
+              )}
+              {!['payment_reminder', 'batch_milestone', 'back_in_stock', 'delivery_update'].includes(
+                String(proposed.trigger_type)
+              ) && (
+                <>
+                  <Package size={14} className="text-brand-primary" />
+                  <span className="font-semibold text-foreground">Proactive Outreach</span>
+                </>
+              )}
+            </div>
+
+            {Boolean(proposed.total_amount) && (
+              <span className="font-bold text-foreground font-mono">
+                {String(proposed.currency || 'GHS')} {Number(proposed.total_amount).toFixed(2)}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-separator/40 text-[11px] text-muted">
+            <span className="px-2 py-0.5 rounded bg-surface border border-separator/60">
+              Channel: WhatsApp
+            </span>
+            {Boolean(proposed.milestone) && (
+              <span className="px-2 py-0.5 rounded bg-surface border border-separator/60">
+                Milestone: {String(proposed.milestone)}
+              </span>
+            )}
+            {Boolean(proposed.delivery_status) && (
+              <span className="px-2 py-0.5 rounded bg-surface border border-separator/60 capitalize">
+                Status: {String(proposed.delivery_status).replace(/_/g, ' ')}
+              </span>
+            )}
+            <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              Anti-Spam Verified
+            </span>
+          </div>
         </div>
       )}
 

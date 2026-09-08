@@ -2,14 +2,26 @@ export type ActionTier = 'green' | 'yellow' | 'red';
 
 export type ActionStatus = 'pending' | 'approved' | 'rejected' | 'executed' | 'cancelled';
 
-export type ActionType = 'reply' | 'confirm_payment' | 'draft_order' | 'human_handoff';
+export type ActionType = 'reply' | 'confirm_payment' | 'draft_order' | 'human_handoff' | 'proactive_outreach';
 
 export interface ProposedPayload {
   reply_text?: string;
   to?: string;
   customer_name?: string;
   customer_phone?: string;
+  order_id?: string;
   order_number?: string;
+  total_amount?: number;
+  currency?: string;
+  trigger_type?: string;
+  batch_id?: string;
+  batch_name?: string;
+  milestone?: string;
+  variant_id?: string;
+  product_name?: string;
+  variant_name?: string;
+  delivery_status?: string;
+  tracking_url?: string;
   items?: Array<{ sku: string; quantity: number }>;
   [key: string]: unknown;
 }

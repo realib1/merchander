@@ -41,6 +41,8 @@ export function formatActionTypeLabel(actionType: ActionType | string): string {
       return 'Draft Order';
     case 'human_handoff':
       return 'Human Handoff';
+    case 'proactive_outreach':
+      return 'Proactive Outreach';
     case 'reply':
     default:
       return 'Review Reply';

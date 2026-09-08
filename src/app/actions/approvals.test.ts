@@ -241,6 +241,53 @@ describe('Approval Queue Server Actions', () => {
         })
       );
     });
+
+    it('handles proactive_outreach side-effects (waitlist update and batch notification log)', async () => {
+      const mockAction = {
+        id: 'action-outreach-1',
+        tenant_id: mockTenantId,
+        channel_identity_id: 'channel-id-outreach',
+        action_type: 'proactive_outreach',
+        tier: 'yellow',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'Hello! Silk Dress is back in stock.',
+          trigger_type: 'back_in_stock',
+          variant_id: 'var-999',
+          customer_phone: '233244123456',
+        },
+        channel_identity: {
+          channel: 'whatsapp',
+          channel_handle: '233244123456',
+        },
+      };
+
+      const mockClient = createMockSupabase();
+      mockClient.chain.single.mockResolvedValueOnce({ data: mockAction, error: null });
+      mockClient.chain.update.mockReturnValue(mockClient.chain);
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      (sendOutboundWhatsAppMessage as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        messages: [{ id: 'wamid-out-200' }],
+      });
+
+      const result = await approveAction('action-outreach-1');
+      expect(result.success).toBe(true);
+
+      expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Hello! Silk Dress is back in stock.',
+        })
+      );
+
+      // Verify product_waitlist was called to update status to notified
+      expect(mockClient.from).toHaveBeenCalledWith('product_waitlist');
+      expect(mockClient.chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'notified',
+        })
+      );
+    });
   });
 
   describe('rejectAction', () => {

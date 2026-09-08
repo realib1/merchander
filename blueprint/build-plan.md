@@ -81,7 +81,7 @@
 - [x] 20. **Conversation-to-order capture** - turn an agreed cart from a channel
   exchange into a draft order against real inventory and pricing; Yellow-gated.
   Replaces the `extractCartFromChat` stub.
-- [ ] 21. **Proactive customer outreach** - the Intelligence decides when to
+- [x] 21. **Proactive customer outreach** - the Intelligence decides when to
   message a customer and sends via the channel: payment reminders, pre-order
   batch milestones, back-in-stock, delivery updates. Respects Green / Yellow /
   Red and the notification-volume limits.

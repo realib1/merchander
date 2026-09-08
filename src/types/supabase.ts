@@ -34,6 +34,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_action_queue: {
+        Row: {
+          action_type: string
+          channel_identity_id: string
+          confidence: number
+          created_at: string
+          customer_id: string | null
+          customer_notice_sent: string | null
+          escalation_reason: string | null
+          grounded_facts: Json
+          id: string
+          proposed_payload: Json
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          tenant_id: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          action_type?: string
+          channel_identity_id: string
+          confidence?: number
+          created_at?: string
+          customer_id?: string | null
+          customer_notice_sent?: string | null
+          escalation_reason?: string | null
+          grounded_facts?: Json
+          id?: string
+          proposed_payload?: Json
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tenant_id: string
+          tier: string
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          channel_identity_id?: string
+          confidence?: number
+          created_at?: string
+          customer_id?: string | null
+          customer_notice_sent?: string | null
+          escalation_reason?: string | null
+          grounded_facts?: Json
+          id?: string
+          proposed_payload?: Json
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tenant_id?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_action_queue_channel_identity_id_fkey"
+            columns: ["channel_identity_id"]
+            isOneToOne: false
+            referencedRelation: "channel_identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_action_queue_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_action_queue_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_targets: {
         Row: {
           batch_id: string | null

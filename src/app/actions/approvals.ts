@@ -161,6 +161,41 @@ export async function approveAction(
       }
     }
 
+    // 3b. If this is a proactive_outreach action, handle side-effects (waitlist status, batch notifications)
+    if (action.action_type === 'proactive_outreach') {
+      const triggerType = proposed.trigger_type as string | undefined;
+      const variantId = proposed.variant_id as string | undefined;
+      const batchId = proposed.batch_id as string | undefined;
+
+      // Update waitlist entry to notified
+      if (triggerType === 'back_in_stock' && variantId) {
+        const phone = (proposed.customer_phone as string) || (proposed.to as string);
+        if (phone) {
+          await supabase
+            .from('product_waitlist')
+            .update({ status: 'notified' })
+            .eq('tenant_id', tenantId)
+            .eq('variant_id', variantId)
+            .eq('phone', phone)
+            .eq('status', 'waiting');
+        }
+      }
+
+      // Record in preorder_batch_notifications
+      if (triggerType === 'batch_milestone' && batchId) {
+        await supabase.from('preorder_batch_notifications').insert({
+          tenant_id: tenantId,
+          batch_id: batchId,
+          milestone: (proposed.milestone as string) || 'IN_TRANSIT',
+          channel: 'whatsapp',
+          recipient_count: 1,
+          message_template: textToSend,
+          status: 'sent',
+          sent_by: user.id,
+        });
+      }
+    }
+
     // 4. Mark action as executed in the queue
     const updatedPayload = editedPayload?.reply_text
       ? { ...proposed, reply_text: editedPayload.reply_text, edited_by_merchant: true }
