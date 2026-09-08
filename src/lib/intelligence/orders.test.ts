@@ -78,6 +78,13 @@ describe('captureDraftOrderFromCart', () => {
             maybeSingle: vi.fn().mockResolvedValue({ data: mockStore, error: null }),
           };
         }
+        if (table === 'storefront_settings') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({ data: { slug: 'osu-flagship' }, error: null }),
+          };
+        }
         if (table === 'product_variants') {
           return {
             select: vi.fn().mockReturnThis(),
@@ -126,10 +133,18 @@ describe('captureDraftOrderFromCart', () => {
       expect(result.subtotal).toBe(360);
       expect(result.deliveryFee).toBe(20);
       expect(result.hasStockDeficit).toBe(false);
+      expect(result.paymentUrl).toContain('/store/osu-flagship/orders/ORD-5501?pay=true');
       expect(result.proposedReplyText).toContain('Hello Kofi Mensah! 🎉');
       expect(result.proposedReplyText).toContain('ORD-5501');
       expect(result.proposedReplyText).toContain('Total Amount: GHS 380.00');
-      expect(result.groundedFacts[0]).toContain('Draft Order #ORD-5501 created');
+      expect(result.proposedReplyText).toContain('👉 Complete payment securely here:');
+      expect(result.proposedReplyText).toContain('/store/osu-flagship/orders/ORD-5501?pay=true');
+      expect(result.groundedFacts).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('Draft Order #ORD-5501 created'),
+          expect.stringContaining('Payment link:'),
+        ])
+      );
       expect(result.customerAssuranceNotice).toContain("We've received your order request!");
     }
   });

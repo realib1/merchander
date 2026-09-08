@@ -85,7 +85,7 @@
   message a customer and sends via the channel: payment reminders, pre-order
   batch milestones, back-in-stock, delivery updates. Respects Green / Yellow /
   Red and the notification-volume limits.
-- [ ] 22. **Live payment links & confirmations** - customer-facing payment links,
+- [x] 22. **Live payment links & confirmations** - customer-facing payment links,
   automated payment confirmation, payment reminders, beyond record-first.
 - [ ] 23. **Fulfilment & delivery** - delivery zones, pickup, rider assignment
   and tracking.

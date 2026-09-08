@@ -125,6 +125,19 @@ describe('orderCapture utility', () => {
       expect(message).not.toContain('Delivery Fee:');
       expect(message).toContain('Total Amount: GHS 50.00');
     });
+
+    it('embeds payment link when paymentUrl is provided', () => {
+      const message = formatOrderConfirmationMessage({
+        customerName: 'Kojo',
+        orderNumber: 'ORD-1234',
+        items: [{ displayName: 'Shoes', quantity: 1, unitPrice: 200.0, lineTotal: 200.0 }],
+        totalAmount: 200.0,
+        paymentUrl: 'https://store.merchander.com/orders/ORD-1234?pay=true',
+      });
+
+      expect(message).toContain('👉 Complete payment securely here:');
+      expect(message).toContain('https://store.merchander.com/orders/ORD-1234?pay=true');
+    });
   });
 
   describe('formatOrderAssuranceNotice', () => {

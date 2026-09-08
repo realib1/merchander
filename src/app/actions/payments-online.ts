@@ -6,6 +6,8 @@ import { initializePaystackTransaction, verifyPaystackTransaction, pesewasToGhs 
 import { requestHubtelMobileMoneyPrompt, checkHubtelTransactionStatus } from '@/lib/payments/hubtel';
 import { SubscriptionTier, BillingCycle, PaymentSettings, SubscriptionPaymentMethod } from '@/types/settings';
 import { revalidatePath } from 'next/cache';
+import { buildStorefrontOrderPaymentUrl } from '@/utils/paymentLinks';
+import { evaluateAndProcessOutreach } from '@/lib/intelligence/outreach';
 
 /**
  * Initiates an online payment checkout for SaaS Subscription upgrade (Merchander Admin billing)
@@ -634,5 +636,169 @@ export async function updateTenantBillingMethod(method: {
   } catch (err) {
     console.error('Error updating billing method:', err);
     return { error: 'Failed to update billing method' };
+  }
+}
+
+/**
+ * Retrieves or generates the customer-facing payment URL for a store order.
+ */
+export async function getOrderPaymentLinkAction(orderId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Not authenticated' };
+
+  try {
+    const { tenantId } = await getTenantInfo(supabase, user.id);
+
+    const { data: order, error: orderErr } = await supabase
+      .from('orders')
+      .select('id, short_id, status, total_amount, tenant_id')
+      .eq('id', orderId)
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
+
+    if (orderErr || !order) {
+      return { error: 'Order not found' };
+    }
+
+    let storeSlug = `store-${tenantId.slice(0, 8)}`;
+    try {
+      const { data: sfData } = await supabase
+        .from('storefront_settings')
+        .select('slug')
+        .eq('tenant_id', tenantId)
+        .maybeSingle();
+      if (sfData?.slug) {
+        storeSlug = sfData.slug;
+      }
+    } catch {
+      // Fall back
+    }
+
+    const orderNumber = order.short_id || order.id.slice(0, 8).toUpperCase();
+    const paymentUrl = buildStorefrontOrderPaymentUrl({
+      baseUrl: process.env.NEXT_PUBLIC_APP_URL,
+      storeSlug,
+      orderShortIdOrId: orderNumber,
+    });
+
+    return {
+      success: true,
+      orderId: order.id,
+      orderNumber,
+      paymentUrl,
+      status: order.status,
+      totalAmount: Number(order.total_amount),
+    };
+  } catch (err) {
+    console.error('Error generating order payment link:', err);
+    return { error: 'Failed to generate payment link' };
+  }
+}
+
+/**
+ * Generates and routes an intelligent WhatsApp payment reminder for an unpaid order.
+ * Follows Ghanaian quiet hours and frequency caps.
+ */
+export async function sendOrderPaymentReminderAction(params: {
+  orderId: string;
+  forceImmediate?: boolean;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Not authenticated' };
+
+  try {
+    const { tenantId } = await getTenantInfo(supabase, user.id);
+
+    // Fetch order with customer details
+    const { data: order, error: orderErr } = await supabase
+      .from('orders')
+      .select(`
+        id,
+        short_id,
+        status,
+        total_amount,
+        tenant_id,
+        customer_id,
+        customer:customers(id, name, phone)
+      `)
+      .eq('id', params.orderId)
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
+
+    if (orderErr || !order) {
+      return { error: 'Order not found' };
+    }
+
+    if (order.status === 'paid' || order.status === 'completed') {
+      return { error: 'This order is already paid.' };
+    }
+
+    const rawCustomer = order.customer as unknown as { id?: string; name?: string | null; phone?: string | null } | null;
+    const phone = rawCustomer?.phone;
+    const customerName = rawCustomer?.name || 'Valued Customer';
+
+    if (!phone) {
+      return { error: 'Customer phone number is required to send payment reminder.' };
+    }
+
+    // Resolve storefront slug
+    let storeSlug = `store-${tenantId.slice(0, 8)}`;
+    try {
+      const { data: sfData } = await supabase
+        .from('storefront_settings')
+        .select('slug')
+        .eq('tenant_id', tenantId)
+        .maybeSingle();
+      if (sfData?.slug) {
+        storeSlug = sfData.slug;
+      }
+    } catch {
+      // Fall back
+    }
+
+    const orderNumber = order.short_id || order.id.slice(0, 8).toUpperCase();
+    const paymentUrl = buildStorefrontOrderPaymentUrl({
+      baseUrl: process.env.NEXT_PUBLIC_APP_URL,
+      storeSlug,
+      orderShortIdOrId: orderNumber,
+    });
+
+    const outreachResult = await evaluateAndProcessOutreach({
+      supabase,
+      request: {
+        tenantId,
+        triggerType: 'payment_reminder',
+        orderId: order.id,
+        orderNumber,
+        customerId: order.customer_id,
+        customerPhone: phone,
+        customerName,
+        totalAmount: Number(order.total_amount),
+        currency: 'GHS',
+        paymentInstructions: `Pay securely online: ${paymentUrl}`,
+        trackingUrl: paymentUrl,
+        forceBypassQuietHours: params.forceImmediate,
+      },
+    });
+
+    return {
+      success: outreachResult.success,
+      status: outreachResult.status,
+      paymentUrl,
+      actionId: outreachResult.actionId,
+      reason: outreachResult.reason,
+      messageText: outreachResult.messageText,
+    };
+  } catch (err) {
+    console.error('Error sending payment reminder:', err);
+    return { error: err instanceof Error ? err.message : 'Failed to dispatch payment reminder' };
   }
 }

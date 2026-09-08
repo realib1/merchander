@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { validatePaystackSignature, pesewasToGhs } from '@/lib/payments/paystack';
+import { dispatchPaymentConfirmationReceipt } from '@/lib/payments/confirmation';
 
 export async function POST(req: NextRequest) {
   try {
@@ -221,12 +222,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to record payment' }, { status: 500 });
       }
 
-      // Update linked order status to 'processing' / 'confirmed'
+      // Update linked order status to 'paid'
       if (orderId) {
         const { error: statusErr } = await supabase
           .from('orders')
           .update({
-            status: 'processing',
+            status: 'paid',
+            updated_at: new Date().toISOString(),
           })
           .eq('id', orderId);
 
@@ -234,6 +236,18 @@ export async function POST(req: NextRequest) {
           console.error('Paystack webhook: payment recorded but order status update failed:', statusErr);
           return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
         }
+
+        // Dispatch automated WhatsApp payment receipt to customer
+        await dispatchPaymentConfirmationReceipt({
+          supabase,
+          tenantId,
+          orderId,
+          amount: amountGhs,
+          provider: 'paystack',
+          transactionRef: reference,
+          customerPhone: data.customer?.phone || null,
+          customerName: `${data.customer?.first_name || ''} ${data.customer?.last_name || ''}`.trim() || null,
+        });
       }
 
       return NextResponse.json({ status: 'success', type: 'store_order', reference }, { status: 200 });

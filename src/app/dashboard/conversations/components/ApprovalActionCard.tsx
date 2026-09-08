@@ -22,6 +22,7 @@ import {
   Truck,
   Sparkles,
   Layers,
+  ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -198,6 +199,23 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
               <span className="font-mono">
                 {String(proposed.currency || 'GHS')} {Number(proposed.delivery_fee).toFixed(2)}
               </span>
+            </div>
+          )}
+
+          {Boolean(proposed.payment_url) && (
+            <div className="flex items-center justify-between text-[11px] text-muted border-t border-separator/40 pt-1.5">
+              <span className="flex items-center gap-1 font-medium text-brand-primary">
+                Payment Link:
+              </span>
+              <a
+                href={String(proposed.payment_url)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-primary hover:underline flex items-center gap-1 truncate max-w-[200px]"
+              >
+                <span>Checkout</span>
+                <ExternalLink size={10} />
+              </a>
             </div>
           )}
         </div>

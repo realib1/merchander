@@ -191,6 +191,7 @@ export async function POST(request: NextRequest) {
                   proposed_payload: {
                     order_id: orderResult.orderId,
                     order_number: orderResult.orderNumber,
+                    payment_url: orderResult.paymentUrl,
                     items: orderResult.items,
                     subtotal: orderResult.subtotal,
                     delivery_fee: orderResult.deliveryFee,

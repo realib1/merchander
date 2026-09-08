@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { validateHubtelAuth } from '@/lib/payments/hubtel';
+import { dispatchPaymentConfirmationReceipt } from '@/lib/payments/confirmation';
 
 export async function POST(req: NextRequest) {
   // Authenticate before reading the body: an unauthenticated caller must not
@@ -102,13 +103,27 @@ export async function POST(req: NextRequest) {
 
     const { error: statusErr } = await supabase
       .from('orders')
-      .update({ status: 'processing' })
+      .update({
+        status: 'paid',
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', matchedOrder.id);
 
     if (statusErr) {
       console.error('Hubtel webhook: payment recorded but order status update failed:', statusErr);
       return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
     }
+
+    // Dispatch automated WhatsApp payment confirmation receipt
+    await dispatchPaymentConfirmationReceipt({
+      supabase,
+      tenantId: matchedOrder.tenant_id,
+      orderId: matchedOrder.id,
+      amount,
+      provider: 'hubtel',
+      transactionRef: paymentRef,
+      customerPhone: data?.CustomerMsisdn || null,
+    });
 
     return NextResponse.json({ status: 'success', reference: clientReference }, { status: 200 });
   } catch (err) {

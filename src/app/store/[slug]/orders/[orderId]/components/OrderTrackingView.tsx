@@ -11,6 +11,7 @@ import { StoreFooter } from '@/app/store/[slug]/components/StoreFooter';
 import { TrackingTimeline } from './TrackingTimeline';
 import { TrackingSummaryCards } from './TrackingSummaryCards';
 import { TrackingLookupForm } from './TrackingLookupForm';
+import { StorefrontPaymentCard } from './StorefrontPaymentCard';
 
 interface OrderTrackingViewProps {
   config: StorefrontConfig;
@@ -166,6 +167,15 @@ export function OrderTrackingView({
             </div>
 
             <TrackingTimeline status={order.status} batch={order.batch} primaryColor={primaryColor} />
+
+            <StorefrontPaymentCard
+              order={order}
+              currency={currency}
+              primaryColor={primaryColor}
+              slug={slug}
+              token={token}
+              onOrderUpdated={(updatedOrder) => setOrder(updatedOrder)}
+            />
 
             <TrackingSummaryCards order={order} currency={currency} primaryColor={primaryColor} />
           </div>

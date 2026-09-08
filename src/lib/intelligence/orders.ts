@@ -9,6 +9,8 @@ import {
   MatchedVariantData,
   ValidatedOrderItem,
 } from '@/utils/orderCapture';
+import { buildStorefrontOrderPaymentUrl } from '@/utils/paymentLinks';
+import { generateStoreSlug } from '@/utils/storefront';
 
 export interface CartExtractionItem {
   sku: string;
@@ -31,6 +33,7 @@ export interface CapturedOrderSuccess {
   success: true;
   orderId: string;
   orderNumber: string;
+  paymentUrl: string;
   customerId: string;
   items: ValidatedOrderItem[];
   subtotal: number;
@@ -86,6 +89,21 @@ export async function captureDraftOrderFromCart(
       reason: 'no_store',
       error: 'No active store found for tenant to capture order',
     };
+  }
+
+  // 2b. Resolve storefront slug if configured
+  let storeSlug: string = generateStoreSlug(store.name) || tenantId.slice(0, 8);
+  try {
+    const { data: sfData } = await supabase
+      .from('storefront_settings')
+      .select('slug')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
+    if (sfData?.slug) {
+      storeSlug = sfData.slug;
+    }
+  } catch {
+    // Fall back to generated store slug
   }
 
   // 3. Query matching product variants
@@ -279,8 +297,14 @@ export async function captureDraftOrderFromCart(
     };
   }
 
-  // 8. Build confirmation copy and grounded facts
+  // 8. Build confirmation copy, live payment link, and grounded facts
   const orderNumber = (order as { short_id?: string }).short_id || `ORD-${order.id.slice(0, 6).toUpperCase()}`;
+
+  const paymentUrl = buildStorefrontOrderPaymentUrl({
+    baseUrl: process.env.NEXT_PUBLIC_APP_URL,
+    storeSlug,
+    orderShortIdOrId: orderNumber,
+  });
 
   const proposedReplyText = formatOrderConfirmationMessage({
     customerName: params.customerName,
@@ -289,9 +313,11 @@ export async function captureDraftOrderFromCart(
     totalAmount: calculation.totalAmount,
     deliveryFee: calculation.deliveryFee,
     currency: 'GHS',
+    paymentUrl,
   });
 
   const groundedFacts = buildGroundedOrderFacts(calculation.items, store.name);
+  groundedFacts.unshift(`Payment link: ${paymentUrl}`);
   groundedFacts.unshift(`Draft Order #${orderNumber} created at ${store.name}`);
 
   const customerAssuranceNotice = formatOrderAssuranceNotice();
@@ -300,6 +326,7 @@ export async function captureDraftOrderFromCart(
     success: true,
     orderId: order.id,
     orderNumber,
+    paymentUrl,
     customerId: finalCustomerId,
     items: calculation.items,
     subtotal: calculation.subtotal,

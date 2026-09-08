@@ -11,6 +11,7 @@ export interface ProposedPayload {
   customer_phone?: string;
   order_id?: string;
   order_number?: string;
+  payment_url?: string;
   total_amount?: number;
   currency?: string;
   trigger_type?: string;

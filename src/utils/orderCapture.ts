@@ -105,6 +105,7 @@ export function formatOrderConfirmationMessage(params: {
   totalAmount: number;
   deliveryFee?: number;
   currency?: string;
+  paymentUrl?: string | null;
 }): string {
   const name = params.customerName?.trim() || 'Customer';
   const currency = params.currency || 'GHS';
@@ -128,7 +129,13 @@ export function formatOrderConfirmationMessage(params: {
 
   lines.push(`Total Amount: ${currency} ${params.totalAmount.toFixed(2)}`);
   lines.push('');
-  lines.push(`We'll share payment details and delivery updates shortly. Thank you for shopping with us!`);
+  if (params.paymentUrl) {
+    lines.push(`👉 Complete payment securely here:\n${params.paymentUrl}`);
+    lines.push('');
+  } else {
+    lines.push(`We'll share payment details and delivery updates shortly.`);
+  }
+  lines.push(`Thank you for shopping with us!`);
 
   return lines.join('\n');
 }
