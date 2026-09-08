@@ -201,6 +201,46 @@ describe('Approval Queue Server Actions', () => {
         })
       );
     });
+
+    it('transitions linked draft order to pending_payment on approval', async () => {
+      const mockAction = {
+        id: 'action-draft-1',
+        tenant_id: mockTenantId,
+        channel_identity_id: 'channel-id-draft',
+        action_type: 'draft_order',
+        tier: 'yellow',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'Hello! Your order #ORD-100 is ready.',
+          order_id: 'order-uuid-555',
+          order_number: 'ORD-100',
+        },
+        channel_identity: {
+          channel: 'whatsapp',
+          channel_handle: '233244123456',
+        },
+      };
+
+      const mockClient = createMockSupabase();
+      mockClient.chain.single.mockResolvedValueOnce({ data: mockAction, error: null });
+      mockClient.chain.update.mockReturnValue(mockClient.chain);
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      (sendOutboundWhatsAppMessage as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        messages: [{ id: 'wamid-out-100' }],
+      });
+
+      const result = await approveAction('action-draft-1');
+      expect(result.success).toBe(true);
+
+      // Verify orders table was updated to pending_payment
+      expect(mockClient.from).toHaveBeenCalledWith('orders');
+      expect(mockClient.chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'pending_payment',
+        })
+      );
+    });
   });
 
   describe('rejectAction', () => {
@@ -224,6 +264,33 @@ describe('Approval Queue Server Actions', () => {
           status: 'rejected',
           rejection_reason: 'Payment was fraudulent',
           reviewed_by: mockUserId,
+        })
+      );
+    });
+
+    it('transitions linked draft order to cancelled on rejection', async () => {
+      const mockAction = {
+        id: 'action-draft-reject',
+        tenant_id: mockTenantId,
+        action_type: 'draft_order',
+        status: 'pending',
+        proposed_payload: {
+          order_id: 'order-uuid-888',
+        },
+      };
+
+      const mockClient = createMockSupabase();
+      mockClient.chain.single.mockResolvedValueOnce({ data: mockAction, error: null });
+      mockClient.chain.update.mockReturnValue(mockClient.chain);
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      const result = await rejectAction('action-draft-reject', 'Customer cancelled request');
+      expect(result.success).toBe(true);
+
+      expect(mockClient.from).toHaveBeenCalledWith('orders');
+      expect(mockClient.chain.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'cancelled',
         })
       );
     });

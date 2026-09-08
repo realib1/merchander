@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
+import { captureDraftOrderFromCart } from '@/lib/intelligence/orders';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
 import { classifyActionSafety } from '@/lib/intelligence/safety';
 import { NormalizedMessage, CustomerContext } from '@/types/messaging';
@@ -161,7 +162,90 @@ export async function POST(request: NextRequest) {
             `[WhatsApp Webhook] Extracted intent=${extractedCart.intent} items=${extractedCart.items.length} confidence=${extractedCart.confidence}`
           );
           if (extractedCart.items && extractedCart.items.length > 0) {
-            isCartOrder = true;
+            const orderResult = await captureDraftOrderFromCart({
+              supabase,
+              tenantId,
+              channelIdentityId: identity.id,
+              customerId: identity.customer_id ?? null,
+              customerPhone: identity.channel_handle || msg.from,
+              customerName: identity.profile_name ?? null,
+              items: extractedCart.items,
+            });
+
+            if (orderResult.success) {
+              isCartOrder = true;
+              console.log(
+                `[WhatsApp Webhook] Draft order captured: #${orderResult.orderNumber} id=${orderResult.orderId} total=${orderResult.totalAmount}`
+              );
+
+              // 1. Queue Yellow action in ai_action_queue
+              const { error: queueInsertErr } = await supabase
+                .from('ai_action_queue')
+                .insert({
+                  tenant_id: tenantId,
+                  channel_identity_id: identity.id,
+                  customer_id: orderResult.customerId,
+                  action_type: 'draft_order',
+                  tier: 'yellow',
+                  status: 'pending',
+                  proposed_payload: {
+                    order_id: orderResult.orderId,
+                    order_number: orderResult.orderNumber,
+                    items: orderResult.items,
+                    subtotal: orderResult.subtotal,
+                    delivery_fee: orderResult.deliveryFee,
+                    total_amount: orderResult.totalAmount,
+                    currency: orderResult.currency,
+                    reply_text: orderResult.proposedReplyText,
+                    to: msg.from,
+                    customer_phone: identity.channel_handle || msg.from,
+                    customer_name: identity.profile_name ?? undefined,
+                    has_stock_deficit: orderResult.hasStockDeficit,
+                    warnings: orderResult.warnings,
+                  },
+                  grounded_facts: orderResult.groundedFacts,
+                  confidence: extractedCart.confidence || 0.85,
+                  escalation_reason: orderResult.hasStockDeficit
+                    ? 'Stock constraint detected on requested order items'
+                    : 'Commercial draft order capture requires merchant confirmation',
+                  customer_notice_sent: orderResult.customerAssuranceNotice,
+                });
+
+              if (queueInsertErr) {
+                console.error(
+                  '[WhatsApp Webhook] Failed to insert draft_order action into queue:',
+                  queueInsertErr
+                );
+              }
+
+              // 2. Dispatch immediate customer assurance notice via WhatsApp
+              try {
+                await sendOutboundWhatsAppMessage({
+                  supabase,
+                  tenantId,
+                  channelIdentityId: identity.id,
+                  to: msg.from,
+                  messageType: 'text',
+                  text: orderResult.customerAssuranceNotice,
+                  metadata: {
+                    action_type: 'draft_order',
+                    tier: 'yellow',
+                    order_id: orderResult.orderId,
+                    order_number: orderResult.orderNumber,
+                    is_assurance_notice: true,
+                  },
+                });
+              } catch (noticeErr) {
+                console.warn(
+                  '[WhatsApp Webhook] Customer order assurance notice dispatch failed:',
+                  noticeErr
+                );
+              }
+            } else {
+              console.log(
+                `[WhatsApp Webhook] Order capture skipped (${orderResult.reason}): ${orderResult.error}. Falling back to Q&A.`
+              );
+            }
           }
         } catch (extractErr) {
           console.warn('[WhatsApp Webhook] Extraction dispatch failed', extractErr);

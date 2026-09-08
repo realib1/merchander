@@ -16,8 +16,21 @@ import {
   ChevronUp,
   ShieldCheck,
   AlertCircle,
+  Package,
+  AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface ProposedOrderItem {
+  sku?: string;
+  productName?: string;
+  variantName?: string;
+  displayName?: string;
+  quantity?: number;
+  unitPrice?: number;
+  lineTotal?: number;
+  hasStockWarning?: boolean;
+}
 
 interface ApprovalActionCardProps {
   action: AIActionRecord;
@@ -31,7 +44,8 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   
-  const initialText = (action.proposed_payload?.reply_text as string) || '';
+  const proposed = (action.proposed_payload as Record<string, unknown>) || {};
+  const initialText = (proposed.reply_text as string) || '';
   const [editText, setEditText] = useState(initialText);
 
   const customerName = action.customer?.name || action.channel_identity?.profile_name || 'Customer';
@@ -116,6 +130,72 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
         <div className="bg-surface-muted/60 border border-separator/60 rounded-xl px-3.5 py-2 text-xs text-muted flex items-start gap-2">
           <span className="font-medium text-foreground shrink-0">Customer assurance sent:</span>
           <span className="italic truncate">&quot;{action.customer_notice_sent}&quot;</span>
+        </div>
+      )}
+
+      {/* 3b. Draft Order Items & Inventory Preview (when action_type === 'draft_order') */}
+      {action.action_type === 'draft_order' && Boolean(proposed.order_number) && (
+        <div className="bg-surface-muted/40 border border-brand-primary/20 rounded-xl p-3.5 flex flex-col gap-2.5 text-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Package size={14} className="text-brand-primary" />
+              <span className="font-semibold text-foreground">Draft Order #{String(proposed.order_number)}</span>
+            </div>
+            <span className="font-bold text-foreground font-mono">
+              Total: {String(proposed.currency || 'GHS')} {Number(proposed.total_amount || 0).toFixed(2)}
+            </span>
+          </div>
+
+          {/* Stock Deficit Warning Banner */}
+          {Boolean(proposed.has_stock_deficit) && (
+            <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-2 text-rose-600 dark:text-rose-400 flex items-start gap-1.5 text-[11px]">
+              <AlertTriangle size={13} className="shrink-0 mt-0.5 text-rose-500" />
+              <div>
+                <span className="font-semibold">Inventory Alert: </span>
+                {Array.isArray(proposed.warnings) && proposed.warnings.length > 0
+                  ? proposed.warnings.join(' • ')
+                  : 'One or more items exceed currently available store stock.'}
+              </div>
+            </div>
+          )}
+
+          {/* Line items list */}
+          {Array.isArray(proposed.items) && proposed.items.length > 0 && (
+            <div className="flex flex-col divide-y divide-separator/60 border-t border-separator/60 pt-2">
+              {(proposed.items as ProposedOrderItem[]).map((item, idx) => {
+                const name = item.displayName || item.productName || item.sku || `Item ${idx + 1}`;
+                const unitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : 0;
+                const lineTotal =
+                  typeof item.lineTotal === 'number' ? item.lineTotal : unitPrice * (item.quantity || 1);
+                return (
+                  <div key={idx} className="py-1.5 flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-foreground">{item.quantity}x</span>
+                      <span className="text-foreground">{name}</span>
+                      {item.sku && <span className="text-muted font-mono text-[10px]">({item.sku})</span>}
+                      {item.hasStockWarning && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-rose-500/10 text-rose-500 rounded font-medium">
+                          Low Stock
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-muted font-mono">
+                      {String(proposed.currency || 'GHS')} {lineTotal.toFixed(2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {Number(proposed.delivery_fee || 0) > 0 && (
+            <div className="flex justify-between text-[11px] text-muted border-t border-separator/40 pt-1">
+              <span>Delivery Fee:</span>
+              <span className="font-mono">
+                {String(proposed.currency || 'GHS')} {Number(proposed.delivery_fee).toFixed(2)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 

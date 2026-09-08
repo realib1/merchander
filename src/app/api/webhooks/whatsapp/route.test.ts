@@ -23,9 +23,14 @@ vi.mock('@/lib/channels/whatsapp/service', () => ({
   sendOutboundWhatsAppMessage: vi.fn(),
 }));
 
+vi.mock('@/lib/intelligence/orders', () => ({
+  captureDraftOrderFromCart: vi.fn(),
+}));
+
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
+import { captureDraftOrderFromCart } from '@/lib/intelligence/orders';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
 import {
@@ -508,7 +513,7 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
       expect(response.status).toBe(200);
     });
 
-    it('does NOT call generateGroundedReply when message is a cart order with items', async () => {
+    it('captures draft order, queues Yellow action, and dispatches assurance notice when message is a cart order', async () => {
       // Extraction returns cart items (e.g. customer wants to buy 2 bottles)
       (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
         items: [{ sku: 'PERF-BLUE', quantity: 2 }],
@@ -517,13 +522,76 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
         notes: null,
       });
 
+      (captureDraftOrderFromCart as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: true,
+        orderId: 'order-uuid-999',
+        orderNumber: 'ORD-999',
+        customerId: 'cust-uuid-789',
+        items: [{ sku: 'PERF-BLUE', quantity: 2, unitPrice: 100, lineTotal: 200 }],
+        subtotal: 200,
+        deliveryFee: 0,
+        totalAmount: 200,
+        currency: 'GHS',
+        groundedFacts: ['Draft Order #ORD-999 created'],
+        hasStockDeficit: false,
+        warnings: [],
+        proposedReplyText: 'Hello Ama Serwaa! Your order is ready.',
+        customerAssuranceNotice:
+          "We've received your order request! Our team is confirming stock and preparing your order details now. We'll get back to you shortly.",
+      });
+
       const req = await createPostRequest(makeMessagePayload('I want 2 bottles of PERF-BLUE'));
       const response = await POST(req);
 
       expect(response.status).toBe(200);
       expect(extractCartFromChat).toHaveBeenCalled();
+      expect(captureDraftOrderFromCart).toHaveBeenCalled();
+      expect(mockInsertActionQueue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action_type: 'draft_order',
+          tier: 'yellow',
+          status: 'pending',
+          proposed_payload: expect.objectContaining({
+            order_id: 'order-uuid-999',
+            order_number: 'ORD-999',
+          }),
+        })
+      );
+      expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: expect.stringContaining("We've received your order request!"),
+        })
+      );
       expect(generateGroundedReply).not.toHaveBeenCalled();
-      expect(sendOutboundWhatsAppMessage).not.toHaveBeenCalled();
+    });
+
+    it('falls back to generateGroundedReply when order capture returns success=false', async () => {
+      (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [{ sku: 'NONEXISTENT', quantity: 1 }],
+        confidence: 0.5,
+        intent: 'create_order',
+      });
+
+      (captureDraftOrderFromCart as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: false,
+        reason: 'no_matching_variants',
+        error: 'None of the items matched',
+      });
+
+      (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        reply_text: 'Sorry, we do not have that item.',
+        intent: 'inquire_product',
+        confidence: 0.85,
+        grounded_facts: [],
+        requires_human_approval: false,
+      });
+
+      const req = await createPostRequest(makeMessagePayload('I want NONEXISTENT item'));
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
+      expect(captureDraftOrderFromCart).toHaveBeenCalled();
+      expect(generateGroundedReply).toHaveBeenCalled();
     });
 
     it('remains resilient when reply generation fails and still returns 200 OK', async () => {

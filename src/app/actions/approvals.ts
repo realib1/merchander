@@ -139,7 +139,29 @@ export async function approveAction(
       });
     }
 
-    // 3. Mark action as executed in the queue
+    // 3. If this is a draft_order action, transition the draft order to pending_payment
+    const orderId = proposed.order_id as string | undefined;
+    if (action.action_type === 'draft_order' && orderId) {
+      const { error: orderStatusErr } = await supabase
+        .from('orders')
+        .update({
+          status: 'pending_payment',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId)
+        .eq('tenant_id', tenantId);
+
+      if (orderStatusErr) {
+        console.warn(
+          '[Approvals Action] Failed to transition draft order to pending_payment:',
+          orderStatusErr
+        );
+      } else {
+        revalidatePath('/dashboard/orders');
+      }
+    }
+
+    // 4. Mark action as executed in the queue
     const updatedPayload = editedPayload?.reply_text
       ? { ...proposed, reply_text: editedPayload.reply_text, edited_by_merchant: true }
       : proposed;
@@ -191,7 +213,7 @@ export async function rejectAction(
 
     const { data: action, error: fetchErr } = await supabase
       .from('ai_action_queue')
-      .select('id, status')
+      .select('id, status, action_type, proposed_payload')
       .eq('id', actionId)
       .eq('tenant_id', tenantId)
       .single();
@@ -219,6 +241,29 @@ export async function rejectAction(
     if (updateErr) {
       console.error('[Approvals Action] Failed to reject action:', updateErr);
       return { success: false, error: 'Failed to update action status' };
+    }
+
+    // If this is a draft_order action, transition the draft order to cancelled
+    const proposed = (action.proposed_payload as Record<string, unknown>) || {};
+    const orderId = proposed.order_id as string | undefined;
+    if (action.action_type === 'draft_order' && orderId) {
+      const { error: orderStatusErr } = await supabase
+        .from('orders')
+        .update({
+          status: 'cancelled',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', orderId)
+        .eq('tenant_id', tenantId);
+
+      if (orderStatusErr) {
+        console.warn(
+          '[Approvals Action] Failed to transition draft order to cancelled:',
+          orderStatusErr
+        );
+      } else {
+        revalidatePath('/dashboard/orders');
+      }
     }
 
     revalidatePath('/dashboard/conversations');

@@ -78,7 +78,7 @@
   touchpoint is an approval & exceptions queue in the dashboard, not a chat view.
   - [x] 19a. **Action Safety Classifier, Queue Schema & Execution Engine** - Stand up `ai_action_queue` table with RLS, build action safety classifier (Green/Yellow/Red), wire WhatsApp webhook to route Yellow/Red actions to queue while sending customer assurance notices, and implement server actions for merchant approval/rejection/edit.
   - [x] 19b. **Merchant Approval & Exceptions Queue Surface** - Replace the chat stream in `/dashboard/conversations` with a focused Approvals & Exceptions queue (KPI cards, pending Yellow approvals, urgent Red exceptions with direct WhatsApp takeover links `wa.me/<phone>`).
-- [ ] 20. **Conversation-to-order capture** - turn an agreed cart from a channel
+- [x] 20. **Conversation-to-order capture** - turn an agreed cart from a channel
   exchange into a draft order against real inventory and pricing; Yellow-gated.
   Replaces the `extractCartFromChat` stub.
 - [ ] 21. **Proactive customer outreach** - the Intelligence decides when to
