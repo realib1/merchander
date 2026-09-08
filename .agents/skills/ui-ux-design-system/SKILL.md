@@ -7,7 +7,7 @@ description: >-
 
 # Modern UI/UX Design System & Aesthetics Guide
 
-This skill provides guidelines and patterns for creating high-polish, state-of-the-art merchant dashboards and customer-facing interfaces that deliver a premium, delightful user experience (Primary Reference: [StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/)).
+This skill provides guidelines and patterns for creating high-polish, state-of-the-art merchant dashboards and customer-facing interfaces that deliver a premium, delightful user experience (Primary References: [StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/), [AdminCN Sales Dashboard](https://shadcn-nextjs-admincn-admin-template.vercel.app/dashboard/sales)).
 
 ---
 

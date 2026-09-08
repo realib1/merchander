@@ -2,12 +2,12 @@
 name: modern-design-inspiration
 description: >-
   Use this skill when designing modern SaaS interfaces, Bento Grid layouts, high-converting onboarding flows,
-  micro-animations, and visual aesthetics inspired by top curated design galleries (Bento Grids, SaaSpo, Minimal Gallery, Codrops, StudioGrid Pro).
+  micro-animations, and visual aesthetics inspired by top curated design galleries (Bento Grids, SaaSpo, Minimal Gallery, Codrops, StudioGrid Pro, AdminCN).
 ---
 
 # Modern Design Inspiration & Bento UI Architecture Guide
 
-This skill translates world-class design patterns from curated repositories (Bento Grids, SaaSpo, Minimal Gallery, Codrops, Growth.design, and [StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/)) into concrete Next.js 15 and TailwindCSS component structures.
+This skill translates world-class design patterns from curated repositories (Bento Grids, SaaSpo, Minimal Gallery, Codrops, Growth.design, [StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/), and [AdminCN Sales Dashboard](https://shadcn-nextjs-admincn-admin-template.vercel.app/dashboard/sales)) into concrete Next.js 15 and TailwindCSS component structures.
 
 ---
 
@@ -55,6 +55,12 @@ export function BentoTile({
   );
 }
 ```
+
+### 1.2 Sales Analytics & KPI Sparkline Cards (AdminCN Reference)
+The [AdminCN Sales Dashboard](https://shadcn-nextjs-admincn-admin-template.vercel.app/dashboard/sales) showcases compact, dense sales KPI cards with embedded Recharts sparklines:
+- **Card Layout**: Asymmetrical 6-column dashboard grid (`grid grid-cols-6 gap-6`) where top stat cards span 1 to 2 columns on desktop and 3 columns on mobile.
+- **Embedded Sparklines**: Mini area/bar charts (`h-21` to `h-31`) integrated directly into the card body without axes or grid lines to display micro-trends at a glance.
+- **Transaction Overview Split Card**: Multi-column Bento card (`col-span-full lg:col-span-4`) featuring a primary chart on the left (e.g., weekly total transaction volume) and a vertical separator leading to weekly performance breakdown metrics (income vs expense deltas, percentage badges, and direct report CTAs).
 
 ---
 

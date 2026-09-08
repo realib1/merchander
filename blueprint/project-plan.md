@@ -164,6 +164,7 @@ payments flow.
   modals and drawers for edit flows). Merchant storefront is a separate
   customer-facing surface with per-merchant branding, hero customizer, and
   storefront color overrides.
+- **Design & UI References:** [StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/) (dashboard layouts and aesthetic) and [AdminCN Sales Dashboard](https://shadcn-nextjs-admincn-admin-template.vercel.app/dashboard/sales) (sales analytics, Bento KPI cards, Recharts sparklines, and report layouts).
 - No inline styles; Tailwind utility classes throughout.
 
 ## 8. Deployment - Where and how will this ship?

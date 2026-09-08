@@ -1714,3 +1714,5 @@ Development should begin only after the following are validated:
 
 - **Dashboard & Core UI Aesthetic:** [StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/)
   - Use as the primary benchmark for KPI widgets, layout architecture, and overall modern aesthetic.
+- **Sales Dashboard & Shadcn Admin Template:** [AdminCN Sales Dashboard](https://shadcn-nextjs-admincn-admin-template.vercel.app/dashboard/sales)
+  - Benchmark for sales analytics, transaction overviews, metric sparklines, report layouts, and Shadcn UI component composition in Next.js.

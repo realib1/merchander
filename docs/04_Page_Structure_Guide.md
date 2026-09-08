@@ -15,6 +15,13 @@ Each page should have:
 
 ---
 
+## Design & UI References
+
+- **[StudioGrid Pro E-commerce](https://studiogrid-pro-ecommerce.netlify.app/)**: Primary benchmark for dashboard layouts, single-row toolbars, and modern aesthetic.
+- **[AdminCN Sales Dashboard](https://shadcn-nextjs-admincn-admin-template.vercel.app/dashboard/sales)**: Primary benchmark for sales analytics, KPI cards with integrated Recharts sparklines, transaction overviews, and Shadcn UI component composition in Next.js.
+
+---
+
 # 1. COMMAND
 
 ## 1.1 Overview
