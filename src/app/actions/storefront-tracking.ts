@@ -104,7 +104,9 @@ export async function getStorefrontOrderTracking({
       .select(
         `
         id, short_id, status, total_amount, delivery_address, notes, created_at, updated_at,
-        customer_id, batch_id,
+        customer_id, batch_id, rider_name, rider_phone, courier_name, tracking_number,
+        dispatch_notes, delivery_zone_name, pickup_store_id, dispatched_at, delivered_at,
+        fulfillment_mode,
         customers (id, name, phone),
         preorder_batches (
           id, name, code, status, opens_at, closes_at, supplier_order_date,
@@ -209,26 +211,76 @@ export async function getStorefrontOrderTracking({
       };
     });
 
-    // 5. Look up shipments / waybill if available
+    // 5. Look up fulfilment / rider / waybill if available
     let waybill: StorefrontTrackingOrder['waybill'] = null;
-    try {
-      const { data: shipment } = await supabase
-        .from('shipments')
-        .select('tracking_number, carrier, estimated_delivery')
-        .eq('tenant_id', tenantId)
-        .limit(1)
-        .maybeSingle();
+    let pickupStoreName: string | null = null;
 
-      if (shipment) {
-        waybill = {
-          trackingNumber: shipment.tracking_number,
-          courierName: shipment.carrier,
-          estimatedDelivery: shipment.estimated_delivery || undefined,
-        };
+    if (orderData.pickup_store_id) {
+      try {
+        const { data: pickupStore } = await supabase
+          .from('stores')
+          .select('name')
+          .eq('id', orderData.pickup_store_id)
+          .maybeSingle();
+        if (pickupStore) {
+          pickupStoreName = pickupStore.name;
+        }
+      } catch {
+        // Store branch query fallback
       }
-    } catch {
-      // Shipments table may not be joined to this order yet
     }
+
+    if (
+      orderData.rider_name ||
+      orderData.courier_name ||
+      orderData.tracking_number ||
+      orderData.dispatched_at ||
+      orderData.fulfillment_mode === 'pickup'
+    ) {
+      const isPickup = orderData.fulfillment_mode === 'pickup';
+      waybill = {
+        courierName: orderData.courier_name || (isPickup ? 'Store Pickup' : 'Local Delivery'),
+        trackingNumber: orderData.tracking_number || orderData.short_id || orderData.id.slice(0, 8).toUpperCase(),
+        riderName: orderData.rider_name || null,
+        riderPhone: orderData.rider_phone || null,
+        fulfillmentMode: (orderData.fulfillment_mode as 'delivery' | 'pickup') || (isPickup ? 'pickup' : 'delivery'),
+        pickupStoreName,
+        dispatchedAt: orderData.dispatched_at || null,
+        deliveredAt: orderData.delivered_at || null,
+      };
+    } else {
+      try {
+        const { data: shipment } = await supabase
+          .from('shipments')
+          .select('tracking_number, carrier, estimated_delivery')
+          .eq('tenant_id', tenantId)
+          .limit(1)
+          .maybeSingle();
+
+        if (shipment) {
+          waybill = {
+            trackingNumber: shipment.tracking_number,
+            courierName: shipment.carrier,
+            estimatedDelivery: shipment.estimated_delivery || undefined,
+            fulfillmentMode: 'delivery',
+            riderName: null,
+            riderPhone: null,
+            pickupStoreName: null,
+            dispatchedAt: null,
+            deliveredAt: null,
+          };
+        }
+      } catch {
+        // Shipments table may not be joined to this order yet
+      }
+    }
+
+    const resolvedAddress =
+      orderData.fulfillment_mode === 'pickup'
+        ? pickupStoreName
+          ? `In-Store Pickup: ${pickupStoreName}`
+          : 'In-Store Pickup'
+        : orderData.delivery_address || 'Customer Delivery';
 
     const resultOrder: StorefrontTrackingOrder = {
       id: orderData.id,
@@ -236,7 +288,7 @@ export async function getStorefrontOrderTracking({
       status: orderData.status as OrderProgressStatus,
       totalAmount: Number(orderData.total_amount) || 0,
       currency,
-      deliveryAddress: orderData.delivery_address || 'Customer Pickup / Delivery',
+      deliveryAddress: resolvedAddress,
       notes: orderData.notes || null,
       createdAt: orderData.created_at,
       updatedAt: orderData.updated_at,

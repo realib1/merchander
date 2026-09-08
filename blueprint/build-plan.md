@@ -87,7 +87,7 @@
   Red and the notification-volume limits.
 - [x] 22. **Live payment links & confirmations** - customer-facing payment links,
   automated payment confirmation, payment reminders, beyond record-first.
-- [ ] 23. **Fulfilment & delivery** - delivery zones, pickup, rider assignment
+- [x] 23. **Fulfilment & delivery** - delivery zones, pickup, rider assignment
   and tracking.
 - [ ] 24. **Demand & supplier intelligence** - demand forecasting, restock
   recommendations, supplier performance scoring.

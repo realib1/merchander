@@ -23,6 +23,10 @@ export interface ProposedPayload {
   variant_name?: string;
   delivery_status?: string;
   tracking_url?: string;
+  rider_name?: string;
+  rider_phone?: string;
+  courier_name?: string;
+  waybill_text?: string;
   items?: Array<{ sku: string; quantity: number }>;
   [key: string]: unknown;
 }

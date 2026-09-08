@@ -1,54 +1,178 @@
 import { formatCurrency } from './format';
+import { normalizeGhanaPhone } from './phone';
+
+export type WaybillItem = {
+  name: string;
+  variantName?: string;
+  price: number;
+  quantity: number;
+};
 
 export type WaybillOrder = {
   orderId: string;
+  shortId?: string;
   storeName: string;
   customerName: string;
   customerPhone: string;
-  deliveryAddress: string;
-  items: Array<{ name: string; variantName?: string; price: number; quantity: number }>;
+  fulfillmentMode?: 'delivery' | 'pickup';
+  deliveryAddress?: string;
+  gpsLocation?: string;
+  landmark?: string;
+  pickupStoreName?: string;
+  pickupCode?: string;
+  items: WaybillItem[];
   deliveryFee: number;
   totalAmount: number;
   paymentStatus: string;
   transactionRef?: string;
+  riderName?: string;
+  riderPhone?: string;
+  courierName?: string;
+  trackingNumber?: string;
+  dispatchNotes?: string;
 };
 
 /**
  * Generates a standard Ghanaian Logistics Dispatch Slip (Waybill) text.
- * Suitable for printing to thermal POS printers or copying into rider WhatsApp chats.
+ * Suitable for printing to thermal POS printers or copying into dispatch records.
  */
 export function generateDispatchSlip(order: WaybillOrder): string {
   const line = '------------------------------------------';
   const doubleLine = '==========================================';
+  const orderRef = (order.shortId || order.orderId.substring(0, 8)).toUpperCase();
+  const isPickup = order.fulfillmentMode === 'pickup';
 
   let itemsText = '';
   order.items.forEach((item) => {
     const itemName = item.variantName ? `${item.name} (${item.variantName})` : item.name;
-    const priceStr = formatCurrency(item.price).padStart(15);
-    itemsText += `${item.quantity}x ${itemName.padEnd(25)} ${priceStr}\n`;
+    const priceStr = formatCurrency(item.price).padStart(12);
+    itemsText += `${item.quantity}x ${itemName.padEnd(26)} ${priceStr}\n`;
   });
 
-  const deliveryFeeStr = formatCurrency(order.deliveryFee).padStart(15);
-  const totalStr = formatCurrency(order.totalAmount).padStart(15);
+  const deliveryFeeStr = formatCurrency(order.deliveryFee).padStart(12);
+  const totalStr = formatCurrency(order.totalAmount).padStart(12);
 
-  let paymentText = order.paymentStatus === 'paid' ? 'PAID' : 'PENDING CASH ON DELIVERY';
+  const isPaid = order.paymentStatus.toLowerCase() === 'paid';
+  let paymentText = isPaid
+    ? 'PAID ONLINE - DO NOT COLLECT CASH'
+    : `CASH ON DELIVERY (COD) - COLLECT: ${formatCurrency(order.totalAmount)}`;
   if (order.transactionRef) {
-    paymentText += ` (Ref: ${order.transactionRef})`;
+    paymentText += ` [Ref: ${order.transactionRef}]`;
+  }
+
+  let locationHeader = '';
+  if (isPickup) {
+    locationHeader = `FULFILMENT: CUSTOMER STORE PICKUP
+Pickup Branch: ${order.pickupStoreName || order.storeName}
+Pickup Code: ${order.pickupCode || orderRef}`;
+  } else {
+    locationHeader = `Customer: ${order.customerName}
+Phone: ${order.customerPhone}
+Location: ${order.deliveryAddress || 'Not specified'}`;
+    if (order.gpsLocation) {
+      locationHeader += `\nGhanaPost GPS: ${order.gpsLocation}`;
+    }
+    if (order.landmark) {
+      locationHeader += `\nLandmark: ${order.landmark}`;
+    }
+  }
+
+  let riderSection = '';
+  if (!isPickup && (order.riderName || order.courierName || order.trackingNumber)) {
+    riderSection = `\n${line}\nDISPATCH / COURIER DETAILS:`;
+    if (order.courierName) riderSection += `\nCourier: ${order.courierName}`;
+    if (order.riderName) riderSection += `\nRider: ${order.riderName} (${order.riderPhone || 'No phone'})`;
+    if (order.trackingNumber) riderSection += `\nTracking #: ${order.trackingNumber}`;
+    if (order.dispatchNotes) riderSection += `\nNotes: ${order.dispatchNotes}`;
   }
 
   return `
 ${doubleLine}
            MERCHANDER DISPATCH SLIP
-Order: ${order.orderId.substring(0, 8).toUpperCase()}      Branch: ${order.storeName}
-Customer: ${order.customerName}
-Phone: ${order.customerPhone}
-Location: ${order.deliveryAddress}
+Order: ${orderRef.padEnd(16)} Branch: ${order.storeName}
 ${line}
-${itemsText}
+${locationHeader}
+${line}
+${itemsText}${line}
 Delivery Fee:                   ${deliveryFeeStr}
 ${line}
-TOTAL:                          ${totalStr}
-Payment: ${paymentText}
+TOTAL DUE:                      ${totalStr}
+PAYMENT: ${paymentText}${riderSection}
 ${doubleLine}
 `.trim();
+}
+
+/**
+ * Generates a formatted WhatsApp Dispatch message for delivery riders or parcel couriers.
+ */
+export function formatWaybillForWhatsApp(order: WaybillOrder): string {
+  const orderRef = (order.shortId || order.orderId.substring(0, 8)).toUpperCase();
+  const isPickup = order.fulfillmentMode === 'pickup';
+  const isPaid = order.paymentStatus.toLowerCase() === 'paid';
+
+  let itemsSummary = '';
+  order.items.forEach((item) => {
+    const itemName = item.variantName ? `${item.name} (${item.variantName})` : item.name;
+    itemsSummary += `• ${item.quantity}x ${itemName} - ${formatCurrency(item.price * item.quantity)}\n`;
+  });
+
+  if (isPickup) {
+    return `📦 *ORDER READY FOR PICKUP* - #${orderRef}
+Store: *${order.storeName}*
+
+👤 *Customer:* ${order.customerName} (${order.customerPhone})
+🏬 *Pickup Location:* ${order.pickupStoreName || order.storeName}
+🔑 *Pickup Code:* ${order.pickupCode || orderRef}
+
+📋 *Items:*
+${itemsSummary.trim()}
+
+💰 *Payment:* ${isPaid ? '✅ *PAID ONLINE*' : `⚠️ *COLLECT CASH:* ${formatCurrency(order.totalAmount)}`}
+
+_Generated by Merchander_`;
+  }
+
+  const paymentInstruction = isPaid
+    ? '✅ *PAID ONLINE - DO NOT COLLECT ANY CASH*'
+    : `🚨 *CASH ON DELIVERY (COD) - COLLECT ${formatCurrency(order.totalAmount)} FROM CUSTOMER*`;
+
+  let addressBlock = `📍 *Delivery Address:* ${order.deliveryAddress || 'Not specified'}`;
+  if (order.gpsLocation) addressBlock += `\n🗺️ *GPS:* ${order.gpsLocation}`;
+  if (order.landmark) addressBlock += `\n🚩 *Landmark:* ${order.landmark}`;
+
+  let riderBlock = '';
+  if (order.riderName || order.courierName) {
+    riderBlock = `\n🛵 *Assigned Rider/Courier:* ${order.riderName || order.courierName}`;
+    if (order.riderPhone) riderBlock += ` (${order.riderPhone})`;
+  }
+  if (order.dispatchNotes) {
+    riderBlock += `\n📝 *Notes:* ${order.dispatchNotes}`;
+  }
+
+  return `🛵 *DISPATCH WAYBILL* - #${orderRef}
+Store: *${order.storeName}*
+
+👤 *Customer:* ${order.customerName}
+📞 *Phone:* ${order.customerPhone}
+${addressBlock}${riderBlock}
+
+📦 *Items to Deliver:*
+${itemsSummary.trim()}
+
+🚚 *Delivery Fee:* ${formatCurrency(order.deliveryFee)}
+💵 *Total Value:* ${formatCurrency(order.totalAmount)}
+${paymentInstruction}
+
+Please confirm when delivered to the customer! 🙏`;
+}
+
+/**
+ * Builds a direct WhatsApp wa.me share URL to send the waybill directly to a rider.
+ */
+export function buildRiderWhatsAppShareUrl(riderPhone: string, order: WaybillOrder): string | null {
+  const normalized = normalizeGhanaPhone(riderPhone);
+  if (!normalized) return null;
+  const cleanNumber = normalized.replace('+', '');
+  const message = formatWaybillForWhatsApp(order);
+  return `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
 }

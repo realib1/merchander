@@ -76,7 +76,7 @@ callers outside their test file.
 otherwise remove it until it is wired.
 **Resolution:**
 
-### F-07 [P3] open - product.ts and waybill.ts logic has no unit tests
+### F-07 [P3] fixed - product.ts and waybill.ts logic has no unit tests
 
 **File:** src/utils/product.ts:6
 **Found:** 2026-09-03 by /audit (scope: full; lens: tests)
@@ -88,7 +88,7 @@ formatter) are pure and easily assertable but have no `*.test.ts`. The F-14
 backfill picked a five-module subset and skipped these.
 **Suggested fix:** Add focused `*.test.ts` for both, covering branch behaviour
 (status filter, empty inputs, single vs multi-word names, id vs no-id SKU).
-**Resolution:**
+**Resolution:** Fixed in Feature 23. Added comprehensive unit test suites in `src/utils/waybill.test.ts` (10 tests covering delivery, pickup, COD vs paid, GhanaPost GPS, and WhatsApp dispatch formatting) and `src/utils/product.test.ts` (13 tests covering stock calculations, units sold filtering, price ranges, and SKU generation).
 
 ### F-08 [P3] fixed - customer message content written to application logs in cleartext
 

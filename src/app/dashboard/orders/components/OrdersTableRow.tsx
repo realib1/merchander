@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, Truck, CircleCheck, CircleX, Eye } from 'lucide-react';
+import { MoreHorizontal, Truck, CircleCheck, CircleX, Eye, CheckCircle2 } from 'lucide-react';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency } from '@/utils/format';
 import type { OrderStatus } from '@/app/actions/orders';
@@ -60,6 +60,12 @@ export function OrdersTableRow({
         return (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20">
             Dispatched
+          </span>
+        );
+      case 'delivered':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-600/15 text-emerald-600 border border-emerald-600/30">
+            Delivered
           </span>
         );
       case 'pending_payment':
@@ -163,6 +169,16 @@ export function OrdersTableRow({
                 >
                   <Truck size={14} />
                   Mark Dispatched
+                </button>
+              )}
+
+              {order.status === 'dispatched' && (
+                <button
+                  onClick={() => onStatusChange(order.id, 'delivered')}
+                  className="w-full px-3 py-2 text-left text-xs text-emerald-600 hover:bg-emerald-500/10 flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <CheckCircle2 size={14} />
+                  Mark Delivered
                 </button>
               )}
 

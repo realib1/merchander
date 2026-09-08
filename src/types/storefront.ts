@@ -161,5 +161,11 @@ export interface StorefrontTrackingOrder {
     courierName: string;
     trackingNumber: string;
     estimatedDelivery?: string;
+    riderName?: string | null;
+    riderPhone?: string | null;
+    fulfillmentMode?: 'delivery' | 'pickup' | null;
+    pickupStoreName?: string | null;
+    dispatchedAt?: string | null;
+    deliveredAt?: string | null;
   } | null;
 }
