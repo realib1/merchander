@@ -8,7 +8,7 @@ import { LifeBuoy } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useMobileNav } from './MobileNavContext';
 import { toast } from 'sonner';
-import { navGroups } from './sidebar/sidebarNavigation';
+import { navGroups, getFilteredNavGroups } from './sidebar/sidebarNavigation';
 import { SidebarUserProfile } from './sidebar/SidebarUserProfile';
 
 export interface SidebarProps {
@@ -18,6 +18,7 @@ export interface SidebarProps {
   avatarUrl?: string | null;
   businessName: string;
   businessLogoUrl?: string | null;
+  enabledModules?: string[] | null;
 }
 
 export function Sidebar({
@@ -27,6 +28,7 @@ export function Sidebar({
   avatarUrl,
   businessName,
   businessLogoUrl,
+  enabledModules,
 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -101,7 +103,7 @@ export function Sidebar({
 
         {/* Grouped Navigation List */}
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4 hide-scrollbar">
-          {navGroups.map((group) => (
+          {getFilteredNavGroups(navGroups, enabledModules).map((group) => (
             <div key={group.title} className="space-y-1">
               {!isDesktopCollapsed ? (
                 <div className="text-[10px] font-bold text-muted/80 mb-1 px-3 tracking-widest uppercase">

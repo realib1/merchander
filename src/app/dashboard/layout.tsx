@@ -76,12 +76,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let brandPrimaryColor = null;
   let brandSecondaryColor = null;
   let businessLogoUrl: string | null = null;
+  let enabledModules: string[] | null = null;
 
   if (tenantUser?.tenant_id) {
     const [settingsRes, sfRes] = await Promise.all([
       supabase
         .from('tenant_settings')
-        .select('brand_primary_color, brand_secondary_color, settings_data')
+        .select('brand_primary_color, brand_secondary_color, settings_data, enabled_modules')
         .eq('tenant_id', tenantUser.tenant_id)
         .single(),
       supabase.from('storefront_settings').select('logo_url').eq('tenant_id', tenantUser.tenant_id).single(),
@@ -90,6 +91,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     if (settingsRes.data) {
       brandPrimaryColor = sanitizeCssColor(settingsRes.data.brand_primary_color || '');
       brandSecondaryColor = sanitizeCssColor(settingsRes.data.brand_secondary_color || '');
+      enabledModules = (settingsRes.data.enabled_modules as string[]) || null;
       const custom = settingsRes.data.settings_data as Record<string, unknown> | null;
       if (custom?.logo_url) {
         businessLogoUrl = custom.logo_url as string;
@@ -170,6 +172,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           avatarUrl={avatarUrl}
           businessName={businessName}
           businessLogoUrl={businessLogoUrl}
+          enabledModules={enabledModules}
         />
 
         {/* Main Content Area */}

@@ -40,10 +40,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <LoginForm initialMfaRequired={resolvedSearchParams?.mfa === 'required'} />
         </div>
 
-        <p className="text-center text-sm  mt-8 font-medium">
+        <p className="text-center text-sm text-muted mt-8 font-medium">
           New to Merchander?{' '}
-          <Link href="#" className="font-semibold text-brand-primary hover:text-brand-primary-600 transition-colors">
-            Contact Us
+          <Link href="/signup" className="font-semibold text-brand-primary hover:text-brand-primary-hover transition-colors">
+            Create an account
           </Link>
         </p>
       </div>

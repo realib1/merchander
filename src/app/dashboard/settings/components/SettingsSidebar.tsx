@@ -8,6 +8,7 @@ import {
   Shield,
   Bell,
   Building2,
+  LayoutGrid,
   Store,
   CreditCard,
   Share2,
@@ -42,6 +43,7 @@ export const settingsGroups = [
     title: 'Business',
     items: [
       { name: 'Business Profile', href: '/dashboard/settings/business-profile', icon: Building2 },
+      { name: 'Business Modules', href: '/dashboard/settings/modules', icon: LayoutGrid },
       { name: 'Branches & Locations', href: '/dashboard/settings/branches', icon: Store },
       { name: 'Business Hours', href: '/dashboard/settings/hours', icon: Clock },
     ],

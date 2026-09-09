@@ -77,3 +77,40 @@ export const navGroups: NavGroup[] = [
     ],
   },
 ];
+
+/**
+ * Map of navigation route prefixes to their controlling business module.
+ * Items not listed are core navigation items and always visible.
+ */
+export const NAV_ITEM_MODULE_MAP: Record<string, string> = {
+  '/dashboard/online-store': 'storefront',
+  '/dashboard/shipments': 'shipments',
+  '/dashboard/suppliers': 'suppliers',
+  '/dashboard/purchasing': 'batches',
+  '/dashboard/profitability': 'profitability',
+  '/dashboard/conversations': 'intelligence',
+};
+
+/**
+ * Dynamically filters navigation groups to hide dormant module links.
+ */
+export function getFilteredNavGroups(
+  groups: NavGroup[],
+  enabledModules?: string[] | null
+): NavGroup[] {
+  if (!enabledModules || enabledModules.length === 0) {
+    return groups;
+  }
+  const activeSet = new Set(enabledModules);
+
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        const requiredModule = NAV_ITEM_MODULE_MAP[item.href];
+        if (!requiredModule) return true;
+        return activeSet.has(requiredModule);
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
+}

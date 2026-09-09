@@ -2284,6 +2284,7 @@ export type Database = {
           brand_primary_color: string | null
           brand_secondary_color: string | null
           branding: Json
+          business_archetype: string
           business_city: string | null
           business_country: string | null
           business_phone: string | null
@@ -2292,6 +2293,7 @@ export type Database = {
           business_zip: string | null
           created_at: string
           description: string | null
+          enabled_modules: string[]
           features: Json
           industry: string | null
           integrations: Json
@@ -2314,6 +2316,7 @@ export type Database = {
           brand_primary_color?: string | null
           brand_secondary_color?: string | null
           branding?: Json
+          business_archetype?: string
           business_city?: string | null
           business_country?: string | null
           business_phone?: string | null
@@ -2322,6 +2325,7 @@ export type Database = {
           business_zip?: string | null
           created_at?: string
           description?: string | null
+          enabled_modules?: string[]
           features?: Json
           industry?: string | null
           integrations?: Json
@@ -2344,6 +2348,7 @@ export type Database = {
           brand_primary_color?: string | null
           brand_secondary_color?: string | null
           branding?: Json
+          business_archetype?: string
           business_city?: string | null
           business_country?: string | null
           business_phone?: string | null
@@ -2352,6 +2357,7 @@ export type Database = {
           business_zip?: string | null
           created_at?: string
           description?: string | null
+          enabled_modules?: string[]
           features?: Json
           industry?: string | null
           integrations?: Json

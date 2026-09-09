@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer } from '@/components/ui/Drawer';
 import { Button } from '@/components/ui/Button';
 import { createTenantRole, updateTenantRole } from '@/app/actions/roles';
+import { getTenantModuleSettingsAction } from '@/app/actions/tenant-modules';
+import { filterPermissionsByModules } from '@/utils/business-modules';
+import { BusinessModuleKey } from '@/types/business-modules';
 import { toast } from 'sonner';
 import { ShieldCheck, Check, CheckSquare, Square } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -91,6 +94,25 @@ function RoleFormContent({
   const [name, setName] = useState(role?.name || '');
   const [description, setDescription] = useState(role?.description || '');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(role?.permissions || []);
+  const [activeModules, setActiveModules] = useState<BusinessModuleKey[] | null>(null);
+
+  useEffect(() => {
+    async function loadModules() {
+      try {
+        const res = await getTenantModuleSettingsAction();
+        if (res.success && res.enabledModules) {
+          setActiveModules(res.enabledModules);
+        }
+      } catch (err) {
+        console.error('Failed to load tenant modules in role drawer:', err);
+      }
+    }
+    loadModules();
+  }, []);
+
+  const displayedGroups = activeModules
+    ? filterPermissionsByModules(activeModules, PERMISSION_GROUPS)
+    : PERMISSION_GROUPS;
 
   const togglePermission = (id: string) => {
     if (selectedPermissions.includes(id)) {
@@ -195,7 +217,7 @@ function RoleFormContent({
         </div>
 
         <div className="space-y-5">
-          {PERMISSION_GROUPS.map((group) => {
+          {displayedGroups.map((group) => {
             const groupIds = group.permissions.map((p) => p.id);
             const allSelected = groupIds.every((id) => selectedPermissions.includes(id));
 

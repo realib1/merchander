@@ -28,6 +28,17 @@
   --color-muted: var(--text-muted);
   --color-separator: var(--separator);
 
+  /* Prototype Theme Ported Tokens */
+  --color-brand-primary-hover: var(--brand-primary-hover);
+  --color-brand-primary-subtle: var(--brand-primary-subtle);
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-emerald-subtle: var(--brand-emerald-subtle);
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-amber-subtle: var(--brand-amber-subtle);
+  --color-brand-indigo: var(--brand-indigo);
+  --color-brand-indigo-subtle: var(--brand-indigo-subtle);
+  --shadow-glow: var(--shadow-glow);
+
   /* External Brand Colors */
   --color-brand-whatsapp: var(--brand-whatsapp);
   --color-brand-instagram: var(--brand-instagram);
@@ -110,6 +121,17 @@
     --text-secondary: oklch(0.45 0.02 260);
     --text-muted: oklch(0.6 0.01 260);
     --separator: oklch(0.9 0.01 260);
+
+    /* Prototype Theme Tokens - Light */
+    --brand-primary-hover: #E55F00;
+    --brand-primary-subtle: rgba(255, 106, 0, 0.08);
+    --brand-emerald: #10B981;
+    --brand-emerald-subtle: rgba(16, 185, 129, 0.12);
+    --brand-amber: #F59E0B;
+    --brand-amber-subtle: rgba(245, 158, 11, 0.12);
+    --brand-indigo: #6366F1;
+    --brand-indigo-subtle: rgba(99, 102, 241, 0.12);
+    --shadow-glow: 0 0 20px rgba(255, 106, 0, 0.18);
 
     /* Brand Logo Colors */
     --brand-whatsapp: #25d366;
@@ -198,6 +220,17 @@
     --text-secondary: oklch(0.65 0.01 260);
     --text-muted: oklch(0.5 0.01 260);
     --separator: oklch(0.35 0.02 260);
+
+    /* Prototype Theme Tokens - Dark */
+    --brand-primary-hover: #FF7A1A;
+    --brand-primary-subtle: rgba(255, 106, 0, 0.12);
+    --brand-emerald: #10B981;
+    --brand-emerald-subtle: rgba(16, 185, 129, 0.12);
+    --brand-amber: #F59E0B;
+    --brand-amber-subtle: rgba(245, 158, 11, 0.12);
+    --brand-indigo: #6366F1;
+    --brand-indigo-subtle: rgba(99, 102, 241, 0.12);
+    --shadow-glow: 0 0 25px rgba(255, 106, 0, 0.28);
 
     /* Brand Logo Colors (Same in dark mode, AT adjusted) */
     --brand-whatsapp: #25d366;
