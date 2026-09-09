@@ -13,6 +13,8 @@ import {
   createOrUpdateSystemIncident,
   deleteSystemIncident,
 } from '@/app/actions/platform';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { IncidentModal, IncidentService } from './IncidentModal';
 
 interface IncidentsManagerProps {
@@ -39,6 +41,7 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
   const [incidents, setIncidents] = useState<SystemIncident[]>(initialIncidents);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIncident, setEditingIncident] = useState<SystemIncident | null>(null);
+  const [incidentToDelete, setIncidentToDelete] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const handleOpenCreate = () => {
@@ -82,11 +85,21 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
   };
 
   const handleDelete = (incId: string) => {
-    if (!confirm('Are you sure you want to delete this incident record?')) return;
+    setIncidentToDelete(incId);
+  };
+
+  const confirmDelete = () => {
+    if (!incidentToDelete) return;
+    const incId = incidentToDelete;
+
     startTransition(async () => {
       const res = await deleteSystemIncident(incId);
       if (res.success) {
+        toast.success('Incident deleted successfully');
         setIncidents((prev) => prev.filter((i) => i.id !== incId));
+        setIncidentToDelete(null);
+      } else {
+        toast.error('Failed to delete incident');
       }
     });
   };
@@ -233,6 +246,17 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
         onClose={() => setIsModalOpen(false)}
         editingIncident={editingIncident}
         onIncidentSaved={handleIncidentSaved}
+      />
+
+      <ConfirmDialog
+        isOpen={!!incidentToDelete}
+        onClose={() => setIncidentToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Incident Record"
+        description="Are you sure you want to delete this incident record? This action cannot be undone."
+        confirmText="Delete Incident"
+        isDestructive
+        isLoading={isPending}
       />
     </div>
   );

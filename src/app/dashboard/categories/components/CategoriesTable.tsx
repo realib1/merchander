@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Package, Pencil, Trash2 } from 'lucide-react';
 import { deleteCategory } from '@/app/actions/categories';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { CategoryFormModal } from './CategoryFormModal';
 
 export interface CategoryData {
@@ -29,15 +31,22 @@ export function CategoriesTable({
   editingCategory,
   setEditingCategory,
 }: CategoriesTableProps) {
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
+  const confirmDelete = async () => {
+    if (!deletingId) return;
+
+    setIsDeleting(true);
     try {
-      const res = await deleteCategory(id);
+      const res = await deleteCategory(deletingId);
       if (res.error) throw new Error(res.error);
       toast.success('Category deleted successfully');
+      setDeletingId(null);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete category');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -103,7 +112,7 @@ export function CategoriesTable({
                           <Pencil size={16} />
                         </button>
                         <button
-                          onClick={() => handleDelete(cat.id)}
+                          onClick={() => setDeletingId(cat.id)}
                           className="p-2  hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                           title="Delete"
                         >
@@ -116,7 +125,7 @@ export function CategoriesTable({
               })
             ) : (
               <tr>
-                <td colSpan={6} className="px-6 py-16 text-center">
+                <td colSpan={6} className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-surface-elevated flex items-center justify-center text-muted">
                       <Package size={24} />
@@ -138,6 +147,17 @@ export function CategoriesTable({
           setEditingCategory(null);
         }}
         category={editingCategory}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deletingId}
+        onClose={() => setDeletingId(null)}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        description="Are you sure you want to delete this category? Products in this category will remain, but their category association will be cleared."
+        confirmText="Delete Category"
+        isDestructive
+        isLoading={isDeleting}
       />
     </>
   );

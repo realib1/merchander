@@ -13,6 +13,8 @@ import {
   togglePlatformStaffStatusAction,
   removePlatformStaffAction,
 } from '@/app/actions/platform-staff';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { AddStaffModal } from './AddStaffModal';
 
 interface StaffManagementClientProps {
@@ -67,6 +69,8 @@ export function StaffManagementClient({
 }: StaffManagementClientProps) {
   const [staffList, setStaffList] = useState<PlatformStaffUser[]>(initialStaff);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [statusToggleTarget, setStatusToggleTarget] = useState<PlatformStaffUser | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<PlatformStaffUser | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const handleOpenAddModal = () => {
@@ -77,44 +81,55 @@ export function StaffManagementClient({
     startTransition(async () => {
       const res = await updatePlatformStaffRoleAction(staffId, newRole);
       if (res.success) {
+        toast.success('Staff role updated');
         setStaffList((prev) =>
           prev.map((s) => (s.id === staffId ? { ...s, role: newRole } : s))
         );
       } else {
-        alert(res.error || 'Failed to update role');
+        toast.error(res.error || 'Failed to update role');
       }
     });
   };
 
   const handleToggleStatus = (staff: PlatformStaffUser) => {
-    const nextStatus = !staff.is_active;
-    const confirmMsg = nextStatus
-      ? `Reactivate platform access for ${staff.email}?`
-      : `Deactivate platform access for ${staff.email}? They will be immediately blocked from Admin.`;
+    setStatusToggleTarget(staff);
+  };
 
-    if (!confirm(confirmMsg)) return;
+  const confirmToggleStatus = () => {
+    if (!statusToggleTarget) return;
+    const staff = statusToggleTarget;
+    const nextStatus = !staff.is_active;
 
     startTransition(async () => {
       const res = await togglePlatformStaffStatusAction(staff.id, nextStatus);
       if (res.success) {
+        toast.success(nextStatus ? 'Staff access reactivated' : 'Staff access deactivated');
         setStaffList((prev) =>
           prev.map((s) => (s.id === staff.id ? { ...s, is_active: nextStatus } : s))
         );
+        setStatusToggleTarget(null);
       } else {
-        alert(res.error || 'Failed to update staff status');
+        toast.error(res.error || 'Failed to update staff status');
       }
     });
   };
 
   const handleRemoveStaff = (staff: PlatformStaffUser) => {
-    if (!confirm(`Permanently remove ${staff.email} from Platform Staff?`)) return;
+    setRemoveTarget(staff);
+  };
+
+  const confirmRemoveStaff = () => {
+    if (!removeTarget) return;
+    const staff = removeTarget;
 
     startTransition(async () => {
       const res = await removePlatformStaffAction(staff.id);
       if (res.success) {
+        toast.success('Staff member removed successfully');
         setStaffList((prev) => prev.filter((s) => s.id !== staff.id));
+        setRemoveTarget(null);
       } else {
-        alert(res.error || 'Failed to remove staff member');
+        toast.error(res.error || 'Failed to remove staff member');
       }
     });
   };
@@ -276,6 +291,32 @@ export function StaffManagementClient({
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onStaffAdded={(newStaff) => setStaffList((prev) => [newStaff, ...prev])}
+      />
+
+      <ConfirmDialog
+        isOpen={!!statusToggleTarget}
+        onClose={() => setStatusToggleTarget(null)}
+        onConfirm={confirmToggleStatus}
+        title={statusToggleTarget?.is_active ? 'Deactivate Platform Staff' : 'Reactivate Platform Staff'}
+        description={
+          statusToggleTarget?.is_active
+            ? `Deactivate platform access for ${statusToggleTarget?.email}? They will be immediately blocked from Admin.`
+            : `Reactivate platform access for ${statusToggleTarget?.email}?`
+        }
+        confirmText={statusToggleTarget?.is_active ? 'Deactivate Staff' : 'Reactivate Staff'}
+        isDestructive={statusToggleTarget?.is_active}
+        isLoading={isPending}
+      />
+
+      <ConfirmDialog
+        isOpen={!!removeTarget}
+        onClose={() => setRemoveTarget(null)}
+        onConfirm={confirmRemoveStaff}
+        title="Remove Platform Staff"
+        description={`Permanently remove ${removeTarget?.email || 'this user'} from Platform Staff? This action cannot be undone.`}
+        confirmText="Remove Staff"
+        isDestructive
+        isLoading={isPending}
       />
     </div>
   );

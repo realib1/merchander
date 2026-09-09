@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { deleteExpense } from '@/app/actions/expenses';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ExpenseFormModal } from './ExpenseFormModal';
 import { EXPENSE_CATEGORIES } from '../constants';
 import type { Expense } from '@/types/expenses';
@@ -46,15 +47,25 @@ interface ExpensesTableProps {
 
 export function ExpensesTable({ expenses }: ExpensesTableProps) {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this expense record?')) return;
+  const handleDelete = (id: string) => {
+    setExpenseToDelete(id);
+  };
 
+  const confirmDelete = async () => {
+    if (!expenseToDelete) return;
+
+    setIsDeleting(true);
     try {
-      await deleteExpense(id);
+      await deleteExpense(expenseToDelete);
       toast.success('Expense deleted successfully');
+      setExpenseToDelete(null);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete expense');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -215,6 +226,17 @@ export function ExpensesTable({ expenses }: ExpensesTableProps) {
         onClose={() => setEditingExpense(null)}
         expense={editingExpense}
         categories={EXPENSE_CATEGORIES}
+      />
+
+      <ConfirmDialog
+        isOpen={!!expenseToDelete}
+        onClose={() => setExpenseToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Expense Record"
+        description="Are you sure you want to delete this expense record? This action cannot be undone."
+        confirmText="Delete Expense"
+        isDestructive
+        isLoading={isDeleting}
       />
     </>
   );

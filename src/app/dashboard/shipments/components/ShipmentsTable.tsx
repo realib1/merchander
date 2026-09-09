@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Package } from 'lucide-react';
 import { deleteShipment } from '@/app/actions/shipments';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ShipmentDetailsDrawer } from './ShipmentDetailsDrawer';
 import { ShipmentFormDrawer } from './ShipmentFormDrawer';
 import { ShipmentsTableRow } from './ShipmentsTableRow';
@@ -28,12 +29,29 @@ interface ShipmentsTableProps {
 export function ShipmentsTable({ shipments, suppliers, purchaseOrders }: ShipmentsTableProps) {
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
+  const [shipmentToDelete, setShipmentToDelete] = useState<{ id: string; trackingNumber: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (id: string, trackingNumber: string) => {
-    if (!confirm(`Are you sure you want to delete shipment ${trackingNumber}?`)) return;
-    const res = await deleteShipment(id);
-    if (res.error) toast.error(res.error);
-    else toast.success('Shipment deleted successfully');
+  const handleDelete = (id: string, trackingNumber: string) => {
+    setShipmentToDelete({ id, trackingNumber });
+  };
+
+  const confirmDelete = async () => {
+    if (!shipmentToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteShipment(shipmentToDelete.id);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success('Shipment deleted successfully');
+        setShipmentToDelete(null);
+      }
+    } catch {
+      toast.error('Failed to delete shipment');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -100,6 +118,17 @@ export function ShipmentsTable({ shipments, suppliers, purchaseOrders }: Shipmen
           onClose={() => setEditingShipment(null)}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={!!shipmentToDelete}
+        onClose={() => setShipmentToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Shipment"
+        description={`Are you sure you want to delete shipment ${shipmentToDelete?.trackingNumber || ''}? This action cannot be undone.`}
+        confirmText="Delete Shipment"
+        isDestructive
+        isLoading={isDeleting}
+      />
     </>
   );
 }

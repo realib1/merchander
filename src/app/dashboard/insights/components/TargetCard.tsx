@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { TargetProgress } from '@/types/targets';
 import { deleteBusinessTarget } from '@/app/actions/targets';
 import { formatCurrency } from '@/utils/format';
 import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Trash2, Lightbulb } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 
 interface TargetCardProps {
@@ -15,20 +16,24 @@ interface TargetCardProps {
 
 export function TargetCard({ progress, currency = 'GHS', onDeleted }: TargetCardProps) {
   const [isPending, startTransition] = useTransition();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { target, status } = progress;
 
   const isMonetary = target.metric === 'revenue' || target.metric === 'preorder_revenue';
   const formatVal = (v: number) => (isMonetary ? formatCurrency(v, currency) : v.toLocaleString());
 
   const handleDelete = () => {
-    if (!confirm(`Are you sure you want to remove the target "${target.name}"?`)) return;
+    setIsConfirmOpen(true);
+  };
 
+  const confirmDelete = () => {
     startTransition(async () => {
       const res = await deleteBusinessTarget(target.id);
       if (res.error) {
         toast.error(res.error);
       } else {
         toast.success('Target removed');
+        setIsConfirmOpen(false);
         onDeleted?.();
       }
     });
@@ -189,6 +194,17 @@ export function TargetCard({ progress, currency = 'GHS', onDeleted }: TargetCard
           <p className="leading-snug">{progress.recommendation}</p>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={confirmDelete}
+        title="Remove Target"
+        description={`Are you sure you want to remove the target "${target.name}"?`}
+        confirmText="Remove Target"
+        isDestructive
+        isLoading={isPending}
+      />
     </div>
   );
 }

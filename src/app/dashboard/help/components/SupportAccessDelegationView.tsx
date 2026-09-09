@@ -15,6 +15,8 @@ import {
   createSupportAccessGrantAction,
   revokeSupportAccessGrantAction,
 } from '@/app/actions/support-grant';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface SupportAccessDelegationViewProps {
   initialActiveGrant: SupportAccessGrant | null;
@@ -28,6 +30,7 @@ export function SupportAccessDelegationView({
   const [activeGrant, setActiveGrant] = useState<SupportAccessGrant | null>(initialActiveGrant);
   const [history, setHistory] = useState<SupportAccessGrant[]>(initialHistory);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [grantToRevoke, setGrantToRevoke] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   // Modal form state
@@ -50,11 +53,12 @@ export function SupportAccessDelegationView({
       setFormError('Please provide a reason or support ticket context for granting access');
       return;
     }
+    setFormError(null);
 
     startTransition(async () => {
       const res = await createSupportAccessGrantAction({
         durationHours: Number(durationHours),
-        reason,
+        reason: reason.trim(),
         ticketId: ticketId.trim() || undefined,
       });
 
@@ -69,13 +73,17 @@ export function SupportAccessDelegationView({
   };
 
   const handleRevoke = (grantId: string) => {
-    if (!confirm('Revoke platform support access immediately? Support staff will no longer be able to inspect diagnostics.')) {
-      return;
-    }
+    setGrantToRevoke(grantId);
+  };
+
+  const confirmRevoke = () => {
+    if (!grantToRevoke) return;
+    const grantId = grantToRevoke;
 
     startTransition(async () => {
       const res = await revokeSupportAccessGrantAction(grantId);
       if (res.success) {
+        toast.success('Support access revoked successfully');
         if (activeGrant && activeGrant.id === grantId) {
           const revoked = {
             ...activeGrant,
@@ -85,8 +93,9 @@ export function SupportAccessDelegationView({
           setActiveGrant(null);
           setHistory((prev) => [revoked, ...prev.filter((h) => h.id !== grantId)]);
         }
+        setGrantToRevoke(null);
       } else {
-        alert(res.error || 'Failed to revoke grant');
+        toast.error(res.error || 'Failed to revoke grant');
       }
     });
   };
@@ -343,6 +352,17 @@ export function SupportAccessDelegationView({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!grantToRevoke}
+        onClose={() => setGrantToRevoke(null)}
+        onConfirm={confirmRevoke}
+        title="Revoke Support Access"
+        description="Revoke platform support access immediately? Support staff will no longer be able to inspect diagnostics."
+        confirmText="Revoke Access"
+        isDestructive
+        isLoading={isPending}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { removeStaffMember, sendPasswordReset } from '@/app/actions/staff';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { EditStaffModal } from './EditStaffModal';
 import { StaffFilterToolbar } from './StaffFilterToolbar';
 import { StaffTableRow, StaffMember } from './StaffTableRow';
@@ -20,6 +21,8 @@ interface StaffTableProps {
 export function StaffTable({ staff, customRoles = [] }: StaffTableProps) {
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -55,12 +58,28 @@ export function StaffTable({ staff, customRoles = [] }: StaffTableProps) {
     });
   }, [staff, searchQuery, roleFilter, statusFilter]);
 
-  const handleRemove = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove ${name} from your team?`)) return;
+  const handleRemove = (id: string, name: string) => {
     setOpenDropdownId(null);
-    const res = await removeStaffMember(id);
-    if (res.error) toast.error(res.error);
-    else toast.success(`${name} has been removed.`);
+    setMemberToRemove({ id, name });
+  };
+
+  const confirmRemove = async () => {
+    if (!memberToRemove) return;
+
+    setIsRemoving(true);
+    try {
+      const res = await removeStaffMember(memberToRemove.id);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success(`${memberToRemove.name} has been removed.`);
+        setMemberToRemove(null);
+      }
+    } catch {
+      toast.error('Failed to remove staff member');
+    } finally {
+      setIsRemoving(false);
+    }
   };
 
   const handlePasswordReset = async (userId: string, name: string) => {
@@ -127,6 +146,17 @@ export function StaffTable({ staff, customRoles = [] }: StaffTableProps) {
           onClose={() => setEditingStaff(null)}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        onConfirm={confirmRemove}
+        title="Remove Team Member"
+        description={`Are you sure you want to remove ${memberToRemove?.name || 'this member'} from your team? They will lose access immediately.`}
+        confirmText="Remove Member"
+        isDestructive
+        isLoading={isRemoving}
+      />
     </div>
   );
 }

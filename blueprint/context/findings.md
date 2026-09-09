@@ -60,3 +60,19 @@ Same for `getTenantWhatsAppConfig`.
 **Why it matters:** `src/utils/color.ts` implements pure, assertable color validation and contrast math (`isValidHex`, `normalizeHex`, `getContrastTextColor`), but lacks a companion `src/utils/color.test.ts`. This departs from the project standard requiring unit test coverage for pure logic in `src/utils/`.
 **Suggested fix:** Add `src/utils/color.test.ts` covering valid/invalid hex formats, 3-digit expansion, and YIQ contrast threshold calculations.
 **Resolution:** Fixed on 2026-09-09 in fix/color-tests-f10. Added 16 automated unit tests in `src/utils/color.test.ts` covering 3-digit and 6-digit hex validation, normalization, edge thresholds, and YIQ contrast calculations.
+
+### F-12 [P2] fixed - Native window.confirm() and window.alert() calls bypass ConfirmDialog and toast notifications
+
+**File:** src/app/dashboard/categories/components/CategoriesTable.tsx:33
+**Found:** 2026-09-09 by /audit (scope: full; lens: quality)
+**Why it matters:** Multiple dashboard and platform client components directly call synchronous browser dialogs (`window.confirm()` in 14 locations and `window.alert()` in 5 locations).
+Synchronous browser dialogs:
+1. Block the JavaScript event loop and UI thread synchronously, halting animations, timers, and background fetches.
+2. Cannot be styled, ignoring dark mode and design system tokens.
+3. Violate web accessibility (a11y) standards by lacking ARIA dialog roles, focus management, and keyboard trapping. Additionally, browsers allow users to select "Prevent this page from creating additional dialogs", permanently suppressing future prompts and breaking critical flows.
+The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components/ui/Modal`) for accessible confirmation flows and `sonner` toasts for notifications, but these components bypass them.
+**Suggested fix:**
+1. Replace native `confirm()` calls with `@/components/ui/ConfirmDialog` across the 14 table and management components (`CategoriesTable`, `StaffTable`, `ShipmentsTable`, `PaymentsTable`, `ExpensesTable`, `ProductsTable`, `BranchManagementClient`, `DeleteRoleButton`, `BillingMethodCard`, `TargetCard`, `SupportAccessDelegationView`, `IncidentsManager`, and `StaffManagementClient`).
+2. Replace native `alert()` calls with `toast.error()` / `toast.warning()` from `sonner` in `profitabilityExport.ts`, `SupportAccessDelegationView.tsx`, and `StaffManagementClient.tsx`.
+**Resolution:** Fixed on 2026-09-09 in fix/native-dialogs-f12. Replaced all 14 native `window.confirm()` calls with accessible `@/components/ui/ConfirmDialog` modals featuring focus trapping, loading indicators, and destructive styling. Replaced all 5 `window.alert()` calls with `sonner` toasts (`toast.error` / `toast.success`). Typecheck (`yarn check`), lint (`yarn lint`), and all 517 tests (`yarn test`) pass.
+

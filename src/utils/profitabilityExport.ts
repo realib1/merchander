@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { toast } from 'sonner';
 import { ProfitabilityData } from '@/types/profitability';
 import { formatCurrency } from './format';
 import {
@@ -48,7 +49,7 @@ export function exportProfitabilityToCSV(data: ProfitabilityData): void {
 export function exportProfitabilityToPDF(data: ProfitabilityData, businessName: string = 'Business'): void {
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert('Please allow popups to export the PDF financial statement.');
+    toast.error('Please allow popups to export the PDF financial statement.');
     return;
   }
 

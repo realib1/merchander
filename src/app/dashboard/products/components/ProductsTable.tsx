@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { bulkArchiveProducts, bulkDeleteProducts } from '@/app/actions/products-mutations';
 import Link from 'next/link';
 import type { Product } from '@/types/product';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ProductsTableRow, StockBadge } from './ProductsTableRow';
 import { ProductsPagination } from './ProductsPagination';
 import { ProductsBulkActionBar } from './ProductsBulkActionBar';
@@ -52,6 +53,7 @@ export function ProductsTable({
     deleted: Set<string>;
   }>({ archived: new Set(), deleted: new Set() });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -94,9 +96,13 @@ export function ProductsTable({
     }
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.size === 0) return;
-    if (!window.confirm(`Are you sure you want to permanently delete ${selectedIds.size} products?`)) return;
+    setIsBulkDeleteOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
 
     setIsUpdating(true);
     try {
@@ -107,6 +113,7 @@ export function ProductsTable({
         deleted: new Set([...prev.deleted, ...selectedIds]),
       }));
       setSelectedIds(new Set());
+      setIsBulkDeleteOpen(false);
     } catch (e) {
       console.error(e);
       toast.error('Failed to delete products');
@@ -217,6 +224,17 @@ export function ProductsTable({
         onDeselectAll={() => setSelectedIds(new Set())}
         onBulkArchive={handleBulkArchive}
         onBulkDelete={handleBulkDelete}
+      />
+
+      <ConfirmDialog
+        isOpen={isBulkDeleteOpen}
+        onClose={() => setIsBulkDeleteOpen(false)}
+        onConfirm={confirmBulkDelete}
+        title="Delete Selected Products"
+        description={`Are you sure you want to permanently delete ${selectedIds.size} products? This action cannot be undone.`}
+        confirmText="Delete Products"
+        isDestructive
+        isLoading={isUpdating}
       />
     </div>
   );

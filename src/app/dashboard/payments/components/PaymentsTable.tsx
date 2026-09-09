@@ -5,6 +5,7 @@ import { Payment } from '@/types/payments';
 import { Receipt, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { deletePaymentAction } from '@/app/actions/payments';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PaymentDetailsDrawer } from './PaymentDetailsDrawer';
 import { RefundPaymentModal } from './RefundPaymentModal';
 import { PaymentTableRow } from './PaymentTableRow';
@@ -26,6 +27,9 @@ export function PaymentsTable({ payments }: PaymentsTableProps) {
 
   const [refundPayment, setRefundPayment] = useState<Payment | null>(null);
   const [isRefundOpen, setIsRefundOpen] = useState(false);
+
+  const [paymentToDelete, setPaymentToDelete] = useState<{ id: string; displayRef: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -52,16 +56,24 @@ export function PaymentsTable({ payments }: PaymentsTableProps) {
     return sortAsc ? comparison : -comparison;
   });
 
-  const handleDelete = async (paymentId: string, ref: string | null) => {
+  const handleDelete = (paymentId: string, ref: string | null) => {
     const displayRef = ref || '#' + paymentId.slice(0, 8);
-    if (!confirm(`Are you sure you want to delete payment record ${displayRef}?`)) return;
+    setPaymentToDelete({ id: paymentId, displayRef });
+  };
 
+  const confirmDelete = async () => {
+    if (!paymentToDelete) return;
+
+    setIsDeleting(true);
     try {
-      await deletePaymentAction(paymentId);
+      await deletePaymentAction(paymentToDelete.id);
       toast.success('Payment record deleted');
+      setPaymentToDelete(null);
     } catch (error) {
       const err = error as Error;
       toast.error(err.message || 'Failed to delete payment');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -218,6 +230,17 @@ export function PaymentsTable({ payments }: PaymentsTableProps) {
           setIsRefundOpen(false);
           setRefundPayment(null);
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={!!paymentToDelete}
+        onClose={() => setPaymentToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Payment Record"
+        description={`Are you sure you want to delete payment record ${paymentToDelete?.displayRef || ''}? This action cannot be undone.`}
+        confirmText="Delete Payment"
+        isDestructive
+        isLoading={isDeleting}
       />
     </>
   );

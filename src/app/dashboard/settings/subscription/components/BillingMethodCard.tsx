@@ -7,6 +7,7 @@ import { CreditCard, BadgeCheck, Plus, Trash2, ShieldCheck, Loader2 } from 'luci
 import { SubscriptionPaymentMethod } from '@/types/settings';
 import { removeTenantBillingMethod } from '@/app/actions/payments-online';
 import { BillingMethodModal } from './BillingMethodModal';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 
 interface BillingMethodCardProps {
@@ -18,6 +19,7 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
   const [localMethod, setLocalMethod] = useState<SubscriptionPaymentMethod | null | undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const method = localMethod !== undefined ? localMethod : initialMethod;
 
@@ -28,9 +30,11 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
     }
   };
 
-  const handleRemove = async () => {
-    if (!confirm('Are you sure you want to remove your saved SaaS billing method?')) return;
+  const handleRemove = () => {
+    setIsConfirmOpen(true);
+  };
 
+  const confirmRemove = async () => {
     setIsRemoving(true);
     try {
       const res = await removeTenantBillingMethod();
@@ -42,6 +46,7 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
         setLocalMethod(null);
         if (onUpdateMethod) onUpdateMethod(null);
         toast.success('Billing method removed successfully');
+        setIsConfirmOpen(false);
       }
     } catch (err) {
       console.error('Remove error:', err);
@@ -178,6 +183,17 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
         currentMethod={method}
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={confirmRemove}
+        title="Remove Billing Method"
+        description="Are you sure you want to remove your saved SaaS billing method?"
+        confirmText="Remove Method"
+        isDestructive
+        isLoading={isRemoving}
       />
     </>
   );

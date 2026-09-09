@@ -15,6 +15,7 @@ import { StockTransferDrawer, TransferableVariant } from './StockTransferDrawer'
 import { Plus, ArrowLeftRight, Store } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface BranchManagementClientProps {
   initialBranches: BranchData[];
@@ -31,6 +32,7 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
   const [editingBranch, setEditingBranch] = useState<BranchData | null>(null);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferSourceBranch, setTransferSourceBranch] = useState<BranchData | null>(null);
+  const [branchToDelete, setBranchToDelete] = useState<BranchData | null>(null);
 
   const handleOpenAdd = () => {
     setEditingBranch(null);
@@ -71,9 +73,14 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
     });
   };
 
-  const handleDelete = async (branchId: string) => {
+  const handleDelete = (branchId: string) => {
     const branch = branches.find((b) => b.id === branchId);
-    if (!confirm(`Are you sure you want to delete "${branch?.name}"?`)) return;
+    if (branch) setBranchToDelete(branch);
+  };
+
+  const confirmDeleteBranch = () => {
+    if (!branchToDelete) return;
+    const branchId = branchToDelete.id;
 
     startTransition(async () => {
       const res = await deleteBranch(branchId);
@@ -82,6 +89,7 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
       } else {
         toast.success('Branch deleted successfully');
         setBranches((prev) => prev.filter((b) => b.id !== branchId));
+        setBranchToDelete(null);
         router.refresh();
       }
     });
@@ -207,6 +215,17 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
         onClose={() => setIsTransferModalOpen(false)}
         onTransfer={handleExecuteTransfer}
         isPending={isPending}
+      />
+
+      <ConfirmDialog
+        isOpen={!!branchToDelete}
+        onClose={() => setBranchToDelete(null)}
+        onConfirm={confirmDeleteBranch}
+        title="Delete Branch"
+        description={`Are you sure you want to delete "${branchToDelete?.name || 'this branch'}"? This action cannot be undone.`}
+        confirmText="Delete Branch"
+        isDestructive
+        isLoading={isPending}
       />
     </div>
   );
