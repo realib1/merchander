@@ -89,7 +89,7 @@
   automated payment confirmation, payment reminders, beyond record-first.
 - [x] 23. **Fulfilment & delivery** - delivery zones, pickup, rider assignment
   and tracking.
-- [ ] 24. **Demand & supplier intelligence** - demand forecasting, restock
+- [x] 24. **Demand & supplier intelligence** - demand forecasting, restock
   recommendations, supplier performance scoring.
 - [ ] 25. **Deployment readiness** - Vercel config, env var review, production
   build + smoke-test path (`/release vercel`).

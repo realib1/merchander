@@ -1,10 +1,8 @@
 'use client';
 
-import { Ship, Check } from 'lucide-react';
-import { useState } from 'react';
-import { receivePurchaseOrder } from '@/app/actions/purchasing';
-import { toast } from 'sonner';
+import { Ship } from 'lucide-react';
 import { EditPurchaseOrderModal } from './EditPurchaseOrderModal';
+import { RecordPODeliveryModal } from './RecordPODeliveryModal';
 
 interface Supplier {
   name: string;
@@ -29,25 +27,6 @@ interface Store {
 }
 
 export function PurchaseOrdersTable({ purchaseOrders, stores }: { purchaseOrders: PurchaseOrder[]; stores: Store[] }) {
-  const [receivingId, setReceivingId] = useState<string | null>(null);
-  const [storeId, setStoreId] = useState<string>(stores[0]?.id || '');
-
-  const handleReceive = async (purchaseOrderId: string) => {
-    if (!storeId) {
-      toast.error('Please select a store to receive into.');
-      return;
-    }
-
-    setReceivingId(purchaseOrderId);
-    const { error } = await receivePurchaseOrder(purchaseOrderId, storeId);
-
-    if (error) {
-      toast.error(error);
-    } else {
-      toast.success('Purchase order received and inventory updated');
-    }
-    setReceivingId(null);
-  };
 
   if (purchaseOrders.length === 0) {
     return (
@@ -104,32 +83,12 @@ export function PurchaseOrdersTable({ purchaseOrders, stores }: { purchaseOrders
                     <EditPurchaseOrderModal po={po} />
 
                     {po.status !== 'received' && (
-                      <>
-                        <select
-                          value={storeId}
-                          onChange={(e) => setStoreId(e.target.value)}
-                          className="px-2 py-1 bg-surface-elevated border border-separator rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all"
-                        >
-                          {stores.map((store) => (
-                            <option key={store.id} value={store.id}>
-                              {store.name}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={() => handleReceive(po.id)}
-                          disabled={receivingId === po.id || stores.length === 0}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 rounded-md transition-colors disabled:opacity-50"
-                        >
-                          {receivingId === po.id ? (
-                            'Receiving...'
-                          ) : (
-                            <>
-                              <Check size={14} /> Receive
-                            </>
-                          )}
-                        </button>
-                      </>
+                      <RecordPODeliveryModal
+                        purchaseOrderId={po.id}
+                        poNumber={po.po_number}
+                        supplierName={po.supplier?.name}
+                        stores={stores}
+                      />
                     )}
                   </div>
                 </td>

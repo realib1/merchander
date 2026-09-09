@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { getInventory, getInventoryMetrics } from '@/app/actions/inventory-actions';
+import { getRestockRecommendationsAction } from '@/app/actions/intelligence-demand';
+import { getSuppliers } from '@/app/actions/suppliers';
 import { InventoryPageClient } from './components/InventoryPageClient';
 import { InventoryTopMetrics } from './components/InventoryTopMetrics';
+import { RestockRecommendationsView } from './components/RestockRecommendationsView';
 import type { InventoryRowData } from './components/InventoryTable';
-import { Boxes, Layers } from 'lucide-react';
+import { Boxes, Layers, TrendingUp } from 'lucide-react';
 
 export const metadata = {
   title: 'Inventory | Merchander',
@@ -15,6 +18,7 @@ export default async function InventoryPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
+  const activeTab = typeof resolvedParams.tab === 'string' ? resolvedParams.tab : 'stock';
   const query = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
   const categoryFilter = typeof resolvedParams.category === 'string' ? resolvedParams.category : 'All categories';
   const statusFilter = typeof resolvedParams.status === 'string' ? resolvedParams.status : 'All statuses';
@@ -27,6 +31,76 @@ export default async function InventoryPage({
     (resolvedParams.sortOrder === 'asc' || resolvedParams.sortOrder === 'desc')
       ? resolvedParams.sortOrder
       : 'asc';
+
+  // If on restock tab, fetch restock intelligence & suppliers
+  if (activeTab === 'restock') {
+    const [restockRes, suppliersRes] = await Promise.all([
+      getRestockRecommendationsAction(),
+      getSuppliers(),
+    ]);
+
+    const recommendations = restockRes.data?.recommendations || [];
+    const summary = restockRes.data?.summary || {
+      totalVariantsTracked: 0,
+      criticalStockoutsCount: 0,
+      warningStockoutsCount: 0,
+      healthyStockCount: 0,
+      totalSuggestedCapitalGhs: 0,
+      averageVelocity: 0,
+    };
+    const suppliers = (suppliersRes.data || []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      default_lead_days: s.default_lead_days,
+    }));
+
+    return (
+      <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full pb-12">
+        {/* Header & Sub-Navigation */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/80 pb-4">
+          <div>
+            <h1 className="text-xl font-black text-foreground tracking-tight">
+              Restock &amp; Demand Intelligence
+            </h1>
+            <p className="text-xs text-muted mt-0.5">
+              Automated sales burn rate analysis, stock depletion predictions, and 1-click purchase order queue.
+            </p>
+          </div>
+
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-elevated border border-separator/80">
+            <Link
+              href="/dashboard/inventory"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition flex items-center gap-1.5"
+            >
+              <Boxes size={14} />
+              <span>Stock Levels</span>
+            </Link>
+            <Link
+              href="/dashboard/inventory?tab=restock"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-surface text-foreground shadow-2xs border border-separator/60 flex items-center gap-1.5"
+            >
+              <TrendingUp size={14} className="text-brand-primary" />
+              <span>Restock &amp; Forecast</span>
+            </Link>
+            <Link
+              href="/dashboard/inventory/batches"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition flex items-center gap-1.5"
+            >
+              <Layers size={14} />
+              <span>Pre-Order Batches</span>
+            </Link>
+          </div>
+        </div>
+
+        <RestockRecommendationsView
+          initialRecommendations={recommendations}
+          initialSummary={summary}
+          suppliers={suppliers}
+        />
+      </div>
+    );
+  }
 
   const [{ data, count, categories }, metrics] = await Promise.all([
     getInventory(query, categoryFilter, statusFilter, page, pageSize, sortBy, sortOrder),
@@ -84,6 +158,13 @@ export default async function InventoryPage({
             <span>Stock Levels</span>
           </Link>
           <Link
+            href="/dashboard/inventory?tab=restock"
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition flex items-center gap-1.5"
+          >
+            <TrendingUp size={14} />
+            <span>Restock &amp; Forecast</span>
+          </Link>
+          <Link
             href="/dashboard/inventory/batches"
             className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition flex items-center gap-1.5"
           >
@@ -111,3 +192,4 @@ export default async function InventoryPage({
     </div>
   );
 }
+

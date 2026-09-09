@@ -16,7 +16,11 @@ export interface ProductVariant {
   id: string;
   name?: string | null;
   price: number;
+  cost_price?: number | null;
   sku?: string | null;
+  reorder_point?: number;
+  reorder_quantity?: number;
+  preferred_supplier_id?: string | null;
   inventory?: { quantity: number }[] | null;
   order_items?: OrderItem[] | null;
 }
