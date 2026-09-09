@@ -1,5 +1,5 @@
 /**
- * Shared product domain types — single source of truth.
+ * Shared product domain types: single source of truth.
  */
 
 export interface OrderInfo {

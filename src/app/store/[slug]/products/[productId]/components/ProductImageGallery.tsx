@@ -51,7 +51,7 @@ export function ProductImageGallery({ images, productName, children }: ProductIm
         <Image
           key={images[activeIndex]}
           src={images[activeIndex]}
-          alt={`${productName} — Image ${activeIndex + 1}`}
+          alt={`${productName} - Image ${activeIndex + 1}`}
           fill
           priority={activeIndex === 0}
           className="object-cover transition-opacity duration-300"

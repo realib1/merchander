@@ -27,7 +27,7 @@ export function DashboardAttentionCenter({ attention }: DashboardAttentionCenter
             <div>
               <div className="font-semibold text-sm text-foreground">Purchase order arriving {po.eta}</div>
               <div className="text-xs text-muted mt-0.5">
-                {po.id} — {po.supplierName}
+                {po.id} - {po.supplierName}
               </div>
               <div className="text-xs text-muted mt-1.5 flex items-center gap-2">
                 <span className="bg-surface-elevated px-2 py-0.5 rounded border border-separator text-foreground tabular-nums">
@@ -57,7 +57,7 @@ export function DashboardAttentionCenter({ attention }: DashboardAttentionCenter
                 Low stock <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
               </div>
               <div className="text-xs text-muted mt-0.5">
-                {stock.name} — {stock.size}
+                {stock.name} - {stock.size}
               </div>
               <div className="text-xs text-muted mt-1.5 flex items-center gap-2">
                 <span className="bg-destructive/10 text-destructive font-medium px-2 py-0.5 rounded tabular-nums">

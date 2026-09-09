@@ -32,7 +32,7 @@ export async function updateOrderStatus(
 
     if (!tenantUser) return { success: false, error: 'Tenant not found' };
 
-    // 1. Get current order details — scoped to tenant
+    // 1. Get current order details - scoped to tenant
     const { data: order, error: fetchError } = await supabase
       .from('orders')
       .select('*, items:order_items(*)')

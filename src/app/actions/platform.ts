@@ -1258,7 +1258,7 @@ export async function provisionMerchantTenantAction(params: {
       },
     });
 
-    // 6. Create Subscription — price from platform_plans, not a local matrix.
+    // 6. Create Subscription: price from platform_plans, not a local matrix.
     const provisionTier = params.tier || 'free';
     const { data: provisionPlan } = await adminSupabase
       .from('platform_plans')

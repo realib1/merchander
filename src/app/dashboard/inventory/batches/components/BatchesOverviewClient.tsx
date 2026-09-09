@@ -8,7 +8,7 @@ import {
   getBatchCountdown,
   formatArrivalWindow,
 } from '@/utils/preorder-batch';
-import { BatchFormModal } from './BatchFormModal';
+import { BatchFormDrawer } from './BatchFormDrawer';
 import { BatchLifecycleModal } from './BatchLifecycleModal';
 import { SupplierPOExportModal } from './SupplierPOExportModal';
 import { BatchBroadcastModal } from './BatchBroadcastModal';
@@ -296,8 +296,8 @@ export function BatchesOverviewClient({
         </div>
       )}
 
-      {/* Modals */}
-      <BatchFormModal
+      {/* Drawers & Modals */}
+      <BatchFormDrawer
         isOpen={formModalOpen}
         onClose={() => {
           setFormModalOpen(false);

@@ -43,7 +43,7 @@ describe('Preorder Batch Utilities', () => {
     const mockBatch: PreorderBatch = {
       id: 'batch-123',
       tenant_id: 'tenant-1',
-      name: 'Batch A — Aug Wave',
+      name: 'Batch A - Aug Wave',
       code: 'BATCH-A',
       status: 'IN_TRANSIT',
       opens_at: '2026-08-01T00:00:00Z',
@@ -64,7 +64,7 @@ describe('Preorder Batch Utilities', () => {
     const msg = formatBatchMilestoneMessage(mockBatch, recipient, 'IN_TRANSIT');
     expect(msg).toContain('Kwame Mensah');
     expect(msg).toContain('Order #5YU4WH');
-    expect(msg).toContain('Batch A — Aug Wave');
+    expect(msg).toContain('Batch A - Aug Wave');
     expect(msg).toContain('Oct 15–22');
     expect(msg).toContain('https://merchander.com/store/demo/orders/5YU4WH');
   });

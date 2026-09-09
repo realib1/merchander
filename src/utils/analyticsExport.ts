@@ -125,7 +125,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
       <body>
         <div class="header">
           <div>
-            <h1>${businessName} — Business Analytics</h1>
+            <h1>${businessName} - Business Analytics</h1>
             <p style="color: #64748b; font-size: 12px; margin: 2px 0 0 0;">Period: ${data.periodLabel}</p>
           </div>
           <div style="text-align: right; font-size: 11px; color: #64748b;">

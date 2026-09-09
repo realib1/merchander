@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Ship, Plane, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShipmentFormModal } from './ShipmentFormModal';
+import { ShipmentFormDrawer } from './ShipmentFormDrawer';
 
 interface SupplierOption {
   id: string;
@@ -136,7 +136,7 @@ export function ShipmentsToolbar({ suppliers, purchaseOrders }: ShipmentsToolbar
         </Button>
       </div>
 
-      <ShipmentFormModal
+      <ShipmentFormDrawer
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         suppliers={suppliers}

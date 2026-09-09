@@ -75,7 +75,7 @@ export function ProductHeaderInfo({ product, selectedVariant, slug, primaryColor
         )}
 
         {isLowStock && (
-          <span className="text-xs font-bold text-amber-500">Only {totalStock} left in stock — order soon</span>
+          <span className="text-xs font-bold text-amber-500">Only {totalStock} left in stock - order soon</span>
         )}
       </div>
     </div>

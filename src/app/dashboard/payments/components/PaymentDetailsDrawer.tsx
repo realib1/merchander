@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Drawer } from '@/components/ui/Drawer';
 import { Button } from '@/components/ui/Button';
 import { Payment } from '@/types/payments';
 import { PAYMENT_PROVIDERS, PAYMENT_STATUS_CONFIG } from '../constants';
@@ -43,15 +43,11 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
   const customerPhone = payment.customer?.phone || payment.order?.customer?.phone || payment.sender_phone || 'N/A';
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-2">
-          <Receipt className="text-brand-primary" size={20} />
-          <span>Transaction Details</span>
-        </div>
-      }
+      title="Transaction Details"
+      icon={<Receipt className="text-brand-primary" size={20} />}
       description={`Reference: ${payment.transaction_ref || '#' + payment.id.slice(0, 8)}`}
       size="md"
       footer={
@@ -194,6 +190,6 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
           )}
         </div>
       </div>
-    </Modal>
+    </Drawer>
   );
 }

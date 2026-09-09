@@ -19,8 +19,9 @@ export function sanitizePhoneForWhatsApp(phone: string): string {
 export function buildWhatsAppTakeoverUrl(
   phone: string,
   customerName?: string | null,
-  reason?: string | null
+  _reason?: string | null
 ): string {
+  void _reason;
   const cleanPhone = sanitizePhoneForWhatsApp(phone);
   if (!cleanPhone) return 'https://wa.me/';
 

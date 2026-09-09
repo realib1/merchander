@@ -10,8 +10,8 @@ import {
   transferBulkBranchStock,
 } from '@/app/actions/branches';
 import { BranchCard } from './BranchCard';
-import { BranchFormModal } from './BranchFormModal';
-import { StockTransferModal, TransferableVariant } from './StockTransferModal';
+import { BranchFormDrawer } from './BranchFormDrawer';
+import { StockTransferDrawer, TransferableVariant } from './StockTransferDrawer';
 import { Plus, ArrowLeftRight, Store } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -190,8 +190,8 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
         </div>
       )}
 
-      {/* Modals */}
-      <BranchFormModal
+      {/* Drawers */}
+      <BranchFormDrawer
         branch={editingBranch}
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
@@ -199,7 +199,7 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
         isPending={isPending}
       />
 
-      <StockTransferModal
+      <StockTransferDrawer
         branches={branches}
         initialSourceBranch={transferSourceBranch}
         variants={variants}

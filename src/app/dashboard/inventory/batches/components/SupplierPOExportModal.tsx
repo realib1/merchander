@@ -39,7 +39,7 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
       `------------------------------------------`,
       ...summary.items.map(
         (i, idx) =>
-          `${idx + 1}. ${i.productName} [${i.variantTitle}] — QTY: ${i.totalQuantity}${i.sku ? ` (SKU: ${i.sku})` : ''}`
+          `${idx + 1}. ${i.productName} [${i.variantTitle}] - QTY: ${i.totalQuantity}${i.sku ? ` (SKU: ${i.sku})` : ''}`
       ),
     ];
 
@@ -140,7 +140,7 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
                     <tr key={item.variantId} className="hover:bg-surface-elevated/40">
                       <td className="p-3 font-semibold text-foreground">{item.productName}</td>
                       <td className="p-3 text-muted">{item.variantTitle}</td>
-                      <td className="p-3 font-mono text-[11px] text-muted">{item.sku || '—'}</td>
+                      <td className="p-3 font-mono text-[11px] text-muted">{item.sku || 'N/A'}</td>
                       <td className="p-3 text-right font-black text-foreground tabular-nums">
                         {item.totalQuantity} pcs
                       </td>

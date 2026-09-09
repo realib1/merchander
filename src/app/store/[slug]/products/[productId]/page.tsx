@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const productSlug = slugify(product.name);
   const priceText = formatCurrency(product.min_price, data.config.currency || 'GHS');
-  const title = `${product.name} — ${priceText} | ${data.config.store_name}`;
+  const title = `${product.name} - ${priceText} | ${data.config.store_name}`;
   const description =
     product.description ||
     `Order ${product.name} for ${priceText} directly from ${data.config.store_name} on Merchander. Fast delivery available.`;

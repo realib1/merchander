@@ -19,7 +19,7 @@ export default async function DomainsPage() {
         <Info size={15} className="shrink-0 mt-0.5" />
         <span>
           This lists the hostnames merchants have configured. DNS resolution and TLS certificate
-          state are <span className="font-semibold text-foreground">not yet monitored</span> — no
+          state are <span className="font-semibold text-foreground">not yet monitored</span>: no
           probe runs against these domains, so nothing here reflects whether they currently serve
           traffic.
         </span>

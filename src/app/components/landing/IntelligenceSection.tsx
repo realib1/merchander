@@ -43,7 +43,7 @@ export function IntelligenceSection() {
 
           <FadeInView delay={0.12}>
             <p className="mt-3 text-sm sm:text-base text-secondary leading-relaxed">
-              Merchander brings together what you paid for stock, your shipping costs, customer debts, and sales speed —
+              Merchander brings together what you paid for stock, your shipping costs, customer debts, and sales speed,
               so you know where you stand every single day.
             </p>
           </FadeInView>

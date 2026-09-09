@@ -140,7 +140,7 @@ export function ProductPreorderConfigSection({
               const arrival = formatArrivalWindow(b.expected_arrival_start, b.expected_arrival_end);
               return (
                 <option key={b.id} value={b.id}>
-                  {b.name} ({b.code}) — Closes: {countdown.label} • Arrives: {arrival}
+                  {b.name} ({b.code}) - Closes: {countdown.label} • Arrives: {arrival}
                 </option>
               );
             })}

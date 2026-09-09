@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -11,15 +11,13 @@ import {
   Store,
   Package,
   ShoppingBag,
-  Loader2,
-  X,
-  CreditCard,
-  AlertTriangle,
   Plus,
+  CreditCard,
 } from 'lucide-react';
 import { PlatformTenant, PlatformPlan, TenantPlatformStatus, PlatformRole } from '@/types/platform';
-import { updateTenantStatusAction, updateTenantPlanAction } from '@/app/actions/platform';
 import { AddMerchanderDrawer } from './AddMerchanderDrawer';
+import { MerchantStatusModal } from './MerchantStatusModal';
+import { MerchantPlanModal } from './MerchantPlanModal';
 
 interface MerchantsClientProps {
   initialTenants: PlatformTenant[];
@@ -35,23 +33,12 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
 
   // Modals state
   const [selectedTenant, setSelectedTenant] = useState<PlatformTenant | null>(null);
+  const [statusTarget, setStatusTarget] = useState<TenantPlatformStatus>('active');
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isAddMerchanderOpen, setIsAddMerchanderOpen] = useState(false);
 
   const canProvision = !currentRole || ['platform_owner', 'platform_admin', 'operations'].includes(currentRole);
-
-  // Status modal form
-  const [targetStatus, setTargetStatus] = useState<TenantPlatformStatus>('active');
-  const [statusReason, setStatusReason] = useState('');
-
-  // Plan modal form
-  const [targetTier, setTargetTier] = useState<'free' | 'starter' | 'growth' | 'business' | 'enterprise'>('growth');
-  const [targetCycle, setTargetCycle] = useState<'monthly' | 'annual'>('monthly');
-  const [planReason, setPlanReason] = useState('');
-
-  const [isPending, startTransition] = useTransition();
-  const [modalError, setModalError] = useState<string | null>(null);
 
   const filteredTenants = tenants.filter((t) => {
     const matchesSearch =
@@ -69,80 +56,13 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
 
   const handleOpenStatusModal = (tenant: PlatformTenant, status: TenantPlatformStatus) => {
     setSelectedTenant(tenant);
-    setTargetStatus(status);
-    setStatusReason('');
-    setModalError(null);
+    setStatusTarget(status);
     setIsStatusModalOpen(true);
   };
 
   const handleOpenPlanModal = (tenant: PlatformTenant) => {
     setSelectedTenant(tenant);
-    // 'none' means unprovisioned; the operator has to pick a real tier to assign.
-    setTargetTier(tenant.subscription.tier === 'none' ? 'free' : tenant.subscription.tier);
-    setTargetCycle(tenant.subscription.billingCycle);
-    setPlanReason('');
-    setModalError(null);
     setIsPlanModalOpen(true);
-  };
-
-  const handleSaveStatus = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedTenant) return;
-    if (!statusReason.trim()) {
-      setModalError('A mandatory operational reason is required for status changes');
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await updateTenantStatusAction(selectedTenant.id, targetStatus, statusReason);
-      if (res.success) {
-        setTenants((prev) =>
-          prev.map((t) =>
-            t.id === selectedTenant.id ? { ...t, status: targetStatus } : t
-          )
-        );
-        setIsStatusModalOpen(false);
-      } else {
-        setModalError(res.error || 'Failed to update tenant status');
-      }
-    });
-  };
-
-  const handleSavePlan = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedTenant) return;
-    if (!planReason.trim()) {
-      setModalError('A mandatory reason is required for plan overrides');
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await updateTenantPlanAction(
-        selectedTenant.id,
-        targetTier,
-        targetCycle,
-        planReason
-      );
-      if (res.success) {
-        setTenants((prev) =>
-          prev.map((t) =>
-            t.id === selectedTenant.id
-              ? {
-                  ...t,
-                  subscription: {
-                    ...t.subscription,
-                    tier: targetTier,
-                    billingCycle: targetCycle,
-                  },
-                }
-              : t
-          )
-        );
-        setIsPlanModalOpen(false);
-      } else {
-        setModalError(res.error || 'Failed to update plan');
-      }
-    });
   };
 
   return (
@@ -357,203 +277,44 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
         </div>
       </div>
 
-      {/* Status Modifier Modal with Mandatory Reason */}
-      {isStatusModalOpen && selectedTenant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-surface border border-separator rounded-2xl p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-separator pb-3">
-              <div>
-                <div className="text-xs font-mono font-bold text-rose-400 uppercase">Tenant Governance</div>
-                <h3 className="text-base font-bold text-foreground font-display mt-0.5">
-                  Update Status for {selectedTenant.name}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsStatusModalOpen(false)}
-                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
+      {/* Status Modifier Modal */}
+      <MerchantStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        tenant={selectedTenant}
+        initialStatus={statusTarget}
+        onSuccess={(newStatus) => {
+          if (!selectedTenant) return;
+          setTenants((prev) =>
+            prev.map((t) => (t.id === selectedTenant.id ? { ...t, status: newStatus } : t))
+          );
+        }}
+      />
 
-            <form onSubmit={handleSaveStatus} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Select Target Status</label>
-                <select
-                  value={targetStatus}
-                  onChange={(e) => setTargetStatus(e.target.value as TenantPlatformStatus)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden font-medium capitalize"
-                >
-                  <option value="active">Active (Full platform and checkout access)</option>
-                  <option value="trial">Trial (Extended evaluation status)</option>
-                  <option value="past_due">Past Due (Subscription renewal failed)</option>
-                  <option value="restricted">Restricted (Channel or payment limits)</option>
-                  <option value="suspended">Suspended (Storefront and dashboard locked)</option>
-                </select>
-              </div>
-
-              {targetStatus === 'suspended' && (
-                <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive flex items-start gap-2">
-                  <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-                  <div className="leading-relaxed">
-                    <strong>Warning:</strong> Suspending this tenant will immediately disable their customer storefront, lock their merchant dashboard, and pause WhatsApp integrations.
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">
-                  Mandatory Reason <span className="text-rose-400 font-bold">*</span>
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="State the explicit operational or policy justification (e.g., Compliance investigation #104, Payment dispute)..."
-                  value={statusReason}
-                  onChange={(e) => setStatusReason(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary"
-                />
-              </div>
-
-              {modalError && (
-                <div className="p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs">
-                  {modalError}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-separator">
-                <button
-                  type="button"
-                  onClick={() => setIsStatusModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-primary text-brand-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" />
-                      Saving Status...
-                    </>
-                  ) : (
-                    'Confirm Status Update'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Plan Override Modal with Mandatory Reason */}
-      {isPlanModalOpen && selectedTenant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-surface border border-separator rounded-2xl p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-separator pb-3">
-              <div>
-                <div className="text-xs font-mono font-bold text-brand-primary uppercase">Subscription Override</div>
-                <h3 className="text-base font-bold text-foreground font-display mt-0.5">
-                  Modify Plan for {selectedTenant.name}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsPlanModalOpen(false)}
-                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSavePlan} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-secondary block">Select Plan Tier</label>
-                  <select
-                    value={targetTier}
-                    onChange={(e) =>
-                      setTargetTier(
-                        e.target.value as 'free' | 'starter' | 'growth' | 'business' | 'enterprise'
-                      )
-                    }
-                    className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden font-medium capitalize"
-                  >
-                    {plans.map((plan) => (
-                      <option key={plan.id} value={plan.slug}>
-                        {plan.name} (GH₵ {plan.price_ghs.toLocaleString()})
-                      </option>
-                    ))}
-                  </select>
-                  {plans.length === 0 && (
-                    <p className="text-[11px] text-destructive">
-                      No plans configured - add commercial tiers in Plans &amp; Billing first.
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-secondary block">Billing Cycle</label>
-                  <select
-                    value={targetCycle}
-                    onChange={(e) => setTargetCycle(e.target.value as 'monthly' | 'annual')}
-                    className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden font-medium capitalize"
-                  >
-                    <option value="monthly">Monthly</option>
-                    <option value="annual">Annual</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">
-                  Override Justification <span className="text-rose-400 font-bold">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g., Extended pilot sponsor / High-volume partner contract"
-                  value={planReason}
-                  onChange={(e) => setPlanReason(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary"
-                />
-              </div>
-
-              {modalError && (
-                <div className="p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs">
-                  {modalError}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-separator">
-                <button
-                  type="button"
-                  onClick={() => setIsPlanModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-primary text-brand-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" />
-                      Applying Override...
-                    </>
-                  ) : (
-                    'Apply Plan Override'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Plan Override Modal */}
+      <MerchantPlanModal
+        isOpen={isPlanModalOpen}
+        onClose={() => setIsPlanModalOpen(false)}
+        tenant={selectedTenant}
+        plans={plans}
+        onSuccess={(newTier, newCycle) => {
+          if (!selectedTenant) return;
+          setTenants((prev) =>
+            prev.map((t) =>
+              t.id === selectedTenant.id
+                ? {
+                    ...t,
+                    subscription: {
+                      ...t.subscription,
+                      tier: newTier,
+                      billingCycle: newCycle,
+                    },
+                  }
+                : t
+            )
+          );
+        }}
+      />
 
       {/* Add Merchander Drawer */}
       <AddMerchanderDrawer

@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { Package } from 'lucide-react';
 import { deleteShipment } from '@/app/actions/shipments';
 import { toast } from 'sonner';
-import { ShipmentDetailsModal } from './ShipmentDetailsModal';
-import { ShipmentFormModal } from './ShipmentFormModal';
+import { ShipmentDetailsDrawer } from './ShipmentDetailsDrawer';
+import { ShipmentFormDrawer } from './ShipmentFormDrawer';
 import { ShipmentsTableRow } from './ShipmentsTableRow';
 import type { Shipment } from '@/types/shipments';
 
@@ -80,7 +80,7 @@ export function ShipmentsTable({ shipments, suppliers, purchaseOrders }: Shipmen
       </div>
 
       {selectedShipment && (
-        <ShipmentDetailsModal
+        <ShipmentDetailsDrawer
           isOpen={selectedShipment !== null}
           shipment={selectedShipment}
           onClose={() => setSelectedShipment(null)}
@@ -92,7 +92,7 @@ export function ShipmentsTable({ shipments, suppliers, purchaseOrders }: Shipmen
       )}
 
       {editingShipment && (
-        <ShipmentFormModal
+        <ShipmentFormDrawer
           isOpen={editingShipment !== null}
           shipment={editingShipment}
           suppliers={suppliers}

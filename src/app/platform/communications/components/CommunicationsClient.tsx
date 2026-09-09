@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 import { PlatformBroadcast, BroadcastType, BroadcastTarget } from '@/types/platform';
 import { createPlatformBroadcastAction, toggleBroadcastStatusAction } from '@/app/actions/platform-comms';
 
@@ -131,93 +133,92 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
       </div>
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-surface border border-separator rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-separator/60 pb-3">
-              <h2 className="font-bold text-base text-foreground font-display">Create Platform Broadcast</h2>
-              <button onClick={() => setShowModal(false)} className="text-muted hover:text-foreground text-sm">
-                ✕
-              </button>
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Create Platform Broadcast"
+        description="Publish announcements and operational maintenance alerts to merchant dashboards."
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowModal(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleCreate}
+              isLoading={isSubmitting}
+              className="font-semibold"
+            >
+              Publish Broadcast
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleCreate} className="space-y-4 text-xs">
+          <div className="space-y-1">
+            <label className="text-muted font-mono">Title</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Scheduled Network Maintenance on Sept 4"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-surface-elevated border border-separator placeholder:text-muted focus:outline-hidden focus:border-brand-primary"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-muted font-mono">Type</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as BroadcastType)}
+                className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-separator text-foreground focus:outline-hidden"
+              >
+                <option value="info">Info</option>
+                <option value="announcement">Announcement</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="warning">Warning</option>
+                <option value="security">Security</option>
+              </select>
             </div>
 
-            <form onSubmit={handleCreate} className="space-y-4 text-xs">
-              <div className="space-y-1">
-                <label className="text-muted font-mono">Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Scheduled Network Maintenance on Sept 4"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-surface-elevated border border-separator placeholder:text-muted focus:outline-hidden focus:border-brand-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-muted font-mono">Type</label>
-                  <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value as BroadcastType)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-separator text-foreground focus:outline-hidden"
-                  >
-                    <option value="info">Info</option>
-                    <option value="announcement">Announcement</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="warning">Warning</option>
-                    <option value="security">Security</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-muted font-mono">Target Tier</label>
-                  <select
-                    value={target}
-                    onChange={(e) => setTarget(e.target.value as BroadcastTarget)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-separator text-foreground focus:outline-hidden"
-                  >
-                    <option value="all">All Merchants</option>
-                    <option value="starter">Starter & Above</option>
-                    <option value="growth">Growth & Above</option>
-                    <option value="business">Business & Enterprise</option>
-                    <option value="enterprise">Enterprise Only</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-muted font-mono">Message</label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="Details displayed in tenant dashboards..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-surface-elevated border border-separator placeholder:text-muted focus:outline-hidden focus:border-brand-primary"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-surface-elevated text-foreground border border-separator hover:bg-surface"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-primary text-brand-primary-foreground hover:bg-brand-primary/90 transition-colors"
-                >
-                  Publish Broadcast
-                </button>
-              </div>
-            </form>
+            <div className="space-y-1">
+              <label className="text-muted font-mono">Target Tier</label>
+              <select
+                value={target}
+                onChange={(e) => setTarget(e.target.value as BroadcastTarget)}
+                className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-separator text-foreground focus:outline-hidden"
+              >
+                <option value="all">All Merchants</option>
+                <option value="starter">Starter &amp; Above</option>
+                <option value="growth">Growth &amp; Above</option>
+                <option value="business">Business &amp; Enterprise</option>
+                <option value="enterprise">Enterprise Only</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="space-y-1">
+            <label className="text-muted font-mono">Message</label>
+            <textarea
+              required
+              rows={3}
+              placeholder="Details displayed in tenant dashboards..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-surface-elevated border border-separator placeholder:text-muted focus:outline-hidden focus:border-brand-primary"
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

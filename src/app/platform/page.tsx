@@ -80,7 +80,7 @@ export default async function PlatformOverviewPage() {
     attentionItems.push({
       id: 'att-unprovisioned',
       title: `${kpis.unprovisionedTenants} Merchants Without a Subscription`,
-      description: 'Workspaces with no tenant_subscriptions row — on no plan and contributing no MRR.',
+      description: 'Workspaces with no tenant_subscriptions row (on no plan and contributing no MRR).',
       actionLabel: 'Assign Plans',
       actionHref: '/platform/merchants',
     });
@@ -176,8 +176,8 @@ export default async function PlatformOverviewPage() {
 
           {plans.length === 0 ? (
             <p className="text-xs text-muted leading-relaxed">
-              No plans configured. Add commercial tiers in Plans &amp; Billing — pricing shown
-              across the console reads from that table.
+              No plans configured. Add commercial tiers in Plans &amp; Billing (pricing shown
+              across the console reads from that table).
             </p>
           ) : (
             <div className="space-y-2.5">

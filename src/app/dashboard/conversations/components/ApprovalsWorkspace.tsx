@@ -8,7 +8,6 @@ import { ApprovalActionCard } from './ApprovalActionCard';
 import { UrgentExceptionCard } from './UrgentExceptionCard';
 import {
   Search,
-  CheckCheck,
   RotateCw,
   Clock,
   AlertTriangle,
@@ -170,7 +169,7 @@ export function ApprovalsWorkspace({ initialActions }: ApprovalsWorkspaceProps) 
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">
-              {searchQuery ? 'No Matching Queue Items' : 'All Clear — Inbox Zero!'}
+              {searchQuery ? 'No Matching Queue Items' : 'All Clear: Inbox Zero!'}
             </h3>
             <p className="text-xs text-muted max-w-sm mt-1">
               {searchQuery

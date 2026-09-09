@@ -185,7 +185,7 @@ export function formatBackInStockMessage(params: BackInStockCopyParams): string 
   const urlStr = params.storeUrl ? `\nOrder now before stock runs out: ${params.storeUrl}` : '';
 
   return (
-    `Hello ${params.customerName}! 🎉 Great news from ${store} — ${params.productName}${variantStr} is back in stock!${priceStr}${urlStr}` +
+    `Hello ${params.customerName}! 🎉 Great news from ${store}: ${params.productName}${variantStr} is back in stock!${priceStr}${urlStr}` +
     `\n\nAs you signed up on our waitlist, you get early access to secure yours today.`
   );
 }

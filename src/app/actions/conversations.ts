@@ -2,9 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
-import { ChatMessage, ConversationsData, ConversationThread } from '@/types/conversations';
+import { ConversationsData, ConversationThread } from '@/types/conversations';
 import { computeConversationsMetrics, getDefaultQuickReplies } from '@/utils/conversationsMath';
-import { revalidatePath } from 'next/cache';
 
 export async function getConversationsData(): Promise<ConversationsData> {
   const supabase = await createClient();

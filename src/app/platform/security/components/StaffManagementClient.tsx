@@ -4,18 +4,16 @@ import React, { useState, useTransition } from 'react';
 import {
   UserPlus,
   ShieldCheck,
-  Loader2,
-  X,
   Trash2,
   Shield,
 } from 'lucide-react';
 import { PlatformStaffUser, PlatformRole } from '@/types/platform';
 import {
-  addPlatformStaffAction,
   updatePlatformStaffRoleAction,
   togglePlatformStaffStatusAction,
   removePlatformStaffAction,
 } from '@/app/actions/platform-staff';
+import { AddStaffModal } from './AddStaffModal';
 
 interface StaffManagementClientProps {
   initialStaff: PlatformStaffUser[];
@@ -71,56 +69,8 @@ export function StaffManagementClient({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // Add Form state
-  const [email, setEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<PlatformRole>('support');
-  const [reason, setReason] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
   const handleOpenAddModal = () => {
-    setEmail('');
-    setSelectedRole('support');
-    setReason('');
-    setErrorMessage(null);
-    setSuccessMessage(null);
     setIsAddModalOpen(true);
-  };
-
-  const handleAddStaff = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) {
-      setErrorMessage('Staff email is required');
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await addPlatformStaffAction({
-        email,
-        role: selectedRole,
-        reason,
-      });
-
-      if (res.success) {
-        setStaffList((prev) => [
-          {
-            id: `staff_${Date.now()}`,
-            user_id: `uid_${Date.now()}`,
-            email: email.trim().toLowerCase(),
-            role: selectedRole,
-            is_active: true,
-            mfa_enabled: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          ...prev,
-        ]);
-        setSuccessMessage(`Staff member ${email} added successfully!`);
-        setTimeout(() => setIsAddModalOpen(false), 800);
-      } else {
-        setErrorMessage(res.error || 'Failed to add staff member');
-      }
-    });
   };
 
   const handleRoleChange = (staffId: string, newRole: PlatformRole) => {
@@ -322,107 +272,11 @@ export function StaffManagementClient({
       </div>
 
       {/* Add Staff Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-surface border border-separator rounded-2xl p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-separator pb-3">
-              <div>
-                <div className="text-xs font-mono font-bold text-brand-primary uppercase">Staff Onboarding</div>
-                <h3 className="text-base font-bold text-foreground font-display mt-0.5">
-                  Add Platform Staff Member
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddStaff} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Staff Email Address</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="e.g., alex@merchander.app"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary font-mono"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Assigned Platform Role</label>
-                <select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value as PlatformRole)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary font-medium"
-                >
-                  {Object.entries(ROLE_INFO).map(([key, info]) => (
-                    <option key={key} value={key}>
-                      {info.label} — {info.description.substring(0, 45)}...
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-muted leading-relaxed mt-1">
-                  {ROLE_INFO[selectedRole].description}
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">
-                  Onboarding Reason <span className="text-muted font-normal">(Logged to Audit Trail)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Onboarding Operations Lead for Ghana market"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary"
-                />
-              </div>
-
-              {errorMessage && (
-                <div className="p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs">
-                  {errorMessage}
-                </div>
-              )}
-
-              {successMessage && (
-                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs">
-                  {successMessage}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-separator">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-primary text-brand-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" />
-                      Adding Staff...
-                    </>
-                  ) : (
-                    'Add Staff User'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <AddStaffModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onStaffAdded={(newStaff) => setStaffList((prev) => [newStaff, ...prev])}
+      />
     </div>
   );
 }

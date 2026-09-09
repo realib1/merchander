@@ -4,8 +4,6 @@ import React, { useState, useTransition } from 'react';
 import {
   Radio,
   Plus,
-  Loader2,
-  X,
   Trash2,
   Edit2,
   ShieldAlert,
@@ -15,12 +13,11 @@ import {
   createOrUpdateSystemIncident,
   deleteSystemIncident,
 } from '@/app/actions/platform';
+import { IncidentModal, IncidentService } from './IncidentModal';
 
 interface IncidentsManagerProps {
   initialIncidents: SystemIncident[];
 }
-
-type IncidentService = 'storefront' | 'whatsapp' | 'payments' | 'domains' | 'core_api';
 
 const SERVICE_LABELS: Record<IncidentService, string> = {
   payments: 'Payment Webhooks & MoMo Rails',
@@ -44,100 +41,22 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
   const [editingIncident, setEditingIncident] = useState<SystemIncident | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const [service, setService] = useState<IncidentService>('payments');
-  const [status, setStatus] = useState<ServiceStatus>('degraded_performance');
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
-  const [affectedAreas, setAffectedAreas] = useState('Accra / MTN Mobile Money');
-  const [isActive, setIsActive] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const handleOpenCreate = () => {
     setEditingIncident(null);
-    setService('payments');
-    setStatus('degraded_performance');
-    setTitle('');
-    setMessage('');
-    setAffectedAreas('Accra / MTN MoMo Webhooks');
-    setIsActive(true);
-    setErrorMsg(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (inc: SystemIncident) => {
     setEditingIncident(inc);
-    setService(inc.service);
-    setStatus(inc.status);
-    setTitle(inc.title);
-    setMessage(inc.message);
-    setAffectedAreas(inc.affected_areas?.join(', ') || '');
-    setIsActive(inc.is_active);
-    setErrorMsg(null);
     setIsModalOpen(true);
   };
 
-  const handleSaveIncident = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !message.trim()) {
-      setErrorMsg('Incident title and message are required');
-      return;
+  const handleIncidentSaved = (saved: SystemIncident, isNew: boolean) => {
+    if (isNew) {
+      setIncidents((prev) => [saved, ...prev]);
+    } else {
+      setIncidents((prev) => prev.map((i) => (i.id === saved.id ? saved : i)));
     }
-
-    const areasArray = affectedAreas
-      .split(',')
-      .map((a) => a.trim())
-      .filter(Boolean);
-
-    startTransition(async () => {
-      const res = await createOrUpdateSystemIncident({
-        id: editingIncident?.id,
-        service,
-        status,
-        title,
-        message,
-        affected_areas: areasArray,
-        is_active: isActive,
-      });
-
-      if (res.success) {
-        if (editingIncident) {
-          setIncidents((prev) =>
-            prev.map((i) =>
-              i.id === editingIncident.id
-                ? {
-                    ...i,
-                    service,
-                    status,
-                    title,
-                    message,
-                    affected_areas: areasArray,
-                    is_active: isActive,
-                    updated_at: new Date().toISOString(),
-                  }
-                : i
-            )
-          );
-        } else {
-          setIncidents((prev) => [
-            {
-              id: `inc_${Date.now()}`,
-              service,
-              status,
-              title,
-              message,
-              affected_areas: areasArray,
-              is_active: isActive,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            ...prev,
-          ]);
-        }
-        setIsModalOpen(false);
-      } else {
-        setErrorMsg(res.error || 'Failed to save incident');
-      }
-    });
   };
 
   const handleQuickResolve = (inc: SystemIncident) => {
@@ -309,135 +228,12 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
       </div>
 
       {/* Incident Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-surface border border-separator rounded-2xl p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-separator pb-3">
-              <div>
-                <div className="text-xs font-mono font-bold text-rose-400 uppercase">Operational Incident</div>
-                <h3 className="text-base font-bold text-foreground font-display mt-0.5">
-                  {editingIncident ? 'Update System Incident' : 'Publish Platform Incident'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveIncident} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-secondary block">Affected Service</label>
-                  <select
-                    value={service}
-                    onChange={(e) => setService(e.target.value as IncidentService)}
-                    className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden"
-                  >
-                    <option value="payments">Payment Webhooks & MoMo</option>
-                    <option value="whatsapp">WhatsApp Cloud API</option>
-                    <option value="storefront">Edge Storefronts</option>
-                    <option value="domains">Custom Domains / SSL</option>
-                    <option value="core_api">Core API Engine</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-secondary block">Incident Status</label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value as ServiceStatus)}
-                    className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden font-medium capitalize"
-                  >
-                    <option value="degraded_performance">Degraded Performance</option>
-                    <option value="partial_outage">Partial Outage</option>
-                    <option value="major_outage">Major Outage</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="operational">Operational</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Incident Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g., MTN MoMo Webhook Delays in Greater Accra"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-rose-500"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Notice Message</label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="Describe the issue, current investigation status, and expected resolution time."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-rose-500"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Affected Areas</label>
-                <input
-                  type="text"
-                  placeholder="e.g., Accra, Kumasi, MoMo Checkout"
-                  value={affectedAreas}
-                  onChange={(e) => setAffectedAreas(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden"
-                />
-              </div>
-
-              <label className="flex items-center gap-2 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  checked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                  className="rounded border-separator text-rose-500 focus:ring-rose-500"
-                />
-                <span className="text-secondary font-medium">Broadcast active notice to tenant dashboards</span>
-              </label>
-
-              {errorMsg && (
-                <div className="p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs">
-                  {errorMsg}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-separator">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-500 text-white hover:bg-rose-600 transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" />
-                      Publishing...
-                    </>
-                  ) : (
-                    'Publish Notice'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <IncidentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        editingIncident={editingIncident}
+        onIncidentSaved={handleIncidentSaved}
+      />
     </div>
   );
 }
