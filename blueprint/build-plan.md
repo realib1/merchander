@@ -91,7 +91,7 @@
   and tracking.
 - [x] 24. **Demand & supplier intelligence** - demand forecasting, restock
   recommendations, supplier performance scoring.
-- [ ] 25. **Deployment readiness** - Vercel config, env var review, production
+- [x] 25. **Deployment readiness** - Vercel config, env var review, production
   build + smoke-test path (`/release vercel`).
 - [x] 26. **Platform General Settings** - global platform configuration, branding, integrations, and feature flags backed by a singleton `platform_settings` table.
 - [x] 27. **Platform Merchant Provisioning ("Add Merchander")** - administrative workspace provisioning in `/platform/merchants` with owner account, initial branch, default settings, plan assignment, credential summary modal, strict platform staff email rejection, and audit log.

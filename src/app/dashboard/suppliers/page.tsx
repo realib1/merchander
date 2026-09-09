@@ -9,6 +9,8 @@ export const metadata = {
   title: 'Suppliers | Merchander',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function SuppliersPage() {
   const [{ data: suppliers }, scorecardsRes] = await Promise.all([
     getSuppliers(),
