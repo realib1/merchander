@@ -21,6 +21,7 @@ import {
   MODULE_DEFINITIONS,
   validateStoreSlug,
 } from '@/utils/business-modules';
+import { BusinessIcon } from '@/components/ui/BusinessIcon';
 import { BusinessArchetype, BusinessModuleKey } from '@/types/business-modules';
 
 export function SignupWizardClient() {
@@ -430,7 +431,9 @@ export function SignupWizardClient() {
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl">{def.icon}</span>
+                        <div className="w-9 h-9 rounded-xl bg-surface border border-separator flex items-center justify-center text-brand-primary shrink-0">
+                          <BusinessIcon name={def.icon} size={18} />
+                        </div>
                         {def.badge && (
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -485,7 +488,7 @@ export function SignupWizardClient() {
                     return (
                       <label
                         key={modKey}
-                        className="flex items-center gap-2 p-2 rounded-lg bg-surface border border-separator text-xs cursor-pointer hover:bg-surface-elevated"
+                        className="flex items-center gap-2.5 p-2 rounded-lg bg-surface border border-separator text-xs cursor-pointer hover:bg-surface-elevated transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -493,6 +496,7 @@ export function SignupWizardClient() {
                           onChange={() => toggleCustomModule(modKey)}
                           className="rounded text-brand-primary focus:ring-brand-primary"
                         />
+                        <BusinessIcon name={mod.icon} size={14} className="text-brand-primary shrink-0" />
                         <span className="font-medium text-foreground">{mod.name}</span>
                       </label>
                     );
@@ -518,7 +522,9 @@ export function SignupWizardClient() {
 
             <div className="p-4 rounded-xl bg-surface-elevated/70 border border-separator flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{activeArchetypeDef.icon}</span>
+                <div className="w-12 h-12 rounded-xl bg-surface border border-separator flex items-center justify-center text-brand-primary shrink-0">
+                  <BusinessIcon name={activeArchetypeDef.icon} size={24} />
+                </div>
                 <div>
                   <h3 className="text-sm font-bold text-foreground">
                     {activeArchetypeDef.name}
@@ -558,10 +564,14 @@ export function SignupWizardClient() {
                       }`}
                     >
                       <div
-                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                          isEnabled ? 'bg-brand-emerald' : 'bg-muted'
+                        className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${
+                          isEnabled
+                            ? 'bg-brand-primary/10 border-brand-primary/30 text-brand-primary'
+                            : 'bg-surface-elevated border-separator text-muted'
                         }`}
-                      />
+                      >
+                        <BusinessIcon name={mod.icon} size={14} />
+                      </div>
                       <div>
                         <div className="text-xs font-semibold text-foreground">{mod.name}</div>
                         <div className="text-[10px] text-muted">

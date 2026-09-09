@@ -11,6 +11,10 @@ import {
   Loader2,
   Sparkles,
   ShieldAlert,
+  LayoutDashboard,
+  Package,
+  Settings,
+  ShoppingBag,
 } from 'lucide-react';
 import {
   BusinessArchetype,
@@ -22,6 +26,7 @@ import {
   ARCHETYPE_DEFINITIONS,
   isModuleEntitled,
 } from '@/utils/business-modules';
+import { BusinessIcon } from '@/components/ui/BusinessIcon';
 import { updateTenantModulesAction } from '@/app/actions/tenant-modules';
 
 interface ModuleCustomizerClientProps {
@@ -131,8 +136,8 @@ export function ModuleCustomizerClient({
         {/* Current Archetype Preset Banner */}
         <div className="p-5 rounded-2xl bg-surface border border-separator shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-separator flex items-center justify-center text-2xl shrink-0">
-              {activeDef.icon}
+            <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-separator flex items-center justify-center shrink-0">
+              <BusinessIcon name={activeDef.icon} size={24} className="text-brand-primary" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -188,7 +193,9 @@ export function ModuleCustomizerClient({
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{def.icon}</span>
+                      <div className="w-7 h-7 rounded-lg bg-surface-elevated border border-separator flex items-center justify-center shrink-0 text-brand-primary">
+                        <BusinessIcon name={def.icon} size={15} />
+                      </div>
                       <h4 className="text-sm font-bold text-foreground">{def.name}</h4>
                       {isEnabled ? (
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
@@ -303,25 +310,34 @@ export function ModuleCustomizerClient({
 
           <div className="p-3 rounded-xl bg-surface-elevated/60 border border-separator/80 space-y-1">
             <div className="flex items-center justify-between p-2 rounded-lg bg-surface text-xs font-semibold text-brand-primary shadow-xs">
-              <span>📊 Dashboard</span>
+              <span className="flex items-center gap-2">
+                <LayoutDashboard size={14} />
+                <span>Dashboard</span>
+              </span>
               <span className="text-[9px] text-muted uppercase">Core</span>
             </div>
             <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
-              <span>🛍️ Orders</span>
+              <span className="flex items-center gap-2">
+                <ShoppingBag size={14} />
+                <span>Orders</span>
+              </span>
               <span className="text-[9px] text-muted uppercase">Core</span>
             </div>
             <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
-              <span>📦 Inventory</span>
+              <span className="flex items-center gap-2">
+                <Package size={14} />
+                <span>Inventory</span>
+              </span>
               <span className="text-[9px] text-muted uppercase">Core</span>
             </div>
 
             {/* Dynamic Module Navs */}
             {[
-              { mod: 'shipments' as const, label: '🚢 Shipments' },
-              { mod: 'batches' as const, label: '⏳ Pre-Order Batches' },
-              { mod: 'suppliers' as const, label: '🏭 Suppliers' },
-              { mod: 'storefront' as const, label: '🌐 Online Store' },
-              { mod: 'profitability' as const, label: '💰 Profitability' },
+              { mod: 'shipments' as const, label: 'Shipments', icon: 'ship' },
+              { mod: 'batches' as const, label: 'Pre-Order Batches', icon: 'clock' },
+              { mod: 'suppliers' as const, label: 'Suppliers', icon: 'factory' },
+              { mod: 'storefront' as const, label: 'Online Store', icon: 'globe' },
+              { mod: 'profitability' as const, label: 'Profitability', icon: 'trending-up' },
             ].map((item) => {
               const isShown = enabledModules.includes(item.mod);
               return (
@@ -333,9 +349,16 @@ export function ModuleCustomizerClient({
                       : 'text-muted line-through opacity-40 bg-background/30'
                   }`}
                 >
-                  <span>{item.label}</span>
+                  <span className="flex items-center gap-2">
+                    <BusinessIcon
+                      name={item.icon}
+                      size={14}
+                      className={isShown ? 'text-brand-primary' : 'text-muted'}
+                    />
+                    <span>{item.label}</span>
+                  </span>
                   <span
-                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                       isShown
                         ? 'bg-brand-primary/10 text-brand-primary'
                         : 'bg-separator text-muted'
@@ -348,7 +371,10 @@ export function ModuleCustomizerClient({
             })}
 
             <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
-              <span>⚙️ Settings</span>
+              <span className="flex items-center gap-2">
+                <Settings size={14} />
+                <span>Settings</span>
+              </span>
               <span className="text-[9px] text-muted uppercase">Core</span>
             </div>
           </div>

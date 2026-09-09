@@ -51,13 +51,17 @@ export async function getTenantModuleSettingsAction(): Promise<TenantModuleSetti
         .from('tenant_settings')
         .select('business_archetype, enabled_modules')
         .eq('tenant_id', tenantUser.tenant_id)
-        .single(),
+        .maybeSingle(),
       supabase
         .from('tenant_subscriptions')
         .select('tier')
         .eq('tenant_id', tenantUser.tenant_id)
         .maybeSingle(),
     ]);
+
+    if (settingsRes.error) {
+      console.warn('Could not query tenant_settings module columns:', settingsRes.error.message);
+    }
 
     const archetype = (settingsRes.data?.business_archetype as BusinessArchetype) || 'import_resale';
     const rawModules = settingsRes.data?.enabled_modules as BusinessModuleKey[] | undefined;
@@ -145,10 +149,26 @@ export async function updateTenantModulesAction(
 
     const { error: updateErr } = await supabase
       .from('tenant_settings')
-      .update(updateData)
-      .eq('tenant_id', tenantUser.tenant_id);
+      .upsert(
+        {
+          tenant_id: tenantUser.tenant_id,
+          ...updateData,
+        },
+        { onConflict: 'tenant_id' }
+      );
 
     if (updateErr) {
+      if (
+        updateErr.message.includes('schema cache') ||
+        updateErr.message.includes('business_archetype') ||
+        updateErr.message.includes('enabled_modules')
+      ) {
+        return {
+          success: false,
+          error:
+            'Database schema update required: The columns business_archetype and enabled_modules are missing from tenant_settings in your database. Please run migration 20260911000000 in your Supabase SQL Editor and reload schema cache.',
+        };
+      }
       return { success: false, error: `Failed to update modules: ${updateErr.message}` };
     }
 
