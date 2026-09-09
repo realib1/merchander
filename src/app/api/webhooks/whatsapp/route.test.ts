@@ -28,6 +28,10 @@ vi.mock('@/lib/intelligence/reply', () => ({
 
 vi.mock('@/lib/channels/whatsapp/service', () => ({
   sendOutboundWhatsAppMessage: vi.fn(),
+  getTenantByWhatsAppPhoneId: vi.fn().mockImplementation(async (_supabase, phoneId) => {
+    return phoneId === '123' ? 'tenant-123' : null;
+  }),
+  getTenantWhatsAppConfig: vi.fn(),
 }));
 
 vi.mock('@/lib/intelligence/orders', () => ({
@@ -39,7 +43,7 @@ import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
 import { captureDraftOrderFromCart } from '@/lib/intelligence/orders';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
-import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
+import { sendOutboundWhatsAppMessage, getTenantByWhatsAppPhoneId } from '@/lib/channels/whatsapp/service';
 import {
   PAYMENT_ASSURANCE_NOTICE,
   GENERAL_YELLOW_ASSURANCE_NOTICE,
@@ -717,6 +721,140 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
         expect(extractCartFromChat).not.toHaveBeenCalled();
         expect(generateGroundedReply).not.toHaveBeenCalled();
         expect(sendOutboundWhatsAppMessage).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Tenant Inbound Routing (F-04)', () => {
+      it('resolves real tenant connection using getTenantByWhatsAppPhoneId', async () => {
+        (getTenantByWhatsAppPhoneId as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce('tenant-real-456');
+
+        const payload = {
+          object: 'whatsapp_business_account',
+          entry: [
+            {
+              id: 'entry-real',
+              changes: [
+                {
+                  field: 'messages',
+                  value: {
+                    messaging_product: 'whatsapp',
+                    metadata: {
+                      display_phone_number: '233555999888',
+                      phone_number_id: 'live-phone-id-456',
+                    },
+                    contacts: [{ profile: { name: 'Kofi Mensah' }, wa_id: '233555999888' }],
+                    messages: [
+                      {
+                        from: '233555999888',
+                        id: 'wamid.real-tenant-msg',
+                        timestamp: '1725624000',
+                        type: 'text',
+                        text: { body: 'Hello merchant!' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        };
+
+        const req = await createPostRequest(payload);
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+        expect(getTenantByWhatsAppPhoneId).toHaveBeenCalledWith(mockSupabase, 'live-phone-id-456');
+        expect(resolveChannelIdentity).toHaveBeenCalledWith(
+          mockSupabase,
+          'tenant-real-456',
+          'whatsapp',
+          '233555999888',
+          'Kofi Mensah'
+        );
+      });
+
+      it('skips message gracefully when getTenantByWhatsAppPhoneId returns null for unknown phone_number_id', async () => {
+        (getTenantByWhatsAppPhoneId as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
+
+        const payload = {
+          object: 'whatsapp_business_account',
+          entry: [
+            {
+              id: 'entry-unknown',
+              changes: [
+                {
+                  field: 'messages',
+                  value: {
+                    messaging_product: 'whatsapp',
+                    metadata: {
+                      display_phone_number: '000000000',
+                      phone_number_id: 'unknown-phone-id',
+                    },
+                    messages: [
+                      {
+                        from: '000000000',
+                        id: 'wamid.unknown-msg',
+                        timestamp: '1725624000',
+                        type: 'text',
+                        text: { body: 'Message to nowhere' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        };
+
+        const req = await createPostRequest(payload);
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+        expect(getTenantByWhatsAppPhoneId).toHaveBeenCalledWith(mockSupabase, 'unknown-phone-id');
+        expect(resolveChannelIdentity).not.toHaveBeenCalled();
+        expect(mockInsertMessages).not.toHaveBeenCalled();
+      });
+
+      it('catches routing errors gracefully and continues processing', async () => {
+        (getTenantByWhatsAppPhoneId as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+          new Error('PostgreSQL connection dropped')
+        );
+
+        const payload = {
+          object: 'whatsapp_business_account',
+          entry: [
+            {
+              id: 'entry-err',
+              changes: [
+                {
+                  field: 'messages',
+                  value: {
+                    messaging_product: 'whatsapp',
+                    metadata: {
+                      display_phone_number: '111222333',
+                      phone_number_id: 'error-phone-id',
+                    },
+                    messages: [
+                      {
+                        from: '111222333',
+                        id: 'wamid.error-msg',
+                        timestamp: '1725624000',
+                        type: 'text',
+                        text: { body: 'Will trigger error' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        };
+
+        const req = await createPostRequest(payload);
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+        expect(resolveChannelIdentity).not.toHaveBeenCalled();
       });
     });
   });

@@ -28,7 +28,7 @@ enum value before insert and keep the specific kind in `content.type` (already
 set). Drop the `as any`.
 **Resolution:** Fixed on 2026-09-09 in fix/whatsapp-webhook-dedup-f03. Added migration `20260912000000_fix_messages_external_id_unique.sql` replacing plain index with a partial unique index on `(tenant_id, external_id)`. Added `mapWhatsAppMessageTypeToDb` mapping WhatsApp media types ('image', 'audio', 'document', 'video') to enum `'media'` while preserving subtype in `content.type`, removing `as any`. Added duplicate delivery skipping on `23505` to prevent duplicate extraction and outbound replies, verified with automated unit tests.
 
-### F-04 [P2] open - WhatsApp inbound routing and outbound config are hardcoded mocks on a live route
+### F-04 [P2] fixed - WhatsApp inbound routing and outbound config are hardcoded mocks on a live route
 
 **File:** src/app/api/webhooks/whatsapp/route.ts:54
 **Found:** 2026-09-03 by /audit (scope: full; lens: quality)
@@ -43,7 +43,7 @@ live API route with no feature flag.
 **Suggested fix:** Implement the real `phone_number_id -> tenant` lookup against
 the channel-connection settings table (or gate the route off until it exists).
 Same for `getTenantWhatsAppConfig`.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-09 by fix/whatsapp-inbound-routing: implemented getTenantByWhatsAppPhoneId and updated getTenantWhatsAppConfig to query channel_connections for live credentials, preserving test fixture fallback. Covered by unit tests in service.test.ts and route.test.ts.
 
 ### F-09 [P2] open - Legacy dialogs across dashboard and store bypass the shared Modal component
 

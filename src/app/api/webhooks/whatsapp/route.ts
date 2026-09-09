@@ -5,7 +5,7 @@ import { resolveChannelIdentity } from '@/lib/channels/identity';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 import { fetchWhatsAppMedia } from '@/lib/channels/whatsapp/api';
-import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
+import { sendOutboundWhatsAppMessage, getTenantByWhatsAppPhoneId } from '@/lib/channels/whatsapp/service';
 import { extractCartFromChat } from '@/lib/intelligence/extract';
 import { captureDraftOrderFromCart } from '@/lib/intelligence/orders';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
@@ -87,15 +87,10 @@ export async function POST(request: NextRequest) {
 
     for (const msg of messages) {
       // 1. Route to correct tenant
-      // Note: getTenantByWhatsAppPhoneId must be implemented when integration settings exist
-      let tenantId: string;
+      let tenantId: string | null = null;
       try {
-        // Mock implementation for now, in a real app this queries a settings table
-        // tenantId = await getTenantByWhatsAppPhoneId(supabase, msg.phoneNumberId);
-        
-        // For testing/mocking purposes, if phoneNumberId is '123', return 'tenant-123'
-        tenantId = msg.phoneNumberId === '123' ? 'tenant-123' : 'unknown';
-        if (tenantId === 'unknown') {
+        tenantId = await getTenantByWhatsAppPhoneId(supabase, msg.phoneNumberId);
+        if (!tenantId) {
           console.warn(`No tenant found for phone_number_id: ${msg.phoneNumberId}`);
           continue;
         }
