@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { updateOrderStatus, processMoMoPayment, getKanbanOrders, OrderStatus } from '@/app/actions/orders';
 import { motion, AnimatePresence } from 'motion/react';
+import { Modal } from '@/components/ui/Modal';
 import { formatGhanaLocalDisplay } from '@/utils/phone';
 import { formatCurrency } from '@/utils/format';
 import { toast } from 'sonner';
@@ -268,83 +269,60 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
         })}
       </div>
       {/* MoMo Reconciliation Modal */}
-      <AnimatePresence>
-        {reconciliationOrder && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            role="presentation"
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
+      <Modal
+        isOpen={Boolean(reconciliationOrder)}
+        onClose={() => {
+          setReconciliationOrder(null);
+          setSmsText('');
+        }}
+        size="sm"
+        title="Verify Mobile Money Payment"
+        description={
+          reconciliationOrder
+            ? `Order #${reconciliationOrder.short_id || reconciliationOrder.id.substring(0, 6).toUpperCase()} • ${formatCurrency(reconciliationOrder.total_amount)}`
+            : undefined
+        }
+      >
+        <form onSubmit={handleReconcile} className="space-y-4">
+          <div>
+            <label htmlFor="smsText" className="block text-sm font-medium mb-1.5">
+              Paste Payment SMS
+            </label>
+            <textarea
+              id="smsText"
+              rows={4}
+              value={smsText}
+              onChange={(e) => setSmsText(e.target.value)}
+              placeholder="e.g. Payment received for GHS 450.00 from Kwame Mensah. Ref: 18273918239"
+              className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 focus:ring-brand-primary placeholder:text-muted resize-none"
+              required
+            />
+            <p className="text-xs text-muted mt-2">
+              The system will securely extract the transaction reference and prevent duplicate entries.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
                 setReconciliationOrder(null);
                 setSmsText('');
-              }
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="momo-modal-title"
-              className="bg-surface rounded-2xl border border-separator shadow-xl w-full max-w-md overflow-hidden"
+              }}
+              className="px-4 py-2 text-sm font-medium hover:text-primary transition-colors cursor-pointer"
             >
-              <div className="p-5 border-b border-separator">
-                <h3 id="momo-modal-title" className="text-lg font-bold">
-                  Verify Mobile Money Payment
-                </h3>
-                <p className="text-sm  mt-1">
-                  Order #
-                  {reconciliationOrder.short_id
-                    ? reconciliationOrder.short_id
-                    : reconciliationOrder.id.substring(0, 6).toUpperCase()}{' '}
-                  • {formatCurrency(reconciliationOrder.total_amount)}
-                </p>
-              </div>
-
-              <form onSubmit={handleReconcile} className="p-5 space-y-4">
-                <div>
-                  <label htmlFor="smsText" className="block text-sm font-medium  mb-1.5">
-                    Paste Payment SMS
-                  </label>
-                  <textarea
-                    id="smsText"
-                    rows={4}
-                    value={smsText}
-                    onChange={(e) => setSmsText(e.target.value)}
-                    placeholder="e.g. Payment received for GHS 450.00 from Kwame Mensah. Ref: 18273918239"
-                    className="w-full rounded-xl border-separator bg-surface-elevated text-sm px-4 py-3 focus:ring-brand-primary placeholder:text-muted resize-none"
-                    required
-                  />
-                  <p className="text-xs text-muted mt-2">
-                    The system will securely extract the transaction reference and prevent duplicate entries.
-                  </p>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setReconciliationOrder(null);
-                      setSmsText('');
-                    }}
-                    className="px-4 py-2 text-sm font-medium  hover:text-primary transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isUpdating || !smsText}
-                    className="px-5 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors shadow-sm shadow-brand-primary/20"
-                  >
-                    {isUpdating ? 'Verifying...' : 'Confirm Payment'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isUpdating || !smsText}
+              className="px-5 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors shadow-sm shadow-brand-primary/20 cursor-pointer"
+            >
+              {isUpdating ? 'Verifying...' : 'Confirm Payment'}
+            </button>
           </div>
-        )}
-      </AnimatePresence>
+        </form>
+      </Modal>
     </>
   );
 }

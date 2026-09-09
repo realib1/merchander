@@ -45,13 +45,13 @@ the channel-connection settings table (or gate the route off until it exists).
 Same for `getTenantWhatsAppConfig`.
 **Resolution:** Fixed on 2026-09-09 by fix/whatsapp-inbound-routing: implemented getTenantByWhatsAppPhoneId and updated getTenantWhatsAppConfig to query channel_connections for live credentials, preserving test fixture fallback. Covered by unit tests in service.test.ts and route.test.ts.
 
-### F-09 [P2] open - Legacy dialogs across dashboard and store bypass the shared Modal component
+### F-09 [P2] fixed - Legacy dialogs across dashboard and store bypass the shared Modal component
 
 **File:** src/app/dashboard/suppliers/components/SupplierScorecardModal.tsx:33
 **Found:** 2026-09-09 by /audit (scope: full; lens: quality)
 **Why it matters:** Multiple legacy dialogs across dashboard and storefront (including `SupplierScorecardModal.tsx`, `NewSupplierModal.tsx`, `SupplierPOExportModal.tsx`, `BatchLifecycleModal.tsx`, `BatchBroadcastModal.tsx`, `MoMoReconciliationModal.tsx`, `WaybillSlipModal.tsx`, `CancelOrderModal.tsx`, `OrderDispatchModal.tsx`, `NewPurchaseOrderModal.tsx`, `EditPurchaseOrderModal.tsx`, and `RecordPODeliveryModal.tsx`) implement custom inline backdrop divs (`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 ...`) instead of the shared `@/components/ui/Modal`. As a result, these dialogs lack standardized focus trapping, background scroll locking, and Escape key listeners.
 **Suggested fix:** Refactor legacy modals to wrap the shared `@/components/ui/Modal` component.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-09 in fix/f09-legacy-modals. Refactored all legacy dialogs across purchasing, suppliers, orders, inventory batches, settings, insights, and customer management (`SupplierScorecardModal`, `NewSupplierModal`, `NewPurchaseOrderModal`, `EditPurchaseOrderModal`, `RecordPODeliveryModal`, `CancelOrderModal`, `OrderDispatchModal`, `MoMoReconciliationModal`, `WaybillSlipModal`, `SupplierPOExportModal`, `BatchLifecycleModal`, `BatchBroadcastModal`, `TargetFormModal`, `CustomersDeleteModal`, `BillingMethodModal`, `ProviderConnectModal`, `SupportAccessDelegationView`, `RestockRecommendationsView`, and `KanbanBoard`) to wrap the shared `@/components/ui/Modal`. Standardized portal mounting, focus trapping, background scroll locking, and Escape key listeners across all dialogs. Zero custom backdrop overlays remain in dashboard dialog components. Verified cleanly with `yarn check`, `yarn lint`, and all 564 unit tests in `yarn test`.
 
 ### F-10 [P3] fixed - color.ts utility has no unit tests
 

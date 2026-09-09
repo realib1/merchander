@@ -5,7 +5,8 @@ import { CreateTargetInput, TargetMetric, TargetPeriod } from '@/types/targets';
 import { createBusinessTarget } from '@/app/actions/targets';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
-import { X, Target, Loader2, Check } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
+import { Target, Loader2, Check } from 'lucide-react';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, addMonths } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -120,33 +121,22 @@ export function TargetFormModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-fadeIn">
-      <div className="w-full max-w-lg bg-surface border border-separator rounded-2xl shadow-xl overflow-hidden animate-scaleIn">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-separator">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-              <Target className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-foreground font-display">Create Goal or Target</h3>
-              <p className="text-[11px] text-muted">Define a measurable target for Merchander Intelligence tracking.</p>
-            </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="md"
+      title={
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+            <Target className="h-4 w-4" />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isPending}
-            className="p-1 rounded-lg text-muted hover:text-foreground transition cursor-pointer"
-            aria-label="Close modal"
-          >
-            <X size={16} />
-          </button>
+          <span className="text-sm font-bold text-foreground font-display">Create Goal or Target</span>
         </div>
-
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          <FormField
+      }
+      description="Define a measurable target for Merchander Intelligence tracking."
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormField
             name="name"
             label="Target Name"
             value={name}
@@ -290,7 +280,6 @@ export function TargetFormModal({
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }

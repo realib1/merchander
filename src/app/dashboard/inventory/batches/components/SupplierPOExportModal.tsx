@@ -4,8 +4,9 @@ import React, { useState, useEffect, useTransition } from 'react';
 import { PreorderBatch, BatchProcurementSummary } from '@/types/preorder';
 import { getBatchConsolidatedProcurement } from '@/app/actions/preorder-batches';
 import { formatCurrency } from '@/utils/format';
-import { X, Download, Copy, Check, FileText, Loader2, Layers } from 'lucide-react';
+import { Download, Copy, Check, FileText, Loader2, Layers } from 'lucide-react';
 import { toast } from 'sonner';
+import { Modal } from '@/components/ui/Modal';
 
 interface SupplierPOExportModalProps {
   isOpen: boolean;
@@ -71,27 +72,25 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
     document.body.removeChild(link);
   };
 
+  if (!isOpen || !batch) return null;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-surface border border-separator rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-scaleUp max-h-[90vh] overflow-y-auto custom-scrollbar">
-        <div className="flex items-center justify-between border-b border-separator/80 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
-              <FileText size={18} />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-foreground">Supplier Purchase Order (PO)</h2>
-              <p className="text-xs text-muted">{batch.name} • Consolidated Packing Manifest</p>
-            </div>
+    <Modal
+      isOpen={isOpen && !!batch}
+      onClose={onClose}
+      size="lg"
+      title={
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
+            <FileText size={18} />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-muted hover:text-foreground cursor-pointer"
-          >
-            <X size={18} />
-          </button>
+          <div>
+            <h2 className="text-base font-bold text-foreground">Supplier Purchase Order (PO)</h2>
+            <p className="text-xs text-muted">{batch.name} • Consolidated Packing Manifest</p>
+          </div>
         </div>
+      }
+    >
 
         {isPending ? (
           <div className="py-12 flex flex-col items-center justify-center gap-2 text-muted">
@@ -171,7 +170,6 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

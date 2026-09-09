@@ -7,9 +7,9 @@ import {
   Clock,
   Lock,
   Loader2,
-  X,
   History,
 } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 import { SupportAccessGrant } from '@/types/support';
 import {
   createSupportAccessGrantAction,
@@ -238,120 +238,113 @@ export function SupportAccessDelegationView({
       </div>
 
       {/* Grant Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-surface border border-separator rounded-2xl p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-separator pb-3">
-              <div>
-                <div className="text-xs font-mono font-bold text-brand-primary uppercase">Security Handshake</div>
-                <h3 className="text-base font-bold text-foreground font-display mt-0.5">
-                  Grant Support Access
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
-              >
-                <X size={16} />
-              </button>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        size="sm"
+        title={
+          <div>
+            <div className="text-xs font-mono font-bold text-brand-primary uppercase">Security Handshake</div>
+            <div className="text-base font-bold text-foreground font-display mt-0.5">
+              Grant Support Access
             </div>
-
-            <form onSubmit={handleGrantAccess} className="space-y-4 text-xs">
-              <div className="p-3 rounded-xl bg-brand-primary/5 border border-brand-primary/20 text-foreground space-y-1">
-                <div className="font-semibold text-brand-primary flex items-center gap-1.5">
-                  <ShieldCheck size={14} />
-                  <span>Privacy & Audit Guarantee</span>
-                </div>
-                <p className="text-[11px] text-secondary leading-relaxed">
-                  Support staff are granted <strong>read-only diagnostic access</strong> strictly for troubleshooting. All actions and entries are immutably logged to the platform audit trail.
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">Access Duration</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { hours: 2, label: '2 Hours', desc: 'Standard diagnosis' },
-                    { hours: 6, label: '6 Hours', desc: 'Complex issues' },
-                    { hours: 24, label: '24 Hours', desc: 'Extended testing' },
-                  ].map((d) => (
-                    <button
-                      key={d.hours}
-                      type="button"
-                      onClick={() => setDurationHours(d.hours)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        durationHours === d.hours
-                          ? 'border-brand-primary bg-brand-primary/10 text-foreground font-bold'
-                          : 'border-separator bg-surface-elevated text-muted'
-                      }`}
-                    >
-                      <div className="text-xs">{d.label}</div>
-                      <div className="text-[10px] text-muted font-normal mt-0.5">{d.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">
-                  Support Ticket Reference <span className="text-muted font-normal">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., TCK-48201 or MoMo Webhook issue"
-                  value={ticketId}
-                  onChange={(e) => setTicketId(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary font-mono"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-secondary block">
-                  Reason for Support Access <span className="text-rose-400 font-bold">*</span>
-                </label>
-                <textarea
-                  required
-                  rows={2}
-                  placeholder="Describe what issue you need support staff to investigate (e.g., WhatsApp orders not syncing, payment status discrepancy)..."
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary"
-                />
-              </div>
-
-              {formError && (
-                <div className="p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs">
-                  {formError}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-separator">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-primary text-brand-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" />
-                      Authorizing...
-                    </>
-                  ) : (
-                    'Authorize Support Access'
-                  )}
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+        }
+      >
+        <form onSubmit={handleGrantAccess} className="space-y-4 text-xs">
+          <div className="p-3 rounded-xl bg-brand-primary/5 border border-brand-primary/20 text-foreground space-y-1">
+            <div className="font-semibold text-brand-primary flex items-center gap-1.5">
+              <ShieldCheck size={14} />
+              <span>Privacy & Audit Guarantee</span>
+            </div>
+            <p className="text-[11px] text-secondary leading-relaxed">
+              Support staff are granted <strong>read-only diagnostic access</strong> strictly for troubleshooting. All actions and entries are immutably logged to the platform audit trail.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-semibold text-secondary block">Access Duration</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { hours: 2, label: '2 Hours', desc: 'Standard diagnosis' },
+                { hours: 6, label: '6 Hours', desc: 'Complex issues' },
+                { hours: 24, label: '24 Hours', desc: 'Extended testing' },
+              ].map((d) => (
+                <button
+                  key={d.hours}
+                  type="button"
+                  onClick={() => setDurationHours(d.hours)}
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    durationHours === d.hours
+                      ? 'border-brand-primary bg-brand-primary/10 text-foreground font-bold'
+                      : 'border-separator bg-surface-elevated text-muted'
+                  }`}
+                >
+                  <div className="text-xs">{d.label}</div>
+                  <div className="text-[10px] text-muted font-normal mt-0.5">{d.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-semibold text-secondary block">
+              Support Ticket Reference <span className="text-muted font-normal">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g., TCK-48201 or MoMo Webhook issue"
+              value={ticketId}
+              onChange={(e) => setTicketId(e.target.value)}
+              className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary font-mono"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="font-semibold text-secondary block">
+              Reason for Support Access <span className="text-rose-400 font-bold">*</span>
+            </label>
+            <textarea
+              required
+              rows={2}
+              placeholder="Describe what issue you need support staff to investigate (e.g., WhatsApp orders not syncing, payment status discrepancy)..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary"
+            />
+          </div>
+
+          {formError && (
+            <div className="p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs">
+              {formError}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-separator">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-primary text-brand-primary-foreground hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" />
+                  Authorizing...
+                </>
+              ) : (
+                'Authorize Support Access'
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       <ConfirmDialog
         isOpen={!!grantToRevoke}

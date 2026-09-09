@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { Truck, Store, X, Loader2, Bike, Send, User, Phone, FileText } from 'lucide-react';
+import { Truck, Store, Loader2, Bike, Send, User, Phone, FileText } from 'lucide-react';
 import { assignOrderRiderAction } from '@/app/actions/fulfilment';
 import { OrderFulfillmentMode } from '@/types/fulfilment';
 import { WaybillOrder } from '@/utils/waybill';
 import { toast } from 'sonner';
+import { Modal } from '@/components/ui/Modal';
 
 interface OrderDispatchModalProps {
   isOpen: boolean;
@@ -103,33 +104,25 @@ export function OrderDispatchModal({
     });
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-surface border border-separator rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-separator bg-surface-elevated/40">
-          <div>
-            <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-              <Truck size={18} className="text-brand-primary" />
-              Dispatch Order
-              <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
-                #{order.short_id || order.id.slice(0, 8).toUpperCase()}
-              </span>
-            </h2>
-            <p className="text-xs text-muted mt-0.5">Assign a rider, update status, and generate waybill</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 text-muted hover:text-foreground rounded-lg hover:bg-surface-elevated transition-colors"
-            aria-label="Close"
-          >
-            <X size={18} />
-          </button>
-        </div>
+  if (!isOpen || !order) return null;
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+  return (
+    <Modal
+      isOpen={isOpen && !!order}
+      onClose={onClose}
+      size="md"
+      title={
+        <div className="flex items-center gap-2">
+          <Truck size={18} className="text-brand-primary" />
+          <span>Dispatch Order</span>
+          <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
+            #{order.short_id || order.id.slice(0, 8).toUpperCase()}
+          </span>
+        </div>
+      }
+      description="Assign a rider, update status, and generate waybill"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
           {/* Fulfilment Mode Toggle */}
           <div>
             <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
@@ -292,7 +285,6 @@ export function OrderDispatchModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }

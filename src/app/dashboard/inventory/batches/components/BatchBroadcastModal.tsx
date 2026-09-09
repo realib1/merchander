@@ -7,8 +7,8 @@ import {
   dispatchBatchMilestoneBroadcastAction,
 } from '@/app/actions/batch-notifications';
 import { formatBatchMilestoneMessage } from '@/utils/preorder-batch';
+import { Modal } from '@/components/ui/Modal';
 import {
-  X,
   Send,
   MessageSquare,
   Smartphone,
@@ -118,34 +118,28 @@ export function BatchBroadcastModal({ isOpen, onClose, batch }: BatchBroadcastMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-surface border border-separator rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-scaleUp max-h-[90vh] overflow-y-auto custom-scrollbar">
-        <div className="flex items-center justify-between border-b border-separator/80 pb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-              <MessageSquare size={18} />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+      title={
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+            <MessageSquare size={18} />
+          </div>
+          <div>
+            <div className="text-[10px] font-mono font-bold text-emerald-500 uppercase">
+              Customer Communications
             </div>
-            <div>
-              <div className="text-[10px] font-mono font-bold text-emerald-500 uppercase">
-                Customer Communications
-              </div>
-              <h2 className="text-base font-bold text-foreground font-display mt-0.5">
-                Batch Milestone Broadcast
-              </h2>
-              <p className="text-xs text-muted">
-                {batch.name} ({batch.code})
-              </p>
+            <div className="text-base font-bold text-foreground font-display mt-0.5">
+              Batch Milestone Broadcast
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-muted hover:text-foreground cursor-pointer"
-          >
-            <X size={18} />
-          </button>
         </div>
-
+      }
+      description={`${batch.name} (${batch.code})`}
+    >
+      <div className="space-y-4">
         {/* Milestone Selector */}
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-foreground">Select Milestone Trigger</label>
@@ -292,6 +286,6 @@ export function BatchBroadcastModal({ isOpen, onClose, batch }: BatchBroadcastMo
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
-import { X, Key, BadgeCheck, CheckCircle2, Loader2, Lock } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
+import { Key, BadgeCheck, CheckCircle2, Loader2, Lock } from 'lucide-react';
 import { PaymentProviderState } from '@/types/settings';
 import { toast } from 'sonner';
 
@@ -56,29 +57,21 @@ export function ProviderConnectModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-fadeIn">
-      <div className="w-full max-w-md bg-surface border border-separator rounded-2xl shadow-xl overflow-hidden animate-scaleIn">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-separator">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-              <Key className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-foreground font-display">Connect {providerName}</h3>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="sm"
+      title={
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+            <Key className="h-4 w-4" />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isTesting || disabled}
-            className="p-1 rounded-lg text-muted hover:text-foreground transition cursor-pointer"
-          >
-            <X size={16} />
-          </button>
+          <span className="text-sm font-bold text-foreground font-display">Connect {providerName}</span>
         </div>
-
-        {/* Body */}
-        <div className="p-5 space-y-4">
-          <div className="p-3 rounded-xl bg-surface-elevated border border-separator flex items-start gap-2.5 text-xs text-muted">
+      }
+    >
+      <div className="space-y-4">
+        <div className="p-3 rounded-xl bg-surface-elevated border border-separator flex items-start gap-2.5 text-xs text-muted">
             <BadgeCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Customer payments flow directly to your {providerName} account. Merchander never takes custody of your
@@ -152,7 +145,6 @@ export function ProviderConnectModal({
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

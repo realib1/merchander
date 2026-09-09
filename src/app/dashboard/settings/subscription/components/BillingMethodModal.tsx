@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
+import { Modal } from '@/components/ui/Modal';
 import {
-  X,
   CreditCard,
   BadgeCheck,
   Loader2,
@@ -150,35 +150,24 @@ export function BillingMethodModal({ isOpen, onClose, onSuccess, currentMethod }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-background/80 backdrop-blur-xs animate-fadeIn overflow-y-auto">
-      <div className="w-full max-w-md bg-surface border border-separator rounded-2xl shadow-xl overflow-hidden animate-scaleIn max-h-[90vh] flex flex-col my-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-separator shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary shrink-0">
-              <CreditCard className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-xs sm:text-sm font-bold text-foreground font-display truncate">
-                Connect SaaS Billing Method
-              </h3>
-              <p className="text-[10px] sm:text-[11px] text-muted truncate">PCI-DSS Tokenized Auto-Debit</p>
-            </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="sm"
+      title={
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary shrink-0">
+            <CreditCard className="h-4 w-4" />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isInitiating || isVerifying}
-            className="p-1 rounded-lg text-muted hover:text-foreground transition cursor-pointer shrink-0"
-            aria-label="Close modal"
-          >
-            <X size={16} />
-          </button>
+          <span className="text-sm font-bold text-foreground font-display truncate">
+            Connect SaaS Billing Method
+          </span>
         </div>
-
-        {/* Modal Body */}
-        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
-          {/* Method Type Selector */}
+      }
+      description="PCI-DSS Tokenized Auto-Debit"
+    >
+      <div className="space-y-4">
+        {/* Method Type Selector */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">Billing Provider Channel</label>
             <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
@@ -418,8 +407,7 @@ export function BillingMethodModal({ isOpen, onClose, onSuccess, currentMethod }
               </div>
             </div>
           )}
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }

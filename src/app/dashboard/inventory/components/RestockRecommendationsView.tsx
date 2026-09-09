@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Boxes,
   FileText,
-  X,
   ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -27,6 +26,7 @@ import { createDraftPOFromRestockAction } from '@/app/actions/intelligence-deman
 import { formatCurrency } from '@/utils/format';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 
 interface SupplierOption {
   id: string;
@@ -579,25 +579,23 @@ export function RestockRecommendationsView({
       </div>
 
       {/* Draft PO Confirmation Modal */}
-      {isPOModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-surface border border-separator rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-scaleIn">
-            <div className="flex items-center justify-between p-4 border-b border-separator">
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-brand-primary" />
-                <h3 className="font-bold text-foreground text-sm">Generate Draft Purchase Order</h3>
-              </div>
-              <button
-                onClick={() => setIsPOModalOpen(false)}
-                className="p-1 rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {createdPO ? (
-              <div className="p-6 text-center flex flex-col items-center">
-                <div className="h-12 w-12 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center mb-3">
+      <Modal
+        isOpen={isPOModalOpen}
+        onClose={() => {
+          setIsPOModalOpen(false);
+          setCreatedPO(null);
+        }}
+        size="lg"
+        title={
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-brand-primary" />
+            <span className="font-bold text-foreground text-sm">Generate Draft Purchase Order</span>
+          </div>
+        }
+      >
+        {createdPO ? (
+          <div className="text-center flex flex-col items-center">
+            <div className="h-12 w-12 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center mb-3">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h4 className="text-base font-bold text-foreground">
@@ -722,9 +720,7 @@ export function RestockRecommendationsView({
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )}
+      </Modal>
     </div>
   );
 }

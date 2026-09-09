@@ -5,8 +5,9 @@ import { PreorderBatch, PreorderBatchStatus } from '@/types/preorder';
 import { updateBatchLifecycleStatus } from '@/app/actions/preorder-batches';
 import { getBatchStatusLabel } from '@/utils/preorder-batch';
 import { BatchLifecycleStepper } from './BatchLifecycleStepper';
-import { X, CheckCircle2, Loader2, Plane, Ship, Package, Clock, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, Loader2, Plane, Ship, Package, Clock, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
+import { Modal } from '@/components/ui/Modal';
 
 interface BatchLifecycleModalProps {
   isOpen: boolean;
@@ -58,29 +59,28 @@ export function BatchLifecycleModal({ isOpen, onClose, batch }: BatchLifecycleMo
 
   const isAir = batch.freight_mode === 'air' || batch.freight_mode === 'express';
 
+  if (!isOpen || !batch) return null;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-surface border border-separator rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-scaleUp">
-        <div className="flex items-center justify-between border-b border-separator/80 pb-3">
-          <div>
-            <div className="text-[10px] font-mono font-bold text-brand-primary uppercase">
-              Procurement State Machine
-            </div>
-            <h2 className="text-base font-bold text-foreground font-display mt-0.5">
-              Update Batch Lifecycle
-            </h2>
-            <p className="text-xs text-muted">
-              {batch.name} ({batch.code})
-            </p>
+    <Modal
+      isOpen={isOpen && !!batch}
+      onClose={onClose}
+      size="md"
+      title={
+        <div>
+          <div className="text-[10px] font-mono font-bold text-brand-primary uppercase">
+            Procurement State Machine
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-muted hover:text-foreground cursor-pointer"
-          >
-            <X size={18} />
-          </button>
+          <h2 className="text-base font-bold text-foreground font-display mt-0.5">
+            Update Batch Lifecycle
+          </h2>
+          <p className="text-xs text-muted">
+            {batch.name} ({batch.code})
+          </p>
         </div>
+      }
+    >
+      <div className="space-y-4">
 
         {/* Visual Stepper */}
         <BatchLifecycleStepper
@@ -165,6 +165,6 @@ export function BatchLifecycleModal({ isOpen, onClose, batch }: BatchLifecycleMo
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
