@@ -17,3 +17,4 @@ export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';
 export { ToastProvider, useToast, type ToastType, type ToastItem, type ToastContextValue } from './Toast';
 export { DataTable, type DataTableProps, type Column } from './DataTable';
 export { Checkbox, type CheckboxProps } from './Checkbox';
+export { Drawer, type DrawerProps, type DrawerSize } from './Drawer';

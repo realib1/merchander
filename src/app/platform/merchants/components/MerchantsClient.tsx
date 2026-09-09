@@ -15,16 +15,19 @@ import {
   X,
   CreditCard,
   AlertTriangle,
+  Plus,
 } from 'lucide-react';
-import { PlatformTenant, PlatformPlan, TenantPlatformStatus } from '@/types/platform';
+import { PlatformTenant, PlatformPlan, TenantPlatformStatus, PlatformRole } from '@/types/platform';
 import { updateTenantStatusAction, updateTenantPlanAction } from '@/app/actions/platform';
+import { AddMerchanderDrawer } from './AddMerchanderDrawer';
 
 interface MerchantsClientProps {
   initialTenants: PlatformTenant[];
   plans: PlatformPlan[];
+  currentRole?: PlatformRole;
 }
 
-export function MerchantsClient({ initialTenants, plans }: MerchantsClientProps) {
+export function MerchantsClient({ initialTenants, plans, currentRole }: MerchantsClientProps) {
   const [tenants, setTenants] = useState<PlatformTenant[]>(initialTenants);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -34,6 +37,9 @@ export function MerchantsClient({ initialTenants, plans }: MerchantsClientProps)
   const [selectedTenant, setSelectedTenant] = useState<PlatformTenant | null>(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isAddMerchanderOpen, setIsAddMerchanderOpen] = useState(false);
+
+  const canProvision = !currentRole || ['platform_owner', 'platform_admin', 'operations'].includes(currentRole);
 
   // Status modal form
   const [targetStatus, setTargetStatus] = useState<TenantPlatformStatus>('active');
@@ -188,6 +194,16 @@ export function MerchantsClient({ initialTenants, plans }: MerchantsClientProps)
               <option value="none">Unprovisioned</option>
             </select>
           </div>
+
+          {canProvision && (
+            <button
+              onClick={() => setIsAddMerchanderOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-brand text-brand-foreground hover:bg-brand/90 transition shadow-xs cursor-pointer shrink-0"
+            >
+              <Plus size={14} />
+              <span>Add Merchander</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -473,7 +489,7 @@ export function MerchantsClient({ initialTenants, plans }: MerchantsClientProps)
                   </select>
                   {plans.length === 0 && (
                     <p className="text-[11px] text-destructive">
-                      No plans configured — add commercial tiers in Plans &amp; Billing first.
+                      No plans configured - add commercial tiers in Plans &amp; Billing first.
                     </p>
                   )}
                 </div>
@@ -538,6 +554,16 @@ export function MerchantsClient({ initialTenants, plans }: MerchantsClientProps)
           </div>
         </div>
       )}
+
+      {/* Add Merchander Drawer */}
+      <AddMerchanderDrawer
+        isOpen={isAddMerchanderOpen}
+        onClose={() => setIsAddMerchanderOpen(false)}
+        plans={plans}
+        onMerchantCreated={(newTenant) => {
+          setTenants((prev) => [newTenant, ...prev]);
+        }}
+      />
     </div>
   );
 }

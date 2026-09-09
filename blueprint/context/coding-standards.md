@@ -24,7 +24,7 @@
   APIs). This app is client-heavy by necessity - that is expected, not a smell.
 - One job per component. Shared interactive logic goes in `src/hooks/`.
 - Reusable UI primitives live in `src/components/ui` (hand-rolled, shadcn-style:
-  `Button`, `Card`, `Modal`, `DataTable`, `MetricCard`, `FormField`, ...). Reuse
+  `Button`, `Card`, `Modal`, `Drawer`, `DataTable`, `MetricCard`, `FormField`, ...). Reuse
   them before adding a new one.
 
 ## Next.js

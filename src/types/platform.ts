@@ -229,3 +229,33 @@ export interface PlatformSettings {
   updated_at: string;
 }
 
+export interface CreateMerchanderPayload {
+  name: string;
+  slug: string;
+  ownerEmail: string;
+  ownerName?: string;
+  ownerPhone?: string;
+  password?: string;
+  tier: PlatformTier;
+  billingCycle?: 'monthly' | 'annual';
+  businessType?: 'grocery' | 'importer' | 'boutique' | 'general';
+  enabledModules?: Record<string, boolean>;
+  branchName?: string;
+  city?: string;
+}
+
+export interface CreateMerchanderResult {
+  success: boolean;
+  tenantId?: string;
+  credentials?: {
+    storeName: string;
+    slug: string;
+    subdomainUrl: string;
+    portalUrl: string;
+    ownerEmail: string;
+    temporaryPassword: string;
+    tier: PlatformTier;
+  };
+  error?: string;
+}
+

@@ -12,10 +12,18 @@ import {
   PlatformRevenueMetrics,
   DomainInfrastructureItem,
   PlatformTier,
+  CreateMerchanderPayload,
+  CreateMerchanderResult,
 } from '@/types/platform';
 import { SystemIncident, SupportAccessGrant } from '@/types/support';
 import { logPlatformAuditAction } from './platform-audit';
 import { getPlatformStaffRecord, PLATFORM_RBAC_RULES, PLATFORM_PLAN_READ_ROLES } from '@/lib/auth/platform-staff';
+import {
+  cleanSlug,
+  validateMerchantSlug,
+  validateOwnerEmail,
+  generateInitialPassword,
+} from '@/utils/merchant-provisioning';
 
 
 
@@ -910,6 +918,258 @@ export async function deleteSystemIncident(incidentId: string): Promise<{ succes
   } catch (err) {
     console.error('Error deleting system incident:', err);
     return { error: err instanceof Error ? err.message : 'Failed to delete incident' };
+  }
+}
+
+/**
+ * Admin: Platform Merchant Provisioning ("Add Merchander")
+ * Complete atomic creation of a merchant workspace, owner user, primary store,
+ * business settings, public storefront, and subscription tier.
+ */
+export async function createMerchanderAction(
+  payload: CreateMerchanderPayload
+): Promise<CreateMerchanderResult> {
+  try {
+    const { user, role } = await verifyPlatformStaff(['platform_owner', 'platform_admin', 'operations']);
+    const adminSupabase = createAdminClient();
+
+    const cleanName = payload.name?.trim();
+    if (!cleanName) {
+      return { success: false, error: 'Store name is required.' };
+    }
+
+    const cleanEmail = payload.ownerEmail?.trim().toLowerCase();
+    const emailValidation = validateOwnerEmail(cleanEmail);
+    if (!emailValidation.isValid) {
+      return { success: false, error: emailValidation.error || 'Invalid owner email.' };
+    }
+
+    // Role separation invariant: Reject platform staff emails to prevent privilege confusion
+    const { data: staffMatch } = await adminSupabase
+      .from('platform_staff_users')
+      .select('id, email, is_active')
+      .ilike('email', cleanEmail)
+      .maybeSingle();
+
+    if (staffMatch) {
+      return {
+        success: false,
+        error: 'Cannot provision a merchant using an active platform staff email.',
+      };
+    }
+
+    // Slug validation and normalization
+    const normalizedSlug = cleanSlug(payload.slug || cleanName);
+    const slugValidation = validateMerchantSlug(normalizedSlug);
+    if (!slugValidation.isValid) {
+      return { success: false, error: slugValidation.error || 'Invalid subdomain slug.' };
+    }
+
+    // Subdomain uniqueness guard
+    const { data: existingStorefront } = await adminSupabase
+      .from('storefront_settings')
+      .select('id')
+      .eq('slug', normalizedSlug)
+      .maybeSingle();
+
+    if (existingStorefront) {
+      return {
+        success: false,
+        error: `Subdomain slug '${normalizedSlug}' is already taken.`,
+      };
+    }
+
+    const tempPassword = payload.password?.trim() || generateInitialPassword();
+
+    // 1. Create or fetch Auth User
+    type ProvisionAuthUser = Awaited<ReturnType<typeof adminSupabase.auth.admin.createUser>>['data']['user'];
+    let authUser: ProvisionAuthUser = null;
+
+    const { data: created, error: createErr } = await adminSupabase.auth.admin.createUser({
+      email: cleanEmail,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        name: payload.ownerName?.trim() || cleanName,
+        role: 'merchant',
+        phone: payload.ownerPhone?.trim(),
+      },
+    });
+
+    if (createErr) {
+      if (createErr.message?.toLowerCase().includes('already') || (createErr as { status?: number }).status === 422) {
+        for (let page = 1; page <= 20; page++) {
+          const { data: userList } = await adminSupabase.auth.admin.listUsers({ page, perPage: 1000 });
+          const match = (userList?.users ?? []).find((u) => u.email?.toLowerCase() === cleanEmail);
+          if (match) {
+            authUser = match;
+            break;
+          }
+          if ((userList?.users?.length ?? 0) < 1000) break;
+        }
+      }
+      if (!authUser) {
+        throw new Error(`Failed to create merchant auth user: ${createErr.message}`);
+      }
+    } else {
+      authUser = created.user;
+    }
+
+    if (!authUser) {
+      throw new Error('Could not establish merchant auth user identity');
+    }
+
+    // 2. Create Tenant record
+    const { data: tenant, error: tenantErr } = await adminSupabase
+      .from('tenants')
+      .insert({ name: cleanName })
+      .select('id')
+      .single();
+
+    if (tenantErr || !tenant) {
+      throw new Error(`Failed to create tenant: ${tenantErr?.message || 'Unknown error'}`);
+    }
+
+    // 3. Link Owner Account in tenant_users
+    const { error: linkErr } = await adminSupabase.from('tenant_users').insert({
+      tenant_id: tenant.id,
+      user_id: authUser.id,
+      role: 'owner',
+    });
+
+    if (linkErr) {
+      throw new Error(`Failed to link owner account: ${linkErr.message}`);
+    }
+
+    // 4. Create Primary Branch Store
+    const branchName = payload.branchName?.trim() || `${cleanName} - Main Branch`;
+    const { error: storeErr } = await adminSupabase.from('stores').insert({
+      tenant_id: tenant.id,
+      name: branchName,
+      city: payload.city?.trim() || 'Accra',
+      is_primary: true,
+      pickup_enabled: true,
+    });
+
+    if (storeErr) {
+      throw new Error(`Failed to create primary store branch: ${storeErr.message}`);
+    }
+
+    // 5. Create Tenant Settings with business archetype and module configuration
+    const { error: settingsErr } = await adminSupabase.from('tenant_settings').insert({
+      tenant_id: tenant.id,
+      store_email: cleanEmail,
+      business_phone: payload.ownerPhone?.trim() || null,
+      business_country: 'GH',
+      store_currency: 'GHS',
+      settings_data: {
+        store_name: cleanName,
+        trading_name: cleanName,
+        business_type: payload.businessType || 'general',
+        enabled_modules: payload.enabledModules || {
+          inventory: true,
+          orders: true,
+          pos: true,
+          storefront: true,
+        },
+        platform_status: 'active',
+        provisioned_by: user.email,
+        provisioned_at: new Date().toISOString(),
+      },
+    });
+
+    if (settingsErr) {
+      throw new Error(`Failed to create tenant settings: ${settingsErr.message}`);
+    }
+
+    // 6. Create Storefront Settings (Public link-in-bio & web store)
+    const { error: storefrontErr } = await adminSupabase.from('storefront_settings').insert({
+      tenant_id: tenant.id,
+      store_name: cleanName,
+      slug: normalizedSlug,
+      is_active: true,
+      currency: 'GHS',
+      whatsapp_phone: payload.ownerPhone?.trim() || null,
+    });
+
+    if (storefrontErr) {
+      throw new Error(`Failed to create storefront settings: ${storefrontErr.message}`);
+    }
+
+    // 7. Create Subscription (Pricing linked to platform_plans or fallback matrix)
+    const provisionTier: PlatformTier = payload.tier || 'growth';
+    const { data: provisionPlan } = await adminSupabase
+      .from('platform_plans')
+      .select('price_ghs')
+      .eq('slug', provisionTier)
+      .maybeSingle();
+
+    const billingCycle = payload.billingCycle || 'monthly';
+    const priceMonthly = Number(
+      provisionPlan?.price_ghs ?? (
+        provisionTier === 'enterprise' ? 1800 :
+        provisionTier === 'business' ? 750 :
+        provisionTier === 'growth' ? 350 :
+        provisionTier === 'starter' ? 150 : 0
+      )
+    );
+
+    const { error: subErr } = await adminSupabase.from('tenant_subscriptions').insert({
+      tenant_id: tenant.id,
+      tier: provisionTier === 'none' ? 'starter' : provisionTier,
+      billing_cycle: billingCycle,
+      status: 'active',
+      price_monthly: priceMonthly,
+      renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+
+    if (subErr) {
+      throw new Error(`Failed to provision subscription: ${subErr.message}`);
+    }
+
+    // 8. Log Immutable Platform Audit Action
+    await logPlatformAuditAction({
+      action: 'PROVISION_MERCHANT',
+      target_type: 'tenant',
+      target_id: tenant.id,
+      target_name: cleanName,
+      reason: `Platform operator ${user.email} (${role}) provisioned merchant workspace '${cleanName}' (slug: ${normalizedSlug}, tier: ${provisionTier})`,
+      metadata: {
+        owner_email: cleanEmail,
+        slug: normalizedSlug,
+        tier: provisionTier,
+        billing_cycle: billingCycle,
+        business_type: payload.businessType || 'general',
+        city: payload.city || 'Accra',
+      },
+    });
+
+    revalidatePath('/platform');
+    revalidatePath('/platform/merchants');
+
+    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://merchander.app';
+    const portalUrl = `${appBaseUrl}/login`;
+    const subdomainUrl = `https://${normalizedSlug}.merchander.app`;
+
+    return {
+      success: true,
+      tenantId: tenant.id,
+      credentials: {
+        storeName: cleanName,
+        slug: normalizedSlug,
+        subdomainUrl,
+        portalUrl,
+        ownerEmail: cleanEmail,
+        temporaryPassword: tempPassword,
+        tier: provisionTier,
+      },
+    };
+  } catch (err) {
+    console.error('Error provisioning merchant workspace:', err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to provision merchant workspace',
+    };
   }
 }
 

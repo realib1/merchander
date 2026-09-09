@@ -109,6 +109,12 @@ in real commerce data, under Green/Yellow/Red controls with human handoff.
     smoke-test path.
 26. **Platform General Settings** - global platform configuration, branding,
     integrations, and feature flags backed by a singleton `platform_settings` table.
+27. **Platform Merchant Provisioning ("Add Merchander")** - administrative
+    workspace provisioning in `/platform/merchants` with owner account, initial
+    store, default settings, plan assignment, credential delivery, and audit logging.
+28. **Merchant Self-Service Onboarding & Business Customizer** - public `/signup`
+    flow, business model archetypes (grocery, import, boutique), dynamic module
+    gating across dashboard/sidebar, and module management.
 
 ## Data model
 
