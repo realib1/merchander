@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { GET, POST } from './route';
+import { GET, POST, mapWhatsAppMessageTypeToDb } from './route';
 
 // Mock dependencies
 vi.mock('@/lib/supabase/admin', () => ({
@@ -9,6 +9,13 @@ vi.mock('@/lib/supabase/admin', () => ({
 
 vi.mock('@/lib/channels/identity', () => ({
   resolveChannelIdentity: vi.fn(),
+}));
+
+vi.mock('@/lib/channels/whatsapp/api', () => ({
+  fetchWhatsAppMedia: vi.fn().mockResolvedValue({
+    buffer: Buffer.from('mock-media-binary'),
+    mimeType: 'image/jpeg',
+  }),
 }));
 
 vi.mock('@/lib/intelligence/extract', () => ({
@@ -633,6 +640,84 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
       const response = await POST(req);
 
       expect(response.status).toBe(200);
+    });
+
+    describe('Schema Mapping & Idempotency (F-03)', () => {
+      it('correctly maps all WhatsApp message types to the PostgreSQL message_type enum', () => {
+        expect(mapWhatsAppMessageTypeToDb('text')).toBe('text');
+        expect(mapWhatsAppMessageTypeToDb('image')).toBe('media');
+        expect(mapWhatsAppMessageTypeToDb('audio')).toBe('media');
+        expect(mapWhatsAppMessageTypeToDb('document')).toBe('media');
+        expect(mapWhatsAppMessageTypeToDb('video')).toBe('media');
+        expect(mapWhatsAppMessageTypeToDb('interactive')).toBe('interactive');
+        expect(mapWhatsAppMessageTypeToDb('template')).toBe('template');
+        expect(mapWhatsAppMessageTypeToDb('system')).toBe('system');
+        expect(mapWhatsAppMessageTypeToDb('unknown_custom')).toBe('text');
+      });
+
+      it('maps inbound media messages to db enum "media" and retains media details in content', async () => {
+        const mediaPayload = {
+          object: 'whatsapp_business_account',
+          entry: [
+            {
+              id: 'entry-1',
+              changes: [
+                {
+                  field: 'messages',
+                  value: {
+                    messaging_product: 'whatsapp',
+                    metadata: {
+                      display_phone_number: '123456789',
+                      phone_number_id: '123',
+                    },
+                    contacts: [{ profile: { name: 'Ama Serwaa' }, wa_id: '233244123456' }],
+                    messages: [
+                      {
+                        from: '233244123456',
+                        id: 'wamid.media-msg-999',
+                        timestamp: '1725624000',
+                        type: 'image',
+                        image: { id: 'media-id-123', mime_type: 'image/jpeg', sha256: 'xyz' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        };
+
+        const req = await createPostRequest(mediaPayload);
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+        expect(mockInsertMessages).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'media',
+            external_id: 'wamid.media-msg-999',
+            content: expect.objectContaining({
+              type: 'image',
+            }),
+          })
+        );
+      });
+
+      it('safely skips duplicate deliveries (code 23505) without triggering extraction or outbound replies', async () => {
+        mockInsertMessages.mockResolvedValueOnce({
+          error: {
+            code: '23505',
+            message: 'duplicate key value violates unique constraint "idx_messages_external_id_unique"',
+          },
+        });
+
+        const req = await createPostRequest(makeMessagePayload('Duplicate incoming message'));
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+        expect(extractCartFromChat).not.toHaveBeenCalled();
+        expect(generateGroundedReply).not.toHaveBeenCalled();
+        expect(sendOutboundWhatsAppMessage).not.toHaveBeenCalled();
+      });
     });
   });
 });

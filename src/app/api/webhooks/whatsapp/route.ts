@@ -11,6 +11,33 @@ import { captureDraftOrderFromCart } from '@/lib/intelligence/orders';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
 import { classifyActionSafety } from '@/lib/intelligence/safety';
 import { NormalizedMessage, CustomerContext } from '@/types/messaging';
+import { Database } from '@/types/supabase';
+
+type DbMessageType = Database['public']['Enums']['message_type'];
+
+/**
+ * Maps WhatsApp message parser types to PostgreSQL message_type enum.
+ * Granular media types ('image', 'audio', 'document', 'video') map to 'media'.
+ */
+export function mapWhatsAppMessageTypeToDb(type: string): DbMessageType {
+  switch (type) {
+    case 'text':
+      return 'text';
+    case 'image':
+    case 'audio':
+    case 'document':
+    case 'video':
+      return 'media';
+    case 'interactive':
+      return 'interactive';
+    case 'template':
+      return 'template';
+    case 'system':
+      return 'system';
+    default:
+      return 'text';
+  }
+}
 
 // Meta Cloud API credentials. Names match .env.example. A future per-tenant
 // connector will source these from platform_settings instead.
@@ -115,14 +142,14 @@ export async function POST(request: NextRequest) {
       }
 
       // 4. Insert the inbound message (ignoring unique constraint errors for idempotency)
+      const dbType = mapWhatsAppMessageTypeToDb(msg.type);
       const { error: insertError } = await supabase
         .from('messages')
         .insert({
           tenant_id: tenantId,
           channel_identity_id: identity.id,
           direction: 'inbound',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          type: msg.type as any,
+          type: dbType,
           status: 'received',
           external_id: msg.messageId,
           content: contentObj,
@@ -133,13 +160,14 @@ export async function POST(request: NextRequest) {
         if (insertError.code === '23505') {
           // Unique constraint violation on external_id, safely ignore (idempotent retry)
           console.log(`Duplicate message skipped: ${msg.messageId}`);
+          continue;
         } else {
           console.error(`Failed to insert message ${msg.messageId}`, insertError);
         }
       }
 
       // 5. Dispatch inbound text messages to the Intelligence pipeline
-      if (msg.type === 'text' && msg.text && (!insertError || insertError.code === '23505')) {
+      if (msg.type === 'text' && msg.text && !insertError) {
         const normalizedMsg: NormalizedMessage = {
           platform: 'whatsapp',
           external_id: msg.messageId,

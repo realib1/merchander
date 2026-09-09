@@ -7,7 +7,7 @@
 > finding is `open` or `fixed`, then archives resolved findings with the work
 > and resets this file.
 
-### F-03 [P2] open - messages insert path does not match the omnichannel schema
+### F-03 [P2] fixed - messages insert path does not match the omnichannel schema
 
 **File:** src/app/api/webhooks/whatsapp/route.ts:101
 **Found:** 2026-09-03 by /audit (scope: full; lens: correctness)
@@ -26,7 +26,7 @@
 `WHERE external_id IS NOT NULL`). Map the parser's media kinds to the `media`
 enum value before insert and keep the specific kind in `content.type` (already
 set). Drop the `as any`.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-09 in fix/whatsapp-webhook-dedup-f03. Added migration `20260912000000_fix_messages_external_id_unique.sql` replacing plain index with a partial unique index on `(tenant_id, external_id)`. Added `mapWhatsAppMessageTypeToDb` mapping WhatsApp media types ('image', 'audio', 'document', 'video') to enum `'media'` while preserving subtype in `content.type`, removing `as any`. Added duplicate delivery skipping on `23505` to prevent duplicate extraction and outbound replies, verified with automated unit tests.
 
 ### F-04 [P2] open - WhatsApp inbound routing and outbound config are hardcoded mocks on a live route
 
