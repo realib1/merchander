@@ -45,61 +45,18 @@ the channel-connection settings table (or gate the route off until it exists).
 Same for `getTenantWhatsAppConfig`.
 **Resolution:**
 
-### F-05 [P2] fixed - sendChatMessage is a no-op that reports success
+### F-09 [P2] open - Legacy dialogs across dashboard and store bypass the shared Modal component
 
-**File:** src/app/actions/conversations.ts:121
-**Found:** 2026-09-03 by /audit (scope: full; lens: quality)
-**Why it matters:** `sendChatMessage` calls `revalidatePath` and returns
-`{ success: true, message: {...synthetic...} }` without persisting anything or
-calling any channel API. `ChatStreamView.handleSend`
-(`src/app/dashboard/conversations/components/ChatStreamView.tsx:72`) optimistically
-appends the text with `status: 'sent'`, so a merchant replying to a WhatsApp /
-Telegram / Instagram thread sees a delivered-looking message that never reaches
-the customer. `project-overview.md` already flags the conversations view as a
-scaffold pending the 16-21 rework; this is the write-path half of that.
-**Suggested fix:** As part of the 16-21 rework, either wire this to the real
-outbound path (Green/Yellow/Red gated) or make the composer clearly inert
-(disabled, "not yet connected") instead of faking a successful send.
-**Resolution:** Fixed in Feature 19b. Decommissioned `ChatStreamView.tsx` and removed synthetic `sendChatMessage`. Reframed `/dashboard/conversations` into a genuine Approvals & Exceptions queue where merchant actions call `approveAction` (dispatches real outbound WhatsApp messages via `sendOutboundWhatsAppMessage` with tenant audit records) and `rejectAction`.
-
-### F-06 [P3] open - duplicate WhatsApp signature helper and unused outbound module
-
-**File:** src/lib/channels/whatsapp/webhook.ts:11
-**Found:** 2026-09-03 by /audit (scope: full; lens: quality)
-**Why it matters:** `verifyWhatsAppSignature` duplicates `verifyMetaSignature`
-(`src/utils/webhook-signature.ts`) and is the weaker copy (no empty-secret
-guard - see F-01). Separately, `sendOutboundWhatsAppMessage` and
-`getTenantWhatsAppConfig` in `src/lib/channels/whatsapp/service.ts` have no
-callers outside their test file.
-**Suggested fix:** Delete `verifyWhatsAppSignature` and use `verifyMetaSignature`
-(folds into F-01). Keep the outbound module only if feature 21 lands soon;
-otherwise remove it until it is wired.
+**File:** src/app/dashboard/suppliers/components/SupplierScorecardModal.tsx:33
+**Found:** 2026-09-09 by /audit (scope: full; lens: quality)
+**Why it matters:** Multiple legacy dialogs across dashboard and storefront (including `SupplierScorecardModal.tsx`, `NewSupplierModal.tsx`, `SupplierPOExportModal.tsx`, `BatchLifecycleModal.tsx`, `BatchBroadcastModal.tsx`, `MoMoReconciliationModal.tsx`, `WaybillSlipModal.tsx`, `CancelOrderModal.tsx`, `OrderDispatchModal.tsx`, `NewPurchaseOrderModal.tsx`, `EditPurchaseOrderModal.tsx`, and `RecordPODeliveryModal.tsx`) implement custom inline backdrop divs (`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 ...`) instead of the shared `@/components/ui/Modal`. As a result, these dialogs lack standardized focus trapping, background scroll locking, and Escape key listeners.
+**Suggested fix:** Refactor legacy modals to wrap the shared `@/components/ui/Modal` component.
 **Resolution:**
 
-### F-07 [P3] fixed - product.ts and waybill.ts logic has no unit tests
+### F-10 [P3] fixed - color.ts utility has no unit tests
 
-**File:** src/utils/product.ts:6
-**Found:** 2026-09-03 by /audit (scope: full; lens: tests)
-**Why it matters:** The logic test gate is on and scoped to `src/utils/`.
-`product.ts` (`calculateTotalStock`, `calculateTotalUnitsSold` with its
-draft/cancelled exclusion, `getVariantPriceRange`, `generateSKU` initials /
-padding / random-digit rules) and `waybill.ts` (`generateDispatchSlip`, a pure
-formatter) are pure and easily assertable but have no `*.test.ts`. The F-14
-backfill picked a five-module subset and skipped these.
-**Suggested fix:** Add focused `*.test.ts` for both, covering branch behaviour
-(status filter, empty inputs, single vs multi-word names, id vs no-id SKU).
-**Resolution:** Fixed in Feature 23. Added comprehensive unit test suites in `src/utils/waybill.test.ts` (10 tests covering delivery, pickup, COD vs paid, GhanaPost GPS, and WhatsApp dispatch formatting) and `src/utils/product.test.ts` (13 tests covering stock calculations, units sold filtering, price ranges, and SKU generation).
-
-### F-08 [P3] fixed - customer message content written to application logs in cleartext
-
-**File:** src/lib/intelligence/extract.ts:10
-**Found:** 2026-09-03 by /audit (scope: full; lens: security)
-**Why it matters:** `console.log(\`[AI Brain Interface] Extracting intent from
-${message.platform} message: "${message.text}"\`)` logs the full inbound customer
-message body; the Telegram route logs the extracted cart. Customer message
-content (addresses, phone numbers, payment details) lands in platform logs that
-have a broader access boundary than the tenant.
-**Suggested fix:** Drop the message body from the log line (log platform +
-external id + length), or gate it behind a debug flag that is off in production.
-**Resolution:** Fixed in Feature 17c. `extractCartFromChat` now logs only sanitized metadata (platform, external ID, message length, and tenant ID), omitting raw message text. Webhook handlers (`whatsapp` and `telegram`) log structured extraction metrics (intent, item count, confidence) without dumping customer PII or raw cart payloads. Covered by unit tests in `src/lib/intelligence/extract.test.ts`.
-
+**File:** src/utils/color.ts:1
+**Found:** 2026-09-09 by /audit (scope: full; lens: tests)
+**Why it matters:** `src/utils/color.ts` implements pure, assertable color validation and contrast math (`isValidHex`, `normalizeHex`, `getContrastTextColor`), but lacks a companion `src/utils/color.test.ts`. This departs from the project standard requiring unit test coverage for pure logic in `src/utils/`.
+**Suggested fix:** Add `src/utils/color.test.ts` covering valid/invalid hex formats, 3-digit expansion, and YIQ contrast threshold calculations.
+**Resolution:** Fixed on 2026-09-09 in fix/color-tests-f10. Added 16 automated unit tests in `src/utils/color.test.ts` covering 3-digit and 6-digit hex validation, normalization, edge thresholds, and YIQ contrast calculations.
