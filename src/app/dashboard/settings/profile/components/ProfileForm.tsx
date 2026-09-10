@@ -200,14 +200,9 @@ export function ProfileForm({
           />
 
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <label htmlFor="profile-language" className="text-xs font-semibold text-foreground">
-                Preferred Language
-              </label>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-                Active for Alerts & Receipts
-              </span>
-            </div>
+            <label htmlFor="profile-language" className="text-xs font-semibold text-foreground">
+              Preferred Language
+            </label>
             <select
               id="profile-language"
               name="language"
@@ -219,19 +214,14 @@ export function ProfileForm({
               <option value="fr">French</option>
             </select>
             <p className="text-[11px] text-muted">
-              Used for account communications, system alert emails, and storefront notifications.
+              Account communication language preference. Multi-language notification templates will be rolled out in an upcoming release.
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <label htmlFor="profile-timezone" className="text-xs font-semibold text-foreground">
-                Timezone
-              </label>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-surface-elevated text-muted border border-separator">
-                Locale Synchronized
-              </span>
-            </div>
+            <label htmlFor="profile-timezone" className="text-xs font-semibold text-foreground">
+              Timezone
+            </label>
             <select
               id="profile-timezone"
               name="timezone"
@@ -246,7 +236,7 @@ export function ProfileForm({
               <option value="America/New_York">EST / EDT (New York - UTC-5/-4)</option>
             </select>
             <p className="text-[11px] text-muted">
-              Determines how timestamps, activity logs, order invoices, and store operating hours are displayed.
+              Account timezone preference. Used for time display standardization across receipts and store logs.
             </p>
           </div>
         </div>

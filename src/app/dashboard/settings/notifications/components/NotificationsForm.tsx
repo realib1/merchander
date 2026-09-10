@@ -66,9 +66,14 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
                 <Mail className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <CardTitle className="text-base font-bold font-display">Email Notifications</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base font-bold font-display">Email Notifications</CardTitle>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    In Development
+                  </span>
+                </div>
                 <CardDescription className="text-xs text-muted">
-                  Operational alerts delivered directly to your registered inbox.
+                  Transactional email delivery (SMTP / Resend) is currently in development. Preferences will activate once email dispatch is connected.
                 </CardDescription>
               </div>
             </div>
@@ -81,7 +86,7 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
         </CardHeader>
         <CardBody className="space-y-4 pt-4">
           {/* New Order */}
-          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30 opacity-75">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-surface-elevated text-brand-primary shrink-0">
                 <ShoppingBag className="h-4 w-4" aria-hidden="true" />
@@ -91,17 +96,20 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
                 <p className="text-[11px] text-muted">
                   Receive an instant email with line items and customer details when an order is created.
                 </p>
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                  Pending transactional email provider integration.
+                </p>
               </div>
             </div>
             <Switch
               checked={Boolean(settings.emailNewOrder)}
-              onCheckedChange={(c: boolean) => handleToggle('emailNewOrder', c)}
-              aria-label="Receive email on new order"
+              disabled={true}
+              aria-label="Receive email on new order (in development)"
             />
           </div>
 
           {/* Payment Received */}
-          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30 opacity-75">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-surface-elevated text-emerald-600 dark:text-emerald-400 shrink-0">
                 <CreditCard className="h-4 w-4" aria-hidden="true" />
@@ -111,17 +119,20 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
                 <p className="text-[11px] text-muted">
                   Receive an email confirmation whenever Mobile Money or Card payment is captured.
                 </p>
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                  Pending transactional email provider integration.
+                </p>
               </div>
             </div>
             <Switch
               checked={Boolean(settings.emailPaymentReceived)}
-              onCheckedChange={(c: boolean) => handleToggle('emailPaymentReceived', c)}
-              aria-label="Receive email on payment received"
+              disabled={true}
+              aria-label="Receive email on payment received (in development)"
             />
           </div>
 
           {/* Low Inventory */}
-          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30 opacity-75">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-surface-elevated text-amber-500 shrink-0">
                 <AlertTriangle className="h-4 w-4" aria-hidden="true" />
@@ -131,12 +142,15 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
                 <p className="text-[11px] text-muted">
                   Receive an alert when product variant stock drops to or below the configured threshold.
                 </p>
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                  Pending transactional email provider integration.
+                </p>
               </div>
             </div>
             <Switch
               checked={Boolean(settings.emailLowInventory)}
-              onCheckedChange={(c: boolean) => handleToggle('emailLowInventory', c)}
-              aria-label="Receive email on low inventory"
+              disabled={true}
+              aria-label="Receive email on low inventory (in development)"
             />
           </div>
         </CardBody>

@@ -79,9 +79,14 @@ export function PrivacySettingsForm({ initialSettings }: PrivacySettingsFormProp
               <Cookie className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle className="text-base font-bold font-display">Customer Consent & Tracking</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base font-bold font-display">Customer Consent & Tracking</CardTitle>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  Roadmap / In Development
+                </span>
+              </div>
               <CardDescription className="text-xs text-muted">
-                Configure cookie notices and marketing permission capture on your public storefront.
+                Configure cookie notices and marketing permission capture for your public storefront.
               </CardDescription>
             </div>
           </div>
@@ -91,7 +96,7 @@ export function PrivacySettingsForm({ initialSettings }: PrivacySettingsFormProp
             <div className="space-y-0.5">
               <p className="text-xs font-semibold text-foreground">Show Cookie Consent Banner</p>
               <p className="text-[11px] text-muted">
-                Displays a bottom consent banner to new shoppers visiting your online catalog.
+                Stores your consent policy preference. Storefront banner rendering is scheduled for an upcoming release.
               </p>
             </div>
             <Switch
@@ -101,56 +106,38 @@ export function PrivacySettingsForm({ initialSettings }: PrivacySettingsFormProp
             />
           </div>
 
-          {/* Interactive Cookie Banner Preview */}
+          {/* Cookie Banner Roadmap Information */}
           <div className="p-4 rounded-xl border border-separator/80 bg-surface space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
                 <Eye size={13} className="text-brand-primary" />
                 Storefront Banner Preview
               </span>
-              <span
-                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                  settings.showCookieBanner
-                    ? 'bg-success/10 text-success'
-                    : 'bg-muted/10 text-muted'
-                }`}
-              >
-                {settings.showCookieBanner ? 'Active on Storefront' : 'Currently Hidden'}
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                Roadmap / In Development
               </span>
             </div>
 
-            {settings.showCookieBanner ? (
-              <div className="p-3.5 rounded-xl bg-surface-elevated border border-separator shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground flex items-center gap-1.5">
-                    <Cookie size={14} className="text-amber-500" />
-                    We respect your privacy
-                  </p>
-                  <p className="text-[11px] text-muted">
-                    This store uses cookies to remember your shopping bag, analyze visits, and deliver smooth checkout.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="px-2.5 py-1 text-[11px] font-medium rounded-lg border border-separator bg-surface text-muted">
-                    Essential Only
-                  </span>
-                  <span className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-primary text-white">
-                    Accept All
-                  </span>
-                </div>
+            <div className="p-3.5 rounded-xl bg-surface-elevated/50 border border-separator shadow-xs flex flex-col gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <Cookie size={15} className="text-amber-500 shrink-0" />
+                <p className="font-semibold text-foreground">Planned Storefront Banner Layout</p>
               </div>
-            ) : (
-              <div className="py-3 text-center text-xs text-muted italic bg-surface-elevated/20 rounded-lg border border-dashed border-separator">
-                Cookie banner is turned off. Storefront visitors will not see a cookie prompt.
+              <p className="text-[11px] text-muted leading-relaxed">
+                When enabled, shoppers visiting your storefront will see an unobtrusive bottom prompt for essential and analytical cookie consent. Storefront banner integration is currently staged for deployment alongside customer cookie tracking.
+              </p>
+              <div className="mt-1 pt-2 border-t border-separator/60 flex items-center justify-between text-[11px] text-muted">
+                <span>Preference status: <strong className="text-foreground">{settings.showCookieBanner ? 'Enabled (Queued)' : 'Disabled'}</strong></span>
+                <span className="italic">Not yet active on live storefront</span>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface-elevated/30">
             <div className="space-y-0.5">
               <p className="text-xs font-semibold text-foreground">Marketing Opt-In Checkbox at Checkout</p>
               <p className="text-[11px] text-muted">
-                Allows shoppers to opt-in for WhatsApp and SMS promotional drops when placing an order.
+                Stores your promotional consent policy. Checkout form checkbox rendering will roll out with the promotional broadcast release.
               </p>
             </div>
             <Switch
@@ -197,9 +184,14 @@ export function PrivacySettingsForm({ initialSettings }: PrivacySettingsFormProp
 
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-surface-elevated/40 border border-separator text-xs text-muted">
             <Info size={15} className="text-brand-primary shrink-0 mt-0.5" />
-            <p className="text-[11px] leading-relaxed">
-              Purging only removes uncompleted buyer drafts and abandoned carts. Completed orders, customer profiles, payment receipts, and tax records are permanently preserved in your ledger for audit integrity.
-            </p>
+            <div className="space-y-1">
+              <p className="text-[11px] leading-relaxed">
+                Purging only removes uncompleted buyer drafts and abandoned carts. Completed orders, customer profiles, payment receipts, and tax records are permanently preserved in your ledger for audit integrity.
+              </p>
+              <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                Note: Automated background purge routines will execute according to this configured retention schedule once periodic cron workers are activated in system infrastructure.
+              </p>
+            </div>
           </div>
         </CardBody>
       </Card>

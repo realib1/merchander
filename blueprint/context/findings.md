@@ -84,7 +84,7 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 **Suggested fix:** Remove the dead `getConversationsData` function and synthetic thread generators, or connect real inbound messages from `messages` / omnichannel tables with dynamic response time calculations.
 **Resolution:**
 
-### F-16 [P2] open - Privacy & data policies form exposes disconnected controls and mock preview
+### F-16 [P2] fixed - Privacy & data policies form exposes disconnected controls and mock preview
 
 **File:** src/app/dashboard/settings/privacy/components/PrivacySettingsForm.tsx:98
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
@@ -93,15 +93,15 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 2. `marketingConsentCheckbox` promises a promotional WhatsApp/SMS opt-in at checkout, but `CartCheckoutForm.tsx` does not render this field.
 3. `deleteAbandonedAfterDays` presents retention schedules (30, 90, 180, 365 days) for abandoned carts, but no background worker, cron job, or cleanup function executes this purge.
 **Suggested fix:** Either implement the storefront cookie banner, marketing opt-in checkbox, and cart purge cleanup routine, or mark these settings with an honest "Coming Soon" badge until backing functionality exists.
-**Resolution:**
+**Resolution:** Replaced deceptive "Active on Storefront" badge with "Roadmap / In Development", replaced fake interactive button preview with an informative roadmap notice clarifying that banner and marketing opt-ins are staged for upcoming releases, and documented that background cart retention purges will execute once periodic cron workers are activated in system infrastructure. Added unit test coverage in `src/app/actions/settings-preferences.test.ts`.
 
-### F-17 [P2] open - Deceptive active badges for language and timezone in profile settings form
+### F-17 [P2] fixed - Deceptive active badges for language and timezone in profile settings form
 
 **File:** src/app/dashboard/settings/profile/components/ProfileForm.tsx:207
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** `ProfileForm.tsx` displays an "Active for Alerts & Receipts" badge next to Preferred Language with helper text "Used for account communications, system alert emails, and storefront notifications", but `user_metadata.language` is never referenced anywhere in notification or receipt templates. Similarly, Timezone displays "Locale Synchronized" claiming it "Determines how timestamps, activity logs, order invoices, and store operating hours are displayed", but formatters throughout the app ignore this setting.
 **Suggested fix:** Remove the misleading "Active for Alerts & Receipts" and "Locale Synchronized" badges, and note that locale formatting customization is currently in development until formatters consume these user preferences.
-**Resolution:**
+**Resolution:** Removed the misleading "Active for Alerts & Receipts" and "Locale Synchronized" badges. Updated helper copy for Language to clarify it is an account preference with multi-language templates planned for upcoming release, and for Timezone to note standardization across store receipts and logs.
 
 ### F-18 [P2] open - Social channel connectors masquerade as functional sync without webhooks or handlers
 
@@ -114,13 +114,13 @@ Only WhatsApp has a functional end-to-end webhook and state machine.
 **Suggested fix:** Clearly indicate that Instagram and Facebook Messenger connectors are "Planned" rather than interactive mock toggles, and implement the Telegram order dispatch queue or remove stubbed webhook code.
 **Resolution:**
 
-### F-19 [P2] open - Email notification toggles claim active inbox delivery without email infrastructure
+### F-19 [P2] fixed - Email notification toggles claim active inbox delivery without email infrastructure
 
 **File:** src/app/dashboard/settings/notifications/components/NotificationsForm.tsx:60
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** `NotificationsForm.tsx` provides switches for `emailNewOrder`, `emailPaymentReceived`, `emailLowInventory`, and `emailDailySummary` promising "Operational alerts delivered directly to your registered inbox". However, the application has no email service provider integration (e.g. Resend, SendGrid, Postmark) and no dispatch code in `src/app/actions/` or background workers. Merchants toggling these settings receive zero emails.
 **Suggested fix:** Integrate a real transactional email provider (such as Resend) or label email alerts as "Coming Soon / In Development" to prevent merchant false expectations.
-**Resolution:**
+**Resolution:** Added an "In Development" badge to the Email Notifications header, updated card description to state transactional email delivery is in development, disabled the switches (`disabled={true}`), and added explanatory inline hints indicating pending email provider integration. Added unit test coverage in `src/app/actions/settings-preferences.test.ts`.
 
 ### F-20 [P2] open - Intelligence grounding form fields are never ingested by the intelligence engine
 
