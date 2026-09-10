@@ -10,6 +10,7 @@ interface AnalyticsToolbarProps {
   currentPeriod: AnalyticsFilterPeriod;
   analyticsData: AnalyticsData;
   businessName?: string;
+  currency?: string;
 }
 
 const PERIOD_OPTIONS: Array<{ key: AnalyticsFilterPeriod; label: string }> = [
@@ -25,6 +26,7 @@ export function AnalyticsToolbar({
   currentPeriod,
   analyticsData,
   businessName = 'Merchander Vendor',
+  currency = 'GHS',
 }: AnalyticsToolbarProps) {
   const router = useRouter();
   const [isExportOpen, setIsExportOpen] = useState(false);
@@ -81,7 +83,7 @@ export function AnalyticsToolbar({
             <button
               type="button"
               onClick={() => {
-                exportAnalyticsToExcel(analyticsData, businessName);
+                exportAnalyticsToExcel(analyticsData, businessName, currency);
                 setIsExportOpen(false);
               }}
               className="w-full px-3 py-2 text-left text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer transition font-medium"
@@ -91,7 +93,7 @@ export function AnalyticsToolbar({
             <button
               type="button"
               onClick={() => {
-                exportAnalyticsToCsv(analyticsData);
+                exportAnalyticsToCsv(analyticsData, currency);
                 setIsExportOpen(false);
               }}
               className="w-full px-3 py-2 text-left text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer transition font-medium border-t border-separator/40"
@@ -101,7 +103,7 @@ export function AnalyticsToolbar({
             <button
               type="button"
               onClick={() => {
-                exportAnalyticsToPdf(analyticsData, businessName);
+                exportAnalyticsToPdf(analyticsData, businessName, currency);
                 setIsExportOpen(false);
               }}
               className="w-full px-3 py-2 text-left text-foreground hover:bg-surface-elevated flex items-center gap-2 cursor-pointer transition font-medium border-t border-separator/40"

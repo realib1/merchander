@@ -61,6 +61,41 @@ describe('formatDate', () => {
     const result = formatDate(d);
     expect(result).toContain('Jan');
   });
+
+  it('formats with explicit timezone', () => {
+    const isoString = '2026-06-15T23:30:00Z';
+    // UTC is June 15 23:30, but in Africa/Nairobi (UTC+3) it is June 16
+    const resultNairobi = formatDate(
+      isoString,
+      { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+      'en-US',
+      'Africa/Nairobi'
+    );
+    expect(resultNairobi).toContain('Jun');
+    expect(resultNairobi).toContain('16');
+
+    // In America/New_York (UTC-4) it is June 15 19:30
+    const resultNY = formatDate(
+      isoString,
+      { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+      'en-US',
+      'America/New_York'
+    );
+    expect(resultNY).toContain('15');
+  });
+
+  it('falls back gracefully on invalid timezone', () => {
+    const isoString = '2026-01-15T12:00:00Z';
+    const result = formatDate(
+      isoString,
+      { year: 'numeric', month: 'short', day: 'numeric' },
+      'en-US',
+      'invalid-timezone-name'
+    );
+    expect(result).toContain('Jan');
+    expect(result).toContain('15');
+    expect(result).toContain('2026');
+  });
 });
 
 describe('formatRelativeTime', () => {

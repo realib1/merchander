@@ -4,12 +4,14 @@ import React from 'react';
 import { Ship, Anchor, PackageCheck, DollarSign } from 'lucide-react';
 import type { Shipment } from '@/types/shipments';
 import { MetricCard } from '@/components/ui/MetricCard';
+import { formatCurrency } from '@/utils/format';
 
 interface ShipmentsTopMetricsProps {
   shipments: Shipment[];
+  currency?: string;
 }
 
-export function ShipmentsTopMetrics({ shipments }: ShipmentsTopMetricsProps) {
+export function ShipmentsTopMetrics({ shipments, currency = 'GHS' }: ShipmentsTopMetricsProps) {
   const activeShipments = shipments.filter(
     (s) => s.status === 'in_transit' || s.status === 'booked' || s.status === 'customs'
   );
@@ -49,7 +51,7 @@ export function ShipmentsTopMetrics({ shipments }: ShipmentsTopMetricsProps) {
       />
       <MetricCard
         title="Freight & Duties"
-        value={`GHS ${totalFreightAndDuty.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        value={formatCurrency(totalFreightAndDuty, currency)}
         subtitle="Total shipping + duty allocation"
         icon={<DollarSign size={14} />}
         iconBg="bg-success/10 text-success"

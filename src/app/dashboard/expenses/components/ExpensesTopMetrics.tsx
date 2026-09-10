@@ -3,6 +3,7 @@
 import React from 'react';
 import { DollarSign, PieChart, Activity, Layers } from 'lucide-react';
 import { MetricCard } from '@/components/ui/MetricCard';
+import { formatCurrency } from '@/utils/format';
 
 interface CategoryBreakdown {
   category: string;
@@ -14,6 +15,7 @@ interface ExpensesTopMetricsProps {
   totalAmount: number;
   topCategory: string;
   expenseCount: number;
+  currency?: string;
   categoryBreakdown?: CategoryBreakdown[];
 }
 
@@ -30,6 +32,7 @@ export function ExpensesTopMetrics({
   totalAmount,
   topCategory,
   expenseCount,
+  currency = 'GHS',
   categoryBreakdown = [],
 }: ExpensesTopMetricsProps) {
   return (
@@ -37,7 +40,7 @@ export function ExpensesTopMetrics({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <MetricCard
           title="Total Outlay"
-          value={`GHS ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          value={formatCurrency(totalAmount, currency)}
           subtitle="Total expenses in period"
           icon={<DollarSign size={14} />}
           iconBg="bg-brand-primary/10 text-brand-primary"

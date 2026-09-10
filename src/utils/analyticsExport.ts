@@ -2,7 +2,11 @@ import * as XLSX from 'xlsx';
 import { AnalyticsData } from '@/types/analytics';
 import { formatCurrency } from './format';
 
-export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string = 'Business'): void {
+export function exportAnalyticsToExcel(
+  data: AnalyticsData,
+  businessName: string = 'Business',
+  currency: string = 'GHS'
+): void {
   const wb = XLSX.utils.book_new();
 
   // 1. Executive Summary Sheet
@@ -10,24 +14,25 @@ export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string
     ['COMMERCE & GMV ANALYTICS REPORT'],
     ['Business Name:', businessName],
     ['Period:', data.periodLabel],
+    ['Currency:', currency],
     ['Generated At:', new Date().toLocaleString()],
     [],
     ['KEY PERFORMANCE METRICS', 'VALUE'],
-    ['Gross Merchandise Value (GMV)', formatCurrency(data.metrics.gmv, 'GHS')],
+    ['Gross Merchandise Value (GMV)', formatCurrency(data.metrics.gmv, currency)],
     ['Total Completed Orders', data.metrics.ordersCount],
-    ['Average Order Value (AOV)', formatCurrency(data.metrics.aov, 'GHS')],
+    ['Average Order Value (AOV)', formatCurrency(data.metrics.aov, currency)],
     ['Fulfillment / Delivery Rate', `${data.metrics.fulfillmentRatePct.toFixed(1)}%`],
     ['Customer Repeat Purchase Rate', `${data.metrics.repeatCustomerRatePct.toFixed(1)}%`],
     ['Total Unique Buyers', data.customerCohorts.totalUniqueBuyers],
-    ['New Buyers Revenue', formatCurrency(data.customerCohorts.newBuyersRevenue, 'GHS')],
-    ['Returning Buyers Revenue', formatCurrency(data.customerCohorts.returningBuyersRevenue, 'GHS')],
+    ['New Buyers Revenue', formatCurrency(data.customerCohorts.newBuyersRevenue, currency)],
+    ['Returning Buyers Revenue', formatCurrency(data.customerCohorts.returningBuyersRevenue, currency)],
   ];
   const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Executive Summary');
 
   // 2. Sales Timeline Sheet
   const timelineRows = [
-    ['Date / Time', 'GMV Revenue (GHS)', 'Orders Count', 'Average Order Value (GHS)'],
+    ['Date / Time', `GMV Revenue (${currency})`, 'Orders Count', `Average Order Value (${currency})`],
     ...data.timeline.map((t) => [t.label, Number(t.gmv.toFixed(2)), t.ordersCount, Number(t.aov.toFixed(2))]),
   ];
   const wsTimeline = XLSX.utils.aoa_to_sheet(timelineRows);
@@ -35,7 +40,7 @@ export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string
 
   // 3. Top Products Sheet
   const productRows = [
-    ['Product Name', 'Category', 'SKU', 'Units Sold', 'Total Revenue (GHS)', 'Avg Price (GHS)'],
+    ['Product Name', 'Category', 'SKU', 'Units Sold', `Total Revenue (${currency})`, `Avg Price (${currency})`],
     ...data.topProducts.map((p) => [
       p.name,
       p.categoryName,
@@ -50,7 +55,7 @@ export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string
 
   // 4. Sales Channels Sheet
   const channelRows = [
-    ['Sales Channel', 'GMV Revenue (GHS)', 'Orders Count', 'Channel Share %'],
+    ['Sales Channel', `GMV Revenue (${currency})`, 'Orders Count', 'Channel Share %'],
     ...data.channels.map((c) => [c.label, Number(c.gmv.toFixed(2)), c.ordersCount, Number(c.sharePct.toFixed(1))]),
   ];
   const wsChannels = XLSX.utils.aoa_to_sheet(channelRows);
@@ -58,7 +63,7 @@ export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string
 
   // 5. Payment Methods Sheet
   const paymentRows = [
-    ['Payment Method', 'Volume (GHS)', 'Transaction Count', 'Volume Share %'],
+    ['Payment Method', `Volume (${currency})`, 'Transaction Count', 'Volume Share %'],
     ...data.paymentMethods.map((p) => [p.label, Number(p.volume.toFixed(2)), p.count, Number(p.sharePct.toFixed(1))]),
   ];
   const wsPayments = XLSX.utils.aoa_to_sheet(paymentRows);
@@ -66,7 +71,7 @@ export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string
 
   // 6. VIP Spenders Sheet
   const vipRows = [
-    ['Customer Name', 'Phone Number', 'Completed Orders', 'Total Spent (GHS)', 'Last Order Date'],
+    ['Customer Name', 'Phone Number', 'Completed Orders', `Total Spent (${currency})`, 'Last Order Date'],
     ...data.customerCohorts.topVipCustomers.map((c) => [
       c.name,
       c.phone,
@@ -82,9 +87,9 @@ export function exportAnalyticsToExcel(data: AnalyticsData, businessName: string
   XLSX.writeFile(wb, fileName);
 }
 
-export function exportAnalyticsToCsv(data: AnalyticsData): void {
+export function exportAnalyticsToCsv(data: AnalyticsData, currency: string = 'GHS'): void {
   const rows = [
-    ['Date', 'GMV Revenue (GHS)', 'Orders Count', 'Average Order Value (GHS)'],
+    ['Date', `GMV Revenue (${currency})`, 'Orders Count', `Average Order Value (${currency})`],
     ...data.timeline.map((t) => [t.label, t.gmv.toFixed(2), t.ordersCount, t.aov.toFixed(2)]),
   ];
 
@@ -98,7 +103,11 @@ export function exportAnalyticsToCsv(data: AnalyticsData): void {
   document.body.removeChild(link);
 }
 
-export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string = 'Business'): void {
+export function exportAnalyticsToPdf(
+  data: AnalyticsData,
+  businessName: string = 'Business',
+  currency: string = 'GHS'
+): void {
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
 
@@ -136,7 +145,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
         <div class="metrics">
           <div class="card">
             <div class="card-title">Gross Sales (GMV)</div>
-            <div class="card-val">${formatCurrency(data.metrics.gmv, 'GHS')}</div>
+            <div class="card-val">${formatCurrency(data.metrics.gmv, currency)}</div>
           </div>
           <div class="card">
             <div class="card-title">Completed Orders</div>
@@ -144,7 +153,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
           </div>
           <div class="card">
             <div class="card-title">Average Order Value</div>
-            <div class="card-val">${formatCurrency(data.metrics.aov, 'GHS')}</div>
+            <div class="card-val">${formatCurrency(data.metrics.aov, currency)}</div>
           </div>
           <div class="card">
             <div class="card-title">Customer Repeat Rate</div>
@@ -159,7 +168,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
               <th>Product</th>
               <th>Category</th>
               <th>Units Sold</th>
-              <th>Revenue (GHS)</th>
+              <th>Revenue (${currency})</th>
             </tr>
           </thead>
           <tbody>
@@ -170,7 +179,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
                 <td><strong>${p.name}</strong></td>
                 <td>${p.categoryName}</td>
                 <td>${p.unitsSold}</td>
-                <td>${formatCurrency(p.revenue, 'GHS')}</td>
+                <td>${formatCurrency(p.revenue, currency)}</td>
               </tr>
             `
               )
@@ -185,7 +194,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
               <th>Customer Name</th>
               <th>Phone</th>
               <th>Orders</th>
-              <th>Total Spend (GHS)</th>
+              <th>Total Spend (${currency})</th>
             </tr>
           </thead>
           <tbody>
@@ -197,7 +206,7 @@ export function exportAnalyticsToPdf(data: AnalyticsData, businessName: string =
                 <td><strong>${c.name}</strong></td>
                 <td>${c.phone}</td>
                 <td>${c.ordersCount}</td>
-                <td>${formatCurrency(c.totalSpent, 'GHS')}</td>
+                <td>${formatCurrency(c.totalSpent, currency)}</td>
               </tr>
             `
               )

@@ -50,6 +50,13 @@ const DEFAULT_AUTOMATION: AutomationSettings = {
   awayMessageEnabled: true,
   awayMessage: "Thanks for reaching out! We're currently closed. We'll reply as soon as we reopen.",
   rules: [],
+  aiAgent: {
+    enabled: false,
+    mode: 'assisted',
+    responseTone: 'friendly',
+    groundingEnabled: true,
+    safetyTier: 'standard',
+  },
 };
 
 export async function getChannelSettings(): Promise<ChannelSettings> {
@@ -231,7 +238,15 @@ export async function getAutomationSettings(): Promise<AutomationSettings> {
       .maybeSingle();
     const custom = (data?.settings_data as Record<string, unknown> | null)?.automation_settings;
     if (custom && typeof custom === 'object') {
-      return custom as unknown as AutomationSettings;
+      const customAuto = custom as Partial<AutomationSettings>;
+      return {
+        ...DEFAULT_AUTOMATION,
+        ...customAuto,
+        aiAgent: {
+          ...DEFAULT_AUTOMATION.aiAgent!,
+          ...(customAuto.aiAgent || {}),
+        },
+      };
     }
   } catch (err) {
     console.error('Error fetching automation settings:', err);

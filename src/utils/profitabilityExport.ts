@@ -11,11 +11,15 @@ import {
   percentOfRevenue,
 } from './profitabilityRows';
 
-export function exportProfitabilityToExcel(data: ProfitabilityData, businessName: string = 'Business'): void {
+export function exportProfitabilityToExcel(
+  data: ProfitabilityData,
+  businessName: string = 'Business',
+  currency: string = 'GHS'
+): void {
   const wb = XLSX.utils.book_new();
 
   // 1. Executive Summary Sheet
-  const wsSummary = XLSX.utils.aoa_to_sheet(buildProfitabilitySummaryRows(data, businessName));
+  const wsSummary = XLSX.utils.aoa_to_sheet(buildProfitabilitySummaryRows(data, businessName, new Date(), currency));
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Executive Summary');
 
   // 2. Product Unit Margins Sheet
@@ -46,10 +50,14 @@ export function exportProfitabilityToCSV(data: ProfitabilityData): void {
   document.body.removeChild(link);
 }
 
-export function exportProfitabilityToPDF(data: ProfitabilityData, businessName: string = 'Business'): void {
+export function exportProfitabilityToPDF(
+  data: ProfitabilityData,
+  businessName: string = 'Business',
+  currency: string = 'GHS'
+): void {
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    toast.error('Please allow popups to export the PDF financial statement.');
+    toast.error('Could not open print window. Please allow popups.');
     return;
   }
 
@@ -57,52 +65,51 @@ export function exportProfitabilityToPDF(data: ProfitabilityData, businessName: 
     <!DOCTYPE html>
     <html>
       <head>
-        <title>Profitability Statement - ${businessName}</title>
+        <title>Profitability Report - ${businessName}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 32px; color: #0f172a; line-height: 1.5; font-size: 12px; }
-          .header { border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-          .title { font-size: 20px; font-weight: 700; margin: 0; }
-          .subtitle { color: #64748b; font-size: 11px; margin-top: 4px; }
-          .section-title { font-size: 14px; font-weight: 700; margin: 24px 0 12px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
-          th { text-align: left; background: #f8fafc; padding: 8px; font-weight: 600; border-bottom: 1px solid #cbd5e1; font-size: 10px; text-transform: uppercase; color: #475569; }
-          td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #0f172a; }
+          .header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; }
+          h1 { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }
+          .meta { color: #64748b; font-size: 11px; margin-top: 4px; }
+          .section-title { font-size: 13px; font-weight: 700; margin: 20px 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em; color: #334155; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px; }
+          th { text-align: left; padding: 6px 8px; background: #f8fafc; border-bottom: 1px solid #cbd5e1; font-weight: 600; color: #475569; }
+          td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
           .text-right { text-align: right; }
           .font-bold { font-weight: 700; }
-          .highlight { background: #f8fafc; font-weight: 700; }
-          .net-profit-row { background: #f0fdf4; color: #166534; font-weight: 700; font-size: 12px; }
+          .highlight { background: #f0fdf4; font-weight: 600; }
+          .net-profit-row { background: #e0f2fe; font-weight: 700; font-size: 12px; }
           .negative { color: #dc2626; }
           @media print {
             body { padding: 0; }
-            @page { margin: 15mm; size: A4; }
+            @page { margin: 1.5cm; }
           }
         </style>
       </head>
       <body>
         <div class="header">
           <div>
-            <h1 class="title">${businessName}</h1>
-            <div class="subtitle">Profitability & Financial Unit Economics Statement</div>
+            <h1>${businessName} - Profitability & Unit Economics</h1>
+            <div class="meta">Period: ${data.period.toUpperCase()} (${data.dateRange.from} to ${data.dateRange.to})</div>
           </div>
-          <div class="text-right">
-            <div><strong>Period:</strong> ${data.period.toUpperCase()} (${data.dateRange.from} to ${data.dateRange.to})</div>
-            <div class="subtitle">Generated: ${new Date().toLocaleDateString()}</div>
+          <div class="meta" style="text-align: right;">
+            <div>Generated: ${new Date().toLocaleDateString('en-GB')}</div>
           </div>
         </div>
 
         <div class="section-title">1. Executive Summary & Income Statement</div>
         <table>
           <thead>
-            <tr><th>Metric</th><th class="text-right">Amount (GHS)</th><th class="text-right">% of Revenue</th></tr>
+            <tr><th>Metric</th><th class="text-right">Amount (${currency})</th><th class="text-right">% of Revenue</th></tr>
           </thead>
           <tbody>
-            <tr class="highlight"><td>Gross Revenue</td><td class="text-right">${formatCurrency(data.metrics.grossRevenue, 'GHS')}</td><td class="text-right">100.0%</td></tr>
-            <tr><td>Cost of Goods Sold (COGS)</td><td class="text-right">${formatCurrency(data.metrics.cogs, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.cogs, data.metrics.grossRevenue)}</td></tr>
-            <tr class="font-bold"><td>Gross Profit</td><td class="text-right">${formatCurrency(data.metrics.grossProfit, 'GHS')}</td><td class="text-right">${data.metrics.grossMarginPct.toFixed(1)}%</td></tr>
-            <tr><td>Operating Expenses (OPEX)</td><td class="text-right">${formatCurrency(data.metrics.operatingExpenses, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.operatingExpenses, data.metrics.grossRevenue)}</td></tr>
-            <tr><td>Inbound Freight & Customs Duties</td><td class="text-right">${formatCurrency(data.metrics.logisticsFreightCost, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.logisticsFreightCost, data.metrics.grossRevenue)}</td></tr>
-            <tr><td>Gateway & Payment Processing Fees</td><td class="text-right">${formatCurrency(data.metrics.gatewayFees, 'GHS')}</td><td class="text-right">${percentOfRevenue(data.metrics.gatewayFees, data.metrics.grossRevenue)}</td></tr>
-            <tr class="net-profit-row"><td>NET PROFIT</td><td class="text-right">${formatCurrency(data.metrics.netProfit, 'GHS')}</td><td class="text-right">${data.metrics.netMarginPct.toFixed(1)}%</td></tr>
+            <tr class="highlight"><td>Gross Revenue</td><td class="text-right">${formatCurrency(data.metrics.grossRevenue, currency)}</td><td class="text-right">100.0%</td></tr>
+            <tr><td>Cost of Goods Sold (COGS)</td><td class="text-right">${formatCurrency(data.metrics.cogs, currency)}</td><td class="text-right">${percentOfRevenue(data.metrics.cogs, data.metrics.grossRevenue)}</td></tr>
+            <tr class="font-bold"><td>Gross Profit</td><td class="text-right">${formatCurrency(data.metrics.grossProfit, currency)}</td><td class="text-right">${data.metrics.grossMarginPct.toFixed(1)}%</td></tr>
+            <tr><td>Operating Expenses (OPEX)</td><td class="text-right">${formatCurrency(data.metrics.operatingExpenses, currency)}</td><td class="text-right">${percentOfRevenue(data.metrics.operatingExpenses, data.metrics.grossRevenue)}</td></tr>
+            <tr><td>Inbound Freight & Customs Duties</td><td class="text-right">${formatCurrency(data.metrics.logisticsFreightCost, currency)}</td><td class="text-right">${percentOfRevenue(data.metrics.logisticsFreightCost, data.metrics.grossRevenue)}</td></tr>
+            <tr><td>Gateway & Payment Processing Fees</td><td class="text-right">${formatCurrency(data.metrics.gatewayFees, currency)}</td><td class="text-right">${percentOfRevenue(data.metrics.gatewayFees, data.metrics.grossRevenue)}</td></tr>
+            <tr class="net-profit-row"><td>NET PROFIT</td><td class="text-right">${formatCurrency(data.metrics.netProfit, currency)}</td><td class="text-right">${data.metrics.netMarginPct.toFixed(1)}%</td></tr>
           </tbody>
         </table>
 
@@ -128,9 +135,9 @@ export function exportProfitabilityToPDF(data: ProfitabilityData, businessName: 
                 <td class="font-bold">${p.name}</td>
                 <td>${p.categoryName}</td>
                 <td class="text-right">${p.unitsSold}</td>
-                <td class="text-right">${formatCurrency(p.totalRevenue, 'GHS')}</td>
-                <td class="text-right">${formatCurrency(p.totalCogs, 'GHS')}</td>
-                <td class="text-right ${p.grossProfit < 0 ? 'negative' : ''}">${formatCurrency(p.grossProfit, 'GHS')}</td>
+                <td class="text-right">${formatCurrency(p.totalRevenue, currency)}</td>
+                <td class="text-right">${formatCurrency(p.totalCogs, currency)}</td>
+                <td class="text-right ${p.grossProfit < 0 ? 'negative' : ''}">${formatCurrency(p.grossProfit, currency)}</td>
                 <td class="text-right font-bold ${p.marginPct < 0 ? 'negative' : ''}">${p.marginPct.toFixed(1)}%</td>
               </tr>
             `

@@ -5,8 +5,20 @@ import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/compon
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
 import { Switch } from '@/components/ui/Switch';
-import { Bot, MessageSquareReply, ShieldAlert, Plus, Trash2, Loader2, Save, RotateCcw } from 'lucide-react';
-import { AutomationSettings, KeywordRule } from '@/types/settings';
+import {
+  Bot,
+  MessageSquareReply,
+  ShieldAlert,
+  Plus,
+  Trash2,
+  Loader2,
+  Save,
+  RotateCcw,
+  Sparkles,
+  CheckCircle2,
+  ShieldCheck,
+} from 'lucide-react';
+import { AutomationSettings, KeywordRule, AiAgentSettings } from '@/types/settings';
 import { updateAutomationSettings } from '@/app/actions/settings-social';
 import { toast } from 'sonner';
 
@@ -14,10 +26,29 @@ interface AutomationSettingsFormProps {
   initialSettings: AutomationSettings;
 }
 
+const DEFAULT_AI_AGENT: AiAgentSettings = {
+  enabled: false,
+  mode: 'assisted',
+  responseTone: 'friendly',
+  groundingEnabled: true,
+  safetyTier: 'standard',
+};
+
 export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [settings, setSettings] = useState(initialSettings);
-  const [savedSettings, setSavedSettings] = useState(initialSettings);
+  const normalizedInitial = useMemo(
+    () => ({
+      ...initialSettings,
+      aiAgent: {
+        ...DEFAULT_AI_AGENT,
+        ...(initialSettings.aiAgent || {}),
+      },
+    }),
+    [initialSettings]
+  );
+
+  const [settings, setSettings] = useState<AutomationSettings>(normalizedInitial);
+  const [savedSettings, setSavedSettings] = useState<AutomationSettings>(normalizedInitial);
   const [newRuleName, setNewRuleName] = useState('');
   const [newKeywords, setNewKeywords] = useState('');
   const [newReply, setNewReply] = useState('');
@@ -82,7 +113,197 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
 
   return (
     <div className="space-y-6 pb-20 sm:pb-8">
-      {/* 1. Welcome & Away Greetings Card */}
+      {/* 1. AI Intelligence & Conversational Agent Card */}
+      <Card className="shadow-xs border-purple-500/20 bg-gradient-to-b from-purple-500/5 to-transparent">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <Sparkles className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base font-bold font-display">AI Conversational Agent</CardTitle>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                    Intelligence Engine
+                  </span>
+                </div>
+                <CardDescription className="text-xs text-muted">
+                  Autonomous sales assistant grounded in your live product inventory and catalog prices.
+                </CardDescription>
+              </div>
+            </div>
+            <Switch
+              checked={Boolean(settings.aiAgent?.enabled)}
+              onCheckedChange={(c: boolean) =>
+                setSettings((s) => ({
+                  ...s,
+                  aiAgent: {
+                    ...(s.aiAgent || DEFAULT_AI_AGENT),
+                    enabled: c,
+                  },
+                }))
+              }
+              aria-label="Enable AI conversational agent"
+            />
+          </div>
+        </CardHeader>
+        <CardBody className="space-y-4 pt-0">
+          {settings.aiAgent?.enabled ? (
+            <>
+              {/* Agent Mode Selection */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-foreground">Operational Mode</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSettings((s) => ({
+                        ...s,
+                        aiAgent: { ...(s.aiAgent || DEFAULT_AI_AGENT), mode: 'assisted' },
+                      }))
+                    }
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition flex flex-col justify-between ${
+                      settings.aiAgent?.mode === 'assisted'
+                        ? 'border-purple-500 bg-purple-500/10 shadow-xs ring-1 ring-purple-500'
+                        : 'border-separator bg-surface hover:bg-surface-elevated'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground">Assisted (Copilot)</span>
+                        {settings.aiAgent?.mode === 'assisted' && (
+                          <CheckCircle2 size={14} className="text-purple-600 dark:text-purple-400" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted mt-1 leading-relaxed">
+                        AI generates smart draft replies in staff chat. Human staff reviews and confirms before sending to the customer.
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-400 mt-2">
+                      Recommended for high-touch service
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSettings((s) => ({
+                        ...s,
+                        aiAgent: { ...(s.aiAgent || DEFAULT_AI_AGENT), mode: 'autonomous' },
+                      }))
+                    }
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition flex flex-col justify-between ${
+                      settings.aiAgent?.mode === 'autonomous'
+                        ? 'border-purple-500 bg-purple-500/10 shadow-xs ring-1 ring-purple-500'
+                        : 'border-separator bg-surface hover:bg-surface-elevated'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground">Autonomous (Autopilot)</span>
+                        {settings.aiAgent?.mode === 'autonomous' && (
+                          <CheckCircle2 size={14} className="text-purple-600 dark:text-purple-400" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted mt-1 leading-relaxed">
+                        AI immediately responds to customer product questions, availability inquiries, and order tracking on WhatsApp.
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-400 mt-2">
+                      Hands-off automated commerce
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Catalog Grounding Toggle */}
+              <div className="flex items-center justify-between gap-4 p-3 rounded-xl border border-separator bg-surface">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-foreground">Strict Catalog Grounding</p>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      Hallucination Shield
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted">
+                    Restricts responses strictly to verified in-stock inventory, prices, and specs in your database.
+                  </p>
+                </div>
+                <Switch
+                  checked={Boolean(settings.aiAgent?.groundingEnabled)}
+                  onCheckedChange={(c: boolean) =>
+                    setSettings((s) => ({
+                      ...s,
+                      aiAgent: { ...(s.aiAgent || DEFAULT_AI_AGENT), groundingEnabled: c },
+                    }))
+                  }
+                  aria-label="Strict Catalog Grounding"
+                />
+              </div>
+
+              {/* Tone & Safety Tier Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label htmlFor="ai-tone-select" className="text-xs font-semibold text-foreground">
+                    Conversational Tone
+                  </label>
+                  <select
+                    id="ai-tone-select"
+                    value={settings.aiAgent?.responseTone || 'friendly'}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        aiAgent: {
+                          ...(s.aiAgent || DEFAULT_AI_AGENT),
+                          responseTone: e.target.value as 'friendly' | 'professional' | 'concise',
+                        },
+                      }))
+                    }
+                    className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer"
+                  >
+                    <option value="friendly">Friendly (Warm, welcoming, emoji-friendly)</option>
+                    <option value="professional">Professional (Courteous, direct, business-like)</option>
+                    <option value="concise">Concise (Fast, brief, bullet-point answers)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="ai-safety-select" className="text-xs font-semibold text-foreground">
+                    Human Escalation Safety Tier
+                  </label>
+                  <select
+                    id="ai-safety-select"
+                    value={settings.aiAgent?.safetyTier || 'standard'}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        aiAgent: {
+                          ...(s.aiAgent || DEFAULT_AI_AGENT),
+                          safetyTier: e.target.value as 'standard' | 'strict',
+                        },
+                      }))
+                    }
+                    className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer"
+                  >
+                    <option value="standard">Standard (Escalate on customer frustration or dispute)</option>
+                    <option value="strict">Strict (Escalate on out-of-stock, discounts, or delivery delays)</option>
+                  </select>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="p-3.5 rounded-xl border border-dashed border-separator bg-surface-elevated/20 flex items-start gap-3 text-xs text-muted">
+              <ShieldCheck size={16} className="text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
+              <p className="text-[11px] leading-relaxed">
+                When enabled, the AI agent connects with the intelligence service to read buyer inquiries, check live stock in your catalog, suggest or auto-reply to product questions, and hand off disputes to your human team.
+              </p>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* 2. Welcome & Away Greetings Card */}
       <Card className="shadow-xs">
         <CardHeader>
           <div className="flex items-center justify-between">

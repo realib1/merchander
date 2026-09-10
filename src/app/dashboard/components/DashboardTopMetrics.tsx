@@ -15,11 +15,13 @@ export interface DashboardMetricsProps {
     totalOrders: MetricData;
     totalCustomers: MetricData;
     grossMargin: MetricData;
+    currency?: string;
   };
   period: string;
 }
 
 export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) {
+  const currency = metrics.currency || 'GHS';
   const periodText =
     period === 'today'
       ? 'yesterday'
@@ -33,7 +35,7 @@ export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) 
   const formatDiffCurrency = (diff?: number) => {
     if (diff === undefined || diff === null) return undefined;
     const sign = diff >= 0 ? '+' : '-';
-    return `${sign}${formatCurrency(Math.abs(diff))}`;
+    return `${sign}${formatCurrency(Math.abs(diff), currency)}`;
   };
 
   // Format count differences
@@ -47,7 +49,7 @@ export function DashboardTopMetrics({ metrics, period }: DashboardMetricsProps) 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <MetricCard
         title="Revenue"
-        value={formatCurrency(metrics.totalSales?.value ?? 0)}
+        value={formatCurrency(metrics.totalSales?.value ?? 0, currency)}
         change={metrics.totalSales?.change}
         diffText={formatDiffCurrency(metrics.totalSales?.diff)}
         periodText={periodText}

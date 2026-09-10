@@ -16,7 +16,8 @@ export function percentOfRevenue(value: number, grossRevenue: number): string {
 export function buildProfitabilitySummaryRows(
   data: ProfitabilityData,
   businessName: string,
-  generatedAt: Date = new Date()
+  generatedAt: Date = new Date(),
+  currency: string = 'GHS'
 ): (string | number)[][] {
   const { metrics } = data;
   return [
@@ -26,7 +27,7 @@ export function buildProfitabilitySummaryRows(
     ['Date Range:', `${data.dateRange.from} to ${data.dateRange.to}`],
     ['Generated At:', generatedAt.toLocaleString()],
     [],
-    ['KEY FINANCIAL METRICS', 'AMOUNT (GHS)', '% OF REVENUE'],
+    ['KEY FINANCIAL METRICS', `AMOUNT (${currency})`, '% OF REVENUE'],
     ['Gross Revenue', metrics.grossRevenue, '100.0%'],
     ['Cost of Goods Sold (COGS)', metrics.cogs, percentOfRevenue(metrics.cogs, metrics.grossRevenue)],
     ['Gross Profit', metrics.grossProfit, `${metrics.grossMarginPct.toFixed(1)}%`],

@@ -27,6 +27,7 @@ import {
   Activity,
   Cookie,
   Bot,
+  MessageSquare,
 } from 'lucide-react';
 import { MobileSettingsSheet } from './MobileSettingsSheet';
 
@@ -60,6 +61,7 @@ export const settingsGroups = [
     title: 'Operations & Channels',
     items: [
       { name: 'Connected Channels', href: '/dashboard/settings/channels', icon: Share2 },
+      { name: 'Chat Routing & SLA', href: '/dashboard/settings/conversations', icon: MessageSquare },
       { name: 'Automation & Bots', href: '/dashboard/settings/automation', icon: Bot },
       { name: 'Suppliers & POs', href: '/dashboard/settings/suppliers', icon: Truck },
       { name: 'Shipments & Zones', href: '/dashboard/settings/shipments', icon: Truck },

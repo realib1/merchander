@@ -90,15 +90,25 @@ export function formatDate(
     month: 'short',
     day: 'numeric',
   },
-  locale: string = 'en-US'
+  locale: string = 'en-US',
+  timeZone?: string
 ): string {
   const parsed = date instanceof Date ? date : new Date(date);
   if (isNaN(parsed.getTime())) return '';
 
   try {
-    return new Intl.DateTimeFormat(locale, options).format(parsed);
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      ...options,
+      ...(timeZone ? { timeZone } : {}),
+    };
+    return new Intl.DateTimeFormat(locale, formatOptions).format(parsed);
   } catch {
-    return parsed.toDateString();
+    // Fallback if invalid timeZone provided or Intl error occurs
+    try {
+      return new Intl.DateTimeFormat(locale, options).format(parsed);
+    } catch {
+      return parsed.toDateString();
+    }
   }
 }
 

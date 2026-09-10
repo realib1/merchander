@@ -67,12 +67,30 @@ export default async function ShipmentsPage({
   const suppliers = (suppliersData as { id: string; name: string }[]) || [];
   const purchaseOrders = (purchaseOrdersData as { id: string; po_number: string | null }[]) || [];
 
+  let storeCurrency = 'GHS';
+  const { data: tenantUser } = await supabase
+    .from('tenant_users')
+    .select('tenant_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (tenantUser?.tenant_id) {
+    const { data: ts } = await supabase
+      .from('tenant_settings')
+      .select('store_currency')
+      .eq('tenant_id', tenantUser.tenant_id)
+      .maybeSingle();
+    if (ts?.store_currency) {
+      storeCurrency = ts.store_currency;
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full animate-fadeIn">
       <h1 className="sr-only">Shipments & Logistics</h1>
 
       {/* Top Metrics */}
-      <ShipmentsTopMetrics shipments={shipmentsData || []} />
+      <ShipmentsTopMetrics shipments={shipmentsData || []} currency={storeCurrency} />
 
       {/* Table & Controls */}
       <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">

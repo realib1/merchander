@@ -13,6 +13,7 @@ export interface DashboardMetrics {
   totalOrders: MetricValue;
   totalCustomers: MetricValue;
   grossMargin: MetricValue;
+  currency: string;
   topProducts: {
     id: string;
     name: string;
@@ -63,6 +64,7 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
       totalOrders: { value: 0, diff: 0 },
       totalCustomers: { value: 0, diff: 0 },
       grossMargin: { value: 0, diff: 0 },
+      currency: 'GHS',
       topProducts: [],
       salesChart: [],
       attention: {
@@ -80,14 +82,20 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
   }
 
   let lowStockThreshold = 10;
+  let currency = 'GHS';
   const { data: settings } = await supabase
     .from('tenant_settings')
-    .select('low_stock_threshold')
+    .select('low_stock_threshold, store_currency')
     .eq('tenant_id', tenantUser.tenant_id)
     .maybeSingle();
 
-  if (settings && typeof (settings as Record<string, unknown>).low_stock_threshold === 'number') {
-    lowStockThreshold = (settings as Record<string, unknown>).low_stock_threshold as number;
+  if (settings) {
+    if (typeof (settings as Record<string, unknown>).low_stock_threshold === 'number') {
+      lowStockThreshold = (settings as Record<string, unknown>).low_stock_threshold as number;
+    }
+    if ((settings as Record<string, unknown>).store_currency) {
+      currency = String((settings as Record<string, unknown>).store_currency);
+    }
   }
 
   // Call RPC for aggregated metrics with graceful fallback
@@ -316,6 +324,7 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
     totalOrders: { value: current_orders, change: orderChange, diff: orderDiff },
     totalCustomers: { value: total_customers || 0, change: customerChange, diff: customerDiff },
     grossMargin: { value: currentMargin, change: marginChange, diff: marginDiff },
+    currency,
     topProducts: (top_products || []).map((p, idx) => ({
       id: `top-prod-${idx}`,
       name: p.name,

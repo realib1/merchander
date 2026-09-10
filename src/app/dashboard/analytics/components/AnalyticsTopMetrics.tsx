@@ -7,15 +7,16 @@ import { MetricCard } from '@/components/ui/MetricCard';
 interface AnalyticsTopMetricsProps {
   metrics: AnalyticsOverviewMetrics;
   periodLabel: string;
+  currency?: string;
 }
 
-export function AnalyticsTopMetrics({ metrics, periodLabel }: AnalyticsTopMetricsProps) {
+export function AnalyticsTopMetrics({ metrics, periodLabel, currency = 'GHS' }: AnalyticsTopMetricsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {/* 1. Gross Merchandise Value */}
       <MetricCard
         title="Gross Sales (GMV)"
-        value={formatCurrency(metrics.gmv, 'GHS')}
+        value={formatCurrency(metrics.gmv, currency)}
         change={metrics.gmvChange}
         periodText={`prior ${periodLabel.toLowerCase()}`}
         subtitle={`${metrics.ordersCount} completed orders`}
@@ -26,7 +27,7 @@ export function AnalyticsTopMetrics({ metrics, periodLabel }: AnalyticsTopMetric
       {/* 2. Average Order Value */}
       <MetricCard
         title="Average Order Value"
-        value={formatCurrency(metrics.aov, 'GHS')}
+        value={formatCurrency(metrics.aov, currency)}
         change={metrics.aovChange}
         periodText={`prior ${periodLabel.toLowerCase()}`}
         subtitle="Average customer basket size"

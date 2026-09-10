@@ -312,12 +312,21 @@ export interface KeywordRule {
   isActive: boolean;
 }
 
+export interface AiAgentSettings {
+  enabled: boolean;
+  mode: 'assisted' | 'autonomous';
+  responseTone: 'friendly' | 'professional' | 'concise';
+  groundingEnabled: boolean;
+  safetyTier?: 'standard' | 'strict';
+}
+
 export interface AutomationSettings {
   welcomeMessageEnabled: boolean;
   welcomeGreeting: string;
   awayMessageEnabled: boolean;
   awayMessage: string;
   rules: KeywordRule[];
+  aiAgent?: AiAgentSettings;
 }
 
 export interface PrivacySettings {
