@@ -75,4 +75,4 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 1. Replace native `confirm()` calls with `@/components/ui/ConfirmDialog` across the 14 table and management components (`CategoriesTable`, `StaffTable`, `ShipmentsTable`, `PaymentsTable`, `ExpensesTable`, `ProductsTable`, `BranchManagementClient`, `DeleteRoleButton`, `BillingMethodCard`, `TargetCard`, `SupportAccessDelegationView`, `IncidentsManager`, and `StaffManagementClient`).
 2. Replace native `alert()` calls with `toast.error()` / `toast.warning()` from `sonner` in `profitabilityExport.ts`, `SupportAccessDelegationView.tsx`, and `StaffManagementClient.tsx`.
 **Resolution:** Fixed on 2026-09-09 in fix/native-dialogs-f12. Replaced all 14 native `window.confirm()` calls with accessible `@/components/ui/ConfirmDialog` modals featuring focus trapping, loading indicators, and destructive styling. Replaced all 5 `window.alert()` calls with `sonner` toasts (`toast.error` / `toast.success`). Typecheck (`yarn check`), lint (`yarn lint`), and all 517 tests (`yarn test`) pass.
-
+

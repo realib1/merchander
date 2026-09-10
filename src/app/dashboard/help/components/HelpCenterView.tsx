@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { HelpArticle, TicketCategory } from '@/types/support';
 import { Search, BookOpen, ChevronRight, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 
 interface HelpCenterViewProps {
   articles: HelpArticle[];
@@ -109,9 +110,7 @@ export function HelpCenterView({ articles, onOpenContact }: HelpCenterViewProps)
             <p className="text-xs text-muted">{activeArticle.summary}</p>
           </div>
 
-          <div className="text-xs text-foreground/90 leading-relaxed whitespace-pre-line space-y-3 prose prose-invert max-w-none">
-            {activeArticle.content}
-          </div>
+          <MarkdownRenderer content={activeArticle.content} className="py-1" />
 
           {/* Need help CTA below article */}
           <div className="p-4 rounded-xl bg-surface-elevated border border-separator/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-6">

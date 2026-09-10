@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { revalidatePath } from 'next/cache';
 import { OrderSettings, InventorySettings, PaymentSettings } from '@/types/settings';
+import { encryptSecret, maskSecret } from '@/utils/encryption';
 
 const DEFAULT_ORDERS: OrderSettings = {
   numbering: {
@@ -413,7 +414,17 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
         },
         providers: {
           ...DEFAULT_PAYMENTS.providers,
-          ...(raw.providers || {}),
+          ...(raw.providers
+            ? Object.fromEntries(
+                Object.entries(raw.providers).map(([k, v]) => [
+                  k,
+                  {
+                    ...v,
+                    secretKey: v && typeof v === 'object' && 'secretKey' in v && v.secretKey ? maskSecret(v.secretKey as string) : undefined,
+                  },
+                ])
+              )
+            : {}),
         },
       };
     }
@@ -445,7 +456,40 @@ export async function updatePaymentSettings(payload: PaymentSettings) {
       .eq('tenant_id', tenantId)
       .maybeSingle();
     const currentData = (existing?.settings_data as Record<string, unknown>) || {};
-    const updatedData = { ...currentData, payment_settings: payload };
+    const existingPaymentSettings = (currentData.payment_settings as PaymentSettings | undefined);
+    const existingProviders = existingPaymentSettings?.providers || {};
+
+    const sanitizedProviders = payload.providers
+      ? Object.fromEntries(
+          Object.entries(payload.providers).map(([providerKey, config]) => {
+            const existingSecret = (existingProviders as Record<string, { secretKey?: string }>)[providerKey]?.secretKey;
+            let secretToStore = config.secretKey;
+
+            // If secret is masked or untouched, preserve existing encrypted secret
+            if (secretToStore && secretToStore.includes('••••')) {
+              secretToStore = existingSecret;
+            } else if (secretToStore) {
+              // Encrypt new secret with AES-256-GCM
+              secretToStore = encryptSecret(secretToStore);
+            }
+
+            return [
+              providerKey,
+              {
+                ...config,
+                secretKey: secretToStore,
+              },
+            ];
+          })
+        )
+      : payload.providers;
+
+    const payloadToStore: PaymentSettings = {
+      ...payload,
+      providers: sanitizedProviders as PaymentSettings['providers'],
+    };
+
+    const updatedData = { ...currentData, payment_settings: payloadToStore };
 
     const { error } = await supabase.from('tenant_settings').upsert(
       {

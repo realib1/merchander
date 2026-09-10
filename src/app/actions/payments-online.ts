@@ -8,6 +8,7 @@ import { SubscriptionTier, BillingCycle, PaymentSettings, SubscriptionPaymentMet
 import { revalidatePath } from 'next/cache';
 import { buildStorefrontOrderPaymentUrl } from '@/utils/paymentLinks';
 import { evaluateAndProcessOutreach } from '@/lib/intelligence/outreach';
+import { decryptSecret } from '@/utils/encryption';
 
 /**
  * Initiates an online payment checkout for SaaS Subscription upgrade (Merchander Admin billing)
@@ -452,7 +453,8 @@ export async function initiateOrderOnlinePayment(params: {
   if (activeProvider === 'paystack') {
     try {
       const email = params.customerEmail || settingsData?.store_email || 'customer@merchander.com';
-      const secretKey = providerConfig?.secretKey || process.env.PAYSTACK_SECRET_KEY;
+      const rawSecret = providerConfig?.secretKey || process.env.PAYSTACK_SECRET_KEY;
+      const secretKey = rawSecret ? decryptSecret(rawSecret) : undefined;
 
       const res = await initializePaystackTransaction({
         email,
@@ -490,6 +492,8 @@ export async function initiateOrderOnlinePayment(params: {
     }
 
     try {
+      const clientSecret = providerConfig?.secretKey ? decryptSecret(providerConfig.secretKey) : undefined;
+
       const res = await requestHubtelMobileMoneyPrompt({
         customerPhone: params.customerPhone,
         amount: totalGhs,
@@ -497,7 +501,7 @@ export async function initiateOrderOnlinePayment(params: {
         description: `Payment for Order #${order.id.slice(0, 8)}`,
         merchantAccountOrPosId: providerConfig?.merchantAccountOrPosId,
         clientId: providerConfig?.publicKey,
-        clientSecret: providerConfig?.secretKey,
+        clientSecret,
         callbackUrl: params.callbackUrl,
       });
 
@@ -521,7 +525,8 @@ export async function initiateOrderOnlinePayment(params: {
  */
 export async function verifyOnlinePayment(reference: string, customSecretKey?: string) {
   try {
-    const res = await verifyPaystackTransaction(reference, customSecretKey);
+    const resolvedSecret = customSecretKey ? decryptSecret(customSecretKey) : undefined;
+    const res = await verifyPaystackTransaction(reference, resolvedSecret);
     return res;
   } catch (err) {
     console.error('Error verifying payment reference:', err);

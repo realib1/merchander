@@ -18,3 +18,4 @@ export { ToastProvider, useToast, type ToastType, type ToastItem, type ToastCont
 export { DataTable, type DataTableProps, type Column } from './DataTable';
 export { Checkbox, type CheckboxProps } from './Checkbox';
 export { Drawer, type DrawerProps, type DrawerSize } from './Drawer';
+export { MarkdownRenderer } from './MarkdownRenderer';

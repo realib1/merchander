@@ -48,7 +48,7 @@ export async function getStaffMembers() {
       const meta = authUser?.user_metadata || {};
 
       // Construct name from first/last if full_name is missing
-      let displayName = meta.full_name;
+      let displayName = meta.full_name || meta.name;
       if (!displayName && (meta.first_name || meta.last_name)) {
         displayName = `${meta.first_name || ''} ${meta.last_name || ''}`.trim();
       }
@@ -110,8 +110,10 @@ export async function inviteStaffMember(formData: FormData) {
   }
 
   // 2. Invite user via Supabase Auth Admin
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
     data: { full_name },
+    redirectTo: `${appUrl}/login`,
   });
 
   if (inviteError) {

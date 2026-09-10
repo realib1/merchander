@@ -991,6 +991,7 @@ export async function createMerchanderAction(
       email_confirm: true,
       user_metadata: {
         name: payload.ownerName?.trim() || cleanName,
+        full_name: payload.ownerName?.trim() || cleanName,
         role: 'merchant',
         phone: payload.ownerPhone?.trim(),
       },

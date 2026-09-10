@@ -2,12 +2,27 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import type { Product } from './products-queries';
+import { z } from 'zod';
+
+export const ProductUpdateSchema = z
+  .object({
+    name: z.string().min(1, 'Product name cannot be empty').max(255).optional(),
+    description: z.string().nullable().optional(),
+    is_active: z.boolean().optional(),
+    category_id: z.string().uuid().nullable().optional(),
+    availability_status: z.enum(['AVAILABLE', 'PRE_ORDER', 'OUT_OF_STOCK']).optional(),
+    images: z.array(z.string()).optional(),
+    stock_unit: z.string().optional(),
+  })
+  .strict();
+
+export type ProductUpdateInput = z.infer<typeof ProductUpdateSchema>;
 
 /**
  * Update a product's base details.
  */
-export async function updateProduct(productId: string, updates: Partial<Product>) {
+export async function updateProduct(productId: string, updates: ProductUpdateInput) {
+  const validatedUpdates = ProductUpdateSchema.parse(updates);
   const supabase = await createClient();
 
   // Auth + tenant scoping (IDOR prevention)
@@ -22,7 +37,10 @@ export async function updateProduct(productId: string, updates: Partial<Product>
 
   const { data, error } = await supabase
     .from('products')
-    .update(updates)
+    .update({
+      ...validatedUpdates,
+      updated_at: new Date().toISOString(),
+    })
     .eq('id', productId)
     .eq('tenant_id', tenantUser.tenant_id)
     .select()
