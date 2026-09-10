@@ -115,11 +115,15 @@ describe('selfServiceSignupAction', () => {
     expect(res.success).toBe(true);
     expect(res.tenantId).toBe('new-tenant-uuid');
 
-    // Verify auth user creation
+    // Verify auth user creation with dual name metadata
     expect(mockAdminClient.auth.admin.createUser).toHaveBeenCalledWith(
       expect.objectContaining({
         email: 'ama@glamourhaven.store',
         password: 'SecurePassword123!',
+        user_metadata: expect.objectContaining({
+          name: 'Ama Frimpong',
+          full_name: 'Ama Frimpong',
+        }),
       })
     );
 

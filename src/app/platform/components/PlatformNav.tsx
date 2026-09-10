@@ -58,12 +58,14 @@ export function PlatformNav({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     const toastId = toast.loading('Signing out...');
     try {
-      setIsLoggingOut(true);
       await supabase.auth.signOut();
       toast.dismiss(toastId);
-      router.push('/');
+      toast.dismiss();
+      router.replace('/login');
+      router.refresh();
     } catch (err) {
       console.error('Logout error:', err);
       toast.dismiss(toastId);

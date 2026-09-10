@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { CheckCircle2, Loader2, Sparkles } from 'lucide-react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 import { SubscriptionTier, BillingCycle } from '@/types/settings';
 import { formatCurrency } from '@/utils/format';
 
@@ -122,8 +122,7 @@ export function PlanTiersGrid({ currentTier, currentCycle, onSelectPlan, isPendi
             >
               {t.isPopular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-primary text-white text-[10px] font-bold shadow-xs flex items-center gap-1">
-                  <Sparkles size={11} />
-                  <span>Recommended for Social Commerce</span>
+                  <span>Popular</span>
                 </div>
               )}
 

@@ -119,6 +119,7 @@ export async function selfServiceSignupAction(
       email_confirm: true,
       user_metadata: {
         name: cleanFullName,
+        full_name: cleanFullName,
         role: 'merchant',
         phone: cleanPhone,
         store_name: cleanStoreName,

@@ -1212,7 +1212,7 @@ export async function provisionMerchantTenantAction(params: {
         email: cleanEmail,
         password: tempPassword,
         email_confirm: true,
-        user_metadata: { name: cleanName, role: 'merchant' },
+        user_metadata: { name: cleanName, full_name: cleanName, role: 'merchant' },
       });
 
       if (createErr || !created.user) {

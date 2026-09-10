@@ -42,7 +42,7 @@ export async function getStaffMembers() {
   // A bare listUsers() only returns the first page (50 users) platform-wide,
   // so anyone past page 1 would render with placeholder name/email.
   const staff = await Promise.all(
-    tenantUsers.map(async (tu) => {
+    (tenantUsers || []).map(async (tu) => {
       const { data: authLookup } = await supabaseAdmin.auth.admin.getUserById(tu.user_id);
       const authUser = authLookup?.user ?? null;
       const meta = authUser?.user_metadata || {};
@@ -51,6 +51,13 @@ export async function getStaffMembers() {
       let displayName = meta.full_name || meta.name;
       if (!displayName && (meta.first_name || meta.last_name)) {
         displayName = `${meta.first_name || ''} ${meta.last_name || ''}`.trim();
+      }
+      if (!displayName && authUser?.email) {
+        const emailUser = authUser.email.split('@')[0] || '';
+        displayName = emailUser
+          .replace(/[._-]/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+          .trim();
       }
 
       // Resolve role name
@@ -91,7 +98,9 @@ export async function inviteStaffMember(formData: FormData) {
   }
 
   const { email, role } = validation.data;
-  const full_name = validation.data.full_name || 'Team Member';
+  const rawFullName = validation.data.full_name?.trim();
+  const emailPrefix = email.split('@')[0]?.replace(/[._-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+  const full_name = rawFullName || emailPrefix || 'Team Member';
 
   // 1. Get current user's tenant
   const {
@@ -112,8 +121,8 @@ export async function inviteStaffMember(formData: FormData) {
   // 2. Invite user via Supabase Auth Admin
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name },
-    redirectTo: `${appUrl}/login`,
+    data: { full_name, name: full_name },
+    redirectTo: `${appUrl}/auth/callback?next=/dashboard`,
   });
 
   if (inviteError) {
