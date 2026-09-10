@@ -248,6 +248,16 @@
     font-family: var(--font-sans);
   }
 
+  /* Universal form control font inheritance (prevents Windows/OS Serif defaults on select/option) */
+  input,
+  button,
+  textarea,
+  select,
+  optgroup,
+  option {
+    font-family: inherit;
+  }
+
   /* Universal Interactive Pointer Cursors */
   button,
   [role='button'],

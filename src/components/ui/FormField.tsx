@@ -47,7 +47,8 @@ export function FormField({
   const hintId = `${id}-hint`;
 
   const baseInputStyles = cn(
-    'w-full rounded-xl border bg-surface px-3.5 py-2 text-sm',
+    'w-full rounded-xl border bg-surface px-3.5 text-sm',
+    !isTextarea ? 'h-10 py-2' : 'py-2.5',
     'placeholder:text-muted',
     'transition-colors duration-150 outline-none',
     'focus-visible:ring-2',

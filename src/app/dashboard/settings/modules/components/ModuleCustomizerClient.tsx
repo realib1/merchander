@@ -8,7 +8,6 @@ import {
   RotateCcw,
   Save,
   CircleAlert,
-  Loader2,
   Sparkles,
   ShieldAlert,
   LayoutDashboard,
@@ -27,6 +26,8 @@ import {
   isModuleEntitled,
 } from '@/utils/business-modules';
 import { BusinessIcon } from '@/components/ui/BusinessIcon';
+import { Button } from '@/components/ui/Button';
+import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
 import { updateTenantModulesAction } from '@/app/actions/tenant-modules';
 
 interface ModuleCustomizerClientProps {
@@ -34,6 +35,34 @@ interface ModuleCustomizerClientProps {
   initialModules: BusinessModuleKey[];
   tier: PlatformTier;
 }
+
+interface ModuleCategoryGroup {
+  id: string;
+  title: string;
+  description: string;
+  modules: BusinessModuleKey[];
+}
+
+const MODULE_CATEGORIES: ModuleCategoryGroup[] = [
+  {
+    id: 'supply-chain',
+    title: 'Supply Chain & Inbound Logistics',
+    description: 'Track overseas cargo, container shipments, supplier liabilities, and customer batch cycles.',
+    modules: ['shipments', 'batches', 'suppliers'],
+  },
+  {
+    id: 'commerce-ai',
+    title: 'Digital Storefront & Customer AI',
+    description: 'Direct mobile shopping catalog, order tracking, and automated WhatsApp order communications.',
+    modules: ['storefront', 'intelligence'],
+  },
+  {
+    id: 'finance-margins',
+    title: 'Unit Profitability & Cost Allocation',
+    description: 'Direct landed cost calculations, packaging fees, delivery charges, and true net margins.',
+    modules: ['profitability'],
+  },
+];
 
 export function ModuleCustomizerClient({
   initialArchetype,
@@ -50,7 +79,6 @@ export function ModuleCustomizerClient({
     setArchetype(newArchetype);
     if (newArchetype !== 'custom') {
       const presetModules = ARCHETYPE_DEFINITIONS[newArchetype].defaultModules;
-      // Filter by tier entitlements
       const entitled = presetModules.filter((m) => isModuleEntitled(tier, m));
       setEnabledModules(entitled);
 
@@ -98,24 +126,22 @@ export function ModuleCustomizerClient({
     setSaveError(null);
 
     try {
-      const res = await updateTenantModulesAction({
+      const result = await updateTenantModulesAction({
         archetype,
         enabledModules,
       });
 
-      if (!res.success) {
-        setSaveError(res.error || 'Failed to save module settings.');
-        toast.error(res.error || 'Failed to save module settings.');
-        setIsSaving(false);
-        return;
+      if (!result.success) {
+        setSaveError(result.error || 'Failed to save module configuration.');
+        toast.error(result.error || 'Could not save modules.');
+      } else {
+        toast.success('Workspace modules saved successfully.');
       }
-
-      toast.success('Workspace module configuration updated successfully!');
-      setIsSaving(false);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'An error occurred.';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unexpected error saving modules';
       setSaveError(msg);
       toast.error(msg);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -124,7 +150,7 @@ export function ModuleCustomizerClient({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      {/* Left Column: Toggles & Presets (2 Columns Wide on Desktop) */}
+      {/* Left Column: Archetype Preset & Categorized Module Cards */}
       <div className="lg:col-span-2 space-y-6">
         {saveError && (
           <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-sm font-medium text-destructive flex items-center gap-2">
@@ -133,262 +159,270 @@ export function ModuleCustomizerClient({
           </div>
         )}
 
-        {/* Current Archetype Preset Banner */}
-        <div className="p-5 rounded-2xl bg-surface border border-separator shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-separator flex items-center justify-center shrink-0">
-              <BusinessIcon name={activeDef.icon} size={24} className="text-brand-primary" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-foreground">{activeDef.name}</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-                  Active
-                </span>
+        {/* Current Archetype Preset Banner Card */}
+        <Card className="border-separator/80">
+          <CardBody className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-separator flex items-center justify-center shrink-0">
+                <BusinessIcon name={activeDef.icon} size={24} className="text-brand-primary" />
               </div>
-              <p className="text-xs text-muted mt-0.5">{activeDef.tagline}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-muted whitespace-nowrap">
-              Preset:
-            </label>
-            <select
-              value={archetype}
-              onChange={(e) => handleApplyPreset(e.target.value as BusinessArchetype)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            >
-              <option value="import_resale">Import & Social Resale</option>
-              <option value="boutique_fashion">Boutique & Retail Fashion</option>
-              <option value="wholesale_distributor">Wholesale & Distribution</option>
-              <option value="general_pos">General Merchant / Fast POS</option>
-              <option value="custom">Custom Configuration</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Module Matrix */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold text-muted uppercase tracking-wider px-1">
-            Toggle Workspace Capabilities
-          </h3>
-
-          {(
-            Object.keys(MODULE_DEFINITIONS) as BusinessModuleKey[]
-          ).map((modKey) => {
-            const def = MODULE_DEFINITIONS[modKey];
-            const isEnabled = enabledModules.includes(modKey);
-            const isEntitled = isModuleEntitled(tier, modKey);
-
-            return (
-              <div
-                key={modKey}
-                className={`p-4 rounded-xl border transition-all ${
-                  isEnabled
-                    ? 'bg-surface border-separator shadow-xs border-l-4 border-l-brand-primary'
-                    : 'bg-surface-elevated/40 border-separator/60 opacity-75'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-7 h-7 rounded-lg bg-surface-elevated border border-separator flex items-center justify-center shrink-0 text-brand-primary">
-                        <BusinessIcon name={def.icon} size={15} />
-                      </div>
-                      <h4 className="text-sm font-bold text-foreground">{def.name}</h4>
-                      {isEnabled ? (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-surface-elevated text-muted border border-separator">
-                          Dormant
-                        </span>
-                      )}
-                      {!isEntitled && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-amber/10 text-brand-amber border border-brand-amber/20 flex items-center gap-1">
-                          <Lock size={10} />
-                          <span>Requires {def.requiredTier.toUpperCase()}</span>
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-muted leading-relaxed">{def.description}</p>
-
-                    <div className="flex flex-wrap gap-1.5 mt-2.5">
-                      {def.impactTags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[10px] px-2 py-0.5 rounded-md bg-surface-elevated border border-separator/80 text-secondary"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Toggle Switch */}
-                  <div className="pt-1">
-                    {isEntitled ? (
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={isEnabled}
-                        onClick={() => handleToggle(modKey)}
-                        className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                          isEnabled ? 'bg-brand-primary' : 'bg-separator'
-                        }`}
-                      >
-                        <div
-                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                            isEnabled ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
-                    ) : (
-                      <Link
-                        href="/dashboard/settings/subscription"
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-brand-amber/10 text-brand-amber border border-brand-amber/20 hover:bg-brand-amber/20 transition-all"
-                      >
-                        <Sparkles size={12} />
-                        <span>Upgrade</span>
-                      </Link>
-                    )}
-                  </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-bold text-foreground">{activeDef.name}</h2>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+                    Active
+                  </span>
                 </div>
+                <p className="text-xs text-muted mt-0.5">{activeDef.tagline}</p>
               </div>
-            );
-          })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label htmlFor="archetype-preset-select" className="text-xs font-semibold text-muted whitespace-nowrap">
+                Preset:
+              </label>
+              <select
+                id="archetype-preset-select"
+                value={archetype}
+                onChange={(e) => handleApplyPreset(e.target.value as BusinessArchetype)}
+                className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+              >
+                <option value="import_resale">Import & Social Resale</option>
+                <option value="boutique_fashion">Boutique & Retail Fashion</option>
+                <option value="wholesale_distributor">Wholesale & Distribution</option>
+                <option value="general_pos">General Merchant / Fast POS</option>
+                <option value="custom">Custom Configuration</option>
+              </select>
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Categorized Module Cards */}
+        <div className="space-y-5">
+          {MODULE_CATEGORIES.map((cat) => (
+            <Card key={cat.id} className="border-separator/80">
+              <CardHeader className="bg-surface-elevated/40 pb-3">
+                <CardTitle className="text-sm font-bold text-foreground">{cat.title}</CardTitle>
+                <CardDescription className="text-xs text-muted">{cat.description}</CardDescription>
+              </CardHeader>
+              <CardBody className="p-4 space-y-3">
+                {cat.modules.map((modKey) => {
+                  const def = MODULE_DEFINITIONS[modKey];
+                  if (!def) return null;
+                  const isEnabled = enabledModules.includes(modKey);
+                  const isEntitled = isModuleEntitled(tier, modKey);
+
+                  return (
+                    <div
+                      key={modKey}
+                      className={`p-4 rounded-xl border transition-all ${
+                        isEnabled
+                          ? 'bg-surface border-separator shadow-xs border-l-4 border-l-brand-primary'
+                          : 'bg-surface-elevated/40 border-separator/60 opacity-80'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-7 h-7 rounded-lg bg-surface-elevated border border-separator flex items-center justify-center shrink-0 text-brand-primary">
+                              <BusinessIcon name={def.icon} size={15} />
+                            </div>
+                            <h4 className="text-sm font-bold text-foreground">{def.name}</h4>
+                            {isEnabled ? (
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
+                                Active
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-surface-elevated text-muted border border-separator">
+                                Dormant
+                              </span>
+                            )}
+                            {!isEntitled && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-amber/10 text-brand-amber border border-brand-amber/20 flex items-center gap-1">
+                                <Lock size={10} />
+                                <span>Requires {def.requiredTier.toUpperCase()}</span>
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-xs text-muted leading-relaxed">{def.description}</p>
+
+                          <div className="flex flex-wrap gap-1.5 mt-2.5">
+                            {def.impactTags.map((tag, idx) => (
+                              <span
+                                key={idx}
+                                className="text-[10px] px-2 py-0.5 rounded-md bg-surface-elevated border border-separator/80 text-secondary"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Toggle Switch */}
+                        <div className="pt-1">
+                          {isEntitled ? (
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={isEnabled}
+                              aria-label={`Toggle ${def.name}`}
+                              onClick={() => handleToggle(modKey)}
+                              className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                                isEnabled ? 'bg-brand-primary' : 'bg-separator'
+                              }`}
+                            >
+                              <div
+                                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                                  isEnabled ? 'translate-x-5' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          ) : (
+                            <Link
+                              href="/dashboard/settings/subscription"
+                              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-brand-amber/10 text-brand-amber border border-brand-amber/20 hover:bg-brand-amber/20 transition-all"
+                            >
+                              <Sparkles size={12} />
+                              <span>Upgrade</span>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardBody>
+            </Card>
+          ))}
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-4 border-t border-separator flex items-center justify-between">
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={isSaving}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground hover:bg-surface-elevated transition-all"
-          >
-            <RotateCcw size={14} />
-            <span>Reset</span>
-          </button>
+        <Card className="border-separator/80">
+          <CardFooter className="p-4 flex items-center justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              disabled={isSaving}
+              leftIcon={<RotateCcw size={14} />}
+            >
+              Reset to Saved
+            </Button>
 
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-xl bg-brand-primary text-white hover:bg-brand-primary-hover shadow-md shadow-brand-primary/20 transition-all disabled:opacity-50"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 size={14} className="animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save size={14} />
-                <span>Save Module Changes</span>
-              </>
-            )}
-          </button>
-        </div>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              isLoading={isSaving}
+              leftIcon={!isSaving ? <Save size={14} /> : undefined}
+            >
+              Save Module Changes
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
 
       {/* Right Column: Live Sidebar Preview & Information */}
       <div className="space-y-4 lg:sticky lg:top-4">
-        <div className="p-5 rounded-2xl bg-surface border border-separator shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">Live Sidebar Impact</h3>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
-              Live Preview
-            </span>
-          </div>
-          <p className="text-xs text-muted leading-relaxed">
-            Here is how your navigation dynamically adjusts based on active modules:
-          </p>
+        <Card className="border-separator/80 shadow-xs">
+          <CardHeader className="p-5 pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-bold text-foreground">Live Sidebar Impact</CardTitle>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
+                Live Preview
+              </span>
+            </div>
+            <CardDescription className="text-xs text-muted leading-relaxed">
+              Here is how your navigation dynamically adjusts based on active modules:
+            </CardDescription>
+          </CardHeader>
 
-          <div className="p-3 rounded-xl bg-surface-elevated/60 border border-separator/80 space-y-1">
-            <div className="flex items-center justify-between p-2 rounded-lg bg-surface text-xs font-semibold text-brand-primary shadow-xs">
-              <span className="flex items-center gap-2">
-                <LayoutDashboard size={14} />
-                <span>Dashboard</span>
-              </span>
-              <span className="text-[9px] text-muted uppercase">Core</span>
-            </div>
-            <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
-              <span className="flex items-center gap-2">
-                <ShoppingBag size={14} />
-                <span>Orders</span>
-              </span>
-              <span className="text-[9px] text-muted uppercase">Core</span>
-            </div>
-            <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
-              <span className="flex items-center gap-2">
-                <Package size={14} />
-                <span>Inventory</span>
-              </span>
-              <span className="text-[9px] text-muted uppercase">Core</span>
-            </div>
+          <CardBody className="p-5 pt-0 space-y-4">
+            <div className="p-3 rounded-xl bg-surface-elevated/60 border border-separator/80 space-y-1">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-surface text-xs font-semibold text-brand-primary shadow-xs">
+                <span className="flex items-center gap-2">
+                  <LayoutDashboard size={14} />
+                  <span>Dashboard</span>
+                </span>
+                <span className="text-[9px] text-muted uppercase">Core</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
+                <span className="flex items-center gap-2">
+                  <ShoppingBag size={14} />
+                  <span>Orders</span>
+                </span>
+                <span className="text-[9px] text-muted uppercase">Core</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
+                <span className="flex items-center gap-2">
+                  <Package size={14} />
+                  <span>Inventory</span>
+                </span>
+                <span className="text-[9px] text-muted uppercase">Core</span>
+              </div>
 
-            {/* Dynamic Module Navs */}
-            {[
-              { mod: 'shipments' as const, label: 'Shipments', icon: 'ship' },
-              { mod: 'batches' as const, label: 'Pre-Order Batches', icon: 'clock' },
-              { mod: 'suppliers' as const, label: 'Suppliers', icon: 'factory' },
-              { mod: 'storefront' as const, label: 'Online Store', icon: 'globe' },
-              { mod: 'profitability' as const, label: 'Profitability', icon: 'trending-up' },
-            ].map((item) => {
-              const isShown = enabledModules.includes(item.mod);
-              return (
-                <div
-                  key={item.mod}
-                  className={`flex items-center justify-between p-2 rounded-lg text-xs transition-all ${
-                    isShown
-                      ? 'text-foreground font-medium'
-                      : 'text-muted line-through opacity-40 bg-background/30'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <BusinessIcon
-                      name={item.icon}
-                      size={14}
-                      className={isShown ? 'text-brand-primary' : 'text-muted'}
-                    />
-                    <span>{item.label}</span>
-                  </span>
-                  <span
-                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+              {/* Dynamic Module Navs */}
+              {[
+                { mod: 'shipments' as const, label: 'Shipments', icon: 'ship' },
+                { mod: 'batches' as const, label: 'Pre-Order Batches', icon: 'clock' },
+                { mod: 'suppliers' as const, label: 'Suppliers', icon: 'factory' },
+                { mod: 'storefront' as const, label: 'Online Store', icon: 'globe' },
+                { mod: 'profitability' as const, label: 'Profitability', icon: 'trending-up' },
+              ].map((item) => {
+                const isShown = enabledModules.includes(item.mod);
+                return (
+                  <div
+                    key={item.mod}
+                    className={`flex items-center justify-between p-2 rounded-lg text-xs transition-all ${
                       isShown
-                        ? 'bg-brand-primary/10 text-brand-primary'
-                        : 'bg-separator text-muted'
+                        ? 'text-foreground font-medium'
+                        : 'text-muted line-through opacity-40 bg-background/30'
                     }`}
                   >
-                    {isShown ? 'Active' : 'Hidden'}
-                  </span>
-                </div>
-              );
-            })}
+                    <span className="flex items-center gap-2">
+                      <BusinessIcon
+                        name={item.icon}
+                        size={14}
+                        className={isShown ? 'text-brand-primary' : 'text-muted'}
+                      />
+                      <span>{item.label}</span>
+                    </span>
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                        isShown
+                          ? 'bg-brand-primary/10 text-brand-primary'
+                          : 'bg-separator text-muted'
+                      }`}
+                    >
+                      {isShown ? 'Active' : 'Hidden'}
+                    </span>
+                  </div>
+                );
+              })}
 
-            <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
-              <span className="flex items-center gap-2">
-                <Settings size={14} />
-                <span>Settings</span>
-              </span>
-              <span className="text-[9px] text-muted uppercase">Core</span>
+              <div className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-foreground">
+                <span className="flex items-center gap-2">
+                  <Settings size={14} />
+                  <span>Settings</span>
+                </span>
+                <span className="text-[9px] text-muted uppercase">Core</span>
+              </div>
             </div>
-          </div>
 
-          <div className="p-3 rounded-xl bg-surface-elevated border border-separator/70 text-[11px] text-muted space-y-1">
-            <div className="font-semibold text-foreground flex items-center gap-1.5">
-              <ShieldAlert size={14} className="text-brand-emerald shrink-0" />
-              <span>Data Protection Guarantee</span>
+            <div className="p-3 rounded-xl bg-surface-elevated border border-separator/70 text-[11px] text-muted space-y-1">
+              <div className="font-semibold text-foreground flex items-center gap-1.5">
+                <ShieldAlert size={14} className="text-brand-emerald shrink-0" />
+                <span>Data Protection Guarantee</span>
+              </div>
+              <p>
+                Turning off a module hides it from your menus and forms, but safely preserves all historical records in your database.
+              </p>
             </div>
-            <p>
-              Turning off a module hides it from your menus and forms, but safely preserves all historical records in your database.
-            </p>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
