@@ -443,4 +443,5 @@ export interface SubscriptionSettings {
     botMessages: SubscriptionUsageMeter;
   };
   invoices: BillingInvoice[];
+  isTrial?: boolean;
 }

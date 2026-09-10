@@ -170,6 +170,7 @@ export function SubscriptionView({
       <BillingMethodCard
         paymentMethod={settings.paymentMethod}
         onUpdateMethod={(newMethod) => setLocalSettings({ ...settings, paymentMethod: newMethod })}
+        isTrial={Boolean(settings.isTrial || settings.status === 'trialing')}
       />
 
       {/* 4. Invoices & Receipts History */}

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { CreditCard, BadgeCheck, Plus, Trash2, ShieldCheck, Loader2 } from 'lucide-react';
+import { CreditCard, BadgeCheck, Plus, Trash2, ShieldCheck, Loader2, Smartphone } from 'lucide-react';
 import { SubscriptionPaymentMethod } from '@/types/settings';
 import { removeTenantBillingMethod } from '@/app/actions/payments-online';
 import { BillingMethodModal } from './BillingMethodModal';
@@ -13,9 +13,14 @@ import { toast } from 'sonner';
 interface BillingMethodCardProps {
   paymentMethod?: SubscriptionPaymentMethod | null;
   onUpdateMethod?: (method: SubscriptionPaymentMethod | null) => void;
+  isTrial?: boolean;
 }
 
-export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod }: BillingMethodCardProps) {
+export function BillingMethodCard({
+  paymentMethod: initialMethod,
+  onUpdateMethod,
+  isTrial = false,
+}: BillingMethodCardProps) {
   const [localMethod, setLocalMethod] = useState<SubscriptionPaymentMethod | null | undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -82,7 +87,7 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
 
   return (
     <>
-      <Card className="shadow-xs">
+      <Card className="shadow-xs border border-separator bg-surface">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -90,9 +95,11 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
                 <CreditCard className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <CardTitle className="text-base font-bold font-display">Default Billing Method</CardTitle>
+                <CardTitle className="text-base font-bold font-display text-foreground">
+                  Default Billing Method
+                </CardTitle>
                 <CardDescription className="text-xs text-muted">
-                  Primary tokenized method used for SaaS subscription auto-renewals.
+                  Primary payment channel used for monthly plan auto-renewals.
                 </CardDescription>
               </div>
             </div>
@@ -101,11 +108,11 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
 
         <CardBody className="pt-0">
           {method ? (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 border border-separator rounded-xl bg-surface-elevated/40 gap-3.5">
-              <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-separator rounded-xl bg-surface-elevated/40 gap-4">
+              <div className="flex items-center gap-3.5 min-w-0">
                 {getMethodBadge(method)}
-                <div className="min-w-0 space-y-0.5">
-                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-xs font-bold text-foreground">
                       {method.type === 'mtn_momo'
                         ? 'MTN Mobile Money Wallet'
@@ -116,16 +123,16 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
                     {method.isVerified && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
                         <BadgeCheck size={11} />
-                        <span>Tokenized Mandate</span>
+                        <span>Tokenized Auto-Debit</span>
                       </span>
                     )}
                   </div>
 
-                  <p className="text-[11px] text-muted font-mono break-all sm:break-normal">
+                  <p className="text-[11px] text-muted font-mono">
                     {method.identifier}{' '}
                     {method.expMonth && method.expYear ? `• Exp ${method.expMonth}/${method.expYear}` : ''}{' '}
                     <span className="text-emerald-600 dark:text-emerald-400 font-sans font-medium block sm:inline">
-                      (Auto-debit active)
+                      (Auto-renew active)
                     </span>
                   </p>
                 </div>
@@ -139,7 +146,7 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
                   disabled={isRemoving}
                   className="cursor-pointer text-xs flex-1 sm:flex-none justify-center"
                 >
-                  Update
+                  Update Method
                 </Button>
                 <Button
                   variant="ghost"
@@ -154,25 +161,50 @@ export function BillingMethodCard({ paymentMethod: initialMethod, onUpdateMethod
               </div>
             </div>
           ) : (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 border border-dashed border-separator rounded-xl bg-surface-elevated/20 gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-muted shrink-0" />
-                  <p className="text-xs font-semibold text-foreground">No automatic billing method attached</p>
+            <div className="p-4 sm:p-5 border border-dashed border-separator rounded-xl bg-surface-elevated/25 space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs sm:text-sm font-bold text-foreground">
+                      {isTrial
+                        ? 'No payment method required during your 14-day free trial'
+                        : 'No automatic billing method attached'}
+                    </p>
+                    <p className="text-xs text-muted max-w-xl leading-relaxed">
+                      {isTrial
+                        ? 'Enjoy full, unrestricted access to all Merchander tools without entering card details. You can voluntarily link a Credit/Debit Card or Mobile Money (MTN MoMo / Telecel Cash) anytime before your trial expires to ensure uninterrupted operations.'
+                        : 'Connect a tokenized Card or Mobile Money wallet to enable automatic monthly plan renewals and prevent service disruptions.'}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[11px] text-muted">
-                  Connect a tokenized Card or Mobile Money wallet to enable automatic monthly plan renewals.
-                </p>
+
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsModalOpen(true)}
+                  className="cursor-pointer w-full sm:w-auto justify-center shrink-0 text-xs gap-1.5"
+                >
+                  <Plus size={13} />
+                  <span>Add Payment Method</span>
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsModalOpen(true)}
-                className="cursor-pointer w-full sm:w-auto justify-center shrink-0 text-xs gap-1.5"
-              >
-                <Plus size={13} />
-                <span>Add Billing Method</span>
-              </Button>
+
+              <div className="flex items-center gap-4 text-[11px] text-muted pt-2 border-t border-separator/40">
+                <span className="flex items-center gap-1 text-foreground font-medium">
+                  <CreditCard size={12} className="text-brand-primary" />
+                  <span>Visa & Mastercard</span>
+                </span>
+                <span className="text-separator">•</span>
+                <span className="flex items-center gap-1 text-foreground font-medium">
+                  <Smartphone size={12} className="text-amber-500" />
+                  <span>MTN MoMo & Telecel Cash</span>
+                </span>
+                <span className="text-separator">•</span>
+                <span>PCI-DSS Secured via Paystack / Hubtel</span>
+              </div>
             </div>
           )}
         </CardBody>

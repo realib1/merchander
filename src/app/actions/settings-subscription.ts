@@ -5,6 +5,8 @@ import { getTenantInfo } from '@/lib/supabase/queries';
 import { revalidatePath } from 'next/cache';
 import { SubscriptionSettings, SubscriptionTier, BillingCycle } from '@/types/settings';
 
+import { generateTrialInvoice } from '@/utils/subscription';
+
 export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
   const supabase = await createClient();
   const {
@@ -25,6 +27,7 @@ export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
       botMessages: { label: 'Bot Message Quota', current: 0, limit: 200, unit: 'messages' },
     },
     invoices: [],
+    isTrial: false,
   };
 
   if (!user) return fallback;
@@ -44,23 +47,44 @@ export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
 
     const sub = subRes.data;
 
-    const tier = sub?.tier || 'starter';
-    const cycle = sub?.billing_cycle || 'monthly';
+    const rawTier = (sub?.tier || 'starter').toLowerCase();
+    const tier: SubscriptionTier =
+      rawTier === 'growth' || rawTier === 'pro'
+        ? 'pro'
+        : rawTier === 'business' || rawTier === 'enterprise'
+          ? 'enterprise'
+          : 'starter';
+    const cycle = (sub?.billing_cycle || 'monthly') as BillingCycle;
+
+    // Detect trial status: either explicitly marked trialing or has future renewal with 0 price
+    const renewalTime = sub?.renewal_date ? new Date(sub.renewal_date).getTime() : 0;
+    const now = Date.now();
+    const isTrial =
+      sub?.status === 'trialing' ||
+      (Boolean(sub?.renewal_date) &&
+        !isNaN(renewalTime) &&
+        renewalTime > now &&
+        (sub?.price_monthly === 0 || Number(sub?.price_monthly) === 0));
 
     // Limits mapped from the platform plans logic (growth, business, enterprise added)
     const limits = {
       free: { products: 20, staff: 1, bot: 50, monthlyPrice: 0, annualPrice: 0 },
       starter: { products: 100, staff: 3, bot: 250, monthlyPrice: 150, annualPrice: 1500 },
       growth: { products: 500, staff: 7, bot: 1000, monthlyPrice: 350, annualPrice: 3500 },
+      pro: { products: 500, staff: 7, bot: 1000, monthlyPrice: 350, annualPrice: 3500 },
       business: { products: 2500, staff: 20, bot: 5000, monthlyPrice: 750, annualPrice: 7500 },
       enterprise: { products: -1, staff: -1, bot: -1, monthlyPrice: 1800, annualPrice: 18000 },
     }[tier as string] || { products: 100, staff: 3, bot: 250, monthlyPrice: 150, annualPrice: 1500 };
 
+    // Capture the 14-Day Free Trial invoice entry
+    const trialInvoice = generateTrialInvoice(tenantId, sub?.created_at, tier);
+    const invoices = [trialInvoice];
+
     return {
       tier,
       billingCycle: cycle,
-      status: sub?.status || 'active',
-      renewalDate: sub?.renewal_date || (tier === 'starter' || tier === 'free' ? 'Continuous Free Access' : '1st of next month'),
+      status: isTrial ? 'trialing' : (sub?.status || 'active'),
+      renewalDate: sub?.renewal_date || (tier === 'starter' ? 'Continuous Free Access' : '1st of next month'),
       monthlyPrice: limits.monthlyPrice,
       annualPrice: limits.annualPrice,
       paymentMethod: sub?.payment_method || null,
@@ -69,7 +93,8 @@ export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
         staffSeats: { label: 'Active Staff Accounts', current: staffCount, limit: limits.staff, unit: 'seats' },
         botMessages: { label: 'Bot Message Quota', current: 0, limit: limits.bot, unit: 'messages' },
       },
-      invoices: [], // Kept empty or sourced from stripe/invoices table later
+      invoices,
+      isTrial,
     };
   } catch (err) {
     console.error('Error fetching subscription settings:', err);
