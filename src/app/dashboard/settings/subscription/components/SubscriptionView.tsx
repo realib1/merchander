@@ -13,6 +13,7 @@ import { PlanTiersGrid } from './PlanTiersGrid';
 import { BillingMethodCard } from './BillingMethodCard';
 import { BillingInvoicesTable } from './BillingInvoicesTable';
 import { toast } from 'sonner';
+import { getTierConfig } from '@/utils/subscription';
 
 interface SubscriptionViewProps {
   initialSettings: SubscriptionSettings;
@@ -55,18 +56,14 @@ export function SubscriptionView({
             const res = await verifyAndApplySubscriptionPayment(callbackRef);
             toast.dismiss();
             if (res.success && res.tier && res.billingCycle) {
-              const prices = {
-                starter: { monthly: 0, annual: 0 },
-                pro: { monthly: 250, annual: 2400 },
-                enterprise: { monthly: 750, annual: 7200 },
-              }[res.tier];
+              const tierConfig = getTierConfig(res.tier);
 
               setLocalSettings((prev) => ({
                 ...(prev || initialSettings),
                 tier: res.tier!,
                 billingCycle: res.billingCycle!,
-                monthlyPrice: prices.monthly,
-                annualPrice: prices.annual,
+                monthlyPrice: tierConfig.monthlyPrice,
+                annualPrice: tierConfig.annualPrice,
                 status: 'active',
               }));
               toast.success(`Subscription upgraded to ${res.tier.toUpperCase()} (${res.billingCycle})!`);
@@ -132,18 +129,14 @@ export function SubscriptionView({
       if (res.error) {
         toast.error(res.error);
       } else {
-        const prices = {
-          starter: { monthly: 0, annual: 0 },
-          pro: { monthly: 250, annual: 2400 },
-          enterprise: { monthly: 750, annual: 7200 },
-        }[tier];
+        const tierConfig = getTierConfig(tier);
 
         setLocalSettings({
           ...settings,
           tier,
           billingCycle: cycle,
-          monthlyPrice: prices.monthly,
-          annualPrice: prices.annual,
+          monthlyPrice: tierConfig.monthlyPrice,
+          annualPrice: tierConfig.annualPrice,
         });
         toast.success(`Subscription upgraded to ${tier.toUpperCase()} (${cycle})!`);
         setShowPlans(false);
@@ -171,6 +164,7 @@ export function SubscriptionView({
         paymentMethod={settings.paymentMethod}
         onUpdateMethod={(newMethod) => setLocalSettings({ ...settings, paymentMethod: newMethod })}
         isTrial={Boolean(settings.isTrial || settings.status === 'trialing')}
+        tier={settings.tier}
       />
 
       {/* 4. Invoices & Receipts History */}

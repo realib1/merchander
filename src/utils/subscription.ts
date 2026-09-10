@@ -1,5 +1,97 @@
-import { BillingInvoice } from '@/types/settings';
+import { BillingInvoice, SubscriptionTier, SubscriptionPaymentMethod } from '@/types/settings';
 import { formatDate } from './format';
+
+export interface SubscriptionTierDetails {
+  id: SubscriptionTier;
+  name: string;
+  monthlyPrice: number;
+  annualPrice: number;
+  annualPricePerMonth: number;
+  description: string;
+  isPopular?: boolean;
+  limits: {
+    products: number; // -1 for unlimited
+    staff: number; // -1 for unlimited
+    bot: number; // -1 for unlimited
+  };
+  features: string[];
+}
+
+export const SUBSCRIPTION_TIER_CONFIG: Record<SubscriptionTier, SubscriptionTierDetails> = {
+  starter: {
+    id: 'starter',
+    name: 'Starter',
+    monthlyPrice: 0,
+    annualPrice: 0,
+    annualPricePerMonth: 0,
+    description: 'Essential tools for solo sellers launching an online store.',
+    limits: {
+      products: 100,
+      staff: 1,
+      bot: 50,
+    },
+    features: [
+      'Up to 100 Products in Catalog',
+      '1 Staff Account',
+      'Direct WhatsApp Order Links',
+      'Mobile Money Cash Recording',
+      'Basic Storefront Subdomain',
+    ],
+  },
+  pro: {
+    id: 'pro',
+    name: 'Growth Pro',
+    monthlyPrice: 250,
+    annualPrice: 2400,
+    annualPricePerMonth: 200,
+    description: 'Complete operating system for growing social commerce boutiques.',
+    isPopular: true,
+    limits: {
+      products: 500,
+      staff: 7,
+      bot: 1000,
+    },
+    features: [
+      'Up to 500 Products & Variants',
+      '7 Staff Accounts & Permissions',
+      'WhatsApp Cloud Bot & Auto-Reply',
+      'Hubtel & Paystack MoMo Auto-Reconciliation',
+      'Supplier Orders & Waybill Dispatch Slips',
+      '1,000 AI Bot Message Quota / mo',
+    ],
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise Scale',
+    monthlyPrice: 750,
+    annualPrice: 7200,
+    annualPricePerMonth: 600,
+    description: 'High-volume distributors, wholesale merchants, & multiple branches.',
+    limits: {
+      products: -1,
+      staff: 20,
+      bot: -1,
+    },
+    features: [
+      'Unlimited Products & Warehouses',
+      '20+ Staff Accounts with Role Isolation',
+      'Multi-Branch Inventory Synchronization',
+      'Custom Domain Binding (.com / .shop)',
+      'Dedicated Priority SLA & WhatsApp Manager',
+    ],
+  },
+};
+
+/**
+ * Resolves any raw tier identifier (including legacy slugs) to the canonical tier config.
+ */
+export function getTierConfig(tier?: string | null): SubscriptionTierDetails {
+  if (!tier) return SUBSCRIPTION_TIER_CONFIG.starter;
+  const normalized = tier.toLowerCase();
+  if (normalized === 'growth' || normalized === 'pro') return SUBSCRIPTION_TIER_CONFIG.pro;
+  if (normalized === 'business' || normalized === 'enterprise') return SUBSCRIPTION_TIER_CONFIG.enterprise;
+  return SUBSCRIPTION_TIER_CONFIG.starter;
+}
 
 /**
  * Maps subscription tier slug to merchant-facing display name.
@@ -150,3 +242,26 @@ export function generateTrialInvoice(
     receiptUrl: '#',
   };
 }
+
+/**
+ * Identifies mocked, demo, or unverified test cards that should not be shown to users.
+ */
+export function isFakeCard(method?: SubscriptionPaymentMethod | null): boolean {
+  if (!method) return false;
+  const id = method.identifier || '';
+  const last4 = method.last4 || '';
+  const holder = (method.holderName || '').toLowerCase();
+  return (
+    last4 === '4242' ||
+    last4 === '4081' ||
+    last4 === '4567' ||
+    id.includes('4242') ||
+    id.includes('4081') ||
+    id.includes('4084') ||
+    id.includes('4567') ||
+    holder.includes('demo') ||
+    holder.includes('test') ||
+    (method.type === 'card' && !method.provider && !method.authorizationCode)
+  );
+}
+

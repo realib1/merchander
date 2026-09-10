@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache';
 import { buildStorefrontOrderPaymentUrl } from '@/utils/paymentLinks';
 import { evaluateAndProcessOutreach } from '@/lib/intelligence/outreach';
 import { decryptSecret } from '@/utils/encryption';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * Initiates an online payment checkout for SaaS Subscription upgrade (Merchander Admin billing)
@@ -294,6 +295,23 @@ export async function verifyBillingMethodStatus(reference: string, provider: 'pa
         })
         .eq('tenant_id', tenantId);
 
+      // Synchronize relational tenant_subscriptions table
+      try {
+        let adminClient: ReturnType<typeof createAdminClient> | null = null;
+        try {
+          adminClient = createAdminClient();
+        } catch {
+          // Service role key not available
+        }
+        const dbClient = adminClient || supabase;
+        await dbClient
+          .from('tenant_subscriptions')
+          .update({ payment_method: paymentMethod, updated_at: new Date().toISOString() })
+          .eq('tenant_id', tenantId);
+      } catch (subErr) {
+        console.warn('Could not sync tenant_subscriptions.payment_method:', subErr);
+      }
+
       revalidatePath('/dashboard/settings/subscription');
       return { success: true, method: paymentMethod };
     }
@@ -572,6 +590,23 @@ export async function removeTenantBillingMethod() {
 
     if (error) throw error;
 
+    // Synchronously purge from tenant_subscriptions relational table as well
+    try {
+      let adminClient: ReturnType<typeof createAdminClient> | null = null;
+      try {
+        adminClient = createAdminClient();
+      } catch {
+        // Fallback to scoped client
+      }
+      const dbClient = adminClient || supabase;
+      await dbClient
+        .from('tenant_subscriptions')
+        .update({ payment_method: null, updated_at: new Date().toISOString() })
+        .eq('tenant_id', tenantId);
+    } catch (subErr) {
+      console.warn('Could not clear tenant_subscriptions.payment_method:', subErr);
+    }
+
     revalidatePath('/dashboard/settings/subscription');
     return { success: true };
   } catch (err) {
@@ -635,6 +670,26 @@ export async function updateTenantBillingMethod(method: {
       .eq('tenant_id', tenantId);
 
     if (error) throw error;
+
+    // Synchronously update tenant_subscriptions relational table as well
+    try {
+      let adminClient: ReturnType<typeof createAdminClient> | null = null;
+      try {
+        adminClient = createAdminClient();
+      } catch {
+        // Fallback to scoped client
+      }
+      const dbClient = adminClient || supabase;
+      await dbClient
+        .from('tenant_subscriptions')
+        .update({
+          payment_method: updatedData.subscription.paymentMethod,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('tenant_id', tenantId);
+    } catch (subErr) {
+      console.warn('Could not sync tenant_subscriptions.payment_method:', subErr);
+    }
 
     revalidatePath('/dashboard/settings/subscription');
     return { success: true };

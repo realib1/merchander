@@ -4,6 +4,8 @@ import {
   getTrialCountdown,
   formatRenewalDate,
   generateTrialInvoice,
+  SUBSCRIPTION_TIER_CONFIG,
+  getTierConfig,
 } from './subscription';
 
 describe('formatTierName', () => {
@@ -106,3 +108,42 @@ describe('generateTrialInvoice', () => {
     expect(invoice.id).toContain('inv-trial-tenantabc');
   });
 });
+
+describe('SUBSCRIPTION_TIER_CONFIG and getTierConfig', () => {
+  it('contains accurate canonical pricing and quotas for all tiers', () => {
+    // Starter
+    expect(SUBSCRIPTION_TIER_CONFIG.starter.monthlyPrice).toBe(0);
+    expect(SUBSCRIPTION_TIER_CONFIG.starter.annualPrice).toBe(0);
+    expect(SUBSCRIPTION_TIER_CONFIG.starter.limits.products).toBe(100);
+    expect(SUBSCRIPTION_TIER_CONFIG.starter.limits.staff).toBe(1);
+    expect(SUBSCRIPTION_TIER_CONFIG.starter.limits.bot).toBe(50);
+
+    // Pro
+    expect(SUBSCRIPTION_TIER_CONFIG.pro.monthlyPrice).toBe(250);
+    expect(SUBSCRIPTION_TIER_CONFIG.pro.annualPrice).toBe(2400);
+    expect(SUBSCRIPTION_TIER_CONFIG.pro.annualPricePerMonth).toBe(200);
+    expect(SUBSCRIPTION_TIER_CONFIG.pro.limits.products).toBe(500);
+    expect(SUBSCRIPTION_TIER_CONFIG.pro.limits.staff).toBe(7);
+    expect(SUBSCRIPTION_TIER_CONFIG.pro.limits.bot).toBe(1000);
+
+    // Enterprise
+    expect(SUBSCRIPTION_TIER_CONFIG.enterprise.monthlyPrice).toBe(750);
+    expect(SUBSCRIPTION_TIER_CONFIG.enterprise.annualPrice).toBe(7200);
+    expect(SUBSCRIPTION_TIER_CONFIG.enterprise.annualPricePerMonth).toBe(600);
+    expect(SUBSCRIPTION_TIER_CONFIG.enterprise.limits.products).toBe(-1);
+    expect(SUBSCRIPTION_TIER_CONFIG.enterprise.limits.staff).toBe(20);
+    expect(SUBSCRIPTION_TIER_CONFIG.enterprise.limits.bot).toBe(-1);
+  });
+
+  it('normalizes legacy and alias tier names correctly', () => {
+    expect(getTierConfig('growth').id).toBe('pro');
+    expect(getTierConfig('pro').id).toBe('pro');
+    expect(getTierConfig('business').id).toBe('enterprise');
+    expect(getTierConfig('enterprise').id).toBe('enterprise');
+    expect(getTierConfig('starter').id).toBe('starter');
+    expect(getTierConfig(null).id).toBe('starter');
+    expect(getTierConfig(undefined).id).toBe('starter');
+    expect(getTierConfig('unknown_tier').id).toBe('starter');
+  });
+});
+

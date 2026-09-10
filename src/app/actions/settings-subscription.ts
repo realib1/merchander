@@ -3,9 +3,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { revalidatePath } from 'next/cache';
-import { SubscriptionSettings, SubscriptionTier, BillingCycle } from '@/types/settings';
+import { SubscriptionSettings, SubscriptionTier, BillingCycle, BillingInvoice } from '@/types/settings';
 
-import { generateTrialInvoice } from '@/utils/subscription';
+import { generateTrialInvoice, getTierConfig, isFakeCard } from '@/utils/subscription';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
   const supabase = await createClient();
@@ -22,9 +23,9 @@ export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
     annualPrice: 0,
     paymentMethod: null,
     usage: {
-      products: { label: 'Products in Catalog', current: 0, limit: 25, unit: 'products' },
+      products: { label: 'Products in Catalog', current: 0, limit: 100, unit: 'products' },
       staffSeats: { label: 'Active Staff Accounts', current: 1, limit: 1, unit: 'seats' },
-      botMessages: { label: 'Bot Message Quota', current: 0, limit: 200, unit: 'messages' },
+      botMessages: { label: 'Bot Message Quota', current: 0, limit: 50, unit: 'messages' },
     },
     invoices: [],
     isTrial: false,
@@ -35,65 +36,135 @@ export async function getSubscriptionSettings(): Promise<SubscriptionSettings> {
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
 
-    // Real live counts from database tables
-    const [productsRes, staffRes, subRes] = await Promise.all([
+    // Live counts & subscription state from both relational and JSON stores
+    const [productsRes, staffRes, messagesRes, subRes, settingsRes] = await Promise.all([
       supabase.from('products').select('*', { count: 'exact', head: true }).eq('tenant_id', tenantId),
       supabase.from('tenant_users').select('*', { count: 'exact', head: true }).eq('tenant_id', tenantId),
-      supabase.from('tenant_subscriptions').select('*').eq('tenant_id', tenantId).single(),
+      supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('tenant_id', tenantId)
+        .eq('direction', 'outbound'),
+      supabase.from('tenant_subscriptions').select('*').eq('tenant_id', tenantId).maybeSingle(),
+      supabase.from('tenant_settings').select('settings_data').eq('tenant_id', tenantId).maybeSingle(),
     ]);
 
     const productCount = productsRes.count ?? 0;
     const staffCount = staffRes.count ?? 1;
+    const botMessagesCount = messagesRes.count ?? 0;
 
     const sub = subRes.data;
+    const settingsData = (settingsRes.data?.settings_data as Record<string, unknown>) || {};
+    const settingsSub = (settingsData.subscription as Record<string, unknown>) || {};
 
-    const rawTier = (sub?.tier || 'starter').toLowerCase();
-    const tier: SubscriptionTier =
-      rawTier === 'growth' || rawTier === 'pro'
-        ? 'pro'
-        : rawTier === 'business' || rawTier === 'enterprise'
-          ? 'enterprise'
-          : 'starter';
-    const cycle = (sub?.billing_cycle || 'monthly') as BillingCycle;
+    // Determine tier & cycle with precedence for highest active or explicitly set tier
+    const rawTier = (settingsSub.tier as string) || (sub?.tier as string) || 'starter';
+    const tierConfig = getTierConfig(rawTier);
+    const tier = tierConfig.id;
 
-    // Detect trial status: either explicitly marked trialing or has future renewal with 0 price
+    const cycle = ((settingsSub.billingCycle as string) || (sub?.billing_cycle as string) || 'monthly') as BillingCycle;
+
+    // Detect trial status: explicitly marked trialing or has future renewal with 0 monthly price
     const renewalTime = sub?.renewal_date ? new Date(sub.renewal_date).getTime() : 0;
     const now = Date.now();
     const isTrial =
       sub?.status === 'trialing' ||
+      settingsSub.status === 'trialing' ||
       (Boolean(sub?.renewal_date) &&
         !isNaN(renewalTime) &&
         renewalTime > now &&
         (sub?.price_monthly === 0 || Number(sub?.price_monthly) === 0));
 
-    // Limits mapped from the platform plans logic (growth, business, enterprise added)
-    const limits = {
-      free: { products: 20, staff: 1, bot: 50, monthlyPrice: 0, annualPrice: 0 },
-      starter: { products: 100, staff: 3, bot: 250, monthlyPrice: 150, annualPrice: 1500 },
-      growth: { products: 500, staff: 7, bot: 1000, monthlyPrice: 350, annualPrice: 3500 },
-      pro: { products: 500, staff: 7, bot: 1000, monthlyPrice: 350, annualPrice: 3500 },
-      business: { products: 2500, staff: 20, bot: 5000, monthlyPrice: 750, annualPrice: 7500 },
-      enterprise: { products: -1, staff: -1, bot: -1, monthlyPrice: 1800, annualPrice: 18000 },
-    }[tier as string] || { products: 100, staff: 3, bot: 250, monthlyPrice: 150, annualPrice: 1500 };
+    // Resolve payment method:
+    // If explicitly set in settingsSub (including explicit null), respect it; otherwise check relational sub
+    let rawPaymentMethod: SubscriptionSettings['paymentMethod'] = null;
+    if (settingsSub.paymentMethod !== undefined) {
+      rawPaymentMethod = (settingsSub.paymentMethod as SubscriptionSettings['paymentMethod']) ?? null;
+    } else if (
+      sub?.payment_method &&
+      typeof sub.payment_method === 'object' &&
+      Object.keys(sub.payment_method).length > 0
+    ) {
+      rawPaymentMethod = sub.payment_method as SubscriptionSettings['paymentMethod'];
+    }
 
-    // Capture the 14-Day Free Trial invoice entry
-    const trialInvoice = generateTrialInvoice(tenantId, sub?.created_at, tier);
-    const invoices = [trialInvoice];
+    // Purge fake or mock cards immediately so merchants see a truthful clean state
+    let paymentMethod: SubscriptionSettings['paymentMethod'] = rawPaymentMethod;
+    if (isFakeCard(rawPaymentMethod)) {
+      paymentMethod = null;
+
+      // Scrub fake card from database stores in background
+      (async () => {
+        try {
+          let adminClient: ReturnType<typeof createAdminClient> | null = null;
+          try {
+            adminClient = createAdminClient();
+          } catch {
+            // Service role key not available
+          }
+          const dbClient = adminClient || supabase;
+
+          const updatedSettingsData = {
+            ...settingsData,
+            subscription: {
+              ...settingsSub,
+              paymentMethod: null,
+            },
+          };
+          await dbClient
+            .from('tenant_settings')
+            .update({ settings_data: updatedSettingsData })
+            .eq('tenant_id', tenantId);
+
+          await dbClient
+            .from('tenant_subscriptions')
+            .update({ payment_method: null, updated_at: new Date().toISOString() })
+            .eq('tenant_id', tenantId);
+        } catch {
+          // Ignore background cleanup error
+        }
+      })();
+    }
+
+    // Resolve invoices: combine saved paid invoices from settings_data with the generated trial invoice
+    const rawSettingsInvoices = Array.isArray(settingsSub.invoices)
+      ? (settingsSub.invoices as BillingInvoice[])
+      : [];
+
+    const trialInvoice = generateTrialInvoice(tenantId, sub?.created_at || (settingsSub.createdAt as string), tier);
+    const combinedInvoices: BillingInvoice[] = [...rawSettingsInvoices];
+
+    // Ensure trial invoice is present without duplicate records
+    const hasTrialInvoice = combinedInvoices.some(
+      (inv) => inv.id === trialInvoice.id || inv.invoiceNumber === trialInvoice.invoiceNumber
+    );
+    if (!hasTrialInvoice) {
+      combinedInvoices.push(trialInvoice);
+    }
+
+    // Sort newest invoices first
+    combinedInvoices.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Renewal date display resolution
+    const renewalDate =
+      (settingsSub.renewalDate as string) ||
+      sub?.renewal_date ||
+      (tier === 'starter' ? 'Continuous Free Access' : '1st of next month');
 
     return {
       tier,
       billingCycle: cycle,
-      status: isTrial ? 'trialing' : (sub?.status || 'active'),
-      renewalDate: sub?.renewal_date || (tier === 'starter' ? 'Continuous Free Access' : '1st of next month'),
-      monthlyPrice: limits.monthlyPrice,
-      annualPrice: limits.annualPrice,
-      paymentMethod: sub?.payment_method || null,
+      status: isTrial ? 'trialing' : ((settingsSub.status as SubscriptionSettings['status']) || sub?.status || 'active'),
+      renewalDate,
+      monthlyPrice: tierConfig.monthlyPrice,
+      annualPrice: tierConfig.annualPrice,
+      paymentMethod,
       usage: {
-        products: { label: 'Products in Catalog', current: productCount, limit: limits.products, unit: 'products' },
-        staffSeats: { label: 'Active Staff Accounts', current: staffCount, limit: limits.staff, unit: 'seats' },
-        botMessages: { label: 'Bot Message Quota', current: 0, limit: limits.bot, unit: 'messages' },
+        products: { label: 'Products in Catalog', current: productCount, limit: tierConfig.limits.products, unit: 'products' },
+        staffSeats: { label: 'Active Staff Accounts', current: staffCount, limit: tierConfig.limits.staff, unit: 'seats' },
+        botMessages: { label: 'Bot Message Quota', current: botMessagesCount, limit: tierConfig.limits.bot, unit: 'messages' },
       },
-      invoices,
+      invoices: combinedInvoices,
       isTrial,
     };
   } catch (err) {
@@ -113,26 +184,59 @@ export async function updateSubscriptionTier(tier: SubscriptionTier, billingCycl
     const { tenantId, role } = await getTenantInfo(supabase, user.id);
     if (role !== 'owner' && role !== 'admin') return { error: 'Insufficient permissions' };
 
-    const limits = {
-      free: { monthlyPrice: 0 },
-      starter: { monthlyPrice: 150 },
-      growth: { monthlyPrice: 350 },
-      business: { monthlyPrice: 750 },
-      enterprise: { monthlyPrice: 1800 },
-    }[tier as string] || { monthlyPrice: 150 };
+    const tierConfig = getTierConfig(tier);
 
-    const { error } = await supabase
-      .from('tenant_subscriptions')
-      .upsert({ 
-        tenant_id: tenantId, 
-        tier, 
-        billing_cycle: billingCycle, 
-        status: 'active',
-        price_monthly: limits.monthlyPrice,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'tenant_id' });
+    // 1. Synchronize tenant_subscriptions relational table
+    try {
+      let adminClient: ReturnType<typeof createAdminClient> | null = null;
+      try {
+        adminClient = createAdminClient();
+      } catch {
+        // Service role key not available in test or limited client environment
+      }
+      const dbClient = adminClient || supabase;
 
-    if (error) throw error;
+      await dbClient
+        .from('tenant_subscriptions')
+        .upsert(
+          {
+            tenant_id: tenantId,
+            tier: tierConfig.id,
+            billing_cycle: billingCycle,
+            status: 'active',
+            price_monthly: tierConfig.monthlyPrice,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'tenant_id' }
+        );
+    } catch (dbErr) {
+      console.warn('Could not update tenant_subscriptions table directly:', dbErr);
+    }
+
+    // 2. Synchronize tenant_settings JSON store
+    const { data: existingSettings } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
+
+    const currentData = (existingSettings?.settings_data as Record<string, unknown>) || {};
+    const existingSub = (currentData.subscription as Record<string, unknown>) || {};
+
+    await supabase
+      .from('tenant_settings')
+      .update({
+        settings_data: {
+          ...currentData,
+          subscription: {
+            ...existingSub,
+            tier: tierConfig.id,
+            billingCycle,
+            status: 'active',
+          },
+        },
+      })
+      .eq('tenant_id', tenantId);
 
     revalidatePath('/dashboard/settings/subscription');
     return { success: true };

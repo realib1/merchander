@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CreditCard, BadgeCheck, Plus, Trash2, ShieldCheck, Loader2, Smartphone } from 'lucide-react';
-import { SubscriptionPaymentMethod } from '@/types/settings';
+import { SubscriptionPaymentMethod, SubscriptionTier } from '@/types/settings';
 import { removeTenantBillingMethod } from '@/app/actions/payments-online';
 import { BillingMethodModal } from './BillingMethodModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -14,12 +14,14 @@ interface BillingMethodCardProps {
   paymentMethod?: SubscriptionPaymentMethod | null;
   onUpdateMethod?: (method: SubscriptionPaymentMethod | null) => void;
   isTrial?: boolean;
+  tier?: SubscriptionTier;
 }
 
 export function BillingMethodCard({
   paymentMethod: initialMethod,
   onUpdateMethod,
   isTrial = false,
+  tier = 'starter',
 }: BillingMethodCardProps) {
   const [localMethod, setLocalMethod] = useState<SubscriptionPaymentMethod | null | undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,9 +133,15 @@ export function BillingMethodCard({
                   <p className="text-[11px] text-muted font-mono">
                     {method.identifier}{' '}
                     {method.expMonth && method.expYear ? `• Exp ${method.expMonth}/${method.expYear}` : ''}{' '}
-                    <span className="text-emerald-600 dark:text-emerald-400 font-sans font-medium block sm:inline">
-                      (Auto-renew active)
-                    </span>
+                    {tier === 'starter' ? (
+                      <span className="text-muted font-sans font-medium block sm:inline">
+                        (Active • Free Starter Plan - No renewal charges)
+                      </span>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-sans font-medium block sm:inline">
+                        (Auto-renew active)
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -169,14 +177,18 @@ export function BillingMethodCard({
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs sm:text-sm font-bold text-foreground">
-                      {isTrial
-                        ? 'No payment method required during your 14-day free trial'
-                        : 'No automatic billing method attached'}
+                      {tier === 'starter'
+                        ? '100% Free Starter Plan • No payment method required'
+                        : isTrial
+                          ? 'No payment method required during your 14-day free trial'
+                          : 'No automatic billing method attached'}
                     </p>
                     <p className="text-xs text-muted max-w-xl leading-relaxed">
-                      {isTrial
-                        ? 'Enjoy full, unrestricted access to all Merchander tools without entering card details. You can voluntarily link a Credit/Debit Card or Mobile Money (MTN MoMo / Telecel Cash) anytime before your trial expires to ensure uninterrupted operations.'
-                        : 'Connect a tokenized Card or Mobile Money wallet to enable automatic monthly plan renewals and prevent service disruptions.'}
+                      {tier === 'starter'
+                        ? 'Your workspace is on the Free Starter tier with 0 subscription fees forever. You can use all included core catalog, orders, and storefront features without entering card or mobile money details. Adding a payment method is optional unless you decide to upgrade to Growth Pro or Enterprise.'
+                        : isTrial
+                          ? 'Enjoy full, unrestricted access to all Merchander tools without entering card details. You can voluntarily link a Credit/Debit Card or Mobile Money (MTN MoMo / Telecel Cash) anytime before your trial expires to ensure uninterrupted operations.'
+                          : 'Connect a tokenized Card or Mobile Money wallet to enable automatic monthly plan renewals and prevent service disruptions.'}
                     </p>
                   </div>
                 </div>
@@ -188,7 +200,7 @@ export function BillingMethodCard({
                   className="cursor-pointer w-full sm:w-auto justify-center shrink-0 text-xs gap-1.5"
                 >
                   <Plus size={13} />
-                  <span>Add Payment Method</span>
+                  <span>{tier === 'starter' ? 'Add Optional Payment Method' : 'Add Payment Method'}</span>
                 </Button>
               </div>
 

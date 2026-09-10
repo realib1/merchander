@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardBody, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, Layers, Users, Bot, Clock, ChevronRight } from 'lucide-react';
+import { Layers, Users, Bot, Clock, ChevronRight, Trophy } from 'lucide-react';
 import { SubscriptionSettings } from '@/types/settings';
 import { formatCurrency } from '@/utils/format';
 import { formatRenewalDate, getTrialCountdown, formatTierName } from '@/utils/subscription';
@@ -16,11 +16,12 @@ interface CurrentPlanCardProps {
 
 export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPlanCardProps) {
   const isTrial = Boolean(settings.isTrial || settings.status === 'trialing');
+  const isStarter = settings.tier === 'starter';
   const tierTitle = `Merchander ${formatTierName(settings.tier)}`;
   const renewalText = formatRenewalDate(settings.renewalDate, settings.billingCycle, isTrial);
   const trialMetrics = getTrialCountdown(settings.renewalDate, 14);
 
-  const priceDisplay = isTrial
+  const priceDisplay = isTrial || isStarter || settings.monthlyPrice === 0
     ? 'GH₵ 0'
     : settings.billingCycle === 'annual'
       ? `${formatCurrency(settings.annualPrice / 12).replace('.00', '')} / month`
@@ -28,9 +29,11 @@ export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPla
 
   const priceSubtext = isTrial
     ? `Free during trial • Renews at ${formatCurrency(settings.monthlyPrice).replace('.00', '')} / mo`
-    : settings.billingCycle === 'annual'
-      ? 'Billed annually (Save 20%)'
-      : 'Billed monthly';
+    : isStarter || settings.monthlyPrice === 0
+      ? 'Free for solo sellers'
+      : settings.billingCycle === 'annual'
+        ? 'Billed annually (Save 20%)'
+        : 'Billed monthly';
 
   const renderMeter = (icon: React.ReactNode, label: string, current: number, limit: number, unit: string) => {
     const isUnlimited = limit === -1;
@@ -71,7 +74,7 @@ export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPla
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
             <div className="p-2.5 rounded-xl bg-brand-primary/10 text-brand-primary shrink-0 ring-1 ring-brand-primary/20">
-              <Sparkles className="h-5 w-5" aria-hidden="true" />
+              <Trophy className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -82,6 +85,10 @@ export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPla
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
                     <Clock size={11} />
                     <span>14-Day Free Trial</span>
+                  </span>
+                ) : isStarter ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    ● Free Plan
                   </span>
                 ) : (
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -118,7 +125,7 @@ export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPla
               />
             </div>
             <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
-              All Growth Pro features are unlocked. No payment method required during your trial.
+              All {formatTierName(settings.tier)} features are unlocked. No payment method required during your trial.
             </p>
           </div>
         )}

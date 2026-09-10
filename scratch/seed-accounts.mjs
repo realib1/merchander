@@ -184,9 +184,9 @@ async function main() {
       tier: 'starter',
       billing_cycle: 'monthly',
       status: 'active',
-      price_monthly: 150.0,
-      renewal_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      payment_method: { type: 'momo', provider: 'mtn', phone: '+233244000111' },
+      price_monthly: 0.0,
+      renewal_date: null,
+      payment_method: null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'tenant_id' }

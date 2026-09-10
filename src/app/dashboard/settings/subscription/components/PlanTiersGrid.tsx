@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { SubscriptionTier, BillingCycle } from '@/types/settings';
 import { formatCurrency } from '@/utils/format';
+import { SUBSCRIPTION_TIER_CONFIG } from '@/utils/subscription';
 
 interface PlanTiersGridProps {
   currentTier: SubscriptionTier;
@@ -16,60 +17,7 @@ interface PlanTiersGridProps {
 export function PlanTiersGrid({ currentTier, currentCycle, onSelectPlan, isPending }: PlanTiersGridProps) {
   const [cycle, setCycle] = useState<BillingCycle>(currentCycle);
 
-  const tiers: Array<{
-    id: SubscriptionTier;
-    name: string;
-    monthlyPrice: number;
-    annualPricePerMonth: number;
-    description: string;
-    isPopular?: boolean;
-    features: string[];
-  }> = [
-    {
-      id: 'starter',
-      name: 'Starter',
-      monthlyPrice: 0,
-      annualPricePerMonth: 0,
-      description: 'Essential tools for solo sellers launching an online store.',
-      features: [
-        'Up to 100 Products in Catalog',
-        '1 Staff Account',
-        'Direct WhatsApp Order Links',
-        'Mobile Money Cash Recording',
-        'Basic Storefront Subdomain',
-      ],
-    },
-    {
-      id: 'pro',
-      name: 'Growth Pro',
-      monthlyPrice: 250,
-      annualPricePerMonth: 200,
-      description: 'Complete operating system for growing social commerce boutiques.',
-      isPopular: true,
-      features: [
-        'Up to 500 Products & Variants',
-        '7 Staff Accounts & Permissions',
-        'WhatsApp Cloud Bot & Auto-Reply',
-        'Hubtel & Paystack MoMo Auto-Reconciliation',
-        'Supplier Orders & Waybill Dispatch Slips',
-        '1,000 AI Bot Message Quota / mo',
-      ],
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise Scale',
-      monthlyPrice: 750,
-      annualPricePerMonth: 600,
-      description: 'High-volume distributors, wholesale merchants, & multiple branches.',
-      features: [
-        'Unlimited Products & Warehouses',
-        '20+ Staff Accounts with Role Isolation',
-        'Multi-Branch Inventory Synchronization',
-        'Custom Domain Binding (.com / .shop)',
-        'Dedicated Priority SLA & WhatsApp Manager',
-      ],
-    },
-  ];
+  const tiers = Object.values(SUBSCRIPTION_TIER_CONFIG);
 
   return (
     <div className="space-y-6 animate-fadeIn">

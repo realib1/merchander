@@ -31,6 +31,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn().mockImplementation(() => Promise.resolve(mockSupabase)),
 }));
 
+vi.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: vi.fn(),
+}));
+
 vi.mock('@/lib/supabase/queries', () => ({
   getTenantInfo: vi.fn().mockResolvedValue({ tenantId: 'tenant-123', role: 'owner' }),
 }));

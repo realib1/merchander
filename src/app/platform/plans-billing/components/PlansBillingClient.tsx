@@ -4,11 +4,11 @@ import React, { useState, useTransition } from 'react';
 import {
   Edit2,
   Plus,
-  Sparkles,
   Globe,
   Users,
   Package,
   ShoppingBag,
+  Bot,
 } from 'lucide-react';
 import { PlatformPlan } from '@/types/platform';
 import { togglePlatformPlanStatusAction } from '@/app/actions/platform-plans';
@@ -149,7 +149,7 @@ export function PlansBillingClient({ initialPlans }: PlansBillingClientProps) {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-foreground">
-                    <Sparkles size={13} className="text-amber-500 shrink-0" />
+                    <Bot size={13} className="text-amber-500 shrink-0" />
                     <span>
                       <strong>{plan.entitlements.ai_queries_monthly.toLocaleString()}</strong> AI queries / mo
                     </span>
