@@ -27,6 +27,12 @@ export function InstagramChannelCard({ config, onChange, disabled = false }: Ins
               <div className="flex items-center gap-2 flex-wrap">
                 <CardTitle className="text-base font-bold font-display">Instagram Direct</CardTitle>
                 <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                  title="Direct DM webhook integration is currently in Beta"
+                >
+                  Beta
+                </span>
+                <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                     config.connected
                       ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400'

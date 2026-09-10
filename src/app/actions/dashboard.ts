@@ -291,11 +291,24 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
   }));
 
   // D. Intelligence Engine
-  const intelligence = {
-    velocityInsight: 'No immediate trends detected in your recent sales data.',
-    supplyInsight: ['• Stock levels are generally stable.', '• No major shipments in transit.'],
-    recommendation: 'Maintain current reorder strategies.',
-  };
+  const isFreshTenant =
+    current_orders === 0 && current_sales === 0 && lowStockList.length === 0 && purchaseOrdersList.length === 0;
+
+  const intelligence = isFreshTenant
+    ? {
+        velocityInsight:
+          'Welcome to Merchander! Add your first products and record orders to activate sales velocity analysis.',
+        supplyInsight: [
+          '• Store catalog and inventory tracking ready.',
+          '• Connect suppliers to monitor purchase orders and transit times.',
+        ],
+        recommendation: 'Add your first products in Catalog to begin generating automated intelligence.',
+      }
+    : {
+        velocityInsight: 'No immediate trends detected in your recent sales data.',
+        supplyInsight: ['• Stock levels are generally stable.', '• No major shipments in transit.'],
+        recommendation: 'Maintain current reorder strategies.',
+      };
 
   if (lowStockList.length > 0) {
     const topLow = lowStockList[0];

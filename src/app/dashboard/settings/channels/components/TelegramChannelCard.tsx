@@ -27,6 +27,12 @@ export function TelegramChannelCard({ config, onChange, disabled = false }: Tele
               <div className="flex items-center gap-2 flex-wrap">
                 <CardTitle className="text-base font-bold font-display">Telegram Bot & Alerts</CardTitle>
                 <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                  title="Telegram bot webhook and order intake are in Developer Preview"
+                >
+                  Developer Preview
+                </span>
+                <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                     config.connected ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400' : 'bg-surface-elevated text-muted'
                   }`}

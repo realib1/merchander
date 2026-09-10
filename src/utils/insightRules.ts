@@ -224,3 +224,30 @@ export function evaluateLogisticsAndVipInsights(
 
   return insights;
 }
+
+export function evaluateEmptyStoreInsights(
+  productsCount: number,
+  ordersCount: number,
+  customersCount: number
+): BusinessInsight[] {
+  if (productsCount === 0 && ordersCount === 0 && customersCount === 0) {
+    return [
+      {
+        id: 'onboarding-empty-store',
+        category: 'velocity',
+        severity: 'info',
+        title: 'Welcome to Merchander!',
+        observation: 'Your store catalog and order history are currently empty.',
+        impact:
+          'Actionable sales velocity, margin optimization, and stockout forecasting require product and order signals.',
+        recommendation:
+          'Welcome to Merchander! Add your first products and record orders to activate real-time sales velocity and restock forecasting.',
+        metricBadge: { label: 'Store Setup', value: 'Ready to start', isPositive: true },
+        action: { label: 'Add First Product', href: '/dashboard/products/new', type: 'internal_link' },
+        timestamp: new Date().toISOString(),
+      },
+    ];
+  }
+
+  return [];
+}

@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { AIActionRecord } from '@/types/actions';
 import { approveAction, rejectAction } from '@/app/actions/approvals';
 import { formatActionTypeLabel } from '@/utils/actionsMath';
+import { formatChannelName } from '@/utils/channelFormat';
 import {
   MessageCircle,
   Clock,
@@ -56,13 +57,14 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
   const customerName = action.customer?.name || action.channel_identity?.profile_name || 'Customer';
   const customerPhone = action.customer?.phone || action.channel_identity?.channel_handle || 'Unknown';
   const confidencePct = Math.round((Number(action.confidence) || 0) * 100);
+  const channelName = formatChannelName(action.channel_identity?.channel);
 
   const handleApprove = () => {
     startTransition(async () => {
       const payload = isEditing && editText !== initialText ? { reply_text: editText } : undefined;
       const res = await approveAction(action.id, payload);
       if (res.success) {
-        toast.success('Action approved and sent via WhatsApp');
+        toast.success(`Action approved and sent via ${channelName}`);
         setIsEditing(false);
         onMutated?.();
       } else {
@@ -98,7 +100,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
               <span className="text-xs text-muted font-mono">{customerPhone}</span>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-muted">WhatsApp</span>
+              <span className="text-xs text-muted">{channelName}</span>
               <span className="text-muted text-[10px]">•</span>
               <span className="text-xs text-muted flex items-center gap-1">
                 <Clock size={12} />

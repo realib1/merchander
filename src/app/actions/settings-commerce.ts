@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { revalidatePath } from 'next/cache';
 import { OrderSettings, InventorySettings, PaymentSettings } from '@/types/settings';
-import { encryptSecret, maskSecret } from '@/utils/encryption';
+import { encryptSecret, isEncrypted, maskSecret } from '@/utils/encryption';
 
 const DEFAULT_ORDERS: OrderSettings = {
   numbering: {
@@ -415,15 +415,43 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
         providers: {
           ...DEFAULT_PAYMENTS.providers,
           ...(raw.providers
-            ? Object.fromEntries(
-                Object.entries(raw.providers).map(([k, v]) => [
-                  k,
-                  {
-                    ...v,
-                    secretKey: v && typeof v === 'object' && 'secretKey' in v && v.secretKey ? maskSecret(v.secretKey as string) : undefined,
-                  },
-                ])
-              )
+            ? (() => {
+                let needsUpgrade = false;
+                const mapped = Object.fromEntries(
+                  Object.entries(raw.providers).map(([k, v]) => {
+                    const rawSecret = v && typeof v === 'object' && 'secretKey' in v ? (v.secretKey as string) : undefined;
+                    if (rawSecret && !isEncrypted(rawSecret)) needsUpgrade = true;
+                    return [
+                      k,
+                      {
+                        ...v,
+                        secretKey: rawSecret ? maskSecret(rawSecret) : undefined,
+                      },
+                    ];
+                  })
+                );
+                if (needsUpgrade) {
+                  const upgraded = Object.fromEntries(
+                    Object.entries(raw.providers!).map(([k, v]) => {
+                      const rawSecret = v && typeof v === 'object' && 'secretKey' in v ? (v.secretKey as string) : undefined;
+                      return [
+                        k,
+                        { ...v, secretKey: rawSecret ? encryptSecret(rawSecret) : undefined },
+                      ];
+                    })
+                  );
+                  const updatedPayments = { ...raw, providers: upgraded };
+                  const updatedData = { ...(data?.settings_data as Record<string, unknown>), payment_settings: updatedPayments };
+                  supabase
+                    .from('tenant_settings')
+                    .update({ settings_data: updatedData, updated_at: new Date().toISOString() })
+                    .eq('tenant_id', tenantId)
+                    .then(({ error: upgradeErr }) => {
+                      if (upgradeErr) console.error('Failed to upgrade legacy plaintext secrets:', upgradeErr);
+                    });
+                }
+                return mapped;
+              })()
             : {}),
         },
       };

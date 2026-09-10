@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { cn } from '@/utils/cn';
 import { Skeleton } from './Skeleton';
+import { Checkbox } from './Checkbox';
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 
 export interface Column<T> {
@@ -128,13 +129,13 @@ export function DataTable<T extends Record<string, unknown>>({
             <tr className="border-b border-separator bg-surface-elevated text-secondary">
               {selectable && (
                 <th className="w-10 px-4 py-3 text-center">
-                  <input
-                    type="checkbox"
-                    checked={isAllPageSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all rows"
-                    className="h-4 w-4 cursor-pointer rounded border-separator accent-brand-primary"
-                  />
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={isAllPageSelected}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all rows"
+                    />
+                  </div>
                 </th>
               )}
               {columns.map((col) => (
@@ -201,13 +202,13 @@ export function DataTable<T extends Record<string, unknown>>({
                   >
                     {selectable && (
                       <td className="w-10 px-4 py-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleSelectRow(rowKey)}
-                          aria-label={`Select row ${rowKey}`}
-                          className="h-4 w-4 cursor-pointer rounded border-separator accent-brand-primary"
-                        />
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleSelectRow(rowKey)}
+                            aria-label={`Select row ${rowKey}`}
+                          />
+                        </div>
                       </td>
                     )}
                     {columns.map((col) => (

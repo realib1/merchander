@@ -2,6 +2,54 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { validatePaystackSignature, pesewasToGhs } from '@/lib/payments/paystack';
 import { dispatchPaymentConfirmationReceipt } from '@/lib/payments/confirmation';
+import { decryptSecret, isEncrypted } from '@/utils/encryption';
+import { PaymentSettings } from '@/types/settings';
+
+async function resolvePaystackSecret(tenantId: string | undefined): Promise<string | undefined> {
+  if (!tenantId) return undefined;
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
+    const payments = (data?.settings_data as Record<string, unknown> | null)?.payment_settings as
+      Partial<PaymentSettings> | undefined;
+    const storedKey = payments?.providers?.paystack?.secretKey;
+    if (!storedKey) return undefined;
+    return isEncrypted(storedKey) ? decryptSecret(storedKey) : storedKey;
+  } catch {
+    return undefined;
+  }
+}
+
+interface PaystackWebhookPayload {
+  event?: string;
+  data?: {
+    reference?: string;
+    amount?: number;
+    fees?: number;
+    paid_at?: string;
+    channel?: string;
+    metadata?: Record<string, unknown>;
+    customer?: {
+      phone?: string | null;
+      first_name?: string | null;
+      last_name?: string | null;
+    };
+    authorization?: {
+      channel?: string;
+      last4?: string;
+      account_name?: string;
+      authorization_code?: string;
+      brand?: string;
+      card_type?: string;
+      exp_month?: string;
+      exp_year?: string;
+    };
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,15 +60,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing x-paystack-signature header' }, { status: 400 });
     }
 
-    const isValid = validatePaystackSignature(rawBody, signature);
+    // Try per-tenant key first, then fall back to global env var
+    let parsedPayload: PaystackWebhookPayload;
+    try {
+      parsedPayload = JSON.parse(rawBody) as PaystackWebhookPayload;
+    } catch {
+      return NextResponse.json({ error: 'Malformed JSON body' }, { status: 400 });
+    }
+    const preMetadata = parsedPayload.data?.metadata;
+    const tenantSecret = await resolvePaystackSecret(preMetadata?.tenantId as string | undefined);
+
+    const isValid = tenantSecret
+      ? validatePaystackSignature(rawBody, signature, tenantSecret)
+      : validatePaystackSignature(rawBody, signature);
     if (!isValid) {
       console.warn('Paystack webhook signature verification failed');
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 });
     }
 
-    const payload = JSON.parse(rawBody);
-    const event = payload.event;
-    const data = payload.data;
+    const event = parsedPayload.event;
+    const data = parsedPayload.data;
 
     if (!event || !data) {
       return NextResponse.json({ error: 'Malformed webhook payload' }, { status: 400 });
@@ -42,9 +101,9 @@ export async function POST(req: NextRequest) {
     // CASE 1: SAAS PLATFORM SUBSCRIPTION BILLING
     // ==========================================
     if (metadata.type === 'saas_subscription' && metadata.tenantId) {
-      const tenantId = metadata.tenantId;
-      const tier = metadata.tier || 'pro';
-      const billingCycle = metadata.billingCycle || 'monthly';
+      const tenantId = String(metadata.tenantId);
+      const tier = String(metadata.tier || 'pro');
+      const billingCycle = String(metadata.billingCycle || 'monthly');
 
       const { data: existingSettings } = await supabase
         .from('tenant_settings')
@@ -179,8 +238,8 @@ export async function POST(req: NextRequest) {
     // CASE 3: STOREFRONT CUSTOMER ORDER PAYMENT
     // ==========================================
     if (metadata.orderId || metadata.type === 'store_order') {
-      const orderId = metadata.orderId;
-      const tenantId = metadata.tenantId;
+      const orderId = metadata.orderId ? String(metadata.orderId) : undefined;
+      const tenantId = metadata.tenantId ? String(metadata.tenantId) : undefined;
 
       // Idempotency check: Ensure payment reference hasn't been recorded already
       const { data: existingPayment, error: existingErr } = await supabase
@@ -203,7 +262,7 @@ export async function POST(req: NextRequest) {
       const netAmountGhs = amountGhs - feeGhs;
 
       const { error: paymentErr } = await supabase.from('payments').insert({
-        tenant_id: tenantId,
+        tenant_id: tenantId || null,
         order_id: orderId || null,
         provider: 'paystack',
         transaction_ref: reference,
@@ -238,16 +297,18 @@ export async function POST(req: NextRequest) {
         }
 
         // Dispatch automated WhatsApp payment receipt to customer
-        await dispatchPaymentConfirmationReceipt({
-          supabase,
-          tenantId,
-          orderId,
-          amount: amountGhs,
-          provider: 'paystack',
-          transactionRef: reference,
-          customerPhone: data.customer?.phone || null,
-          customerName: `${data.customer?.first_name || ''} ${data.customer?.last_name || ''}`.trim() || null,
-        });
+        if (tenantId) {
+          await dispatchPaymentConfirmationReceipt({
+            supabase,
+            tenantId,
+            orderId,
+            amount: amountGhs,
+            provider: 'paystack',
+            transactionRef: reference,
+            customerPhone: data.customer?.phone || null,
+            customerName: `${data.customer?.first_name || ''} ${data.customer?.last_name || ''}`.trim() || null,
+          });
+        }
       }
 
       return NextResponse.json({ status: 'success', type: 'store_order', reference }, { status: 200 });

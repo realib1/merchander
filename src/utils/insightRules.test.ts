@@ -4,6 +4,7 @@ import {
   evaluateMarginInsights,
   evaluateCustomerCreditInsights,
   evaluateLogisticsAndVipInsights,
+  evaluateEmptyStoreInsights,
   type InsightProduct,
   type InsightCustomer,
   type InsightShipment,
@@ -188,3 +189,32 @@ describe('evaluateLogisticsAndVipInsights', () => {
     expect(out).toEqual([]);
   });
 });
+
+describe('evaluateEmptyStoreInsights', () => {
+  it('returns onboarding insight when products, orders, and customers are all zero', () => {
+    const out = evaluateEmptyStoreInsights(0, 0, 0);
+    expect(out).toHaveLength(1);
+    expect(out[0].id).toBe('onboarding-empty-store');
+    expect(out[0].category).toBe('velocity');
+    expect(out[0].severity).toBe('info');
+    expect(out[0].title).toBe('Welcome to Merchander!');
+    expect(out[0].recommendation).toContain('Add your first products and record orders');
+    expect(out[0].action.href).toBe('/dashboard/products/new');
+  });
+
+  it('returns empty array when tenant already has products', () => {
+    const out = evaluateEmptyStoreInsights(5, 0, 0);
+    expect(out).toEqual([]);
+  });
+
+  it('returns empty array when tenant already has orders', () => {
+    const out = evaluateEmptyStoreInsights(0, 2, 0);
+    expect(out).toEqual([]);
+  });
+
+  it('returns empty array when tenant already has customers', () => {
+    const out = evaluateEmptyStoreInsights(0, 0, 1);
+    expect(out).toEqual([]);
+  });
+});
+

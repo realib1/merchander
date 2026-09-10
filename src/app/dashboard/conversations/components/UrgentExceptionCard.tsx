@@ -4,6 +4,7 @@ import React, { useTransition, useState } from 'react';
 import { AIActionRecord } from '@/types/actions';
 import { resolveRedException } from '@/app/actions/approvals';
 import { buildWhatsAppTakeoverUrl } from '@/utils/actionsMath';
+import { formatChannelName } from '@/utils/channelFormat';
 import {
   AlertTriangle,
   MessageCircle,
@@ -27,6 +28,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
 
   const customerName = action.customer?.name || action.channel_identity?.profile_name || 'Customer';
   const customerPhone = action.customer?.phone || action.channel_identity?.channel_handle || '';
+  const channelName = formatChannelName(action.channel_identity?.channel);
   const takeoverUrl = buildWhatsAppTakeoverUrl(customerPhone, customerName, action.escalation_reason);
 
   const handleResolve = () => {
@@ -56,7 +58,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
               <span className="text-xs text-muted font-mono">{customerPhone}</span>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-rose-500 font-medium">WhatsApp Takeover Needed</span>
+              <span className="text-xs text-rose-500 font-medium">{channelName} Takeover Needed</span>
               <span className="text-muted text-[10px]">•</span>
               <span className="text-xs text-muted flex items-center gap-1">
                 <Clock size={12} />
@@ -83,7 +85,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
 
       {/* 3. Operational Takeover Notice */}
       <div className="text-xs text-muted leading-relaxed">
-        Automation was halted to protect customer experience. Click below to open WhatsApp directly and resolve the matter with the customer.
+        Automation was halted to protect customer experience. Click below to open {channelName} directly and resolve the matter with the customer.
       </div>
 
       {/* 4. Action Buttons */}
@@ -94,7 +96,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
               type="text"
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
-              placeholder="Resolution note (e.g. Spoke to customer via WhatsApp)..."
+              placeholder={`Resolution note (e.g. Spoke to customer via ${channelName})...`}
               className="text-xs px-3 py-1.5 rounded-lg border border-separator bg-surface text-foreground w-full focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
             <button
@@ -131,7 +133,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
               </span>
             )}
 
-            {/* Direct WhatsApp Takeover Link */}
+            {/* Direct Channel Takeover Link */}
             <a
               href={takeoverUrl}
               target="_blank"
@@ -139,7 +141,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
               className="w-full sm:w-auto px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-xs"
             >
               <MessageCircle size={15} />
-              Open WhatsApp Takeover
+              Open {channelName} Takeover
               <ExternalLink size={13} className="opacity-80" />
             </a>
           </>

@@ -9,6 +9,7 @@ import {
   evaluateMarginInsights,
   evaluateCustomerCreditInsights,
   evaluateLogisticsAndVipInsights,
+  evaluateEmptyStoreInsights,
 } from '@/utils/insightRules';
 
 export async function getBusinessInsights(): Promise<InsightsResponse> {
@@ -85,6 +86,7 @@ export async function getBusinessInsights(): Promise<InsightsResponse> {
 
   // Run modular rule evaluators
   const insights: BusinessInsight[] = [
+    ...evaluateEmptyStoreInsights(products.length, recentOrders.length + priorOrders.length, customers.length),
     ...evaluateInventoryInsights(products, productSalesMap),
     ...evaluateMarginInsights(products),
     ...evaluateCustomerCreditInsights(customers),

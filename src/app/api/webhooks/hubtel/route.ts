@@ -2,20 +2,46 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { validateHubtelAuth } from '@/lib/payments/hubtel';
 import { dispatchPaymentConfirmationReceipt } from '@/lib/payments/confirmation';
+import { decryptSecret, isEncrypted } from '@/utils/encryption';
+import { PaymentSettings } from '@/types/settings';
+
+async function resolveHubtelCredentials(
+  tenantId: string
+): Promise<{ clientId?: string; clientSecret?: string }> {
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from('tenant_settings')
+      .select('settings_data')
+      .eq('tenant_id', tenantId)
+      .maybeSingle();
+    const payments = (data?.settings_data as Record<string, unknown> | null)?.payment_settings as
+      Partial<PaymentSettings> | undefined;
+    const config = payments?.providers?.hubtel;
+    if (!config) return {};
+    const rawId = config.publicKey;
+    const rawSecret = config.secretKey;
+    return {
+      clientId: rawId || undefined,
+      clientSecret: rawSecret
+        ? isEncrypted(rawSecret) ? decryptSecret(rawSecret) : rawSecret
+        : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
 
 export async function POST(req: NextRequest) {
-  // Authenticate before reading the body: an unauthenticated caller must not
-  // reach any parsing or database path.
-  if (!validateHubtelAuth(req.headers.get('authorization'))) {
-    console.warn('Hubtel webhook authorization failed');
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const authHeader = req.headers.get('authorization');
 
   try {
     const rawBody = await req.text();
     if (!rawBody) {
       return NextResponse.json({ error: 'Empty payload' }, { status: 400 });
     }
+
+    let isAuthorized = validateHubtelAuth(authHeader);
 
     const payload = JSON.parse(rawBody);
     const data = payload.Data || payload.data || payload;
@@ -24,6 +50,35 @@ export async function POST(req: NextRequest) {
     const clientReference = data?.ClientReference || data?.clientReference || payload.ClientReference;
     const transactionId = data?.TransactionId || data?.transactionId || payload.TransactionId || clientReference;
     const amount = Number(data?.Amount || data?.amount || payload.Amount || 0);
+
+    // If global credentials didn't authorize, check per-tenant credentials from matched order
+    if (!isAuthorized && clientReference && typeof clientReference === 'string' && clientReference.startsWith('ord_')) {
+      const orderShortId = clientReference.split('_')[1];
+      if (orderShortId) {
+        try {
+          const supabase = createAdminClient();
+          const { data: matchedOrder } = await supabase
+            .from('orders')
+            .select('tenant_id')
+            .eq('short_id', orderShortId)
+            .maybeSingle();
+
+          if (matchedOrder?.tenant_id) {
+            const creds = await resolveHubtelCredentials(matchedOrder.tenant_id);
+            if (creds.clientId && creds.clientSecret) {
+              isAuthorized = validateHubtelAuth(authHeader, creds.clientId, creds.clientSecret);
+            }
+          }
+        } catch {
+          // Fall through to unauthorized check
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      console.warn('Hubtel webhook authorization failed');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const isSuccess = responseCode === '0000' || data?.Status === 'Success' || payload.Status === 'Success';
 
