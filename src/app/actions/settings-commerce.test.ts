@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getPaymentSettings, updatePaymentSettings } from './settings-commerce';
+import { getPaymentSettings, updatePaymentSettings, verifyPaymentProviderCredentials } from './settings-commerce';
 import { encryptSecret, isEncrypted, maskSecret } from '@/utils/encryption';
 import { PaymentSettings } from '@/types/settings';
 
@@ -254,4 +254,133 @@ describe('settings-commerce payment credentials & encryption actions', () => {
     const res = await updatePaymentSettings(payload);
     expect(res.error).toBe('Insufficient permissions');
   });
+
+  describe('verifyPaymentProviderCredentials', () => {
+    it('rejects unauthenticated requests', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+      });
+
+      const res = await verifyPaymentProviderCredentials({
+        provider: 'paystack',
+        publicKey: 'pk_test_12345678901234567890',
+      });
+      expect(res.valid).toBe(false);
+      expect(res.error).toBe('Not authenticated');
+    });
+
+    it('rejects unauthorized roles', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-2' } },
+      });
+      (getTenantInfo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        tenantId: 'tenant-123',
+        role: 'viewer',
+      });
+
+      const res = await verifyPaymentProviderCredentials({
+        provider: 'paystack',
+        publicKey: 'pk_test_12345678901234567890',
+      });
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('Insufficient permissions');
+    });
+
+    it('rejects invalid Paystack public key format', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
+      });
+      (getTenantInfo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        tenantId: 'tenant-123',
+        role: 'owner',
+      });
+
+      const res = await verifyPaymentProviderCredentials({
+        provider: 'paystack',
+        publicKey: 'invalid_key_random_string',
+      });
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('Invalid Paystack Public Key format');
+    });
+
+    it('rejects mismatched Paystack test and live keys', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
+      });
+      (getTenantInfo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        tenantId: 'tenant-123',
+        role: 'owner',
+      });
+
+      const res = await verifyPaymentProviderCredentials({
+        provider: 'paystack',
+        publicKey: 'pk_live_12345678901234567890',
+        secretKey: 'sk_test_12345678901234567890',
+      });
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('Mismatched Paystack keys');
+    });
+
+    it('validates Paystack test keys syntactically', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
+      });
+      (getTenantInfo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        tenantId: 'tenant-123',
+        role: 'owner',
+      });
+
+      const res = await verifyPaymentProviderCredentials({
+        provider: 'paystack',
+        publicKey: 'pk_test_12345678901234567890',
+      });
+      expect(res.valid).toBe(true);
+      expect(res.isLive).toBe(false);
+    });
+
+    it('rejects invalid Hubtel keys with spaces or non-numeric pos ID', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
+      });
+      (getTenantInfo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        tenantId: 'tenant-123',
+        role: 'owner',
+      });
+
+      const spaceRes = await verifyPaymentProviderCredentials({
+        provider: 'hubtel',
+        publicKey: 'client id with spaces',
+      });
+      expect(spaceRes.valid).toBe(false);
+      expect(spaceRes.error).toContain('Must not contain spaces');
+
+      const posRes = await verifyPaymentProviderCredentials({
+        provider: 'hubtel',
+        publicKey: 'validClientId',
+        merchantAccountOrPosId: 'not-a-number',
+      });
+      expect(posRes.valid).toBe(false);
+      expect(posRes.error).toContain('must be a numeric value');
+    });
+
+    it('accepts valid Hubtel credentials', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
+      });
+      (getTenantInfo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+        tenantId: 'tenant-123',
+        role: 'owner',
+      });
+
+      const res = await verifyPaymentProviderCredentials({
+        provider: 'hubtel',
+        publicKey: 'client_live_019283',
+        secretKey: 'secret_live_839281',
+        merchantAccountOrPosId: '2019482',
+      });
+      expect(res.valid).toBe(true);
+      expect(res.isLive).toBe(true);
+    });
+  });
 });
+

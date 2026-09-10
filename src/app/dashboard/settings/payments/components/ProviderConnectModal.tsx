@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Key, BadgeCheck, CheckCircle2, Loader2, Lock } from 'lucide-react';
 import { PaymentProviderState } from '@/types/settings';
 import { toast } from 'sonner';
+import { verifyPaymentProviderCredentials } from '@/app/actions/settings-commerce';
 
 interface ProviderConnectModalProps {
   providerKey: 'paystack' | 'hubtel';
@@ -41,19 +42,34 @@ export function ProviderConnectModal({
     }
 
     setIsTesting(true);
-    // Simulate lightweight API key verification ping
-    setTimeout(() => {
-      setIsTesting(false);
+    try {
+      const res = await verifyPaymentProviderCredentials({
+        provider: providerKey,
+        publicKey: publicKey.trim(),
+        secretKey: secretKey.trim() || undefined,
+        merchantAccountOrPosId: merchantAccountOrPosId.trim() || undefined,
+      });
+
+      if (!res.valid) {
+        toast.error(res.error || `Failed to verify ${providerName} credentials`);
+        return;
+      }
+
       onSave({
         connected: true,
         publicKey: publicKey.trim(),
         secretKey: secretKey.trim() || undefined,
         merchantAccountOrPosId: merchantAccountOrPosId.trim() || undefined,
-        isLive: publicKey.startsWith('pk_live_') || publicKey.startsWith('live_'),
+        isLive: res.isLive,
       });
-      toast.success(`${providerName} connected successfully`);
+      toast.success(`${providerName} verified and connected successfully`);
       onClose();
-    }, 600);
+    } catch (err) {
+      console.error('Error verifying credentials:', err);
+      toast.error(`Verification error: Unable to test ${providerName} credentials`);
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   return (

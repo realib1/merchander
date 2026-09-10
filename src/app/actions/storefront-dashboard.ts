@@ -55,7 +55,7 @@ export async function getStorefrontOverview(): Promise<StorefrontOverviewData | 
     const rawProducts = productsRes.data || [];
     const rawOrders = ordersRes.data || [];
     const customSettings = (settingsRes.data?.settings_data as Record<string, unknown> | null) || {};
-    const payments = customSettings.payments as Record<string, unknown> | undefined;
+    const payments = (customSettings.payment_settings || customSettings.payments) as Record<string, unknown> | undefined;
     const providers = payments?.providers as Record<string, { connected?: boolean }> | undefined;
 
     const featuredIds: string[] = Array.isArray(sfRes.data?.featured_product_ids)
@@ -93,7 +93,7 @@ export async function getStorefrontOverview(): Promise<StorefrontOverviewData | 
       ordersCount: rawOrders.length,
       totalGmv,
       currency: settingsRes.data?.store_currency || 'GHS',
-      isHubtelConnected: Boolean(providers?.hubtel?.connected ?? true),
+      isHubtelConnected: Boolean(providers?.hubtel?.connected),
       isPaystackConnected: Boolean(providers?.paystack?.connected),
       allProducts: formattedProducts,
       featuredProductIds: featuredIds,

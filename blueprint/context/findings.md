@@ -76,4 +76,93 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 2. Replace native `alert()` calls with `toast.error()` / `toast.warning()` from `sonner` in `profitabilityExport.ts`, `SupportAccessDelegationView.tsx`, and `StaffManagementClient.tsx`.
 **Resolution:** Fixed on 2026-09-09 in fix/native-dialogs-f12. Replaced all 14 native `window.confirm()` calls with accessible `@/components/ui/ConfirmDialog` modals featuring focus trapping, loading indicators, and destructive styling. Replaced all 5 `window.alert()` calls with `sonner` toasts (`toast.error` / `toast.success`). Typecheck (`yarn check`), lint (`yarn lint`), and all 517 tests (`yarn test`) pass.
 
+### F-15 [P2] open - Fabricated conversation threads and hardcoded response time in dead conversations action
+
+**File:** src/app/actions/conversations.ts:50
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** `getConversationsData()` synthesizes fake `ConversationThread` objects by mapping over customer records and generating placeholder messages (`"Customer started conversation"`, `"Awaiting payment confirmation for order..."`) with synthetic intents. Additionally, `src/utils/conversationsMath.ts:26` hardcodes `avgResponseTimeMinutes: 3.5` as a static benchmark. `getConversationsData()` is unreferenced by any page or component, creating dead code with simulated data.
+**Suggested fix:** Remove the dead `getConversationsData` function and synthetic thread generators, or connect real inbound messages from `messages` / omnichannel tables with dynamic response time calculations.
+**Resolution:**
+
+### F-16 [P2] open - Privacy & data policies form exposes disconnected controls and mock preview
+
+**File:** src/app/dashboard/settings/privacy/components/PrivacySettingsForm.tsx:98
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** In `PrivacySettingsForm.tsx`:
+1. `showCookieBanner` displays an interactive "Storefront Banner Preview" with an "Active on Storefront" badge, but `src/app/store/[slug]/` contains zero cookie banner logic or components.
+2. `marketingConsentCheckbox` promises a promotional WhatsApp/SMS opt-in at checkout, but `CartCheckoutForm.tsx` does not render this field.
+3. `deleteAbandonedAfterDays` presents retention schedules (30, 90, 180, 365 days) for abandoned carts, but no background worker, cron job, or cleanup function executes this purge.
+**Suggested fix:** Either implement the storefront cookie banner, marketing opt-in checkbox, and cart purge cleanup routine, or mark these settings with an honest "Coming Soon" badge until backing functionality exists.
+**Resolution:**
+
+### F-17 [P2] open - Deceptive active badges for language and timezone in profile settings form
+
+**File:** src/app/dashboard/settings/profile/components/ProfileForm.tsx:207
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** `ProfileForm.tsx` displays an "Active for Alerts & Receipts" badge next to Preferred Language with helper text "Used for account communications, system alert emails, and storefront notifications", but `user_metadata.language` is never referenced anywhere in notification or receipt templates. Similarly, Timezone displays "Locale Synchronized" claiming it "Determines how timestamps, activity logs, order invoices, and store operating hours are displayed", but formatters throughout the app ignore this setting.
+**Suggested fix:** Remove the misleading "Active for Alerts & Receipts" and "Locale Synchronized" badges, and note that locale formatting customization is currently in development until formatters consume these user preferences.
+**Resolution:**
+
+### F-18 [P2] open - Social channel connectors masquerade as functional sync without webhooks or handlers
+
+**File:** src/app/dashboard/settings/channels/components/InstagramChannelCard.tsx:30
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:**
+1. `InstagramChannelCard.tsx` and `MessengerChannelCard.tsx` offer toggles claiming to "Sync customer DMs and story replies into your unified inbox", but no webhook endpoints (`/api/webhooks/instagram`, `/api/webhooks/messenger`) or Meta Graph API sync routines exist.
+2. `src/app/api/webhooks/telegram/route.ts:44` extracts a cart from incoming Telegram messages but discards it with `// TODO: Trigger order state machine (Ticket 4)`.
+Only WhatsApp has a functional end-to-end webhook and state machine.
+**Suggested fix:** Clearly indicate that Instagram and Facebook Messenger connectors are "Planned" rather than interactive mock toggles, and implement the Telegram order dispatch queue or remove stubbed webhook code.
+**Resolution:**
+
+### F-19 [P2] open - Email notification toggles claim active inbox delivery without email infrastructure
+
+**File:** src/app/dashboard/settings/notifications/components/NotificationsForm.tsx:60
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** `NotificationsForm.tsx` provides switches for `emailNewOrder`, `emailPaymentReceived`, `emailLowInventory`, and `emailDailySummary` promising "Operational alerts delivered directly to your registered inbox". However, the application has no email service provider integration (e.g. Resend, SendGrid, Postmark) and no dispatch code in `src/app/actions/` or background workers. Merchants toggling these settings receive zero emails.
+**Suggested fix:** Integrate a real transactional email provider (such as Resend) or label email alerts as "Coming Soon / In Development" to prevent merchant false expectations.
+**Resolution:**
+
+### F-20 [P2] open - Intelligence grounding form fields are never ingested by the intelligence engine
+
+**File:** src/app/dashboard/settings/business-profile/components/IntelligenceGroundingCard.tsx:51
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** `IntelligenceGroundingCard.tsx` provides inputs for `aboutBusiness`, `whatWeSell`, `deliveryInfo`, `returnPolicy`, and `customerPolicies` under the header "Information Used by Intelligence", claiming these ground customer-facing assistants and automated responses. These fields are stored in `tenant_settings` but are never fetched, prompt-injected, or referenced by `src/lib/intelligence/` or `services/intelligence/`.
+**Suggested fix:** Inject the grounding data into the system prompt context in `src/lib/intelligence/reply.ts` / `services/intelligence/`, or clarify in the UI that grounding data is currently stored as draft configuration.
+**Resolution:**
+
+### F-21 [P2] open - AI conversational agent configuration in automation settings is ignored by message handlers
+
+**File:** src/app/dashboard/settings/automation/components/AutomationSettingsForm.tsx:116
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** `AutomationSettingsForm.tsx` lets merchants toggle `aiAgent.enabled`, select operational modes ("Assisted (Copilot)" vs "Autonomous Sales Agent"), customize catalog grounding, and select response tones. However, neither `src/app/api/webhooks/whatsapp/route.ts` nor `src/lib/intelligence/reply.ts` ever checks `aiAgent.enabled`, `aiAgent.mode`, or `aiAgent.responseTone`. The webhook processes messages regardless of the switch state, rendering the configuration UI completely detached from runtime execution.
+**Suggested fix:** Read `aiAgent` configuration from `tenant_settings` in `src/app/api/webhooks/whatsapp/route.ts` and `reply.ts`, honoring `enabled: false` (bypassing AI auto-replies) and passing mode/tone settings to prompt builders.
+**Resolution:**
+
+### F-22 [P2] open - Platform master controls and integration API keys are never checked or consumed
+
+**File:** src/app/platform/settings/components/ControlsSettingsForm.tsx:50
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:**
+1. In `ControlsSettingsForm.tsx`, toggles for `maintenance_mode` ("Displays a maintenance screen to all merchants...") and `disable_new_signups` ("Prevents new merchants from registering...") save to `platform_settings`. However, `proxy.ts` never checks `maintenance_mode`, and `src/app/actions/auth.ts` / `signup/page.tsx` never checks `disable_new_signups`.
+2. In `IntegrationsSettingsForm.tsx:50`, fields for `openai_api_key` and `slack_webhook_url` save to `platform_settings`, but are never queried by the intelligence service or alert dispatchers (which only read static environment variables).
+**Suggested fix:** Check `maintenance_mode` in middleware/proxy, enforce `disable_new_signups` in the signup action, and either consume platform settings for OpenAI/Slack or remove the dead inputs.
+**Resolution:**
+
+### F-23 [P3] open - Dashboard intelligence engine falls back to hardcoded stable stock strings on zero sales velocity
+
+**File:** src/app/actions/dashboard.ts:308
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** In `dashboard.ts`, when a merchant account has products and orders but no products with positive weekly sales velocity (`lowStockList.length === 0`), `getDashboardIntelligence()` returns hardcoded fallback strings: `supplyInsight: ['• Stock levels are generally stable.', '• No major shipments in transit.']`. This message is displayed even if inventory levels are actually at 0 for critical items, giving merchants false confidence that stock is stable.
+**Suggested fix:** Evaluate actual inventory levels across product variants and shipments in transit dynamically instead of returning static strings about stability.
+**Resolution:**
+
+### F-24 [P3] open - Sidebar "Conversations" nav item links to "Approvals & Inquiries" queue with mismatched intent
+
+**File:** src/app/dashboard/components/sidebar/sidebarNavigation.ts:42
+**Found:** 2026-09-10 by /audit (scope: full; lens: quality)
+**Why it matters:** `sidebarNavigation.ts:42` defines a navigation item named "Conversations" with a `MessageSquare` icon leading to `/dashboard/conversations`. However, `/dashboard/conversations/page.tsx` is titled "Approvals & Inquiries" and displays an operational approval and exceptions triage workspace for `ai_action_queue` items. Merchants clicking "Conversations" expecting an omnichannel chat inbox find a backend approvals queue.
+**Suggested fix:** Rename the sidebar navigation item to "Approvals & Inquiries" (or "Approvals Queue") with an appropriate icon (e.g. `CheckSquare` or `ShieldAlert`), or provide a dedicated customer conversation interface.
+**Resolution:**
+
+
 
