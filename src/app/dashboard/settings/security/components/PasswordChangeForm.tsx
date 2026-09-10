@@ -203,27 +203,35 @@ export function PasswordChangeForm() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted">
             <div className="flex items-center gap-1.5">
-              <span className={hasMinLength ? 'text-emerald-500 font-bold' : 'text-muted'}>
-                {hasMinLength ? '✓' : '•'}
-              </span>
+              {hasMinLength ? (
+                <Check size={12} className="text-emerald-500 shrink-0" aria-hidden="true" />
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-muted shrink-0 mx-0.5" aria-hidden="true" />
+              )}
               <span>At least 8 characters long</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className={hasUppercase ? 'text-emerald-500 font-bold' : 'text-muted'}>
-                {hasUppercase ? '✓' : '•'}
-              </span>
+              {hasUppercase ? (
+                <Check size={12} className="text-emerald-500 shrink-0" aria-hidden="true" />
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-muted shrink-0 mx-0.5" aria-hidden="true" />
+              )}
               <span>Uppercase letter (A-Z)</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className={hasLowercase ? 'text-emerald-500 font-bold' : 'text-muted'}>
-                {hasLowercase ? '✓' : '•'}
-              </span>
+              {hasLowercase ? (
+                <Check size={12} className="text-emerald-500 shrink-0" aria-hidden="true" />
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-muted shrink-0 mx-0.5" aria-hidden="true" />
+              )}
               <span>Lowercase letter (a-z)</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className={hasNumber && hasSpecial ? 'text-emerald-500 font-bold' : 'text-muted'}>
-                {hasNumber && hasSpecial ? '✓' : '•'}
-              </span>
+              {hasNumber && hasSpecial ? (
+                <Check size={12} className="text-emerald-500 shrink-0" aria-hidden="true" />
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-muted shrink-0 mx-0.5" aria-hidden="true" />
+              )}
               <span>Number & special symbol</span>
             </div>
           </div>

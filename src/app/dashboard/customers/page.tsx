@@ -49,12 +49,23 @@ export default async function CustomersPage({
     totalRevenue,
   } = metrics;
 
-  const customersChange =
-    previousNewCustomers === 0 ? 100 : ((currentNewCustomers - previousNewCustomers) / previousNewCustomers) * 100;
+  const rawCustomersChange =
+    previousNewCustomers === 0
+      ? currentNewCustomers > 0
+        ? 100
+        : 0
+      : ((currentNewCustomers - previousNewCustomers) / previousNewCustomers) * 100;
+  const customersChange = Number.isFinite(rawCustomersChange) ? rawCustomersChange : 0;
 
-  const ordersChange = previousOrders === 0 ? 100 : ((currentOrders - previousOrders) / previousOrders) * 100;
+  const rawOrdersChange =
+    previousOrders === 0
+      ? currentOrders > 0
+        ? 100
+        : 0
+      : ((currentOrders - previousOrders) / previousOrders) * 100;
+  const ordersChange = Number.isFinite(rawOrdersChange) ? rawOrdersChange : 0;
 
-  const totalPages = Math.ceil(count / pageSize);
+  const totalPages = Math.max(1, Math.ceil(count / pageSize));
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn max-w-7xl mx-auto w-full pb-12">

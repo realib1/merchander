@@ -7,6 +7,7 @@ import { MoreHorizontal, FileText, Phone, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface CustomersTableRowProps {
   customer: CustomerStats;
@@ -34,11 +35,10 @@ export function CustomersTableRow({
   return (
     <tr className="hover:bg-surface-elevated/50 transition-colors group">
       <td className="px-6 py-4 text-center">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={isSelected}
-          onChange={(e) => onToggleSelect(e.target.checked)}
-          className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5"
+          onCheckedChange={(checked) => onToggleSelect(checked)}
+          aria-label={`Select ${customer.name || 'customer'}`}
         />
       </td>
       <td className="px-6 py-4">

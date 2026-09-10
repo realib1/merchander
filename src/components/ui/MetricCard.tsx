@@ -29,9 +29,10 @@ export function MetricCard({
   iconBg,
   className,
 }: MetricCardProps) {
-  const isZero = change === 0;
-  const isPositive = change !== undefined && change > 0;
-  const isNegative = change !== undefined && change < 0;
+  const hasValidChange = typeof change === 'number' && Number.isFinite(change);
+  const isZero = hasValidChange && change === 0;
+  const isPositive = hasValidChange && change > 0;
+  const isNegative = hasValidChange && change < 0;
 
   return (
     <div
@@ -53,7 +54,7 @@ export function MetricCard({
           {badge && <div className="shrink-0 mb-2">{badge}</div>}
         </div>
 
-        {change !== undefined ? (
+        {hasValidChange ? (
           <div className="text-xs font-medium flex flex-wrap items-center gap-1.5">
             <span
               className={cn(

@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { SupportTicket, TicketStatus } from '@/types/support';
 import { addTicketMessage } from '@/app/actions/support';
 import { Button } from '@/components/ui/Button';
-import { Clock, CheckCircle2, AlertTriangle, MessageSquare, Send, Loader2, ChevronRight, LifeBuoy } from 'lucide-react';
+import { Clock, CheckCircle2, AlertTriangle, MessageSquare, Send, Loader2, ChevronRight, LifeBuoy, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -92,9 +92,10 @@ export function MyRequestsView({ tickets, initialSelectedId, onRefresh, onOpenNe
               <button
                 type="button"
                 onClick={() => setSelectedTicketId(null)}
-                className="text-xs font-bold text-brand-primary hover:underline cursor-pointer flex items-center gap-1 mb-1"
+                className="text-xs font-bold text-brand-primary hover:underline cursor-pointer flex items-center gap-1.5 mb-1"
               >
-                ← Back to all requests
+                <ArrowLeft size={13} aria-hidden="true" />
+                <span>Back to all requests</span>
               </button>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono font-bold text-sm text-foreground">{selectedTicket.reference_code}</span>

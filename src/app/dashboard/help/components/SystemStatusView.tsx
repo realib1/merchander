@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { SystemIncident, ServiceStatus } from '@/types/support';
-import { CheckCircle2, AlertTriangle, AlertOctagon, Clock } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, AlertOctagon, Clock, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface SystemStatusViewProps {
@@ -66,9 +66,10 @@ export function SystemStatusView({ incidents, onOpenReport }: SystemStatusViewPr
         <button
           type="button"
           onClick={onOpenReport}
-          className="text-xs font-bold text-brand-primary hover:underline cursor-pointer shrink-0"
+          className="text-xs font-bold text-brand-primary hover:underline cursor-pointer shrink-0 flex items-center gap-1"
         >
-          Report an outage →
+          <span>Report an outage</span>
+          <ArrowRight size={13} aria-hidden="true" />
         </button>
       </div>
 

@@ -80,7 +80,18 @@ export async function getCustomers(
   return { data: stats, count: count || 0 };
 }
 
-export async function getCustomerPageMetrics() {
+export interface CustomerPageMetrics {
+  totalCustomers: number;
+  currentNewCustomers: number;
+  previousNewCustomers: number;
+  activeCustomers: number;
+  totalOrders: number;
+  currentOrders: number;
+  previousOrders: number;
+  totalRevenue: number;
+}
+
+export async function getCustomerPageMetrics(): Promise<CustomerPageMetrics> {
   const supabase = await createClient();
 
   const {
@@ -95,15 +106,16 @@ export async function getCustomerPageMetrics() {
     throw new Error('Failed to fetch customer metrics');
   }
 
-  return data as {
-    totalCustomers: number;
-    currentNewCustomers: number;
-    previousNewCustomers: number;
-    activeCustomers: number;
-    totalOrders: number;
-    currentOrders: number;
-    previousOrders: number;
-    totalRevenue: number;
+  const raw = (data || {}) as Record<string, unknown>;
+  return {
+    totalCustomers: Number(raw.totalCustomers || 0),
+    currentNewCustomers: Number(raw.currentNewCustomers || 0),
+    previousNewCustomers: Number(raw.previousNewCustomers || 0),
+    activeCustomers: Number(raw.activeCustomers || 0),
+    totalOrders: Number(raw.totalOrders || 0),
+    currentOrders: Number(raw.currentOrders || 0),
+    previousOrders: Number(raw.previousOrders || 0),
+    totalRevenue: Number(raw.totalRevenue || 0),
   };
 }
 

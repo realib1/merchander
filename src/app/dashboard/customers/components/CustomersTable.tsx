@@ -11,6 +11,7 @@ import { CustomersTableRow } from './CustomersTableRow';
 import { CustomersBulkActionBar } from './CustomersBulkActionBar';
 import { CustomersDeleteModal } from './CustomersDeleteModal';
 import { CustomersPagination } from './CustomersPagination';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 function SortIcon({
   column,
@@ -138,11 +139,10 @@ export function CustomersTable({
             <thead className="bg-surface-elevated border-b border-separator text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 font-semibold w-12 text-center">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={customers.length > 0 && selectedIds.size === customers.length}
-                    onChange={(e) => toggleAll(e.target.checked)}
-                    className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer w-4 h-4 translate-y-0.5"
+                    onCheckedChange={(checked) => toggleAll(checked)}
+                    aria-label="Select all customers"
                   />
                 </th>
                 <th className="px-6 py-4 font-semibold">

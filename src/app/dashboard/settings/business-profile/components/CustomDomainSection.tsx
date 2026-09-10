@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { CNAME_TARGET } from '@/utils/domain';
 
 interface CustomDomainSectionProps {
@@ -16,8 +17,12 @@ export function CustomDomainSection({ customDomain, onChange, disabled = false }
         <label htmlFor="customDomain" className="text-xs font-semibold text-foreground">
           Custom Domain
         </label>
-        <Link href="/dashboard/online-store" className="text-[11px] font-semibold text-brand-primary hover:underline">
-          Manage in Online Store →
+        <Link
+          href="/dashboard/online-store"
+          className="text-[11px] font-semibold text-brand-primary hover:underline inline-flex items-center gap-1"
+        >
+          <span>Manage in Online Store</span>
+          <ArrowRight size={11} aria-hidden="true" />
         </Link>
       </div>
       <input

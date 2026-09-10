@@ -77,14 +77,17 @@ export function CustomerAttributionCard({
 
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-elevated border border-separator/60 text-[11px] font-mono font-semibold text-foreground">
           <Sparkles size={12} className="text-amber-400" />
-          <span>Top: {attribution.topChannel}</span>
+          <span>Top: {attribution?.topChannel || 'Direct'}</span>
         </div>
       </div>
 
       {/* Acquisition Channels Progress Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {attribution.channels.map((channel) => {
+        {(attribution?.channels || []).map((channel) => {
           const barColor = getChannelBarColor(channel.source);
+          const percentage = Number(channel.percentage) || 0;
+          const customerCount = Number(channel.customerCount) || 0;
+          const totalGmv = Number(channel.totalGmv) || 0;
 
           return (
             <div
@@ -101,7 +104,7 @@ export function CustomerAttributionCard({
                   </span>
                 </div>
                 <span className="text-xs font-mono font-bold text-foreground">
-                  {channel.percentage}%
+                  {percentage}%
                 </span>
               </div>
 
@@ -109,14 +112,14 @@ export function CustomerAttributionCard({
               <div className="w-full bg-surface rounded-full h-1.5 overflow-hidden border border-separator/30">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-                  style={{ width: `${Math.max(channel.percentage, 3)}%` }}
+                  style={{ width: `${Math.max(percentage, 3)}%` }}
                 />
               </div>
 
               <div className="flex items-center justify-between text-[11px] text-muted font-mono pt-1">
-                <span>{channel.customerCount} customers</span>
+                <span>{customerCount} customers</span>
                 <span className="font-semibold text-foreground">
-                  {currency} {channel.totalGmv.toLocaleString()} GMV
+                  {currency} {totalGmv.toLocaleString()} GMV
                 </span>
               </div>
             </div>

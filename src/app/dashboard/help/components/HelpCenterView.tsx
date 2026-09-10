@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { HelpArticle, TicketCategory } from '@/types/support';
-import { Search, BookOpen, ChevronRight, MessageSquare } from 'lucide-react';
+import { Search, BookOpen, ChevronRight, MessageSquare, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 
@@ -95,9 +95,10 @@ export function HelpCenterView({ articles, onOpenContact }: HelpCenterViewProps)
           <button
             type="button"
             onClick={() => setActiveArticle(null)}
-            className="text-xs font-bold text-brand-primary hover:underline cursor-pointer flex items-center gap-1"
+            className="text-xs font-bold text-brand-primary hover:underline cursor-pointer flex items-center gap-1.5"
           >
-            ← Back to all guides
+            <ArrowLeft size={13} aria-hidden="true" />
+            <span>Back to all guides</span>
           </button>
 
           <div className="space-y-2 border-b border-separator pb-4">

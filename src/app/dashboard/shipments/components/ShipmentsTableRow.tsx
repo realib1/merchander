@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Ship, Plane, Truck, Zap, Calendar, MapPin, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Ship, Plane, Truck, Zap, Calendar, MapPin, Eye, Pencil, Trash2, ArrowRight } from 'lucide-react';
 import type { Shipment, FreightMode, ShipmentStatus } from '@/types/shipments';
 
 export function getModeBadge(mode: FreightMode) {
@@ -108,7 +108,7 @@ export function ShipmentsTableRow({ shipment, onViewDetails, onEdit, onDelete }:
         <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
           <MapPin size={13} className="text-muted shrink-0" />
           <span>{shipment.origin_port || 'Origin'}</span>
-          <span className="text-muted">→</span>
+          <ArrowRight size={12} className="text-muted shrink-0" aria-hidden="true" />
           <span>{shipment.destination_port || 'Ghana'}</span>
         </div>
       </td>
