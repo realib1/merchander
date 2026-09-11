@@ -155,7 +155,8 @@ export async function updateSession(request: NextRequest) {
     // If fully authenticated user visits /login via direct GET navigation without error parameters, redirect to appropriate portal
     const isServerAction = request.headers.has('next-action');
     const hasLoginError = request.nextUrl.searchParams.has('error');
-    if (user && pathname === '/login' && request.method === 'GET' && !isServerAction && !hasLoginError) {
+    const hasResetNotice = request.nextUrl.searchParams.has('reset');
+    if (user && pathname === '/login' && request.method === 'GET' && !isServerAction && !hasLoginError && !hasResetNotice) {
       const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       const needsMfa = aalData && aalData.currentLevel === 'aal1' && aalData.nextLevel === 'aal2';
       if (!needsMfa) {

@@ -1,6 +1,6 @@
 # Merchander - Project Overview
 
-<!-- blueprint:source-hash 3f05f2935d8a8927492becf6f836f6daac85cb27ee9e8209f21c5a7b08e267c0 -->
+<!-- blueprint:source-hash 3a70abe02e5ecbb822ce783be45db7b7c41a52cf7f0920582ef68e009672479b -->
 
 > A social-commerce operating system that connects the supply side and sales side
 > of Ghanaian import/resale businesses into one operational system.
@@ -35,7 +35,7 @@ escrowed).
 
 ## Features
 
-Build-plan order. Features 1-29 are shipped. Feature 30 introduces a visual redesign for merchant auth surfaces matching modern design references. The headline
+Build-plan order. Features 1-30 are shipped. Feature 31 introduces auth self-service recovery, remember-me persistence, and signup credential confirmation. The headline
 capability is turning fragmented social-commerce operations into one connected
 system with a channel-acting Intelligence layer, merchant storefronts, multi-tenant
 RBAC, self-service onboarding, and deployment readiness.
@@ -112,6 +112,10 @@ RBAC, self-service onboarding, and deployment readiness.
     and mobile layouts for `/login` (30a) and `/signup` (30b) matching modern design
     references, with merchant hero photography, Ghanaian phone credential inputs,
     password reveal toggles, and seamless MFA/onboarding wizard continuity.
+31. **Auth Self-Service Recovery & Persistence** - self-service password recovery
+    via email reset link and dedicated `/reset-password` page, remembered login
+    identifier persistence across browser sessions on `/login`, and credential
+    confirmation and terms agreement in the `/signup` wizard.
 
 ## Data model
 

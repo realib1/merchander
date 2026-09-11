@@ -264,6 +264,18 @@ describe('src/lib/supabase/proxy.ts', () => {
 
       expect(res.headers.get('location')).toBeNull();
     });
+
+    it('does not redirect if /login has a reset query parameter', async () => {
+      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
+        data: { user: { id: 'merchant-user-1', email: 'merchant@store.com' } },
+        error: null,
+      });
+
+      const loginReq = new NextRequest('http://localhost:3000/login?reset=success');
+      const res = await updateSession(loginReq);
+
+      expect(res.headers.get('location')).toBeNull();
+    });
   });
 });
 

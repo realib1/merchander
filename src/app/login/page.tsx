@@ -1,4 +1,4 @@
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import { LoginForm } from './components/LoginForm';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ export const metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; mfa?: string }>;
+  searchParams: Promise<{ error?: string; mfa?: string; reset?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
 
@@ -78,6 +78,15 @@ export default async function LoginPage({
                   : resolvedSearchParams.error === 'no-tenant'
                   ? 'No merchant store is linked to this account. Please sign in with your merchant credentials or contact support.'
                   : 'Invalid email or password.'}
+              </div>
+            </div>
+          )}
+
+          {resolvedSearchParams?.reset === 'success' && (
+            <div className="mb-6 py-2.5 px-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-sm font-medium text-emerald-800 dark:text-emerald-300 flex items-start gap-3 animate-in fade-in-50 duration-200">
+              <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <div>
+                Your password has been reset successfully. Please sign in with your new password.
               </div>
             </div>
           )}

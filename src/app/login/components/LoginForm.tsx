@@ -123,7 +123,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
             <span className="text-sm text-muted hover:text-foreground transition-colors">Remember me</span>
           </label>
           <Link
-            href="#"
+            href="/forgot-password"
             className="text-sm font-semibold text-brand-primary hover:text-brand-primary-hover transition-colors"
           >
             Forgot password?
