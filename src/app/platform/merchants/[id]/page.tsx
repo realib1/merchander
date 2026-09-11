@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { AuditLogEntry, TenantPlatformStatus, PlatformTier } from '@/types/platform';
+import { TenantPlatformStatus, PlatformTier } from '@/types/platform';
 import { MerchantControlsClient } from './components/MerchantControlsClient';
 import {
   ArrowLeft,

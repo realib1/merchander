@@ -222,5 +222,48 @@ describe('src/lib/supabase/proxy.ts', () => {
       const maintenanceRes = await updateSession(maintenanceReq);
       expect(maintenanceRes.headers.get('location')).toBeNull();
     });
+
+    it('redirects authenticated platform staff visiting /login to /platform', async () => {
+      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
+        data: { user: { id: 'staff-user-1', email: 'admin@merchander.com' } },
+        error: null,
+      });
+      (isActivePlatformStaff as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+
+      const loginReq = new NextRequest('http://localhost:3000/login');
+      const res = await updateSession(loginReq);
+
+      expect(res.status).toBe(307);
+      expect(res.headers.get('location')).toBe('http://localhost:3000/platform');
+      expect(isActivePlatformStaff).toHaveBeenCalledWith(mockAdminClient, 'staff-user-1');
+    });
+
+    it('redirects authenticated merchant visiting /login to /dashboard', async () => {
+      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
+        data: { user: { id: 'merchant-user-1', email: 'merchant@store.com' } },
+        error: null,
+      });
+      (isActivePlatformStaff as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+
+      const loginReq = new NextRequest('http://localhost:3000/login');
+      const res = await updateSession(loginReq);
+
+      expect(res.status).toBe(307);
+      expect(res.headers.get('location')).toBe('http://localhost:3000/dashboard');
+      expect(isActivePlatformStaff).toHaveBeenCalledWith(mockAdminClient, 'merchant-user-1');
+    });
+
+    it('does not redirect if /login has an error query parameter', async () => {
+      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
+        data: { user: { id: 'merchant-user-1', email: 'merchant@store.com' } },
+        error: null,
+      });
+
+      const loginReq = new NextRequest('http://localhost:3000/login?error=no-tenant');
+      const res = await updateSession(loginReq);
+
+      expect(res.headers.get('location')).toBeNull();
+    });
   });
 });
+

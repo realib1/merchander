@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { MoreVertical, Play, Pause, AlertTriangle, Key, Edit } from 'lucide-react';
+import { MoreVertical, Play, Pause, AlertTriangle, Edit } from 'lucide-react';
 import { updateTenantStatusAction, updateTenantPlanAction } from '@/app/actions/platform';
 import type { TenantPlatformStatus, PlatformTier } from '@/types/platform';
 

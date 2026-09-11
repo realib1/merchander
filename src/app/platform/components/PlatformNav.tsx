@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Building2,
@@ -52,7 +52,6 @@ export function PlatformNav({
   activeIncidentsCount = 0,
 }: PlatformNavProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const supabase = createClient();
   const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -64,8 +63,7 @@ export function PlatformNav({
       await supabase.auth.signOut();
       toast.dismiss(toastId);
       toast.dismiss();
-      router.replace('/login');
-      router.refresh();
+      window.location.replace('/login');
     } catch (err) {
       console.error('Logout error:', err);
       toast.dismiss(toastId);

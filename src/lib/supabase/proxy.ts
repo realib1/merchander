@@ -116,7 +116,7 @@ export async function updateSession(request: NextRequest) {
     if (!isMaintenanceExemptPath(pathname)) {
       const maintenanceActive = await isMaintenanceModeActive();
       if (maintenanceActive) {
-        const isStaff = user ? await isActivePlatformStaff(supabase, user.id) : false;
+        const isStaff = user ? await isActivePlatformStaff(getServiceRoleClient() || supabase, user.id) : false;
         if (!isStaff) {
           const url = request.nextUrl.clone();
           url.pathname = '/maintenance';
@@ -159,7 +159,7 @@ export async function updateSession(request: NextRequest) {
       const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       const needsMfa = aalData && aalData.currentLevel === 'aal1' && aalData.nextLevel === 'aal2';
       if (!needsMfa) {
-        const isStaff = await isActivePlatformStaff(supabase, user.id);
+        const isStaff = await isActivePlatformStaff(getServiceRoleClient() || supabase, user.id);
         const maintenanceActive = await isMaintenanceModeActive();
         let destination = isStaff ? '/platform' : '/dashboard';
         if (!isStaff && maintenanceActive) {

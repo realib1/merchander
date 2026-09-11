@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { Sidebar } from './components/Sidebar';
@@ -19,7 +20,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   // If user is platform staff, redirect to platform management console
-  if (await isActivePlatformStaff(supabase, user.id)) {
+  let isStaff = false;
+  try {
+    isStaff = await isActivePlatformStaff(createAdminClient(), user.id);
+  } catch {
+    isStaff = await isActivePlatformStaff(supabase, user.id);
+  }
+  if (isStaff) {
     redirect('/platform');
   }
 

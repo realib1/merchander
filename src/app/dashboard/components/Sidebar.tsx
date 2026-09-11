@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { LifeBuoy } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -31,7 +31,6 @@ export function Sidebar({
   enabledModules,
 }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const supabase = createClient();
   const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -43,8 +42,7 @@ export function Sidebar({
       await supabase.auth.signOut();
       toast.dismiss(toastId);
       toast.dismiss();
-      router.replace('/login');
-      router.refresh();
+      window.location.replace('/login');
     } catch (err) {
       console.error('Logout error:', err);
       toast.dismiss(toastId);

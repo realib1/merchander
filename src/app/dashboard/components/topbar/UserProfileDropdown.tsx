@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { User, Building2, LogOut, Moon, Sun, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeToggle } from '../ThemeToggle';
+import { createClient } from '@/lib/supabase/client';
 
 export interface UserProfileInfo {
   email: string;
@@ -22,7 +23,20 @@ interface UserProfileDropdownProps {
 
 export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserProfileDropdownProps) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const hasValidImage = Boolean(user.avatarUrl && failedUrl !== user.avatarUrl);
+
+  const handleSignOut = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningOut(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Sign-out error:', err);
+    }
+    window.location.replace('/login');
+  };
 
   const userInitial = user.fullName
     ? user.fullName.charAt(0).toUpperCase()
@@ -141,13 +155,14 @@ export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserPro
 
             {/* Sign Out */}
             <div className="border-t border-separator/50 p-1.5 mt-1">
-              <form action="/auth/signout" method="post">
+              <form action="/auth/signout" method="post" onSubmit={handleSignOut}>
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                  disabled={isSigningOut}
+                  className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <LogOut size={14} className="shrink-0" />
-                  <span>Sign Out</span>
+                  <span>{isSigningOut ? 'Signing Out...' : 'Sign Out'}</span>
                 </button>
               </form>
             </div>
