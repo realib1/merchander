@@ -59,11 +59,25 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
     eq: vi.fn().mockResolvedValue({ error: null }),
   });
 
+  let mockTenantSettingsData: Record<string, unknown> | null = null;
+
   const mockSupabase = {
     from: vi.fn((table: string) => {
       if (table === 'ai_action_queue') {
         return {
           insert: mockInsertActionQueue,
+        };
+      }
+      if (table === 'tenant_settings') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockImplementation(async () => ({
+                data: mockTenantSettingsData ? { settings_data: mockTenantSettingsData } : null,
+                error: null,
+              })),
+            }),
+          }),
         };
       }
       return {
@@ -81,6 +95,7 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTenantSettingsData = null;
     mockInsertMessages.mockResolvedValue({ error: null });
     mockInsertActionQueue.mockResolvedValue({ error: null });
     process.env = {
@@ -221,20 +236,22 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
       );
 
       // Reply was generated with customer context
-      expect(generateGroundedReply).toHaveBeenCalledWith({
-        tenant_id: 'tenant-123',
-        message: expect.objectContaining({
-          platform: 'whatsapp',
-          external_id: 'wamid.HBgLMjMzMjQ0MTIzNDU2',
-          sender_id: '233244123456',
-          text: 'How much is Perfume Blue?',
-        }),
-        customer: {
-          customer_id: 'cust-uuid-789',
-          phone_number: '233244123456',
-          name: 'Ama Serwaa',
-        },
-      });
+      expect(generateGroundedReply).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenant_id: 'tenant-123',
+          message: expect.objectContaining({
+            platform: 'whatsapp',
+            external_id: 'wamid.HBgLMjMzMjQ0MTIzNDU2',
+            sender_id: '233244123456',
+            text: 'How much is Perfume Blue?',
+          }),
+          customer: {
+            customer_id: 'cust-uuid-789',
+            phone_number: '233244123456',
+            name: 'Ama Serwaa',
+          },
+        })
+      );
 
       // Outbound reply was sent with metadata
       expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith({
@@ -855,6 +872,214 @@ describe('WhatsApp Webhook Route (/api/webhooks/whatsapp)', () => {
 
         expect(response.status).toBe(200);
         expect(resolveChannelIdentity).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('AI Agent Settings & Business Grounding (F-20, F-21)', () => {
+      it('bypasses extraction and reply generation when aiAgent.enabled is false (F-21)', async () => {
+        mockTenantSettingsData = {
+          automation: {
+            aiAgent: {
+              enabled: false,
+              mode: 'assisted',
+            },
+          },
+        };
+
+        const req = await createPostRequest(makeMessagePayload('Hello, do you have watches?'));
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+
+        // Inbound message is recorded in database
+        expect(mockInsertMessages).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenant_id: 'tenant-123',
+            direction: 'inbound',
+            type: 'text',
+          })
+        );
+
+        // AI pipeline is bypassed
+        expect(extractCartFromChat).not.toHaveBeenCalled();
+        expect(generateGroundedReply).not.toHaveBeenCalled();
+        expect(sendOutboundWhatsAppMessage).not.toHaveBeenCalled();
+        expect(mockInsertActionQueue).not.toHaveBeenCalled();
+      });
+
+      it('stages draft order without customer assurance notice when aiAgent.mode is assisted (F-21)', async () => {
+        mockTenantSettingsData = {
+          automation: {
+            aiAgent: {
+              enabled: true,
+              mode: 'assisted',
+            },
+          },
+        };
+
+        (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+          items: [{ sku: 'PERF-BLUE-100', quantity: 2 }],
+          confidence: 0.95,
+          intent: 'order',
+          notes: null,
+        });
+
+        (captureDraftOrderFromCart as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+          success: true,
+          orderId: 'order-uuid-999',
+          orderNumber: 'ORD-9999',
+          customerId: 'cust-uuid-789',
+          totalAmount: 300,
+          currency: 'GHS',
+          subtotal: 280,
+          deliveryFee: 20,
+          items: [{ sku: 'PERF-BLUE-100', quantity: 2, unitPrice: 140, lineTotal: 280 }],
+          paymentUrl: 'http://localhost:3000/s/ord-9999',
+          proposedReplyText: 'Draft order created.',
+          customerAssuranceNotice: 'Your order #ORD-9999 is being processed.',
+          groundedFacts: ['2x Perfume Blue'],
+          hasStockDeficit: false,
+          warnings: [],
+        });
+
+        const req = await createPostRequest(makeMessagePayload('I want 2 bottles of blue perfume'));
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+
+        // Staged in ai_action_queue with customer_notice_sent = null
+        expect(mockInsertActionQueue).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenant_id: 'tenant-123',
+            action_type: 'draft_order',
+            tier: 'yellow',
+            status: 'pending',
+            customer_notice_sent: null,
+          })
+        );
+
+        // No automated WhatsApp message sent to customer
+        expect(sendOutboundWhatsAppMessage).not.toHaveBeenCalled();
+      });
+
+      it('stages green reply in ai_action_queue instead of auto-dispatching when mode is assisted (F-21)', async () => {
+        mockTenantSettingsData = {
+          automation: {
+            aiAgent: {
+              enabled: true,
+              mode: 'assisted',
+            },
+          },
+        };
+
+        (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+          items: [],
+          confidence: 0.9,
+          intent: 'inquiry',
+          notes: null,
+        });
+
+        (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+          reply_text: 'Our store is located in Osu, Accra.',
+          intent: 'inquiry',
+          confidence: 0.95,
+          grounded_facts: ['Store located at Osu, Accra'],
+          requires_human_approval: false,
+          escalation_reason: null,
+        });
+
+        const req = await createPostRequest(makeMessagePayload('Where is your shop located?'));
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+
+        // Staged in ai_action_queue for merchant review
+        expect(mockInsertActionQueue).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenant_id: 'tenant-123',
+            tier: 'green',
+            status: 'pending',
+            proposed_payload: expect.objectContaining({
+              reply_text: 'Our store is located in Osu, Accra.',
+            }),
+            escalation_reason: expect.stringContaining('Copilot assisted mode'),
+            customer_notice_sent: null,
+          })
+        );
+
+        // No automated outbound WhatsApp message dispatched
+        expect(sendOutboundWhatsAppMessage).not.toHaveBeenCalled();
+      });
+
+      it('forwards merchant business grounding and tone directives to generateGroundedReply (F-20, F-21)', async () => {
+        mockTenantSettingsData = {
+          automation: {
+            aiAgent: {
+              enabled: true,
+              mode: 'autonomous',
+              responseTone: 'professional',
+              safetyTier: 'strict',
+              groundingEnabled: true,
+            },
+          },
+          intelligence: {
+            aboutBusiness: 'Accra Premier Watches & Scents',
+            whatWeSell: 'Luxury Swiss timepieces and French perfumes',
+            deliveryInfo: 'Free delivery within Accra in 24 hours. GH₵40 for other regions.',
+            returnPolicy: '14-day exchange policy with original packaging.',
+            customerPolicies: 'All items guaranteed authentic with manufacturer warranty.',
+          },
+        };
+
+        (extractCartFromChat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+          items: [],
+          confidence: 0.9,
+          intent: 'inquiry',
+          notes: null,
+        });
+
+        (generateGroundedReply as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+          reply_text: 'We offer free delivery within Accra in 24 hours.',
+          intent: 'inquiry',
+          confidence: 0.95,
+          grounded_facts: ['Free delivery within Accra in 24 hours'],
+          requires_human_approval: false,
+          escalation_reason: null,
+        });
+
+        const req = await createPostRequest(makeMessagePayload('How much is delivery to East Legon?'));
+        const response = await POST(req);
+
+        expect(response.status).toBe(200);
+
+        // generateGroundedReply received full business grounding context and agent config
+        expect(generateGroundedReply).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenant_id: 'tenant-123',
+            grounding: {
+              aboutBusiness: 'Accra Premier Watches & Scents',
+              whatWeSell: 'Luxury Swiss timepieces and French perfumes',
+              deliveryInfo: 'Free delivery within Accra in 24 hours. GH₵40 for other regions.',
+              returnPolicy: '14-day exchange policy with original packaging.',
+              customerPolicies: 'All items guaranteed authentic with manufacturer warranty.',
+            },
+            agent_config: {
+              enabled: true,
+              mode: 'autonomous',
+              responseTone: 'professional',
+              safetyTier: 'strict',
+              groundingEnabled: true,
+            },
+          })
+        );
+
+        // In autonomous mode with green reply, auto-dispatched
+        expect(sendOutboundWhatsAppMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenantId: 'tenant-123',
+            text: 'We offer free delivery within Accra in 24 hours.',
+          })
+        );
       });
     });
   });

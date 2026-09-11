@@ -275,6 +275,57 @@ def test_human_agent_escalation(client, valid_api_key, mock_catalog):
         assert "representative" in data["reply_text"].lower() or "team" in data["reply_text"].lower()
 
 
+def test_reply_grounding_delivery_policy(client, valid_api_key, mock_catalog):
+    """Test inquiry about delivery returns merchant's configured delivery grounding policy."""
+    with patch("app.main.fetch_tenant_catalog", return_value=mock_catalog):
+        payload = {
+            "tenant_id": "tenant-test-qa",
+            "message": {
+                "platform": "whatsapp",
+                "external_id": "msg-qa-grounding-1",
+                "sender_id": "+233244123456",
+                "text": "What are your delivery rates and dispatch times for Accra?",
+                "timestamp": "2026-09-06T12:00:00Z",
+            },
+            "grounding": {
+                "deliveryInfo": "We offer same-day rider delivery in Greater Accra for GH₵35 and 48-hr parcel delivery nationwide.",
+                "returnPolicy": "Items can be exchanged within 7 days in original unworn condition.",
+            },
+            "agent_config": {
+                "responseTone": "friendly",
+            },
+        }
+        res = client.post("/api/v1/reply", json=payload, headers={"X-API-Key": valid_api_key})
+        assert res.status_code == 200
+        data = res.json()
+        assert data["intent"] == "inquire_delivery"
+        assert "same-day rider delivery in Greater Accra for GH₵35" in data["reply_text"]
+        assert data["requires_human_approval"] is False
+
+
+def test_reply_grounding_return_policy(client, valid_api_key, mock_catalog):
+    """Test customer asking about returns receives merchant's grounded return policy."""
+    with patch("app.main.fetch_tenant_catalog", return_value=mock_catalog):
+        payload = {
+            "tenant_id": "tenant-test-qa",
+            "message": {
+                "platform": "whatsapp",
+                "external_id": "msg-qa-grounding-2",
+                "sender_id": "+233244123456",
+                "text": "What is your return and refund policy if it doesn't fit?",
+                "timestamp": "2026-09-06T12:00:00Z",
+            },
+            "grounding": {
+                "returnPolicy": "All sales are eligible for 7-day exchange with receipt. No cash refunds on opened perfumes.",
+            },
+        }
+        res = client.post("/api/v1/reply", json=payload, headers={"X-API-Key": valid_api_key})
+        assert res.status_code == 200
+        data = res.json()
+        assert data["intent"] == "inquire_policy"
+        assert "eligible for 7-day exchange" in data["reply_text"]
+
+
 def test_reply_endpoint_requires_auth(client):
     """Test /api/v1/reply rejects unauthenticated requests."""
     res = client.post("/api/v1/reply", json={})

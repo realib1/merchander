@@ -156,4 +156,96 @@ describe('generateGroundedReply', () => {
     expect(allLogs).toContain('external_id=msg-wamid-99999');
     expect(allLogs).not.toContain('How much is the blue perfume');
   });
+
+  it('forwards grounding and agent_config in request payload (F-20, F-21)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        reply_text: 'We deliver in 24 hours!',
+        intent: 'inquiry',
+        confidence: 0.9,
+        grounded_facts: [],
+        requires_human_approval: false,
+        escalation_reason: null,
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const requestWithGrounding: ReplyRequest = {
+      ...mockRequest,
+      grounding: {
+        aboutBusiness: 'Accra Premier Boutique',
+        whatWeSell: 'Luxury perfumes and watches',
+        deliveryInfo: 'Same-day delivery in Accra, 48 hours for other regions',
+        returnPolicy: '7-day return window for unopened items',
+        customerPolicies: 'Orders confirmed on payment',
+      },
+      agent_config: {
+        enabled: true,
+        mode: 'assisted',
+        groundingEnabled: true,
+        responseTone: 'friendly',
+        safetyTier: 'strict',
+      },
+    };
+
+    await generateGroundedReply(requestWithGrounding);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, calledOptions] = fetchMock.mock.calls[0];
+    const parsedBody = JSON.parse(calledOptions.body);
+
+    expect(parsedBody.grounding).toEqual(requestWithGrounding.grounding);
+    expect(parsedBody.agent_config).toEqual(requestWithGrounding.agent_config);
+  });
+
+  it('answers delivery inquiries via grounding when intelligence service is unavailable (F-20 fallback)', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error('Brain offline'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const requestWithDeliveryGrounding: ReplyRequest = {
+      ...mockRequest,
+      message: {
+        ...mockRequest.message,
+        text: 'What are your delivery options and where do you ship?',
+      },
+      grounding: {
+        deliveryInfo: 'We deliver to Greater Accra for GH₵30 and Kumasi for GH₵50.',
+      },
+    };
+
+    const result = await generateGroundedReply(requestWithDeliveryGrounding);
+
+    expect(result.requires_human_approval).toBe(false);
+    expect(result.intent).toBe('inquiry');
+    expect(result.reply_text).toContain('We deliver to Greater Accra for GH₵30');
+    expect(result.grounded_facts[0]).toContain('Delivery info:');
+  });
+
+  it('answers return policy inquiries via grounding when service returns HTTP error (F-20 fallback)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const requestWithReturnGrounding: ReplyRequest = {
+      ...mockRequest,
+      message: {
+        ...mockRequest.message,
+        text: 'Can I get a refund if the item does not fit?',
+      },
+      grounding: {
+        returnPolicy: 'Refunds processed within 3 business days of return receipt.',
+      },
+    };
+
+    const result = await generateGroundedReply(requestWithReturnGrounding);
+
+    expect(result.requires_human_approval).toBe(false);
+    expect(result.intent).toBe('inquiry');
+    expect(result.reply_text).toContain('Refunds processed within 3 business days');
+    expect(result.grounded_facts[0]).toContain('Return policy:');
+  });
 });

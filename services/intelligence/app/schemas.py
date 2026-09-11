@@ -1,5 +1,5 @@
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 PlatformType = Literal["whatsapp", "telegram", "web"]
@@ -91,11 +91,37 @@ class CustomerOrderSummary(BaseModel):
     delivery_address: Optional[str] = None
 
 
+class BusinessGroundingContext(BaseModel):
+    """Business profile grounding facts supplied by the merchant."""
+    model_config = ConfigDict(populate_by_name=True)
+
+    about_business: Optional[str] = Field(default=None, alias="aboutBusiness")
+    what_we_sell: Optional[str] = Field(default=None, alias="whatWeSell")
+    delivery_info: Optional[str] = Field(default=None, alias="deliveryInfo")
+    return_policy: Optional[str] = Field(default=None, alias="returnPolicy")
+    customer_policies: Optional[str] = Field(default=None, alias="customerPolicies")
+
+
+class AiAgentConfig(BaseModel):
+    """Operational settings for the conversational AI agent."""
+    model_config = ConfigDict(populate_by_name=True)
+
+    enabled: Optional[bool] = True
+    mode: Optional[str] = "assisted"
+    response_tone: Optional[str] = Field(default="friendly", alias="responseTone")
+    safety_tier: Optional[str] = Field(default="standard", alias="safetyTier")
+    grounding_enabled: Optional[bool] = Field(default=True, alias="groundingEnabled")
+
+
 class ReplyRequest(BaseModel):
     """Request payload for grounded Q&A and conversational replies."""
+    model_config = ConfigDict(populate_by_name=True)
+
     tenant_id: Optional[str] = None
     message: NormalizedMessage
     customer: Optional[CustomerContext] = None
+    grounding: Optional[BusinessGroundingContext] = None
+    agent_config: Optional[AiAgentConfig] = Field(default=None, alias="agentConfig")
 
 
 class ReplyResponse(BaseModel):

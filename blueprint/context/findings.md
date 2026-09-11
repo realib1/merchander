@@ -122,21 +122,21 @@ Only WhatsApp has a functional end-to-end webhook and state machine.
 **Suggested fix:** Integrate a real transactional email provider (such as Resend) or label email alerts as "Coming Soon / In Development" to prevent merchant false expectations.
 **Resolution:** Added an "In Development" badge to the Email Notifications header, updated card description to state transactional email delivery is in development, disabled the switches (`disabled={true}`), and added explanatory inline hints indicating pending email provider integration. Added unit test coverage in `src/app/actions/settings-preferences.test.ts`.
 
-### F-20 [P2] open - Intelligence grounding form fields are never ingested by the intelligence engine
+### F-20 [P2] fixed - Intelligence grounding form fields are never ingested by the intelligence engine
 
 **File:** src/app/dashboard/settings/business-profile/components/IntelligenceGroundingCard.tsx:51
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** `IntelligenceGroundingCard.tsx` provides inputs for `aboutBusiness`, `whatWeSell`, `deliveryInfo`, `returnPolicy`, and `customerPolicies` under the header "Information Used by Intelligence", claiming these ground customer-facing assistants and automated responses. These fields are stored in `tenant_settings` but are never fetched, prompt-injected, or referenced by `src/lib/intelligence/` or `services/intelligence/`.
 **Suggested fix:** Inject the grounding data into the system prompt context in `src/lib/intelligence/reply.ts` / `services/intelligence/`, or clarify in the UI that grounding data is currently stored as draft configuration.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/ai-agent-grounding-f20-f21. Added `BusinessGroundingContext` to messaging types and Python schemas. Extended Python Q&A service to ingest business profile, delivery info, and return policies into prompt grounding context and heuristic Q&A engines. Updated Next.js `generateGroundedReply` to forward merchant grounding and leverage grounding in offline fallback. Wired WhatsApp webhook to query `tenant_settings.settings_data.intelligence` and pass grounding context. Covered by automated unit tests in `test_qa.py`, `reply.test.ts`, and `route.test.ts`.
 
-### F-21 [P2] open - AI conversational agent configuration in automation settings is ignored by message handlers
+### F-21 [P2] fixed - AI conversational agent configuration in automation settings is ignored by message handlers
 
 **File:** src/app/dashboard/settings/automation/components/AutomationSettingsForm.tsx:116
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** `AutomationSettingsForm.tsx` lets merchants toggle `aiAgent.enabled`, select operational modes ("Assisted (Copilot)" vs "Autonomous Sales Agent"), customize catalog grounding, and select response tones. However, neither `src/app/api/webhooks/whatsapp/route.ts` nor `src/lib/intelligence/reply.ts` ever checks `aiAgent.enabled`, `aiAgent.mode`, or `aiAgent.responseTone`. The webhook processes messages regardless of the switch state, rendering the configuration UI completely detached from runtime execution.
 **Suggested fix:** Read `aiAgent` configuration from `tenant_settings` in `src/app/api/webhooks/whatsapp/route.ts` and `reply.ts`, honoring `enabled: false` (bypassing AI auto-replies) and passing mode/tone settings to prompt builders.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/ai-agent-grounding-f20-f21. Added `AiAgentConfig` schema and types. In WhatsApp webhook handler (`route.ts`), queried `tenant_settings.settings_data.automation.aiAgent`. When `enabled === false`, bypasses cart extraction and AI reply generation while recording inbound messages. When `mode === 'assisted'`, captures draft orders into `ai_action_queue` without customer notices and stages green replies into `ai_action_queue` for merchant review instead of auto-dispatching. Passed `agent_config` with tone directives to `generateGroundedReply`. Added comprehensive unit test suite in `route.test.ts` verifying disabled bypass, assisted staging, and tone forwarding.
 
 ### F-22 [P2] open - Platform master controls and integration API keys are never checked or consumed
 

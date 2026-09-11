@@ -10,7 +10,12 @@ import { extractCartFromChat } from '@/lib/intelligence/extract';
 import { captureDraftOrderFromCart } from '@/lib/intelligence/orders';
 import { generateGroundedReply } from '@/lib/intelligence/reply';
 import { classifyActionSafety } from '@/lib/intelligence/safety';
-import { NormalizedMessage, CustomerContext } from '@/types/messaging';
+import {
+  NormalizedMessage,
+  CustomerContext,
+  BusinessGroundingContext,
+  AiAgentConfig,
+} from '@/types/messaging';
 import { Database } from '@/types/supabase';
 
 type DbMessageType = Database['public']['Enums']['message_type'];
@@ -163,6 +168,46 @@ export async function POST(request: NextRequest) {
 
       // 5. Dispatch inbound text messages to the Intelligence pipeline
       if (msg.type === 'text' && msg.text && !insertError) {
+        // 5.0 Load tenant settings for AI automation & business grounding (F-20, F-21)
+        const { data: tenantSettingsRow } = await supabase
+          .from('tenant_settings')
+          .select('settings_data')
+          .eq('tenant_id', tenantId)
+          .maybeSingle();
+
+        const settingsData = (tenantSettingsRow?.settings_data as Record<string, unknown> | null) || {};
+        const automationSettings = (settingsData.automation as Record<string, unknown> | null) || {};
+        const rawAiAgent = (automationSettings.aiAgent as Record<string, unknown> | null) || {};
+        const rawIntelligence = (settingsData.intelligence as Record<string, unknown> | null) || {};
+
+        if (rawAiAgent.enabled === false) {
+          console.log(
+            `[WhatsApp Webhook] AI Conversational Agent disabled for tenant ${tenantId}. Skipping intelligence dispatch.`
+          );
+          continue;
+        }
+
+        const agentMode: 'assisted' | 'autonomous' =
+          rawAiAgent.mode === 'assisted' ? 'assisted' : 'autonomous';
+
+        const aiAgentConfig: AiAgentConfig = {
+          enabled: rawAiAgent.enabled !== false,
+          mode: agentMode,
+          responseTone: (rawAiAgent.responseTone as AiAgentConfig['responseTone']) || 'friendly',
+          safetyTier: (rawAiAgent.safetyTier as AiAgentConfig['safetyTier']) || 'standard',
+          groundingEnabled: rawAiAgent.groundingEnabled !== false,
+        };
+
+        const businessGrounding: BusinessGroundingContext | null = aiAgentConfig.groundingEnabled
+          ? {
+              aboutBusiness: typeof rawIntelligence.aboutBusiness === 'string' ? rawIntelligence.aboutBusiness : null,
+              whatWeSell: typeof rawIntelligence.whatWeSell === 'string' ? rawIntelligence.whatWeSell : null,
+              deliveryInfo: typeof rawIntelligence.deliveryInfo === 'string' ? rawIntelligence.deliveryInfo : null,
+              returnPolicy: typeof rawIntelligence.returnPolicy === 'string' ? rawIntelligence.returnPolicy : null,
+              customerPolicies: typeof rawIntelligence.customerPolicies === 'string' ? rawIntelligence.customerPolicies : null,
+            }
+          : null;
+
         const normalizedMsg: NormalizedMessage = {
           platform: 'whatsapp',
           external_id: msg.messageId,
@@ -232,7 +277,8 @@ export async function POST(request: NextRequest) {
                   escalation_reason: orderResult.hasStockDeficit
                     ? 'Stock constraint detected on requested order items'
                     : 'Commercial draft order capture requires merchant confirmation',
-                  customer_notice_sent: orderResult.customerAssuranceNotice,
+                  customer_notice_sent:
+                    agentMode === 'autonomous' ? orderResult.customerAssuranceNotice : null,
                 });
 
               if (queueInsertErr) {
@@ -242,28 +288,30 @@ export async function POST(request: NextRequest) {
                 );
               }
 
-              // 2. Dispatch immediate customer assurance notice via WhatsApp
-              try {
-                await sendOutboundWhatsAppMessage({
-                  supabase,
-                  tenantId,
-                  channelIdentityId: identity.id,
-                  to: msg.from,
-                  messageType: 'text',
-                  text: orderResult.customerAssuranceNotice,
-                  metadata: {
-                    action_type: 'draft_order',
-                    tier: 'yellow',
-                    order_id: orderResult.orderId,
-                    order_number: orderResult.orderNumber,
-                    is_assurance_notice: true,
-                  },
-                });
-              } catch (noticeErr) {
-                console.warn(
-                  '[WhatsApp Webhook] Customer order assurance notice dispatch failed:',
-                  noticeErr
-                );
+              // 2. Dispatch immediate customer assurance notice via WhatsApp (autonomous mode only)
+              if (agentMode === 'autonomous') {
+                try {
+                  await sendOutboundWhatsAppMessage({
+                    supabase,
+                    tenantId,
+                    channelIdentityId: identity.id,
+                    to: msg.from,
+                    messageType: 'text',
+                    text: orderResult.customerAssuranceNotice,
+                    metadata: {
+                      action_type: 'draft_order',
+                      tier: 'yellow',
+                      order_id: orderResult.orderId,
+                      order_number: orderResult.orderNumber,
+                      is_assurance_notice: true,
+                    },
+                  });
+                } catch (noticeErr) {
+                  console.warn(
+                    '[WhatsApp Webhook] Customer order assurance notice dispatch failed:',
+                    noticeErr
+                  );
+                }
               }
             } else {
               console.log(
@@ -282,6 +330,8 @@ export async function POST(request: NextRequest) {
               tenant_id: tenantId,
               message: normalizedMsg,
               customer: customerContext,
+              grounding: businessGrounding,
+              agent_config: aiAgentConfig,
             });
 
             console.log(
@@ -299,8 +349,8 @@ export async function POST(request: NextRequest) {
               `[WhatsApp Webhook] Safety classification tier=${classification.tier} actionType=${classification.actionType} autoDispatch=${classification.autoDispatch}`
             );
 
-            if (classification.autoDispatch && reply.reply_text) {
-              // Green Tier: Auto-dispatch immediate grounded reply
+            if (agentMode === 'autonomous' && classification.autoDispatch && reply.reply_text) {
+              // Autonomous Green Tier: Auto-dispatch immediate grounded reply
               try {
                 await sendOutboundWhatsAppMessage({
                   supabase,
@@ -325,7 +375,7 @@ export async function POST(request: NextRequest) {
                 );
               }
             } else {
-              // Yellow or Red Tier: Queue action for merchant review / urgent exception
+              // Assisted mode (all tiers) or Autonomous Yellow/Red Tier: Queue action for merchant review
               try {
                 const { error: queueInsertErr } = await supabase
                   .from('ai_action_queue')
@@ -344,8 +394,14 @@ export async function POST(request: NextRequest) {
                     },
                     grounded_facts: reply.grounded_facts || [],
                     confidence: reply.confidence,
-                    escalation_reason: classification.escalationReason,
-                    customer_notice_sent: classification.customerAssuranceNotice ?? null,
+                    escalation_reason:
+                      agentMode === 'assisted' && classification.autoDispatch
+                        ? 'Copilot assisted mode: merchant review required before dispatch'
+                        : classification.escalationReason,
+                    customer_notice_sent:
+                      agentMode === 'autonomous'
+                        ? classification.customerAssuranceNotice ?? null
+                        : null,
                   });
 
                 if (queueInsertErr) {
@@ -358,8 +414,8 @@ export async function POST(request: NextRequest) {
                 console.error('[WhatsApp Webhook] Queue insert error:', queueErr);
               }
 
-              // Send customer assurance / handoff notice immediately if specified
-              if (classification.customerAssuranceNotice) {
+              // Send customer assurance / handoff notice immediately if in autonomous mode
+              if (agentMode === 'autonomous' && classification.customerAssuranceNotice) {
                 try {
                   await sendOutboundWhatsAppMessage({
                     supabase,

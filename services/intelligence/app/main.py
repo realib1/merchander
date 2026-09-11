@@ -144,7 +144,13 @@ async def get_grounded_reply(payload: ReplyRequest) -> ReplyResponse:
         catalog = TenantCatalogContext(tenant_id="anonymous")
         orders = []
 
-    return await generate_grounded_reply(payload.message, catalog, orders)
+    return await generate_grounded_reply(
+        payload.message,
+        catalog,
+        orders,
+        grounding=payload.grounding,
+        agent_config=payload.agent_config,
+    )
 
 
 

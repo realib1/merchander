@@ -30,10 +30,28 @@ export interface CustomerContext {
   name?: string | null;
 }
 
+export interface BusinessGroundingContext {
+  aboutBusiness?: string | null;
+  whatWeSell?: string | null;
+  deliveryInfo?: string | null;
+  returnPolicy?: string | null;
+  customerPolicies?: string | null;
+}
+
+export interface AiAgentConfig {
+  enabled?: boolean;
+  mode?: 'assisted' | 'autonomous';
+  responseTone?: 'friendly' | 'professional' | 'enthusiastic' | 'concise';
+  safetyTier?: 'standard' | 'strict' | 'relaxed';
+  groundingEnabled?: boolean;
+}
+
 export interface ReplyRequest {
   tenant_id?: string | null;
   message: NormalizedMessage;
   customer?: CustomerContext | null;
+  grounding?: BusinessGroundingContext | null;
+  agent_config?: AiAgentConfig | null;
 }
 
 export interface ReplyResponse {

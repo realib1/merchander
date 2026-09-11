@@ -12,6 +12,84 @@ export const SAFE_REPLY_FALLBACK: ReplyResponse = {
   escalation_reason: 'Intelligence service unavailable',
 };
 
+function resolveFallbackWithGrounding(
+  request: ReplyRequest,
+  baseFallback: ReplyResponse
+): ReplyResponse {
+  const text = (request.message.text || '').toLowerCase();
+  const grounding = request.grounding;
+
+  if (grounding) {
+    if (
+      grounding.deliveryInfo &&
+      (text.includes('deliver') ||
+        text.includes('shipping') ||
+        text.includes('dispatch') ||
+        text.includes('arrive') ||
+        text.includes('location'))
+    ) {
+      return {
+        reply_text: `Here is our delivery information:\n${grounding.deliveryInfo.trim()}`,
+        intent: 'inquiry',
+        confidence: 0.85,
+        grounded_facts: [`Delivery info: ${grounding.deliveryInfo.slice(0, 80)}`],
+        requires_human_approval: false,
+        escalation_reason: null,
+      };
+    }
+
+    if (
+      grounding.returnPolicy &&
+      (text.includes('return') || text.includes('refund') || text.includes('exchange'))
+    ) {
+      return {
+        reply_text: `Here is our return & refund policy:\n${grounding.returnPolicy.trim()}`,
+        intent: 'inquiry',
+        confidence: 0.85,
+        grounded_facts: [`Return policy: ${grounding.returnPolicy.slice(0, 80)}`],
+        requires_human_approval: false,
+        escalation_reason: null,
+      };
+    }
+
+    if (
+      grounding.aboutBusiness &&
+      (text.includes('who are you') ||
+        text.includes('about you') ||
+        text.includes('about us') ||
+        text.includes('tell me about'))
+    ) {
+      return {
+        reply_text: `About us:\n${grounding.aboutBusiness.trim()}`,
+        intent: 'inquiry',
+        confidence: 0.85,
+        grounded_facts: [`Business profile: ${grounding.aboutBusiness.slice(0, 80)}`],
+        requires_human_approval: false,
+        escalation_reason: null,
+      };
+    }
+
+    if (
+      grounding.customerPolicies &&
+      (text.includes('terms') ||
+        text.includes('condition') ||
+        text.includes('guarantee') ||
+        text.includes('policy'))
+    ) {
+      return {
+        reply_text: `Here are our customer policies:\n${grounding.customerPolicies.trim()}`,
+        intent: 'inquiry',
+        confidence: 0.85,
+        grounded_facts: [`Customer policies: ${grounding.customerPolicies.slice(0, 80)}`],
+        requires_human_approval: false,
+        escalation_reason: null,
+      };
+    }
+  }
+
+  return baseFallback;
+}
+
 /**
  * Sends a customer message and grounding context to the Python Intelligence Brain to generate
  * a grounded, polite conversational reply.
@@ -46,10 +124,10 @@ export async function generateGroundedReply(
       console.warn(
         `[AI Brain Interface] Reply service responded with HTTP status ${response.status}`
       );
-      return {
+      return resolveFallbackWithGrounding(request, {
         ...SAFE_REPLY_FALLBACK,
         escalation_reason: `Intelligence service error (status ${response.status})`,
-      };
+      });
     }
 
     const data = await response.json();
@@ -71,9 +149,9 @@ export async function generateGroundedReply(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`[AI Brain Interface] Reply generation failed: ${errorMessage}`);
-    return {
+    return resolveFallbackWithGrounding(request, {
       ...SAFE_REPLY_FALLBACK,
       escalation_reason: `Reply generation unavailable: ${errorMessage}`,
-    };
+    });
   }
 }

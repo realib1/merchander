@@ -9,6 +9,8 @@ from app.schemas import (
     NormalizedMessage,
     CustomerOrderSummary,
     ReplyResponse,
+    BusinessGroundingContext,
+    AiAgentConfig,
 )
 from app.services.catalog import TenantCatalogContext
 from app.services.extractor import call_gemini_llm
@@ -19,8 +21,9 @@ logger = logging.getLogger(__name__)
 def build_qa_grounding_context(
     catalog: TenantCatalogContext,
     orders: List[CustomerOrderSummary],
+    grounding: Optional[BusinessGroundingContext] = None,
 ) -> str:
-    """Build formatted text block summarizing catalog, open pre-orders, and customer orders."""
+    """Build formatted text block summarizing catalog, open pre-orders, customer orders, and merchant grounding."""
     lines = []
     lines.append("=== TENANT CATALOG PRODUCTS & VARIANTS ===")
     if not catalog.products:
@@ -53,6 +56,19 @@ def build_qa_grounding_context(
                 f"Delivery Address='{o.delivery_address or 'Not provided'}'"
             )
 
+    if grounding:
+        lines.append("\n=== MERCHANT BUSINESS PROFILE & POLICIES ===")
+        if grounding.about_business:
+            lines.append(f"- About the Business: {grounding.about_business}")
+        if grounding.what_we_sell:
+            lines.append(f"- What We Sell: {grounding.what_we_sell}")
+        if grounding.delivery_info:
+            lines.append(f"- Delivery Information: {grounding.delivery_info}")
+        if grounding.return_policy:
+            lines.append(f"- Return & Refund Policy: {grounding.return_policy}")
+        if grounding.customer_policies:
+            lines.append(f"- Customer Policies & Terms: {grounding.customer_policies}")
+
     return "\n".join(lines)
 
 
@@ -60,6 +76,7 @@ def heuristic_generate_reply(
     message: NormalizedMessage,
     catalog: TenantCatalogContext,
     orders: List[CustomerOrderSummary],
+    grounding: Optional[BusinessGroundingContext] = None,
 ) -> ReplyResponse:
     """
     Deterministic rule-based reply generator for offline tests, local dev, or fallback.
@@ -105,7 +122,7 @@ def heuristic_generate_reply(
         )
 
     # 3. Check for order status / tracking inquiries
-    if any(w in text for w in ["my order", "order status", "where is my", "tracking", "delivery update", "dispatch"]):
+    if any(w in text for w in ["my order", "order status", "where is my", "tracking", "delivery update", "order dispatch", "track order"]):
         if orders:
             latest = orders[0]
             status_desc = latest.status.replace("_", " ")
@@ -134,7 +151,49 @@ def heuristic_generate_reply(
                 escalation_reason="No matching active orders found",
             )
 
-    # 4. Check for greetings
+    # 4. Check for merchant policies & delivery inquiries if grounding provided
+    if grounding:
+        if any(w in text for w in ["delivery", "deliver", "shipping", "dispatch", "rider fee", "delivery fee", "delivery terms", "do you deliver"]):
+            if grounding.delivery_info:
+                return ReplyResponse(
+                    reply_text=grounding.delivery_info,
+                    intent="inquire_delivery",
+                    confidence=0.95,
+                    grounded_facts=[f"Merchant delivery policy: {grounding.delivery_info}"],
+                    requires_human_approval=False,
+                )
+
+        if any(w in text for w in ["return", "refund", "exchange", "money back", "return policy", "can i return"]):
+            if grounding.return_policy:
+                return ReplyResponse(
+                    reply_text=grounding.return_policy,
+                    intent="inquire_policy",
+                    confidence=0.95,
+                    grounded_facts=[f"Merchant return policy: {grounding.return_policy}"],
+                    requires_human_approval=False,
+                )
+
+        if any(w in text for w in ["about you", "about your business", "who are you", "your shop", "tell me about your business"]):
+            if grounding.about_business:
+                return ReplyResponse(
+                    reply_text=grounding.about_business,
+                    intent="inquire_business",
+                    confidence=0.95,
+                    grounded_facts=[f"Merchant profile: {grounding.about_business}"],
+                    requires_human_approval=False,
+                )
+
+        if any(w in text for w in ["payment methods", "payment policy", "warranty", "customer policy", "how do i pay", "accepted payment"]):
+            if grounding.customer_policies:
+                return ReplyResponse(
+                    reply_text=grounding.customer_policies,
+                    intent="inquire_policy",
+                    confidence=0.95,
+                    grounded_facts=[f"Merchant customer policy: {grounding.customer_policies}"],
+                    requires_human_approval=False,
+                )
+
+    # 5. Check for greetings
     if any(text.startswith(w) for w in ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]):
         return ReplyResponse(
             reply_text="Hello! Welcome to our store. How can we assist you today? You can ask about our product prices, available stock, pre-orders, or track an existing order.",
@@ -144,7 +203,7 @@ def heuristic_generate_reply(
             requires_human_approval=False,
         )
 
-    # 5. Check for product inquiries & stock checks
+    # 6. Check for product inquiries & stock checks
     sku_map = catalog.sku_map
     matched_product = None
     matched_variant = None
@@ -249,22 +308,36 @@ async def generate_grounded_reply(
     catalog: TenantCatalogContext,
     orders: List[CustomerOrderSummary],
     client: Optional[httpx.AsyncClient] = None,
+    grounding: Optional[BusinessGroundingContext] = None,
+    agent_config: Optional[AiAgentConfig] = None,
 ) -> ReplyResponse:
     """
     Generate grounded, conversational reply using LLM reasoning when configured,
     or deterministic heuristic fallback when offline / in tests.
     """
     if not settings.has_llm_key or settings.ENVIRONMENT == "test":
-        return heuristic_generate_reply(message, catalog, orders)
+        return heuristic_generate_reply(message, catalog, orders, grounding=grounding)
 
-    grounding_context = build_qa_grounding_context(catalog, orders)
+    grounding_context = build_qa_grounding_context(catalog, orders, grounding=grounding)
+
+    tone_str = "Warm, professional Ghanaian merchant tone ('Hello', 'Please note', 'Thank you for reaching out')."
+    if agent_config and agent_config.response_tone:
+        tone = agent_config.response_tone.lower()
+        if tone == "friendly":
+            tone_str = "Warm, friendly, welcoming, and approachable Ghanaian merchant tone."
+        elif tone == "professional":
+            tone_str = "Formal, professional, polite, and precise merchant tone."
+        elif tone == "enthusiastic":
+            tone_str = "Vibrant, energetic, enthusiastic, and engaging merchant tone."
+        elif tone == "concise":
+            tone_str = "Concise, brief, direct, and straight-to-the-point merchant tone."
 
     prompt = f"""
 You are the Merchander AI Assistant for a Ghanaian social-commerce merchant.
 Your goal is to provide polite, helpful, and 100% grounded answers to customer messages.
 
 TONE & STYLE GUIDELINES:
-- Warm, professional Ghanaian merchant tone ("Hello", "Please note", "Thank you for reaching out").
+- {tone_str}
 - Always use Ghanaian Cedis formatted as "GH₵" (e.g. "GH₵150.00").
 - Keep replies concise, conversational, and direct for messaging apps (WhatsApp / Telegram).
 
@@ -275,6 +348,7 @@ STRICT ANTI-HALLUCINATION RULES:
 4. ORDER TRACKING: Only report order details if the order is listed in "CUSTOMER ACTIVE ORDERS". Never fabricate tracking numbers or order statuses.
 5. PAYMENT VERIFICATION SAFETY: If the customer claims they made a payment (e.g. via Mobile Money / MoMo) or asks to verify payment receipt, DO NOT confirm payment as settled unless explicitly confirmed in database records. Mark `requires_human_approval: true`, explain that human confirmation is needed, and set `escalation_reason`.
 6. HUMAN ESCALATION: If the customer explicitly asks for a human agent or if information cannot be verified, set `requires_human_approval: true`.
+7. BUSINESS POLICIES & DELIVERY: Ground questions regarding delivery timelines, fees, coverage, and return/refund policies strictly on the "MERCHANT BUSINESS PROFILE & POLICIES" section. Do not fabricate contradictory policies.
 
 GROUNDING DATA:
 {grounding_context}
@@ -307,4 +381,4 @@ Return ONLY valid JSON matching this schema:
         )
 
     # Fallback to heuristic if LLM call failed or returned unparseable content
-    return heuristic_generate_reply(message, catalog, orders)
+    return heuristic_generate_reply(message, catalog, orders, grounding=grounding)
