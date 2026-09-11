@@ -138,7 +138,7 @@ Only WhatsApp has a functional end-to-end webhook and state machine.
 **Suggested fix:** Read `aiAgent` configuration from `tenant_settings` in `src/app/api/webhooks/whatsapp/route.ts` and `reply.ts`, honoring `enabled: false` (bypassing AI auto-replies) and passing mode/tone settings to prompt builders.
 **Resolution:** Fixed on 2026-09-11 in fix/ai-agent-grounding-f20-f21. Added `AiAgentConfig` schema and types. In WhatsApp webhook handler (`route.ts`), queried `tenant_settings.settings_data.automation.aiAgent`. When `enabled === false`, bypasses cart extraction and AI reply generation while recording inbound messages. When `mode === 'assisted'`, captures draft orders into `ai_action_queue` without customer notices and stages green replies into `ai_action_queue` for merchant review instead of auto-dispatching. Passed `agent_config` with tone directives to `generateGroundedReply`. Added comprehensive unit test suite in `route.test.ts` verifying disabled bypass, assisted staging, and tone forwarding.
 
-### F-22 [P2] open - Platform master controls and integration API keys are never checked or consumed
+### F-22 [P2] fixed - Platform master controls and integration API keys are never checked or consumed
 
 **File:** src/app/platform/settings/components/ControlsSettingsForm.tsx:50
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
@@ -146,7 +146,11 @@ Only WhatsApp has a functional end-to-end webhook and state machine.
 1. In `ControlsSettingsForm.tsx`, toggles for `maintenance_mode` ("Displays a maintenance screen to all merchants...") and `disable_new_signups` ("Prevents new merchants from registering...") save to `platform_settings`. However, `proxy.ts` never checks `maintenance_mode`, and `src/app/actions/auth.ts` / `signup/page.tsx` never checks `disable_new_signups`.
 2. In `IntegrationsSettingsForm.tsx:50`, fields for `openai_api_key` and `slack_webhook_url` save to `platform_settings`, but are never queried by the intelligence service or alert dispatchers (which only read static environment variables).
 **Suggested fix:** Check `maintenance_mode` in middleware/proxy, enforce `disable_new_signups` in the signup action, and either consume platform settings for OpenAI/Slack or remove the dead inputs.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/platform-controls-f22.
+1. Implemented `isMaintenanceModeActive` in `src/lib/supabase/proxy.ts` with 5s in-memory TTL caching querying `platform_settings.maintenance_mode` via service-role client. Redirects non-staff visitors on non-exempt paths to dedicated `/maintenance` screen while allowing platform staff (`isActivePlatformStaff`) to bypass and exempting `/platform`, `/login`, `/auth/*`, `/maintenance`, webhooks, and health endpoints. Created responsive `/maintenance/page.tsx` with platform staff login link.
+2. Enforced `platform_settings.disable_new_signups` in `selfServiceSignupAction` (`src/app/actions/signup.ts`) to reject registrations with a clear error message, and in `src/app/signup/page.tsx` to render a user-friendly "Registrations Temporarily Paused" card with login link and support contact.
+3. Created `src/lib/alerts/slack.ts` with `sendPlatformSlackAlert` and `sendSlackWebhook`, consuming `platform_settings.integrations.slack_webhook_url` or `process.env.SLACK_WEBHOOK_URL`. Wired alerts on new merchant self-service signups and maintenance mode state toggles. Added `testSlackWebhookAction` in `src/app/actions/platform-settings.ts` and interactive "Test Connection" button in `IntegrationsSettingsForm.tsx`. Clarified OpenAI runtime fallback precedence copy.
+Covered with unit test suites in `proxy.test.ts`, `signup.test.ts`, `slack.test.ts`, and `platform-settings.test.ts`. Full test suite (78 files, 698 tests), typecheck (`yarn check`), and linting (`yarn lint`) pass.
 
 ### F-23 [P3] open - Dashboard intelligence engine falls back to hardcoded stable stock strings on zero sales velocity
 

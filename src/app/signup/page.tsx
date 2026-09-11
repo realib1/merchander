@@ -1,13 +1,30 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
+import { PauseCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { SignupWizardClient } from './components/SignupWizardClient';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const metadata: Metadata = {
   title: 'Sign Up | Merchander',
   description: 'Create your merchant account and tailor your social commerce workspace.',
 };
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  let signupsDisabled = false;
+  try {
+    const adminSupabase = createAdminClient();
+    const { data } = await adminSupabase
+      .from('platform_settings')
+      .select('disable_new_signups')
+      .eq('id', 1)
+      .maybeSingle();
+
+    signupsDisabled = data?.disable_new_signups === true;
+  } catch (err) {
+    console.error('Failed to check platform signup settings:', err);
+  }
+
   return (
     <main className="min-h-screen bg-background flex flex-col lg:flex-row relative overflow-hidden">
       {/* Mobile background brand curve accent */}
@@ -50,13 +67,59 @@ export default function SignupPage() {
           </span>
         </div>
 
-        {/* Center Wizard Component */}
-        <div className="w-full mx-auto my-auto py-2 sm:py-3">
-          <SignupWizardClient />
+        {/* Center Content: Paused state or Wizard */}
+        <div className="w-full max-w-xl mx-auto my-auto py-4 sm:py-6">
+          {signupsDisabled ? (
+            <div className="bg-surface border border-separator rounded-2xl p-6 sm:p-8 shadow-sm text-center">
+              <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <PauseCircle className="w-7 h-7" />
+              </div>
+
+              <h1 className="text-2xl font-bold font-display text-foreground tracking-tight">
+                Registrations Temporarily Paused
+              </h1>
+
+              <p className="mt-3 text-sm text-muted leading-relaxed">
+                New merchant workspace registrations are currently paused while our team completes scheduled platform onboarding and maintenance.
+              </p>
+
+              <div className="mt-6 p-4 rounded-xl bg-surface-hover/60 border border-separator text-left text-xs text-muted space-y-2">
+                <div className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                  <span>Existing merchant operations, active storefronts, and order workflows remain unaffected.</span>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  href="/login"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-semibold transition-colors shadow-xs"
+                >
+                  Sign In to Existing Account <ArrowRight className="w-4 h-4" />
+                </Link>
+                <a
+                  href="mailto:support@merchander.com"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-xl border border-separator hover:bg-surface-hover text-foreground text-sm font-medium transition-colors"
+                >
+                  Contact Support
+                </a>
+              </div>
+            </div>
+          ) : (
+            <SignupWizardClient />
+          )}
         </div>
 
-        {/* Subtle bottom balance */}
-        <div className="hidden lg:block w-full max-w-xl mx-auto pb-1" />
+        {/* Bottom Switch Link or subtle balance */}
+        <div className="w-full max-w-xl mx-auto pb-2 pt-4 text-xs text-muted font-medium text-center lg:text-left">
+          Already have a merchant workspace?{' '}
+          <Link
+            href="/login"
+            className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
+          >
+            Log in
+          </Link>
+        </div>
       </div>
     </main>
   );

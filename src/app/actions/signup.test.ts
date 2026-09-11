@@ -201,4 +201,22 @@ describe('selfServiceSignupAction', () => {
     expect(res.success).toBe(false);
     expect(res.error).toContain('An account with this email already exists');
   });
+
+  it('rejects registration when new signups are paused by platform administrator', async () => {
+    mockAdminClient.from = vi.fn().mockImplementation((table: string) => {
+      if (table === 'platform_settings') {
+        return buildMockChain({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { disable_new_signups: true },
+            error: null,
+          }),
+        });
+      }
+      return buildMockChain();
+    });
+
+    const res = await selfServiceSignupAction(validPayload);
+    expect(res.success).toBe(false);
+    expect(res.error).toContain('registrations are currently paused');
+  });
 });

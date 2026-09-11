@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { validateStoreSlug, ARCHETYPE_DEFINITIONS } from '@/utils/business-modules';
 import { validateOwnerEmail } from '@/utils/merchant-provisioning';
 import { BusinessArchetype, BusinessModuleKey } from '@/types/business-modules';
+import { sendPlatformSlackAlert } from '@/lib/alerts/slack';
 
 export interface SelfServiceSignupPayload {
   fullName: string;
@@ -36,6 +37,20 @@ export async function selfServiceSignupAction(
 ): Promise<SelfServiceSignupResult> {
   try {
     const adminSupabase = createAdminClient();
+
+    // 0. Enforce platform-wide signups master control
+    const { data: platformSettings } = await adminSupabase
+      .from('platform_settings')
+      .select('disable_new_signups')
+      .eq('id', 1)
+      .maybeSingle();
+
+    if (platformSettings?.disable_new_signups) {
+      return {
+        success: false,
+        error: 'New merchant registrations are currently paused by the platform administrator. Please try again later.',
+      };
+    }
 
     // 1. Validate merchant full name
     const cleanFullName = payload.fullName?.trim();
@@ -254,6 +269,21 @@ export async function selfServiceSignupAction(
     await serverSupabase.auth.signInWithPassword({
       email: cleanEmail,
       password: password,
+    });
+
+    // 18. Dispatch platform notification via Slack (non-blocking)
+    sendPlatformSlackAlert({
+      title: '🎉 New Merchant Workspace Registered',
+      message: `Merchant "${cleanFullName}" registered store "${cleanStoreName}" (${normalizedSlug}.merchander.store).`,
+      level: 'info',
+      metadata: {
+        tenantId,
+        storeName: cleanStoreName,
+        email: cleanEmail,
+        archetype: archetypeKey,
+      },
+    }).catch((alertErr) => {
+      console.warn('Failed to send new signup Slack alert:', alertErr);
     });
 
     return {
