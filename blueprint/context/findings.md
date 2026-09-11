@@ -76,13 +76,13 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 2. Replace native `alert()` calls with `toast.error()` / `toast.warning()` from `sonner` in `profitabilityExport.ts`, `SupportAccessDelegationView.tsx`, and `StaffManagementClient.tsx`.
 **Resolution:** Fixed on 2026-09-09 in fix/native-dialogs-f12. Replaced all 14 native `window.confirm()` calls with accessible `@/components/ui/ConfirmDialog` modals featuring focus trapping, loading indicators, and destructive styling. Replaced all 5 `window.alert()` calls with `sonner` toasts (`toast.error` / `toast.success`). Typecheck (`yarn check`), lint (`yarn lint`), and all 517 tests (`yarn test`) pass.
 
-### F-15 [P2] open - Fabricated conversation threads and hardcoded response time in dead conversations action
+### F-15 [P2] fixed - Fabricated conversation threads and hardcoded response time in dead conversations action
 
 **File:** src/app/actions/conversations.ts:50
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** `getConversationsData()` synthesizes fake `ConversationThread` objects by mapping over customer records and generating placeholder messages (`"Customer started conversation"`, `"Awaiting payment confirmation for order..."`) with synthetic intents. Additionally, `src/utils/conversationsMath.ts:26` hardcodes `avgResponseTimeMinutes: 3.5` as a static benchmark. `getConversationsData()` is unreferenced by any page or component, creating dead code with simulated data.
 **Suggested fix:** Remove the dead `getConversationsData` function and synthetic thread generators, or connect real inbound messages from `messages` / omnichannel tables with dynamic response time calculations.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/conversations-approvals-f15-f24. Removed the dead `src/app/actions/conversations.ts` server action file, eliminating unreferenced code that synthesized mock conversation threads from customer records. Refactored `computeConversationsMetrics` in `src/utils/conversationsMath.ts` to dynamically calculate average response times from duration data (or 0 when empty), eliminating the hardcoded `3.5` benchmark. Consolidated test coverage in `src/utils/conversationsMath.test.ts` and removed duplicate `src/utils/conversations.test.ts`.
 
 ### F-16 [P2] fixed - Privacy & data policies form exposes disconnected controls and mock preview
 
@@ -156,13 +156,13 @@ Only WhatsApp has a functional end-to-end webhook and state machine.
 **Suggested fix:** Evaluate actual inventory levels across product variants and shipments in transit dynamically instead of returning static strings about stability.
 **Resolution:**
 
-### F-24 [P3] open - Sidebar "Conversations" nav item links to "Approvals & Inquiries" queue with mismatched intent
+### F-24 [P3] fixed - Sidebar "Conversations" nav item links to "Approvals & Inquiries" queue with mismatched intent
 
 **File:** src/app/dashboard/components/sidebar/sidebarNavigation.ts:42
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** `sidebarNavigation.ts:42` defines a navigation item named "Conversations" with a `MessageSquare` icon leading to `/dashboard/conversations`. However, `/dashboard/conversations/page.tsx` is titled "Approvals & Inquiries" and displays an operational approval and exceptions triage workspace for `ai_action_queue` items. Merchants clicking "Conversations" expecting an omnichannel chat inbox find a backend approvals queue.
 **Suggested fix:** Rename the sidebar navigation item to "Approvals & Inquiries" (or "Approvals Queue") with an appropriate icon (e.g. `CheckSquare` or `ShieldAlert`), or provide a dedicated customer conversation interface.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/conversations-approvals-f15-f24. Renamed sidebar navigation item from "Conversations" to "Approvals & Inquiries" and updated icon to `CheckSquare` to transparently reflect the underlying AI approvals and exceptions workspace. Added unit test coverage in `src/app/dashboard/components/sidebar/sidebarNavigation.test.ts`.
 
 
 

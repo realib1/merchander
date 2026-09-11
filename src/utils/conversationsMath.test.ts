@@ -62,6 +62,21 @@ describe('computeConversationsMetrics', () => {
   it('guards against an empty thread list', () => {
     expect(computeConversationsMetrics([]).conversionRatePct).toBe(0);
     expect(computeConversationsMetrics([]).totalActive).toBe(0);
+    expect(computeConversationsMetrics([]).avgResponseTimeMinutes).toBe(0);
+  });
+
+  it('calculates dynamic avgResponseTimeMinutes accurately from valid durations', () => {
+    const threads = [thread({ id: 'a' })];
+    const metrics = computeConversationsMetrics(threads, [2.5, 4.0, 5.5]);
+    // (2.5 + 4.0 + 5.5) / 3 = 12 / 3 = 4.0
+    expect(metrics.avgResponseTimeMinutes).toBe(4);
+  });
+
+  it('filters out invalid or negative durations and rounds to 1 decimal place', () => {
+    const threads = [thread({ id: 'a' })];
+    const metrics = computeConversationsMetrics(threads, [1.25, 3.42, -5, NaN]);
+    // (1.25 + 3.42) / 2 = 2.335 -> 2.3
+    expect(metrics.avgResponseTimeMinutes).toBe(2.3);
   });
 });
 

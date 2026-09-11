@@ -10,7 +10,10 @@ export interface RawConversationInput {
   totalOrdersCount: number;
 }
 
-export function computeConversationsMetrics(threads: ConversationThread[]): ConversationsMetrics {
+export function computeConversationsMetrics(
+  threads: ConversationThread[],
+  durationsMinutes: number[] = []
+): ConversationsMetrics {
   const totalActive = threads.filter((t) => t.status !== 'resolved').length;
   const whatsappInquiries = threads.filter((t) => t.channel === 'whatsapp').length;
   const telegramInquiries = threads.filter((t) => t.channel === 'telegram').length;
@@ -18,12 +21,18 @@ export function computeConversationsMetrics(threads: ConversationThread[]): Conv
   const convertedCount = threads.filter((t) => t.ordersCount > 0).length;
   const conversionRatePct = threads.length > 0 ? (convertedCount / threads.length) * 100 : 0;
 
+  const validDurations = durationsMinutes.filter((d) => typeof d === 'number' && !isNaN(d) && d >= 0);
+  const avgResponseTimeMinutes =
+    validDurations.length > 0
+      ? Math.round((validDurations.reduce((sum, d) => sum + d, 0) / validDurations.length) * 10) / 10
+      : 0;
+
   return {
     totalActive,
     whatsappInquiries,
     telegramInquiries,
     conversionRatePct,
-    avgResponseTimeMinutes: 3.5, // 3.5 min benchmark for social-commerce responses
+    avgResponseTimeMinutes,
   };
 }
 
