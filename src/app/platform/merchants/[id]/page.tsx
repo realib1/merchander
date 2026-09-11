@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { AuditLogEntry, TenantPlatformStatus, PlatformTier } from '@/types/platform';
+import { MerchantControlsClient } from './components/MerchantControlsClient';
 import {
   ArrowLeft,
   Globe,
@@ -191,6 +193,15 @@ export default async function MerchantContextPage({ params, searchParams }: Page
               ID: {tenant.id} • Registered {new Date(tenant.createdAt).toLocaleDateString()}
             </div>
           </div>
+        </div>
+
+        {/* Action Menu */}
+        <div className="flex items-center justify-end sm:shrink-0">
+          <MerchantControlsClient
+            tenantId={tenant.id}
+            currentStatus={tenant.status as TenantPlatformStatus}
+            currentTier={tenant.subscription.tier as PlatformTier}
+          />
         </div>
       </div>
 

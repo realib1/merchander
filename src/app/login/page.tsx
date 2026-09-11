@@ -2,6 +2,7 @@ import { CircleAlert } from 'lucide-react';
 import Image from 'next/image';
 import { LoginForm } from './components/LoginForm';
 import Link from 'next/link';
+import signinHero from '../../../public/images/auth/signin-hero.png';
 
 export const metadata = {
   title: 'Login | Merchander',
@@ -31,7 +32,7 @@ export default async function LoginPage({
       {/* Left Split: Hero Photography (Desktop only) */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-surface border-r border-separator overflow-hidden select-none">
         <Image
-          src="/images/auth/signin-hero.png"
+          src={signinHero}
           alt="Your store. Your customers. One Platform."
           fill
           priority
