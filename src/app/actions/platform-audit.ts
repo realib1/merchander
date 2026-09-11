@@ -89,6 +89,8 @@ export async function getPlatformAuditLogsAction(options?: {
   offset?: number;
   targetType?: string;
   actorEmail?: string;
+  startDate?: string;
+  endDate?: string;
 }): Promise<{ logs: AuditLogEntry[]; error?: string; count?: number }> {
   try {
     await verifyPlatformStaff(['platform_owner', 'platform_admin', 'compliance']);
@@ -107,6 +109,14 @@ export async function getPlatformAuditLogsAction(options?: {
     }
     if (options?.actorEmail) {
       query = query.ilike('actor_email', `%${options.actorEmail}%`);
+    }
+    if (options?.startDate) {
+      query = query.gte('created_at', options.startDate);
+    }
+    if (options?.endDate) {
+      // Append time to ensure inclusive matching for the end date if only a date is provided
+      const endInclusive = options.endDate.includes('T') ? options.endDate : `${options.endDate}T23:59:59.999Z`;
+      query = query.lte('created_at', endInclusive);
     }
 
     const { data, error, count } = await query;

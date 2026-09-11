@@ -16,8 +16,10 @@ export default async function AuditLogsPage({
   const offset = (page - 1) * limit;
   const targetType = typeof resolvedParams.targetType === 'string' && resolvedParams.targetType !== 'all' ? resolvedParams.targetType : undefined;
   const actorEmail = typeof resolvedParams.actorEmail === 'string' ? resolvedParams.actorEmail : undefined;
+  const startDate = typeof resolvedParams.startDate === 'string' ? resolvedParams.startDate : undefined;
+  const endDate = typeof resolvedParams.endDate === 'string' ? resolvedParams.endDate : undefined;
 
-  const { logs, error, count } = await getPlatformAuditLogsAction({ limit, offset, targetType, actorEmail });
+  const { logs, error, count } = await getPlatformAuditLogsAction({ limit, offset, targetType, actorEmail, startDate, endDate });
 
   const totalPages = count ? Math.ceil(count / limit) : 1;
   const hasNextPage = page < totalPages;
@@ -27,6 +29,8 @@ export default async function AuditLogsPage({
     const params = new URLSearchParams();
     if (actorEmail) params.set('actorEmail', actorEmail);
     if (targetType) params.set('targetType', targetType);
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
     params.set('page', page.toString());
     
     Object.entries(overrides).forEach(([k, v]) => {
@@ -48,7 +52,7 @@ export default async function AuditLogsPage({
 
       {/* Filters Form */}
       <div className="bg-surface rounded-2xl border border-separator p-4 shadow-xs">
-        <form className="flex flex-col sm:flex-row gap-4 items-end">
+        <form className="flex flex-col flex-wrap lg:flex-row gap-4 items-end">
           <div className="flex-1 min-w-[200px] space-y-1">
             <label htmlFor="actorEmail" className="text-xs font-semibold text-muted">Staff Email</label>
             <div className="relative">
@@ -64,7 +68,7 @@ export default async function AuditLogsPage({
             </div>
           </div>
           
-          <div className="flex-1 min-w-[200px] space-y-1">
+          <div className="flex-1 min-w-[150px] space-y-1">
             <label htmlFor="targetType" className="text-xs font-semibold text-muted">Target Area</label>
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
@@ -85,18 +89,50 @@ export default async function AuditLogsPage({
             </div>
           </div>
 
-          <button type="submit" className="px-4 py-2 bg-brand-primary text-brand-primary-foreground text-sm font-semibold rounded-lg hover:bg-brand-primary/90 transition-colors shadow-sm">
-            Apply Filters
-          </button>
-          
-          {(actorEmail || targetType) && (
-            <Link 
-              href="/platform/audit-logs"
-              className="px-4 py-2 bg-surface text-foreground text-sm font-semibold border border-separator rounded-lg hover:bg-surface-elevated transition-colors"
+          <div className="flex-1 min-w-[130px] space-y-1">
+            <label htmlFor="startDate" className="text-xs font-semibold text-muted">Start Date</label>
+            <input 
+              id="startDate"
+              name="startDate"
+              type="date" 
+              defaultValue={startDate || ''}
+              className="w-full px-3 py-2 bg-background border border-separator rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all text-foreground"
+            />
+          </div>
+
+          <div className="flex-1 min-w-[130px] space-y-1">
+            <label htmlFor="endDate" className="text-xs font-semibold text-muted">End Date</label>
+            <input 
+              id="endDate"
+              name="endDate"
+              type="date" 
+              defaultValue={endDate || ''}
+              className="w-full px-3 py-2 bg-background border border-separator rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all text-foreground"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button type="submit" className="px-4 py-2 bg-brand-primary text-brand-primary-foreground text-sm font-semibold rounded-lg hover:bg-brand-primary/90 transition-colors shadow-sm">
+              Apply
+            </button>
+            
+            {(actorEmail || targetType || startDate || endDate) && (
+              <Link 
+                href="/platform/audit-logs"
+                className="px-4 py-2 bg-surface text-foreground text-sm font-semibold border border-separator rounded-lg hover:bg-surface-elevated transition-colors"
+              >
+                Clear
+              </Link>
+            )}
+
+            <a
+              href={`/api/platform/audit-logs/export?${buildQueryString({ page: undefined })}`}
+              className="px-4 py-2 bg-surface text-foreground text-sm font-semibold border border-separator rounded-lg hover:bg-surface-elevated transition-colors flex items-center gap-2"
+              download="audit-logs.csv"
             >
-              Clear
-            </Link>
-          )}
+              Export CSV
+            </a>
+          </div>
         </form>
       </div>
 
