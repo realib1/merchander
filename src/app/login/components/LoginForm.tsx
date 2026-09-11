@@ -135,7 +135,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
           disabled={isPending}
           className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] disabled:opacity-60 text-white rounded-xl text-sm font-bold shadow-sm shadow-brand-primary/25 transition-all cursor-pointer mt-3"
         >
-          {isPending ? 'Signing in...' : 'Login'}
+          {isPending ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
     </div>

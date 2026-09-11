@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { verifyPlatformStaff } from './platform';
 import { PLATFORM_RBAC_RULES } from '@/lib/auth/platform-staff';
-import { PlatformSettings } from '@/types/platform';
+import { PlatformSettings, DEFAULT_PLATFORM_SETTINGS } from '@/types/platform';
 import { logPlatformAuditAction } from './platform-audit';
 import { sendPlatformSlackAlert, sendSlackWebhook } from '@/lib/alerts/slack';
 import { z } from 'zod';
@@ -17,17 +17,6 @@ const updateSettingsSchema = z.object({
   disable_new_signups: z.boolean().optional(),
   integrations: z.record(z.any()).optional(),
 });
-
-export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
-  id: 1,
-  platform_name: 'Merchander',
-  support_email: 'support@merchander.com',
-  default_currency: 'GHS',
-  maintenance_mode: false,
-  disable_new_signups: false,
-  integrations: {},
-  updated_at: new Date().toISOString(),
-};
 
 export async function getPlatformSettingsAction(): Promise<{ data: PlatformSettings | null; error: string | null }> {
   try {

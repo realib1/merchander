@@ -229,6 +229,17 @@ export interface PlatformSettings {
   updated_at: string;
 }
 
+export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  id: 1,
+  platform_name: 'Merchander',
+  support_email: 'support@merchander.com',
+  default_currency: 'GHS',
+  maintenance_mode: false,
+  disable_new_signups: false,
+  integrations: {},
+  updated_at: new Date().toISOString(),
+};
+
 export interface CreateMerchanderPayload {
   name: string;
   slug: string;

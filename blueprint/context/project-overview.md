@@ -134,6 +134,7 @@ Platform-plane tables are guarded by `is_platform_staff()`.
   `status` (`active` | `past_due` | `canceled` | `trialing`), `price_monthly`,
   `renewal_date`, `payment_method` (jsonb).
 - **tenant_notifications**: `tenant_id`, `title`, `message`, `type`, `is_read`.
+- **support_tickets**: `id`, `tenant_id`, `reference_code`, `subject`, `message`, `status`, `priority`, `category`, `system_context`, `messages` (jsonb), `internal_notes` (jsonb).
 - **user_backup_codes**: `user_id`, `code_hash`, `used_at`.
 
 ### catalog & inventory
@@ -289,5 +290,3 @@ Main routes:
 ## Open questions
 
 > - Pricing model: tiered subscription is built; usage/hybrid was only floated.
-> - `tenant_settings.settings_data` still carries legacy embedded `support_tickets`;
->   whether to normalize into a dedicated `support_tickets` table is undecided.

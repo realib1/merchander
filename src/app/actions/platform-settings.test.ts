@@ -3,8 +3,8 @@ import {
   getPlatformSettingsAction,
   updatePlatformSettingsAction,
   testSlackWebhookAction,
-  DEFAULT_PLATFORM_SETTINGS,
 } from './platform-settings';
+import { DEFAULT_PLATFORM_SETTINGS } from '@/types/platform';
 
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: vi.fn(),

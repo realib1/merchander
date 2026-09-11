@@ -109,6 +109,8 @@ export async function getPlatformOverviewData(): Promise<{
       incidentsRes,
       subscriptionsRes,
       snapshotRes,
+      openTicketsRes,
+      urgentTicketsRes,
     ] = await Promise.all([
       adminSupabase
         .from('tenants')
@@ -125,6 +127,8 @@ export async function getPlatformOverviewData(): Promise<{
       adminSupabase.from('platform_incidents').select('*').eq('is_active', true),
       adminSupabase.from('tenant_subscriptions').select('tenant_id, tier, status, billing_cycle, price_monthly, renewal_date, payment_method'),
       adminSupabase.rpc('get_platform_overview_snapshot'),
+      adminSupabase.from('support_tickets').select('id', { count: 'exact', head: true }).in('status', ['open', 'in_progress', 'waiting_for_merchant']),
+      adminSupabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('priority', 'urgent').not('status', 'in', '("resolved","closed")'),
     ]);
 
     interface OverviewSnapshot {
@@ -236,8 +240,8 @@ export async function getPlatformOverviewData(): Promise<{
       }
     >();
 
-    let openTicketsCount = 0;
-    let urgentTicketsCount = 0;
+    const openTicketsCount = openTicketsRes.count || 0;
+    const urgentTicketsCount = urgentTicketsRes.count || 0;
 
     (settingsRes.data || []).forEach((s) => {
       const customData = (s.settings_data as Record<string, unknown>) || {};
@@ -246,16 +250,6 @@ export async function getPlatformOverviewData(): Promise<{
         phone: s.business_phone || '',
         country: s.business_country || 'GH',
         customData,
-      });
-
-      const tickets = (customData.support_tickets as Array<{ status: string; priority: string }>) || [];
-      tickets.forEach((t) => {
-        if (t.status === 'open' || t.status === 'in_progress' || t.status === 'waiting_for_merchant') {
-          openTicketsCount++;
-        }
-        if (t.priority === 'urgent') {
-          urgentTicketsCount++;
-        }
       });
     });
 

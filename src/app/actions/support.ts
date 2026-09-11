@@ -101,7 +101,7 @@ export async function getMerchantSupportData() {
   try {
     const { tenantId, role } = await getTenantInfo(supabase, user.id);
 
-    const [settingsRes, productsCountRes, batchesCountRes] = await Promise.all([
+    const [settingsRes, productsCountRes, batchesCountRes, ticketsRes] = await Promise.all([
       supabase
         .from('tenant_settings')
         .select('store_name, slug, store_currency, support_phone, support_email, settings_data')
@@ -113,10 +113,19 @@ export async function getMerchantSupportData() {
         .select('id', { count: 'exact', head: true })
         .eq('tenant_id', tenantId)
         .eq('is_active', true),
+      supabase
+        .from('support_tickets')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false }),
     ]);
 
     const settingsData = (settingsRes.data?.settings_data as Record<string, unknown>) || {};
-    const tickets = (settingsData.support_tickets as SupportTicket[]) || [];
+    const ticketsResData = (ticketsRes.data || []) as Array<Record<string, unknown>>;
+    const tickets: SupportTicket[] = ticketsResData.map(t => ({
+      ...(t as unknown as SupportTicket),
+      user_email: (t.merchant_email as string) || '',
+    }));
     const incidents = (settingsData.system_incidents as SystemIncident[]) || DEFAULT_INCIDENTS;
 
     const diagnostics = {
@@ -169,15 +178,16 @@ export async function createSupportTicket(payload: CreateTicketPayload): Promise
 
     const { data: settings } = await supabase
       .from('tenant_settings')
-      .select('store_name, slug, store_currency, settings_data')
+      .select('store_name, slug, store_currency')
       .eq('tenant_id', tenantId)
       .maybeSingle();
 
-    const currentData = (settings?.settings_data as Record<string, unknown>) || {};
-    const existingTickets = (currentData.support_tickets as SupportTicket[]) || [];
+    const { count } = await supabase
+      .from('support_tickets')
+      .select('*', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId);
 
-    // Reference code format: #1000 + ticket count
-    const refNumber = 1000 + existingTickets.length + 1;
+    const refNumber = 1000 + (count || 0) + 1;
     const referenceCode = `#${refNumber}`;
 
     const enrichedContext: SystemContext = {
@@ -200,39 +210,34 @@ export async function createSupportTicket(payload: CreateTicketPayload): Promise
       created_at: new Date().toISOString(),
     };
 
-    const newTicket: SupportTicket = {
-      id: initialMessage.ticket_id,
+    const newTicket = {
       reference_code: referenceCode,
       tenant_id: tenantId,
       user_id: user.id,
-      user_email: user.email || '',
-      user_name: user.email?.split('@')[0] || 'Merchant',
-      store_name: settings?.store_name || 'Store',
+      merchant_email: user.email || '',
       subject: payload.subject.trim(),
+      message: payload.message.trim(),
       category: payload.category || 'other',
       priority: payload.priority || 'normal',
       status: 'open',
       is_escalated: payload.priority === 'urgent',
       system_context: enrichedContext,
       messages: [initialMessage],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     };
 
-    const updatedTickets = [newTicket, ...existingTickets];
+    const { data: insertedTicket, error: insertError } = await supabase
+      .from('support_tickets')
+      .insert(newTicket)
+      .select('*')
+      .single();
 
-    await supabase.from('tenant_settings').upsert(
-      {
-        tenant_id: tenantId,
-        settings_data: { ...currentData, support_tickets: updatedTickets },
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'tenant_id' }
-    );
+    if (insertError) {
+      throw insertError;
+    }
 
     revalidatePath('/dashboard/help');
     revalidatePath('/platform/support');
-    return { success: true, ticket: newTicket };
+    return { success: true, ticket: insertedTicket as unknown as SupportTicket };
   } catch (err) {
     console.error('Error creating support ticket:', err);
     return { error: 'Failed to create support ticket' };
@@ -258,19 +263,15 @@ export async function addTicketMessage(
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
 
-    const { data: settings } = await supabase
-      .from('tenant_settings')
-      .select('settings_data')
+    const { data: targetTicket, error: fetchError } = await supabase
+      .from('support_tickets')
+      .select('messages, status')
+      .eq('id', ticketId)
       .eq('tenant_id', tenantId)
       .maybeSingle();
 
-    const currentData = (settings?.settings_data as Record<string, unknown>) || {};
-    const existingTickets = (currentData.support_tickets as SupportTicket[]) || [];
+    if (fetchError || !targetTicket) return { error: 'Ticket not found' };
 
-    const ticketIndex = existingTickets.findIndex((t) => t.id === ticketId);
-    if (ticketIndex === -1) return { error: 'Ticket not found' };
-
-    const targetTicket = existingTickets[ticketIndex];
     const newMsg: SupportTicketMessage = {
       id: `msg_${Date.now()}`,
       ticket_id: ticketId,
@@ -282,26 +283,24 @@ export async function addTicketMessage(
       created_at: new Date().toISOString(),
     };
 
-    // If merchant replies to a waiting ticket, switch back to in_progress
+    const messages = targetTicket.messages || [];
+    messages.push(newMsg);
+
     const newStatus = targetTicket.status === 'waiting_for_merchant' ? 'in_progress' : targetTicket.status;
 
-    const updatedTicket: SupportTicket = {
-      ...targetTicket,
-      status: newStatus,
-      messages: [...targetTicket.messages, newMsg],
-      updated_at: new Date().toISOString(),
-    };
-
-    existingTickets[ticketIndex] = updatedTicket;
-
-    await supabase.from('tenant_settings').upsert(
-      {
-        tenant_id: tenantId,
-        settings_data: { ...currentData, support_tickets: existingTickets },
+    const { error: updateError } = await supabase
+      .from('support_tickets')
+      .update({
+        status: newStatus,
+        messages,
         updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'tenant_id' }
-    );
+      })
+      .eq('id', ticketId)
+      .eq('tenant_id', tenantId);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     revalidatePath('/dashboard/help');
     revalidatePath('/platform/support');
@@ -320,20 +319,19 @@ export async function getPlatformSupportInbox(): Promise<{ tickets: SupportTicke
     await verifyPlatformStaff(PLATFORM_SUPPORT_ROLES);
     const adminSupabase = await getAdminOrUserClient();
 
-    // Load all settings_data from tenants to aggregate tickets
-    const { data: tenantsSettings } = await adminSupabase
-      .from('tenant_settings')
-      .select('tenant_id, store_name, settings_data');
+    const { data: tickets, error: fetchError } = await adminSupabase
+      .from('support_tickets')
+      .select('*');
 
-    let allTickets: SupportTicket[] = [];
-
-    for (const ts of tenantsSettings || []) {
-      const customData = (ts.settings_data as Record<string, unknown>) || {};
-      const tickets = (customData.support_tickets as SupportTicket[]) || [];
-      allTickets = [...allTickets, ...tickets];
+    if (fetchError) {
+      throw fetchError;
     }
 
-    // Sort by urgent priority first, then latest updated
+    const allTickets: SupportTicket[] = (tickets || []).map((t: Record<string, unknown>) => ({
+      ...(t as unknown as SupportTicket),
+      user_email: (t.merchant_email as string) || '',
+    }));
+
     const priorityWeight: Record<TicketPriority, number> = {
       urgent: 4,
       high: 3,
@@ -372,20 +370,16 @@ export async function updatePlatformTicket(
     await verifyPlatformStaff(PLATFORM_SUPPORT_ROLES);
     const adminSupabase = await getAdminOrUserClient();
 
-    const { data: settings } = await adminSupabase
-      .from('tenant_settings')
-      .select('settings_data')
+    const { data: target, error: fetchError } = await adminSupabase
+      .from('support_tickets')
+      .select('*')
+      .eq('id', ticketId)
       .eq('tenant_id', tenantId)
       .maybeSingle();
 
-    const currentData = (settings?.settings_data as Record<string, unknown>) || {};
-    const existingTickets = (currentData.support_tickets as SupportTicket[]) || [];
+    if (fetchError || !target) return { error: 'Ticket not found' };
 
-    const ticketIndex = existingTickets.findIndex((t) => t.id === ticketId);
-    if (ticketIndex === -1) return { error: 'Ticket not found' };
-
-    const target = existingTickets[ticketIndex];
-    const messages = [...target.messages];
+    const messages = target.messages || [];
 
     if (updates.replyMessage?.trim()) {
       messages.push({
@@ -400,26 +394,27 @@ export async function updatePlatformTicket(
       });
     }
 
-    const updatedTicket: SupportTicket = {
-      ...target,
-      status: updates.status || target.status,
-      priority: updates.priority || target.priority,
-      is_escalated: typeof updates.is_escalated === 'boolean' ? updates.is_escalated : target.is_escalated,
-      resolved_at: updates.status === 'resolved' ? new Date().toISOString() : target.resolved_at,
-      messages,
+    const updatePayload: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
+      messages,
     };
 
-    existingTickets[ticketIndex] = updatedTicket;
+    if (updates.status) updatePayload.status = updates.status;
+    if (updates.priority) updatePayload.priority = updates.priority;
+    if (typeof updates.is_escalated === 'boolean') updatePayload.is_escalated = updates.is_escalated;
+    if (updates.status === 'resolved' || updates.status === 'closed') {
+      updatePayload.resolved_at = new Date().toISOString();
+    }
 
-    await adminSupabase.from('tenant_settings').upsert(
-      {
-        tenant_id: tenantId,
-        settings_data: { ...currentData, support_tickets: existingTickets },
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'tenant_id' }
-    );
+    const { error: updateError } = await adminSupabase
+      .from('support_tickets')
+      .update(updatePayload)
+      .eq('id', ticketId)
+      .eq('tenant_id', tenantId);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     revalidatePath('/dashboard/help');
     revalidatePath('/platform/support');
