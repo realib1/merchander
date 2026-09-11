@@ -1,11 +1,24 @@
 import type { NextConfig } from "next";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+let extraConnectOrigins = '';
+if (supabaseUrl) {
+  try {
+    const parsed = new URL(supabaseUrl);
+    const wsProto = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+    extraConnectOrigins = `${parsed.origin} ${wsProto}//${parsed.host}`;
+  } catch {
+    // Ignore URL parse error
+  }
+}
+
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: http://localhost:* http://127.0.0.1:* https://*.supabase.co https://*.supabase.in;
   font-src 'self' data:;
+  connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://*.supabase.co wss://*.supabase.co https://*.supabase.in wss://*.supabase.in https://api.paystack.co https://api.hubtel.com ${extraConnectOrigins};
   object-src 'none';
   base-uri 'self';
   form-action 'self';
@@ -22,8 +35,6 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
   { key: "Content-Security-Policy", value: cspHeader.replace(/\n/g, '') }
 ];
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const remotePatterns: NonNullable<NonNullable<NextConfig['images']>['remotePatterns']> = [
   {
     protocol: 'http',

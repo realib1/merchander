@@ -3,6 +3,7 @@ import {
   getPlatformSettingsAction,
   updatePlatformSettingsAction,
   testSlackWebhookAction,
+  DEFAULT_PLATFORM_SETTINGS,
 } from './platform-settings';
 
 vi.mock('@/lib/supabase/admin', () => ({
@@ -35,14 +36,25 @@ describe('src/app/actions/platform-settings.ts', () => {
   let mockSupabase: {
     from: ReturnType<typeof vi.fn>;
   };
-  let mockUpdate: ReturnType<typeof vi.fn>;
+  let mockUpsert: ReturnType<typeof vi.fn>;
+  let mockMaybeSingle: ReturnType<typeof vi.fn>;
+  let mockSingle: ReturnType<typeof vi.fn>;
+
+  const defaultRow = {
+    id: 1,
+    platform_name: 'Merchander',
+    support_email: 'support@merchander.com',
+    default_currency: 'GHS',
+    maintenance_mode: false,
+    disable_new_signups: false,
+    integrations: {
+      slack_webhook_url: 'https://hooks.slack.com/services/test/valid',
+    },
+    updated_at: '2026-09-11T00:00:00.000Z',
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockUpdate = vi.fn().mockReturnValue({
-      eq: vi.fn().mockResolvedValue({ error: null }),
-    });
 
     (verifyPlatformStaff as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: 'staff-user-1',
@@ -50,25 +62,34 @@ describe('src/app/actions/platform-settings.ts', () => {
       is_active: true,
     });
 
+    mockMaybeSingle = vi.fn().mockResolvedValue({
+      data: { ...defaultRow },
+      error: null,
+    });
+
+    mockSingle = vi.fn().mockResolvedValue({
+      data: { ...defaultRow },
+      error: null,
+    });
+
+    mockUpsert = vi.fn().mockImplementation((payload: unknown) => {
+      const promise = Promise.resolve({ error: null, data: payload });
+      return Object.assign(promise, {
+        select: vi.fn().mockReturnValue({
+          single: mockSingle,
+        }),
+      });
+    });
+
     mockSupabase = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: {
-                id: 1,
-                platform_name: 'Merchander',
-                maintenance_mode: false,
-                disable_new_signups: false,
-                integrations: {
-                  slack_webhook_url: 'https://hooks.slack.com/services/test/valid',
-                },
-              },
-              error: null,
-            }),
+            maybeSingle: mockMaybeSingle,
+            single: mockSingle,
           }),
         }),
-        update: mockUpdate,
+        upsert: mockUpsert,
       }),
     };
     (createAdminClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(mockSupabase);
@@ -91,6 +112,33 @@ describe('src/app/actions/platform-settings.ts', () => {
       expect(res.data).toBeNull();
       expect(res.error).toBe('Unauthorized');
     });
+
+    it('auto-seeds default row when platform_settings row id=1 is missing', async () => {
+      mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
+      mockSingle.mockResolvedValueOnce({
+        data: { ...defaultRow, id: 1 },
+        error: null,
+      });
+
+      const res = await getPlatformSettingsAction();
+      expect(res.error).toBeNull();
+      expect(res.data?.id).toBe(1);
+      expect(mockUpsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 1,
+          platform_name: DEFAULT_PLATFORM_SETTINGS.platform_name,
+        })
+      );
+    });
+
+    it('falls back gracefully to DEFAULT_PLATFORM_SETTINGS if auto-seed fails', async () => {
+      mockMaybeSingle.mockResolvedValueOnce({ data: null, error: { message: 'DB connection error' } });
+      mockSingle.mockResolvedValueOnce({ data: null, error: { message: 'Table does not exist' } });
+
+      const res = await getPlatformSettingsAction();
+      expect(res.error).toBeNull();
+      expect(res.data).toEqual(DEFAULT_PLATFORM_SETTINGS);
+    });
   });
 
   describe('updatePlatformSettingsAction', () => {
@@ -101,6 +149,12 @@ describe('src/app/actions/platform-settings.ts', () => {
 
       expect(res.success).toBe(true);
       expect(res.error).toBeNull();
+      expect(mockUpsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 1,
+          maintenance_mode: true,
+        })
+      );
       expect(sendPlatformSlackAlert).toHaveBeenCalledWith(
         expect.objectContaining({
           title: expect.stringContaining('Maintenance Mode Activated'),
@@ -122,8 +176,9 @@ describe('src/app/actions/platform-settings.ts', () => {
       });
 
       expect(res.success).toBe(true);
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
+          id: 1,
           integrations: {
             slack_webhook_url: 'https://hooks.slack.com/services/test/valid',
             openai_api_key: 'sk-new-key',

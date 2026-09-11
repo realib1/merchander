@@ -18,15 +18,47 @@ const updateSettingsSchema = z.object({
   integrations: z.record(z.any()).optional(),
 });
 
+export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  id: 1,
+  platform_name: 'Merchander',
+  support_email: 'support@merchander.com',
+  default_currency: 'GHS',
+  maintenance_mode: false,
+  disable_new_signups: false,
+  integrations: {},
+  updated_at: new Date().toISOString(),
+};
+
 export async function getPlatformSettingsAction(): Promise<{ data: PlatformSettings | null; error: string | null }> {
   try {
     await verifyPlatformStaff(PLATFORM_RBAC_RULES['/platform/settings']);
     const supabase = createAdminClient();
-    const { data, error } = await supabase.from('platform_settings').select('*').eq('id', 1).single();
+    let { data, error } = await supabase.from('platform_settings').select('*').eq('id', 1).maybeSingle();
 
-    if (error) {
-      console.error('getPlatformSettings error:', error);
-      return { data: null, error: 'Failed to load platform settings.' };
+    if (!data) {
+      // Auto-initialize singleton row if missing or empty
+      const { data: upserted, error: upsertError } = await supabase
+        .from('platform_settings')
+        .upsert({
+          id: 1,
+          platform_name: DEFAULT_PLATFORM_SETTINGS.platform_name,
+          support_email: DEFAULT_PLATFORM_SETTINGS.support_email,
+          default_currency: DEFAULT_PLATFORM_SETTINGS.default_currency,
+          maintenance_mode: DEFAULT_PLATFORM_SETTINGS.maintenance_mode,
+          disable_new_signups: DEFAULT_PLATFORM_SETTINGS.disable_new_signups,
+          integrations: DEFAULT_PLATFORM_SETTINGS.integrations,
+        })
+        .select('*')
+        .single();
+
+      if (!upsertError && upserted) {
+        data = upserted;
+        error = null;
+      } else {
+        console.warn('Unable to auto-seed platform_settings row in database:', upsertError || error);
+        // Fallback gracefully so platform settings console loads cleanly
+        return { data: DEFAULT_PLATFORM_SETTINGS, error: null };
+      }
     }
 
     return { data: data as PlatformSettings, error: null };
@@ -49,7 +81,7 @@ export async function updatePlatformSettingsAction(
     const finalUpdates: Record<string, unknown> = { ...parsed };
     
     if (parsed.integrations) {
-      const { data: current } = await supabase.from('platform_settings').select('integrations').eq('id', 1).single();
+      const { data: current } = await supabase.from('platform_settings').select('integrations').eq('id', 1).maybeSingle();
       finalUpdates.integrations = {
         ...(current?.integrations || {}),
         ...parsed.integrations
@@ -60,8 +92,7 @@ export async function updatePlatformSettingsAction(
 
     const { error } = await supabase
       .from('platform_settings')
-      .update(finalUpdates)
-      .eq('id', 1);
+      .upsert({ id: 1, ...finalUpdates });
 
     if (error) {
       console.error('updatePlatformSettingsAction error:', error);
@@ -118,7 +149,7 @@ export async function testSlackWebhookAction(
         .from('platform_settings')
         .select('integrations')
         .eq('id', 1)
-        .single();
+        .maybeSingle();
       const integrations = data?.integrations as Record<string, string> | undefined;
       targetUrl = integrations?.slack_webhook_url || process.env.SLACK_WEBHOOK_URL;
     }
