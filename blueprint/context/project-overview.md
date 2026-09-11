@@ -1,6 +1,6 @@
 # Merchander - Project Overview
 
-<!-- blueprint:source-hash bd7fe96fa6e214c9789b1a62a4b4704504d48a05a17ce43fc79e4066f7f94920 -->
+<!-- blueprint:source-hash 3f05f2935d8a8927492becf6f836f6daac85cb27ee9e8209f21c5a7b08e267c0 -->
 
 > A social-commerce operating system that connects the supply side and sales side
 > of Ghanaian import/resale businesses into one operational system.
@@ -35,7 +35,7 @@ escrowed).
 
 ## Features
 
-Build-plan order. All 29 features in the build plan are shipped. The headline
+Build-plan order. Features 1-29 are shipped. Feature 30 introduces a visual redesign for merchant auth surfaces matching modern design references. The headline
 capability is turning fragmented social-commerce operations into one connected
 system with a channel-acting Intelligence layer, merchant storefronts, multi-tenant
 RBAC, self-service onboarding, and deployment readiness.
@@ -108,6 +108,10 @@ RBAC, self-service onboarding, and deployment readiness.
 29. **UI Form Modernization & Code Quality Audit** - migrated multi-section creation
     and editing forms to accessible slide-over Drawers, decomposed oversized
     components, and hardened accessible modal dialogs.
+30. **Auth Experience & Visual Redesign (Login & Signup)** - split-screen desktop
+    and mobile layouts for `/login` (30a) and `/signup` (30b) matching modern design
+    references, with merchant hero photography, Ghanaian phone credential inputs,
+    password reveal toggles, and seamless MFA/onboarding wizard continuity.
 
 ## Data model
 

@@ -7,26 +7,69 @@ export const metadata = {
   title: 'Login | Merchander',
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; mfa?: string }> }) {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; mfa?: string }>;
+}) {
   const resolvedSearchParams = await searchParams;
-  return (
-    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Subtle modern SaaS background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-100 bg-brand-primary/10 blur-[100px] pointer-events-none rounded-full" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="flex justify-center mb-6">
-          <Image src="/merchander.png" alt="Merchander" width={56} height={56} className="drop-shadow-sm" />
-        </div>
-        <h2 className="text-center text-3xl font-bold tracking-tight font-display">Welcome back</h2>
-        <p className="mt-2 text-center text-sm  font-medium">Sign in to your merchant dashboard</p>
+  return (
+    <div className="min-h-screen bg-background flex flex-col lg:flex-row relative overflow-hidden">
+      {/* Mobile background brand curve accent */}
+      <div className="lg:hidden absolute -bottom-10 -right-10 pointer-events-none z-0">
+        <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M180 30C100 30 30 100 30 180"
+            stroke="var(--color-brand-primary)"
+            strokeWidth="2"
+            strokeOpacity="0.45"
+          />
+        </svg>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-surface py-8 px-4 shadow-xl shadow-brand-primary/5 sm:rounded-2xl sm:px-10 border border-separator">
+      {/* Left Split: Hero Photography (Desktop only) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-surface border-r border-separator overflow-hidden select-none">
+        <Image
+          src="/images/auth/signin-hero.png"
+          alt="Your store. Your customers. One Platform."
+          fill
+          priority
+          sizes="50vw"
+          className="object-cover object-center"
+        />
+      </div>
+
+      {/* Right Split: Clean Auth Container */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-20 relative z-10 min-h-screen">
+        {/* Top Logo Lockup */}
+        <div className="w-full max-w-md mx-auto flex items-center gap-3 pt-2 sm:pt-4">
+          <Image
+            src="/merchander.png"
+            alt="Merchander"
+            width={38}
+            height={38}
+            className="drop-shadow-xs shrink-0"
+          />
+          <span className="font-display font-bold text-2xl tracking-tight text-foreground">
+            Merchander
+          </span>
+        </div>
+
+        {/* Center Card */}
+        <div className="w-full max-w-md mx-auto my-auto py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight font-display text-foreground">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-sm text-muted font-medium">
+              Log in to your account to continue managing your store.
+            </p>
+          </div>
+
           {resolvedSearchParams?.error && (
-            <div className="mb-6 py-2 px-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3">
-              <CircleAlert size={14} className="mt-0.5 shrink-0" />
+            <div className="mb-6 py-2.5 px-3.5 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3 animate-in fade-in-50 duration-200">
+              <CircleAlert size={18} className="mt-0.5 shrink-0" />
               <div>
                 {resolvedSearchParams.error === 'auth-failed'
                   ? 'Authentication failed. Please check your credentials and try again.'
@@ -40,12 +83,16 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <LoginForm initialMfaRequired={resolvedSearchParams?.mfa === 'required'} />
         </div>
 
-        <p className="text-center text-sm text-muted mt-8 font-medium">
-          New to Merchander?{' '}
-          <Link href="/signup" className="font-semibold text-brand-primary hover:text-brand-primary-hover transition-colors">
-            Create an account
+        {/* Bottom Switch Link */}
+        <div className="w-full max-w-md mx-auto pb-4 pt-6 text-sm text-muted font-medium">
+          Don&apos;t have an account?{' '}
+          <Link
+            href="/signup"
+            className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
+          >
+            Sign up
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

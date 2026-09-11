@@ -356,4 +356,20 @@
     -webkit-text-fill-color: var(--color-primary) !important;
     transition: background-color 5000s ease-in-out 0s;
   }
+
+  input:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-primary);
+  }
+
+  input:-webkit-autofill:hover {
+    -webkit-text-fill-color: var(--color-primary);
+  }
+
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-primary);
+  }
+
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--color-primary);
+  }
 }

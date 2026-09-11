@@ -58,7 +58,7 @@ export const MODULE_DEFINITIONS: Record<BusinessModuleKey, BusinessModuleConfig>
   },
   intelligence: {
     id: 'intelligence',
-    name: 'WhatsApp Automation & AI Intelligence',
+    name: 'Social AI Intelligence',
     description: 'One-tap WhatsApp customer order receipts, automatic delivery updates, and conversational cart recovery prompts.',
     requiredTier: 'starter',
     icon: 'bot',

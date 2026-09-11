@@ -97,3 +97,9 @@
 - [x] 27. **Platform Merchant Provisioning ("Add Merchander")** - administrative workspace provisioning in `/platform/merchants` with owner account, initial branch, default settings, plan assignment, credential summary modal, strict platform staff email rejection, and audit log.
 - [x] 28. **Merchant Self-Service Onboarding & Business Customizer** - public `/signup` wizard, business model archetypes (grocery, import, boutique), dynamic module gating across dashboard and sidebar, and in-app module management.
 - [x] 29. **UI Form Modernization & Code Quality Audit (Drawer vs Modal & LOC Refactor)** - systematic audit and refactoring across platform and merchant dashboard: migrate long multi-section creation and editing forms from centered modals to accessible right-hand slide-over `Drawer` components, decompose oversized components violating single-responsibility and LOC rules, eliminate any loose types or `any` assertions, and remove stray em dashes and anti-patterns.
+
+## Post-MVP / Design Refresh
+
+- [x] 30. **Auth Experience & Visual Redesign (Login & Signup)**
+  - [x] 30a. **Login Page Visual Redesign** - Split-screen desktop and mobile layout for `/login` matching `login.png` and `signin-sign mobile.png`: lifestyle merchant hero photography, brand headline overlay, dual email/phone identifier input (`024 123 4567`), password reveal toggle, "Remember me", "Forgot password?", and preserved MFA challenge flow.
+  - [x] 30b. **Signup Page Visual Redesign** - Split-screen desktop and mobile layout for `/signup` matching `signin-signup desktop.png` and `signup-image.png`: account creation card, consistent container width, and seamless handoff into the multi-tenant business onboarding wizard.
