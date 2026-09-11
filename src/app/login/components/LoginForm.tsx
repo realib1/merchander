@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { login } from '@/app/actions/auth';
 import { Eye, EyeOff, CircleAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-
+import { getRememberedIdentifier, saveRememberedIdentifier, clearRememberedIdentifier } from '@/utils/remember-me';
 import { MfaChallengeForm } from './MfaChallengeForm';
 
 interface LoginFormProps {
@@ -16,8 +16,18 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [identifier, setIdentifier] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [mfaRequired, setMfaRequired] = useState(initialMfaRequired);
   const [isPending, startTransition] = useTransition();
+  useEffect(() => {
+    const remembered = getRememberedIdentifier();
+    if (!remembered) return;
+    const timer = setTimeout(() => {
+      setIdentifier(remembered);
+      setRememberMe(true);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,6 +36,9 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
     const formData = new FormData(e.currentTarget);
     const emailOrPhone = (formData.get('email') as string) || '';
     setIdentifier(emailOrPhone);
+
+    if (rememberMe) saveRememberedIdentifier(emailOrPhone);
+    else clearRememberedIdentifier();
 
     startTransition(async () => {
       try {
@@ -37,10 +50,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
           setMfaRequired(true);
         }
       } catch (err) {
-        // Allow Next.js internal redirect exceptions to bubble so router handles them
-        if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) {
-          throw err;
-        }
+        if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) throw err;
         console.error('Login submission error:', err);
         const msg = 'Unable to reach the server. Please verify your connection and try again.';
         setErrorMessage(msg);
@@ -50,15 +60,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
   };
 
   if (mfaRequired) {
-    return (
-      <MfaChallengeForm
-        email={identifier}
-        onBack={() => {
-          setMfaRequired(false);
-          setErrorMessage(null);
-        }}
-      />
-    );
+    return <MfaChallengeForm email={identifier} onBack={() => { setMfaRequired(false); setErrorMessage(null); }} />;
   }
 
   return (
@@ -114,10 +116,13 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
+          <label htmlFor="remember-me" className="flex items-center gap-2 cursor-pointer select-none">
             <input
+              id="remember-me"
               type="checkbox"
               name="remember"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
               className="w-4 h-4 rounded-sm border-separator text-brand-primary focus:ring-brand-primary/30 accent-brand-primary cursor-pointer"
             />
             <span className="text-sm text-muted hover:text-foreground transition-colors">Remember me</span>

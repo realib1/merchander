@@ -105,6 +105,6 @@
   - [x] 30b. **Signup Page Visual Redesign** - Split-screen desktop and mobile layout for `/signup` matching `signin-signup desktop.png` and `signup-image.png`: account creation card, consistent container width, and seamless handoff into the multi-tenant business onboarding wizard.
 - [ ] 31. **Auth Self-Service Recovery & Persistence**
   - [x] 31a. **Password Recovery & Reset Flow** - End-to-end self-service password recovery: `/forgot-password` request page, Supabase auth recovery callback handling (`/auth/callback?next=/reset-password`), `/reset-password` page with new password entry and session validation, and wiring the "Forgot password?" link on `/login`.
-  - [ ] 31b. **Remember Me Persistence** - Client persistence (`localStorage`) of login identifier (`email` or `phone`) across sessions, prefilling `/login` and checkbox state.
+  - [x] 31b. **Remember Me Persistence** - Client persistence (`localStorage`) of login identifier (`email` or `phone`) across sessions, prefilling `/login` and checkbox state.
   - [ ] 31c. **Signup Credential Confirmation & Validation** - Password confirmation field, real-time match validation, and terms agreement in `StepAccountCredentials` and `useSignupWizard`.
 
