@@ -51,26 +51,30 @@ export async function POST(req: NextRequest) {
     const transactionId = data?.TransactionId || data?.transactionId || payload.TransactionId || clientReference;
     const amount = Number(data?.Amount || data?.amount || payload.Amount || 0);
 
-    // If global credentials didn't authorize, check per-tenant credentials from matched order
-    if (!isAuthorized && clientReference && typeof clientReference === 'string' && clientReference.startsWith('ord_')) {
+    const supabase = createAdminClient();
+
+    let matchedOrder = null;
+
+    if (clientReference && typeof clientReference === 'string' && clientReference.startsWith('ord_')) {
       const orderShortId = clientReference.split('_')[1];
       if (orderShortId) {
-        try {
-          const supabase = createAdminClient();
-          const { data: matchedOrder } = await supabase
-            .from('orders')
-            .select('tenant_id')
-            .eq('short_id', orderShortId)
-            .maybeSingle();
+        const { data, error: orderErr } = await supabase
+          .from('orders')
+          .select('id, tenant_id, total_amount')
+          .eq('short_id', orderShortId)
+          .maybeSingle();
+        
+        if (orderErr) {
+          console.error('Hubtel webhook: failed to look up order:', orderErr);
+          return NextResponse.json({ error: 'Failed to resolve order' }, { status: 500 });
+        }
+        matchedOrder = data;
 
-          if (matchedOrder?.tenant_id) {
-            const creds = await resolveHubtelCredentials(matchedOrder.tenant_id);
-            if (creds.clientId && creds.clientSecret) {
-              isAuthorized = validateHubtelAuth(authHeader, creds.clientId, creds.clientSecret);
-            }
+        if (!isAuthorized && matchedOrder?.tenant_id) {
+          const creds = await resolveHubtelCredentials(matchedOrder.tenant_id);
+          if (creds.clientId && creds.clientSecret) {
+            isAuthorized = validateHubtelAuth(authHeader, creds.clientId, creds.clientSecret);
           }
-        } catch {
-          // Fall through to unauthorized check
         }
       }
     }
@@ -90,15 +94,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing client reference' }, { status: 400 });
     }
 
-    // Service role: a provider callback carries no user session, so the anon
-    // client's RLS context would refuse every write here.
-    const supabase = createAdminClient();
+    if (!matchedOrder) {
+      console.warn('Hubtel webhook: no order matches reference', clientReference);
+      return NextResponse.json({ error: 'No order matches this client reference' }, { status: 404 });
+    }
+
     const paymentRef = transactionId || clientReference;
 
     const { data: existingPayment, error: existingErr } = await supabase
       .from('payments')
       .select('id')
       .eq('transaction_ref', paymentRef)
+      .eq('tenant_id', matchedOrder.tenant_id)
       .maybeSingle();
 
     if (existingErr) {
@@ -108,33 +115,6 @@ export async function POST(req: NextRequest) {
 
     if (existingPayment) {
       return NextResponse.json({ status: 'already_processed', reference: clientReference }, { status: 200 });
-    }
-
-    // References are minted as ord_<short_id>_<suffix>. Match the short id
-    // exactly: a prefix LIKE would let reference wildcards select any order.
-    if (typeof clientReference !== 'string' || !clientReference.startsWith('ord_')) {
-      return NextResponse.json({ error: 'Unrecognized client reference format' }, { status: 400 });
-    }
-
-    const orderShortId = clientReference.split('_')[1];
-    if (!orderShortId) {
-      return NextResponse.json({ error: 'Client reference is missing an order id' }, { status: 400 });
-    }
-
-    const { data: matchedOrder, error: orderErr } = await supabase
-      .from('orders')
-      .select('id, tenant_id')
-      .eq('short_id', orderShortId)
-      .maybeSingle();
-
-    if (orderErr) {
-      console.error('Hubtel webhook: failed to look up order:', orderErr);
-      return NextResponse.json({ error: 'Failed to resolve order' }, { status: 500 });
-    }
-
-    if (!matchedOrder) {
-      console.warn('Hubtel webhook: no order matches reference', clientReference);
-      return NextResponse.json({ error: 'No order matches this client reference' }, { status: 404 });
     }
 
     const { error: paymentErr } = await supabase.from('payments').insert({
@@ -156,17 +136,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to record payment' }, { status: 500 });
     }
 
-    const { error: statusErr } = await supabase
-      .from('orders')
-      .update({
-        status: 'paid',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', matchedOrder.id);
+    if (amount >= matchedOrder.total_amount) {
+      const { error: statusErr } = await supabase
+        .from('orders')
+        .update({
+          status: 'paid',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', matchedOrder.id)
+        .eq('tenant_id', matchedOrder.tenant_id);
 
-    if (statusErr) {
-      console.error('Hubtel webhook: payment recorded but order status update failed:', statusErr);
-      return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+      if (statusErr) {
+        console.error('Hubtel webhook: payment recorded but order status update failed:', statusErr);
+        return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+      }
+    } else {
+      console.warn(`Hubtel webhook: partial payment received (${amount} < ${matchedOrder.total_amount}). Status not updated.`);
     }
 
     // Dispatch automated WhatsApp payment confirmation receipt

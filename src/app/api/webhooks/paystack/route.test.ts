@@ -4,8 +4,13 @@ import { POST } from './route';
 
 // Mock Supabase admin client
 const mockInsert = vi.fn().mockResolvedValue({ error: null });
-const mockUpdate = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
+const updateChain = {
+  eq: vi.fn().mockReturnThis(),
+  then: (resolve: (val: unknown) => void) => resolve({ error: null })
+};
+const mockUpdate = vi.fn().mockReturnValue(updateChain);
 const mockMaybeSingle = vi.fn();
+const mockSingleOrder = vi.fn().mockResolvedValue({ data: { total_amount: 150, status: 'pending' }, error: null });
 
 const mockSupabase = {
   from: vi.fn().mockImplementation((table: string) => {
@@ -19,7 +24,10 @@ const mockSupabase = {
     }
     if (table === 'orders') {
       return {
+        select: vi.fn().mockReturnThis(),
         update: mockUpdate,
+        eq: vi.fn().mockReturnThis(),
+        single: mockSingleOrder,
       };
     }
     return {};
@@ -176,5 +184,47 @@ describe('POST /api/webhooks/paystack', () => {
     expect(body.status).toBe('already_processed');
     expect(mockInsert).not.toHaveBeenCalled();
     expect(dispatchPaymentConfirmationReceipt).not.toHaveBeenCalled();
+  });
+
+  it('does not update order status to paid if payment amount is less than total_amount', async () => {
+    mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null }); // no existing payment
+    mockSingleOrder.mockResolvedValueOnce({ data: { total_amount: 500, status: 'pending' }, error: null });
+
+    const payload = {
+      event: 'charge.success',
+      data: {
+        reference: 'ord_PST_PARTIAL',
+        amount: 15000, // 150 GHS
+        fees: 200, // 2 GHS
+        channel: 'mobile_money',
+        paid_at: new Date().toISOString(),
+        customer: {
+          phone: '0241234567',
+        },
+        metadata: {
+          type: 'store_order',
+          orderId: 'order-uuid-partial',
+          tenantId: 'tenant-abc-123',
+        },
+      },
+    };
+
+    const req = new NextRequest('http://localhost:3000/api/webhooks/paystack', {
+      method: 'POST',
+      headers: {
+        'x-paystack-signature': 'valid-signature',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe('success');
+
+    // Payment still inserted
+    expect(mockInsert).toHaveBeenCalled();
+    // But update not called
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 });

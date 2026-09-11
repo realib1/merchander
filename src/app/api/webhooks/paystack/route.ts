@@ -246,6 +246,7 @@ export async function POST(req: NextRequest) {
         .from('payments')
         .select('id')
         .eq('transaction_ref', reference)
+        .eq('tenant_id', tenantId)
         .maybeSingle();
 
       if (existingErr) {
@@ -283,17 +284,31 @@ export async function POST(req: NextRequest) {
 
       // Update linked order status to 'paid'
       if (orderId) {
-        const { error: statusErr } = await supabase
+        const { data: orderData, error: orderFetchErr } = await supabase
           .from('orders')
-          .update({
-            status: 'paid',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', orderId);
+          .select('total_amount, status')
+          .eq('id', orderId)
+          .eq('tenant_id', tenantId)
+          .single();
 
-        if (statusErr) {
-          console.error('Paystack webhook: payment recorded but order status update failed:', statusErr);
-          return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+        if (orderFetchErr) {
+          console.error('Paystack webhook: payment recorded but failed to fetch order:', orderFetchErr);
+        } else if (orderData && amountGhs >= orderData.total_amount) {
+          const { error: statusErr } = await supabase
+            .from('orders')
+            .update({
+              status: 'paid',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', orderId)
+            .eq('tenant_id', tenantId);
+
+          if (statusErr) {
+            console.error('Paystack webhook: payment recorded but order status update failed:', statusErr);
+            return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+          }
+        } else {
+          console.warn(`Paystack webhook: partial payment received (${amountGhs} < ${orderData?.total_amount}). Status not updated to paid.`);
         }
 
         // Dispatch automated WhatsApp payment receipt to customer

@@ -638,6 +638,9 @@ export async function verifyPaymentProviderCredentials(
           };
         }
       } catch (err: unknown) {
+        if (process.env.NODE_ENV === 'production') {
+           return { valid: false, isLive, error: 'Network error verifying Paystack keys.' };
+        }
         // Network timeout / offline in local test environment - allow syntactic match
         console.warn('Paystack live ping unreachable, passed syntactic validation:', err);
       }
@@ -671,6 +674,36 @@ export async function verifyPaymentProviderCredentials(
         isLive,
         error: 'Hubtel Merchant Account / POS ID must be a numeric value.',
       };
+    }
+
+    if (secKey) {
+      try {
+        const authHeader = 'Basic ' + Buffer.from(`${pubKey}:${secKey}`).toString('base64');
+        const response = await fetch(
+          `https://api-merchant.hubtel.com/v1/merchantaccount/transactions/status?clientReference=verify_keys_123`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: authHeader,
+              'Content-Type': 'application/json',
+            },
+            signal: AbortSignal.timeout(5000),
+          }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+          return {
+            valid: false,
+            isLive,
+            error: 'Hubtel rejected the Client ID or Secret. Please verify your credentials.',
+          };
+        }
+      } catch (err: unknown) {
+        if (process.env.NODE_ENV === 'production') {
+           return { valid: false, isLive, error: 'Network error verifying Hubtel keys.' };
+        }
+        console.warn('Hubtel live ping unreachable, passed syntactic validation:', err);
+      }
     }
 
     return { valid: true, isLive };

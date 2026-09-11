@@ -3,7 +3,11 @@ import { NextRequest } from 'next/server';
 import { POST } from './route';
 
 const mockInsert = vi.fn().mockResolvedValue({ error: null });
-const mockUpdate = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
+const updateChain = {
+  eq: vi.fn().mockReturnThis(),
+  then: (resolve: (val: unknown) => void) => resolve({ error: null })
+};
+const mockUpdate = vi.fn().mockReturnValue(updateChain);
 const mockMaybeSinglePayment = vi.fn();
 const mockMaybeSingleOrder = vi.fn();
 
@@ -61,11 +65,11 @@ describe('POST /api/webhooks/hubtel', () => {
 
   it('records payment, updates order to paid, and dispatches receipt', async () => {
     const { dispatchPaymentConfirmationReceipt } = await import('@/lib/payments/confirmation');
-    mockMaybeSinglePayment.mockResolvedValueOnce({ data: null, error: null }); // no existing payment
     mockMaybeSingleOrder.mockResolvedValueOnce({
-      data: { id: 'order-1234', tenant_id: 'tenant-555' },
+      data: { id: 'order-1234', tenant_id: 'tenant-555', total_amount: 250.0 },
       error: null,
     });
+    mockMaybeSinglePayment.mockResolvedValueOnce({ data: null, error: null }); // no existing payment
 
     const payload = {
       ResponseCode: '0000',
@@ -125,6 +129,7 @@ describe('POST /api/webhooks/hubtel', () => {
   });
 
   it('skips duplicate payment callbacks idempotently', async () => {
+    mockMaybeSingleOrder.mockResolvedValueOnce({ data: { id: 'order-dup', tenant_id: 'tenant-1' }, error: null });
     mockMaybeSinglePayment.mockResolvedValueOnce({ data: { id: 'existing-payment' }, error: null });
 
     const payload = {
@@ -150,5 +155,41 @@ describe('POST /api/webhooks/hubtel', () => {
     const body = await res.json();
     expect(body.status).toBe('already_processed');
     expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('does not update order status if payment amount is less than total_amount', async () => {
+    mockMaybeSingleOrder.mockResolvedValueOnce({
+      data: { id: 'order-partial', tenant_id: 'tenant-555', total_amount: 500.0 },
+      error: null,
+    });
+    mockMaybeSinglePayment.mockResolvedValueOnce({ data: null, error: null });
+
+    const payload = {
+      ResponseCode: '0000',
+      Status: 'Success',
+      Data: {
+        ClientReference: 'ord_ORD-PARTIAL_suffix',
+        TransactionId: 'HUB-TXN-PARTIAL',
+        Amount: 150.0,
+      },
+    };
+
+    const req = new NextRequest('http://localhost:3000/api/webhooks/hubtel', {
+      method: 'POST',
+      headers: {
+        authorization: 'Basic valid-auth',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe('success');
+
+    // Payment still inserted
+    expect(mockInsert).toHaveBeenCalled();
+    // But update not called
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 });
