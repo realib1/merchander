@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { PauseCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { SignupWizardClient } from './components/SignupWizardClient';
 import { createAdminClient } from '@/lib/supabase/admin';
-import signupHero from '../../../public/images/auth/signup-hero.png';
+import signupHero from '../../../public/images/auth/signup-hero.webp';
 
 export const metadata: Metadata = {
   title: 'Sign Up | Merchander',
@@ -47,6 +47,7 @@ export default async function SignupPage() {
           alt="Build your online store. Reach more customers. Grow your business."
           fill
           priority
+          placeholder="blur"
           sizes="50vw"
           className="object-cover object-center"
         />

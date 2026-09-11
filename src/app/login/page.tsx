@@ -2,7 +2,7 @@ import { CircleAlert } from 'lucide-react';
 import Image from 'next/image';
 import { LoginForm } from './components/LoginForm';
 import Link from 'next/link';
-import signinHero from '../../../public/images/auth/signin-hero.png';
+import signinHero from '../../../public/images/auth/signin-hero.webp';
 
 export const metadata = {
   title: 'Login | Merchander',
@@ -36,6 +36,7 @@ export default async function LoginPage({
           alt="Your store. Your customers. One Platform."
           fill
           priority
+          placeholder="blur"
           sizes="50vw"
           className="object-cover object-center"
         />
