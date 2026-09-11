@@ -152,13 +152,13 @@ Only WhatsApp has a functional end-to-end webhook and state machine.
 3. Created `src/lib/alerts/slack.ts` with `sendPlatformSlackAlert` and `sendSlackWebhook`, consuming `platform_settings.integrations.slack_webhook_url` or `process.env.SLACK_WEBHOOK_URL`. Wired alerts on new merchant self-service signups and maintenance mode state toggles. Added `testSlackWebhookAction` in `src/app/actions/platform-settings.ts` and interactive "Test Connection" button in `IntegrationsSettingsForm.tsx`. Clarified OpenAI runtime fallback precedence copy.
 Covered with unit test suites in `proxy.test.ts`, `signup.test.ts`, `slack.test.ts`, and `platform-settings.test.ts`. Full test suite (78 files, 698 tests), typecheck (`yarn check`), and linting (`yarn lint`) pass.
 
-### F-23 [P3] open - Dashboard intelligence engine falls back to hardcoded stable stock strings on zero sales velocity
+### F-23 [P3] fixed - Dashboard intelligence engine falls back to hardcoded stable stock strings on zero sales velocity
 
 **File:** src/app/actions/dashboard.ts:308
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
 **Why it matters:** In `dashboard.ts`, when a merchant account has products and orders but no products with positive weekly sales velocity (`lowStockList.length === 0`), `getDashboardIntelligence()` returns hardcoded fallback strings: `supplyInsight: ['• Stock levels are generally stable.', '• No major shipments in transit.']`. This message is displayed even if inventory levels are actually at 0 for critical items, giving merchants false confidence that stock is stable.
 **Suggested fix:** Evaluate actual inventory levels across product variants and shipments in transit dynamically instead of returning static strings about stability.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/dashboard-intelligence-f23. Extracted deterministic intelligence logic into pure utility `computeDashboardIntelligence` (`src/utils/dashboardIntelligence.ts`). Eliminated hardcoded fallback strings and fabricated sales velocities (`Math.max(1, ...)`). Integrated into `getDashboardMetrics` in `src/app/actions/dashboard.ts` with parallel exact counts for out-of-stock variants (`quantity <= 0`) and total tracked variants from `inventory_levels`. Added test suites in `src/utils/dashboardIntelligence.test.ts` and `src/app/actions/dashboard.test.ts`. Verified with 80 passing test files (710 tests), `yarn check` (0 errors), and `yarn lint` (0 errors).
 
 ### F-24 [P3] fixed - Sidebar "Conversations" nav item links to "Approvals & Inquiries" queue with mismatched intent
 

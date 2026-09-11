@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { computeDashboardIntelligence } from '@/utils/dashboardIntelligence';
 
 export interface MetricValue {
   value: number;
@@ -178,12 +179,26 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
     .order('eta', { ascending: true })
     .limit(3);
 
-  // 5B. Low Stock Alerts
-  const { data: lowStockData } = await supabase
-    .from('inventory_levels')
-    .select('quantity, product_variants(id, sku, name, products(name))')
-    .lt('quantity', lowStockThreshold)
-    .limit(3);
+  // 5B. Low Stock Alerts & Inventory Health Counts
+  const [
+    { data: lowStockData },
+    { count: totalTrackedVariants },
+    { count: outOfStockCount },
+  ] = await Promise.all([
+    supabase
+      .from('inventory_levels')
+      .select('quantity, product_variants(id, sku, name, products(name))')
+      .lt('quantity', lowStockThreshold)
+      .order('quantity', { ascending: true })
+      .limit(3),
+    supabase
+      .from('inventory_levels')
+      .select('id', { count: 'exact', head: true }),
+    supabase
+      .from('inventory_levels')
+      .select('id', { count: 'exact', head: true })
+      .lte('quantity', 0),
+  ]);
 
   // 5C. Supplier Balances
   const { data: suppliersBal } = await supabase
@@ -267,7 +282,7 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
     const variantId = variant?.id;
     const variantSales = salesDataBatch.filter((item) => item.variant_id === variantId);
     const totalSoldLast30Days = variantSales.reduce((acc, item) => acc + (item.quantity || 0), 0);
-    const avgWeeklySales = Math.max(1, Math.round(totalSoldLast30Days / 4.33)); // 4.33 weeks in a month
+    const avgWeeklySales = totalSoldLast30Days > 0 ? Math.max(1, Math.round(totalSoldLast30Days / 4.33)) : 0;
 
     return {
       id: variantId || 'unknown',
@@ -275,6 +290,7 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
       size: variant?.name || 'Default',
       remaining: ls.quantity,
       avgWeeklySales,
+      totalSoldLast30Days,
     };
   });
 
@@ -292,45 +308,20 @@ export async function getDashboardMetrics(period: 'today' | '7d' | '30d' | '90d'
 
   // D. Intelligence Engine
   const isFreshTenant =
-    current_orders === 0 && current_sales === 0 && lowStockList.length === 0 && purchaseOrdersList.length === 0;
+    current_orders === 0 &&
+    current_sales === 0 &&
+    lowStockList.length === 0 &&
+    purchaseOrdersList.length === 0 &&
+    (totalTrackedVariants || 0) === 0;
 
-  const intelligence = isFreshTenant
-    ? {
-        velocityInsight:
-          'Welcome to Merchander! Add your first products and record orders to activate sales velocity analysis.',
-        supplyInsight: [
-          '• Store catalog and inventory tracking ready.',
-          '• Connect suppliers to monitor purchase orders and transit times.',
-        ],
-        recommendation: 'Add your first products in Catalog to begin generating automated intelligence.',
-      }
-    : {
-        velocityInsight: 'No immediate trends detected in your recent sales data.',
-        supplyInsight: ['• Stock levels are generally stable.', '• No major shipments in transit.'],
-        recommendation: 'Maintain current reorder strategies.',
-      };
-
-  if (lowStockList.length > 0) {
-    const topLow = lowStockList[0];
-    const daysRemaining = Math.max(1, Math.floor((topLow.remaining / topLow.avgWeeklySales) * 7));
-
-    intelligence.velocityInsight = `Your ${topLow.name} (${topLow.size}) is moving fast. At the current rate of ${topLow.avgWeeklySales} units/week, it will likely sell out in ${daysRemaining} days.`;
-
-    if (nextPurchaseOrder) {
-      intelligence.supplyInsight = [
-        `• Incoming purchase order (${nextPurchaseOrder.id}) contains ${nextPurchaseOrder.units} units total.`,
-        `• Based on current momentum, ${nextPurchaseOrder.preOrders} are spoken for.`,
-        `• Net available after delivery: ${nextPurchaseOrder.units - nextPurchaseOrder.preOrders} units.`,
-      ];
-      intelligence.recommendation = `Do not place another restock order yet. The incoming purchase order from ${nextPurchaseOrder.origin} provides a solid buffer. Re-evaluate after delivery.`;
-    } else {
-      intelligence.supplyInsight = [
-        `• No active purchase orders contain this product.`,
-        `• ${topLow.remaining} units left in the warehouse.`,
-      ];
-      intelligence.recommendation = `Place a purchase order for ${topLow.name} immediately to prevent a stockout event.`;
-    }
-  }
+  const intelligence = computeDashboardIntelligence({
+    isFreshTenant,
+    lowStockList,
+    purchaseOrdersList,
+    outOfStockCount: outOfStockCount || 0,
+    totalTrackedVariants: totalTrackedVariants || 0,
+    lowStockThreshold,
+  });
 
   return {
     totalSales: { value: current_sales, change: salesChange, diff: salesDiff },
