@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { selfServiceSignupAction } from '@/app/actions/signup';
 import { validateStoreSlug } from '@/utils/business-modules';
+import { validateCredentialsStep } from '@/utils/signup-validation';
 import { BusinessArchetype, BusinessModuleKey } from '@/types/business-modules';
 
 export function useSignupWizard() {
@@ -19,6 +20,8 @@ export function useSignupWizard() {
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [storeName, setStoreName] = useState<string>('');
   const [slug, setSlug] = useState<string>('');
   const [currency, setCurrency] = useState<string>('GHS');
@@ -46,10 +49,17 @@ export function useSignupWizard() {
   const validateCurrentStep = (): boolean => {
     setFormError(null);
     if (currentStep === 1) {
-      if (!fullName.trim()) return setFormError('Please enter your full name.'), false;
-      if (!email.trim() || !email.includes('@')) return setFormError('Please enter a valid business email.'), false;
-      if (!phone.trim()) return setFormError('Please enter your phone number.'), false;
-      if (!password || password.length < 8) return setFormError('Password must be at least 8 characters long.'), false;
+      const validation = validateCredentialsStep({
+        fullName,
+        email,
+        phone,
+        password,
+        confirmPassword,
+        termsAccepted,
+      });
+      if (!validation.isValid) {
+        return setFormError(validation.error || 'Please complete all required fields.'), false;
+      }
     }
     if (currentStep === 2) {
       if (!storeName.trim()) return setFormError('Please enter your store or business name.'), false;
@@ -119,6 +129,10 @@ export function useSignupWizard() {
     setPhone,
     password,
     setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    termsAccepted,
+    setTermsAccepted,
     storeName,
     handleStoreNameChange,
     slug,

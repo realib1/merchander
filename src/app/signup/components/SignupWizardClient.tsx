@@ -36,8 +36,10 @@ export function SignupWizardClient() {
             setPhone={wizard.setPhone}
             password={wizard.password}
             setPassword={wizard.setPassword}
-            showPassword={wizard.showPassword}
-            setShowPassword={wizard.setShowPassword}
+            confirmPassword={wizard.confirmPassword}
+            setConfirmPassword={wizard.setConfirmPassword}
+            termsAccepted={wizard.termsAccepted}
+            setTermsAccepted={wizard.setTermsAccepted}
             onContinue={wizard.handleNext}
           />
         )}
