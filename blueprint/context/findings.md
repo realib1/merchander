@@ -103,7 +103,7 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 **Suggested fix:** Remove the misleading "Active for Alerts & Receipts" and "Locale Synchronized" badges, and note that locale formatting customization is currently in development until formatters consume these user preferences.
 **Resolution:** Removed the misleading "Active for Alerts & Receipts" and "Locale Synchronized" badges. Updated helper copy for Language to clarify it is an account preference with multi-language templates planned for upcoming release, and for Timezone to note standardization across store receipts and logs.
 
-### F-18 [P2] open - Social channel connectors masquerade as functional sync without webhooks or handlers
+### F-18 [P2] fixed - Social channel connectors masquerade as functional sync without webhooks or handlers
 
 **File:** src/app/dashboard/settings/channels/components/InstagramChannelCard.tsx:30
 **Found:** 2026-09-10 by /audit (scope: full; lens: quality)
@@ -112,7 +112,7 @@ The codebase already has `@/components/ui/ConfirmDialog` (wrapping `@/components
 2. `src/app/api/webhooks/telegram/route.ts:44` extracts a cart from incoming Telegram messages but discards it with `// TODO: Trigger order state machine (Ticket 4)`.
 Only WhatsApp has a functional end-to-end webhook and state machine.
 **Suggested fix:** Clearly indicate that Instagram and Facebook Messenger connectors are "Planned" rather than interactive mock toggles, and implement the Telegram order dispatch queue or remove stubbed webhook code.
-**Resolution:**
+**Resolution:** Fixed on 2026-09-11 in fix/social-channels-facade-f18. Updated InstagramChannelCard and MessengerChannelCard to replace misleading "Beta" and "Connected" badges with "Planned / In Development", disabled unbacked sync switches and checkboxes, and clarified that Meta Graph API DM sync is scheduled on the product roadmap while preserving public handle inputs for storefront links. Clarified Telegram Developer Preview state with transparent notice in TelegramChannelCard and documented route.ts. Added automated unit tests in src/app/actions/settings-social.test.ts.
 
 ### F-19 [P2] fixed - Email notification toggles claim active inbox delivery without email infrastructure
 

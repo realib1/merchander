@@ -14,7 +14,9 @@ function secretTokenValid(header: string | null): boolean {
 }
 
 /**
- * Handles incoming Telegram messages
+ * Handles incoming Telegram messages (Developer Preview)
+ * Currently runs intent and cart extraction through the intelligence engine.
+ * End-to-end order placement and dispatch are scheduled for an upcoming release.
  */
 export async function POST(request: NextRequest) {
   try {

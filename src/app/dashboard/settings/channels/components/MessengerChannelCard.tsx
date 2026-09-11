@@ -26,33 +26,19 @@ export function MessengerChannelCard({ config, onChange, disabled = false }: Mes
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <CardTitle className="text-base font-bold font-display">Facebook Messenger</CardTitle>
-                <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
-                  title="Facebook Messenger webhook synchronization is currently in Beta"
-                >
-                  Beta
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                    config.connected
-                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
-                      : 'bg-surface-elevated text-muted'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${config.connected ? 'bg-blue-500' : 'bg-muted'}`} />
-                  {config.connected ? 'Connected' : 'Not connected'}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  Planned / In Development
                 </span>
               </div>
-              <CardDescription className="text-xs text-muted truncate">
-                Capture messages and live inquiries from your Facebook business page.
+              <CardDescription className="text-xs text-muted">
+                Facebook Messenger webhook and inbox synchronization is currently in development.
               </CardDescription>
             </div>
           </div>
           <Switch
-            checked={config.connected}
-            onCheckedChange={(c) => onChange({ ...config, connected: c })}
-            disabled={disabled}
-            aria-label="Connect Facebook Messenger"
+            checked={false}
+            disabled={true}
+            aria-label="Connect Facebook Messenger (in development)"
           />
         </div>
       </CardHeader>
@@ -65,7 +51,7 @@ export function MessengerChannelCard({ config, onChange, disabled = false }: Mes
             placeholder="e.g. 1092837461928"
             value={config.pageId}
             onChange={(e) => onChange({ ...config, pageId: e.target.value })}
-            hint="Your Facebook Business Page numeric ID."
+            hint="Your Facebook Business Page numeric ID (saved for future Meta sync)."
             disabled={disabled}
           />
           <FormField
@@ -79,21 +65,18 @@ export function MessengerChannelCard({ config, onChange, disabled = false }: Mes
           />
         </div>
 
-        <div
-          onClick={() => onChange({ ...config, syncMessages: !config.syncMessages })}
-          className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
-            config.syncMessages
-              ? 'border-brand-primary bg-brand-primary/5 text-foreground'
-              : 'border-separator bg-surface text-muted hover:text-foreground'
-          }`}
-        >
-          <Checkbox
-            checked={config.syncMessages}
-            onCheckedChange={(c) => onChange({ ...config, syncMessages: c })}
-            disabled={disabled}
-            aria-label="Sync Messenger Conversations"
-          />
-          <span>Sync Messenger chats into unified inbox</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2.5 p-2.5 rounded-xl border border-separator bg-surface text-muted opacity-75 cursor-not-allowed text-xs font-medium">
+            <Checkbox
+              checked={false}
+              disabled={true}
+              aria-label="Sync Messenger Conversations (in development)"
+            />
+            <span>Sync Messenger chats into unified inbox</span>
+          </div>
+          <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+            Meta webhook integration is scheduled for an upcoming release.
+          </p>
         </div>
       </CardBody>
     </Card>

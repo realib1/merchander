@@ -26,33 +26,19 @@ export function InstagramChannelCard({ config, onChange, disabled = false }: Ins
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <CardTitle className="text-base font-bold font-display">Instagram Direct</CardTitle>
-                <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
-                  title="Direct DM webhook integration is currently in Beta"
-                >
-                  Beta
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                    config.connected
-                      ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400'
-                      : 'bg-surface-elevated text-muted'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${config.connected ? 'bg-pink-500' : 'bg-muted'}`} />
-                  {config.connected ? 'Connected' : 'Not connected'}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  Planned / In Development
                 </span>
               </div>
-              <CardDescription className="text-xs text-muted truncate">
-                Sync customer DMs and story replies into your unified inbox.
+              <CardDescription className="text-xs text-muted">
+                Public profile handle displayed on storefront. Meta Graph API DM sync is currently in development.
               </CardDescription>
             </div>
           </div>
           <Switch
-            checked={config.connected}
-            onCheckedChange={(c) => onChange({ ...config, connected: c })}
-            disabled={disabled}
-            aria-label="Connect Instagram"
+            checked={false}
+            disabled={true}
+            aria-label="Connect Instagram (in development)"
           />
         </div>
       </CardHeader>
@@ -65,7 +51,7 @@ export function InstagramChannelCard({ config, onChange, disabled = false }: Ins
             placeholder="e.g. @merchander_gh"
             value={config.handle}
             onChange={(e) => onChange({ ...config, handle: e.target.value })}
-            hint="Your public brand handle for DM routing."
+            hint="Your public brand handle. Displayed in your online store header and footer."
             disabled={disabled}
           />
           <FormField
@@ -74,45 +60,34 @@ export function InstagramChannelCard({ config, onChange, disabled = false }: Ins
             placeholder="e.g. 1928374829"
             value={config.pageId || ''}
             onChange={(e) => onChange({ ...config, pageId: e.target.value })}
-            hint="Associated Facebook page for Instagram Graph API."
+            hint="Associated Facebook page for future Meta Graph API synchronization."
             disabled={disabled}
           />
         </div>
 
         {/* Sync Preferences */}
         <div className="space-y-2 pt-1">
-          <label className="text-xs font-semibold text-foreground">Sync Preferences</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div
-              onClick={() => onChange({ ...config, syncDirectMessages: !config.syncDirectMessages })}
-              className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
-                config.syncDirectMessages
-                  ? 'border-brand-primary bg-brand-primary/5 text-foreground'
-                  : 'border-separator bg-surface text-muted hover:text-foreground'
-              }`}
-            >
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-foreground">Sync Preferences</label>
+            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+              Scheduled on product roadmap
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 opacity-75">
+            <div className="flex items-center gap-2.5 p-2.5 rounded-xl border border-separator bg-surface text-muted cursor-not-allowed text-xs font-medium">
               <Checkbox
-                checked={config.syncDirectMessages}
-                onCheckedChange={(c) => onChange({ ...config, syncDirectMessages: c })}
-                disabled={disabled}
-                aria-label="Sync Direct Messages"
+                checked={false}
+                disabled={true}
+                aria-label="Sync Direct Messages (in development)"
               />
               <span>Sync Direct Messages (DMs)</span>
             </div>
 
-            <div
-              onClick={() => onChange({ ...config, syncStoryMentions: !config.syncStoryMentions })}
-              className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
-                config.syncStoryMentions
-                  ? 'border-brand-primary bg-brand-primary/5 text-foreground'
-                  : 'border-separator bg-surface text-muted hover:text-foreground'
-              }`}
-            >
+            <div className="flex items-center gap-2.5 p-2.5 rounded-xl border border-separator bg-surface text-muted cursor-not-allowed text-xs font-medium">
               <Checkbox
-                checked={config.syncStoryMentions}
-                onCheckedChange={(c) => onChange({ ...config, syncStoryMentions: c })}
-                disabled={disabled}
-                aria-label="Sync Story Mentions"
+                checked={false}
+                disabled={true}
+                aria-label="Sync Story Mentions (in development)"
               />
               <span>Sync Story Mentions & Shares</span>
             </div>

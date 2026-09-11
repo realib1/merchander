@@ -93,6 +93,12 @@ export function TelegramChannelCard({ config, onChange, disabled = false }: Tele
           />
           <span>Send instant Telegram alerts when new orders are placed</span>
         </div>
+
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-surface-elevated/40 border border-separator text-xs text-muted">
+          <p className="text-[11px] leading-relaxed">
+            <strong className="text-foreground">Developer Preview Note:</strong> Inbound Telegram messages currently run intent extraction through the intelligence engine. Automated order creation and outbound notification dispatch are staged for an upcoming release.
+          </p>
+        </div>
       </CardBody>
     </Card>
   );
