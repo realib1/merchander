@@ -8,4 +8,4 @@ export {
   type FormatNumberOptions,
 } from './format';
 export { escapeHtml, sanitizeInput, slugify, truncate, sanitizeNumeric, sanitizeCssColor } from './sanitize';
-export { getURL } from './url';
+export { getURL, getServerSideURL } from './url';

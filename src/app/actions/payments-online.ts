@@ -9,7 +9,7 @@ import { SubscriptionTier, BillingCycle, PaymentSettings, SubscriptionPaymentMet
 import { revalidatePath } from 'next/cache';
 import { buildStorefrontOrderPaymentUrl } from '@/utils/paymentLinks';
 import { evaluateAndProcessOutreach } from '@/lib/intelligence/outreach';
-import { decryptSecret } from '@/utils/encryption';
+import { decryptSecret, isEncrypted } from '@/utils/encryption';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
@@ -475,7 +475,7 @@ export async function initiateOrderOnlinePayment(params: {
     try {
       const email = params.customerEmail || settingsData?.store_email || 'customer@merchander.com';
       const rawSecret = providerConfig?.secretKey || process.env.PAYSTACK_SECRET_KEY;
-      const secretKey = rawSecret ? decryptSecret(rawSecret) : undefined;
+      const secretKey = rawSecret ? (isEncrypted(rawSecret) ? decryptSecret(rawSecret) : rawSecret) : undefined;
 
       const res = await initializePaystackTransaction({
         email,
