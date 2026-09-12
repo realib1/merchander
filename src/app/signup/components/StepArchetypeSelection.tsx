@@ -28,13 +28,15 @@ export function StepArchetypeSelection({
   return (
     <div className="space-y-4 animate-in fade-in">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Select your business model</h2>
-        <p className="text-sm text-muted mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
+          Select your business model
+        </h1>
+        <p className="text-xs sm:text-sm text-muted font-medium mt-1">
           Choose the model that matches how you sell. We will activate the right tools for you.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
         {archetypeKeys.map((key) => {
           const def = ARCHETYPE_DEFINITIONS[key];
           const isSelected = archetype === key;
@@ -43,15 +45,15 @@ export function StepArchetypeSelection({
             <div
               key={key}
               onClick={() => setArchetype(key)}
-              className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+              className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                 isSelected
-                  ? 'border-brand-primary bg-brand-primary/5 shadow-md shadow-brand-primary/10'
-                  : 'border-separator bg-surface-elevated/40 hover:border-separator-hover'
+                  ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary/30 shadow-xs'
+                  : 'border-separator bg-surface/50 hover:bg-surface hover:border-separator/80'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-9 h-9 rounded-xl bg-surface border border-separator flex items-center justify-center text-brand-primary shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-background border border-separator flex items-center justify-center text-brand-primary shrink-0">
                     <BusinessIcon name={def.icon} size={18} />
                   </div>
                   {def.badge && (
@@ -93,7 +95,7 @@ export function StepArchetypeSelection({
       </div>
 
       {archetype === 'custom' && (
-        <div className="mt-4 p-4 rounded-xl bg-surface-elevated/60 border border-separator">
+        <div className="mt-4 p-4 rounded-xl bg-surface/50 border border-separator">
           <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">
             Select Your Custom Modules
           </h4>
@@ -105,7 +107,7 @@ export function StepArchetypeSelection({
               return (
                 <label
                   key={modKey}
-                  className="flex items-center gap-2.5 p-2 rounded-lg bg-surface border border-separator text-xs cursor-pointer hover:bg-surface-elevated transition-colors"
+                  className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-separator text-xs cursor-pointer hover:bg-surface transition-colors"
                 >
                   <input
                     type="checkbox"

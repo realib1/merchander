@@ -107,4 +107,4 @@
   - [x] 31a. **Password Recovery & Reset Flow** - End-to-end self-service password recovery: `/forgot-password` request page, Supabase auth recovery callback handling (`/auth/callback?next=/reset-password`), `/reset-password` page with new password entry and session validation, and wiring the "Forgot password?" link on `/login`.
   - [x] 31b. **Remember Me Persistence** - Client persistence (`localStorage`) of login identifier (`email` or `phone`) across sessions, prefilling `/login` and checkbox state.
   - [x] 31c. **Signup Credential Confirmation & Validation** - Password confirmation field, real-time match validation, and terms agreement in `StepAccountCredentials` and `useSignupWizard`.
-
+- [x] 32. **Signup UI Clean Redesign (Cardless Wizard &amp; Streamlined Step Flow)** - Redesign `/signup` into a clean, cardless layout matching `/login` and `signin-signup desktop.png`: eliminate the heavy outer container card and drop-shadows across all wizard steps, streamline the step progress bar into a minimal indicator, and ensure direct background integration and smooth forward progression on the right pane.

@@ -112,16 +112,6 @@ export default async function SignupPage() {
           )}
         </div>
 
-        {/* Bottom Switch Link or subtle balance */}
-        <div className="w-full max-w-xl mx-auto pb-2 pt-4 text-xs text-muted font-medium text-center lg:text-left">
-          Already have a merchant workspace?{' '}
-          <Link
-            href="/login"
-            className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
-          >
-            Log in
-          </Link>
-        </div>
       </div>
     </main>
   );

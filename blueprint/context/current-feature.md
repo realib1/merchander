@@ -1,9 +1,6 @@
 # Current Feature
 
-> **Generated file.** Holds the one feature, fix, or rollback being built right now. Run
-> /feature <number-or-name> to spec a build-plan feature, or /fix "<bug>" for
-> an ad-hoc fix. Use /rollback <completed-feature> to plan a safe reversal.
-> Build one thing at a time; /complete archives it under
-> lueprint/history/ and resets this file.
+> **Generated file.** Do not manually edit while a feature is in progress.
+> Managed by `/feature`, `/fix`, `/rollback`, and `/complete`.
 
-_Nothing in progress. Run /feature, /fix, or /rollback to start._
+_Nothing in progress. Run `/feature`, `/fix`, or `/rollback` to start._

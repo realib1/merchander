@@ -116,6 +116,10 @@ RBAC, self-service onboarding, and deployment readiness.
     via email reset link and dedicated `/reset-password` page, remembered login
     identifier persistence across browser sessions on `/login`, and credential
     confirmation and terms agreement in the `/signup` wizard.
+32. **Signup UI Clean Redesign (Cardless Wizard & Streamlined Step Flow)** -
+    cardless, edge-to-edge layout for `/signup` matching `/login` and
+    `signin-signup desktop.png`, removing heavy container cards and drop-shadows
+    across all wizard steps with streamlined progress indicators and smooth progression.
 
 ## Data model
 

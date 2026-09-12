@@ -18,14 +18,14 @@ export function SignupWizardClient() {
     <div className="w-full max-w-xl mx-auto relative z-10">
       <SignupProgressHeader currentStep={wizard.currentStep} />
 
-      <div className="bg-surface rounded-2xl border border-separator shadow-xl p-5 sm:p-7">
-        {wizard.formError && (
-          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-2.5 animate-in fade-in">
-            <CircleAlert size={16} className="mt-0.5 shrink-0" />
-            <span>{wizard.formError}</span>
-          </div>
-        )}
+      {wizard.formError && (
+        <div className="mb-5 p-3.5 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-2.5 animate-in fade-in">
+          <CircleAlert size={18} className="mt-0.5 shrink-0" />
+          <span>{wizard.formError}</span>
+        </div>
+      )}
 
+      <div>
         {wizard.currentStep === 1 && (
           <StepAccountCredentials
             fullName={wizard.fullName}
@@ -85,11 +85,11 @@ export function SignupWizardClient() {
       </div>
 
       {wizard.currentStep > 1 && (
-        <p className="text-center text-xs text-muted mt-6">
+        <p className="text-center text-xs text-muted mt-8">
           Already have a merchant workspace?{' '}
           <Link
             href="/login"
-            className="font-semibold text-brand-primary hover:text-brand-primary-hover transition-colors"
+            className="font-semibold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
           >
             Sign in here
           </Link>
