@@ -64,3 +64,5 @@
 **Why it matters:** The exact same Next.js `<Image src="/images/404-woman.png" ... />` element is declared twice in the JSX—once wrapped in `md:hidden` and once in `hidden md:flex`. Both elements are rendered into the initial HTML DOM tree simultaneously, creating redundant DOM nodes.
 **Suggested fix:** Refactor the container layout using responsive grid or flex order classes (e.g. `order-first lg:order-last` or CSS grid placement) so that a single `<Image>` element serves both mobile and desktop screen sizes.
 **Resolution:** Unified the illustration container into a single responsive `<Image>` element with `priority`, explicit `sizes` attribute, and responsive grid layout.
+
+

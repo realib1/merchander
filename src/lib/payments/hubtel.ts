@@ -1,3 +1,4 @@
+import { getURL } from '@/utils/url';
 import crypto from 'crypto';
 
 export interface HubtelPromptParams {
@@ -93,7 +94,7 @@ export async function requestHubtelMobileMoneyPrompt(params: HubtelPromptParams)
     CustomerEmail: '',
     Channel: 'mobilemoney',
     Amount: params.amount,
-    PrimaryCallbackUrl: params.callbackUrl || `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/webhooks/hubtel`,
+    PrimaryCallbackUrl: params.callbackUrl || `${getURL()}/api/webhooks/hubtel`,
     Description: params.description,
     ClientReference: params.clientReference,
   };

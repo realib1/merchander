@@ -1,3 +1,4 @@
+import { getURL } from '@/utils/url';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import { normalizeGhanaPhone } from '@/utils/phone';
@@ -301,7 +302,7 @@ export async function captureDraftOrderFromCart(
   const orderNumber = (order as { short_id?: string }).short_id || `ORD-${order.id.slice(0, 6).toUpperCase()}`;
 
   const paymentUrl = buildStorefrontOrderPaymentUrl({
-    baseUrl: process.env.NEXT_PUBLIC_APP_URL,
+    baseUrl: getURL(),
     storeSlug,
     orderShortIdOrId: orderNumber,
   });

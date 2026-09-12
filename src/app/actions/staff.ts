@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import { getURL } from '@/utils/url';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
@@ -119,7 +120,7 @@ export async function inviteStaffMember(formData: FormData) {
   }
 
   // 2. Invite user via Supabase Auth Admin
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = getURL();
   const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
     data: { full_name, name: full_name },
     redirectTo: `${appUrl}/auth/callback?next=/dashboard`,

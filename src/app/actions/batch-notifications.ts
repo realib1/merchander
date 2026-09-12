@@ -1,5 +1,6 @@
 'use server';
 
+import { getURL } from '@/utils/url';
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import {
@@ -60,7 +61,7 @@ export async function getBatchBroadcastRecipientsAction(
       return { recipients: [] };
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    const appUrl = getURL();
 
     const recipients = orders
       .map((o) => {

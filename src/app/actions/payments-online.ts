@@ -1,5 +1,6 @@
 'use server';
 
+import { getURL } from '@/utils/url';
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { initializePaystackTransaction, verifyPaystackTransaction, pesewasToGhs } from '@/lib/payments/paystack';
@@ -75,7 +76,7 @@ export async function initiateSubscriptionUpgradePayment(
     const reference = `sub_${tenantId.slice(0, 8)}_${tier}_${Date.now()}`;
     const redirectUrl =
       callbackUrl ||
-      `${process.env.NEXT_PUBLIC_APP_URL || ''}/dashboard/settings/subscription?status=verified&ref=${reference}`;
+      `${getURL()}/dashboard/settings/subscription?status=verified&ref=${reference}`;
 
     const res = await initializePaystackTransaction({
       email: user.email || 'billing@merchander.com',
@@ -136,7 +137,7 @@ export async function initiateBillingMethodSetup(params: {
   const reference = `setup_${tenantId.slice(0, 8)}_${params.methodType}_${Date.now()}`;
   const redirectUrl =
     params.callbackUrl ||
-    `${process.env.NEXT_PUBLIC_APP_URL || ''}/dashboard/settings/subscription?status=verified&type=setup&ref=${reference}`;
+    `${getURL()}/dashboard/settings/subscription?status=verified&type=setup&ref=${reference}`;
 
   // 1. Hubtel Direct MoMo USSD Prompt flow
   if (params.provider === 'hubtel' && (params.methodType === 'mtn_momo' || params.methodType === 'telecel_cash')) {
@@ -150,7 +151,7 @@ export async function initiateBillingMethodSetup(params: {
         amount: 1, // 1 GHS verification token auth
         clientReference: reference,
         description: 'Merchander SaaS Billing Verification',
-        callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/webhooks/hubtel`,
+        callbackUrl: `${getURL()}/api/webhooks/hubtel`,
       });
 
       return {
@@ -742,7 +743,7 @@ export async function getOrderPaymentLinkAction(orderId: string) {
 
     const orderNumber = order.short_id || order.id.slice(0, 8).toUpperCase();
     const paymentUrl = buildStorefrontOrderPaymentUrl({
-      baseUrl: process.env.NEXT_PUBLIC_APP_URL,
+      baseUrl: getURL(),
       storeSlug,
       orderShortIdOrId: orderNumber,
     });
@@ -828,7 +829,7 @@ export async function sendOrderPaymentReminderAction(params: {
 
     const orderNumber = order.short_id || order.id.slice(0, 8).toUpperCase();
     const paymentUrl = buildStorefrontOrderPaymentUrl({
-      baseUrl: process.env.NEXT_PUBLIC_APP_URL,
+      baseUrl: getURL(),
       storeSlug,
       orderShortIdOrId: orderNumber,
     });

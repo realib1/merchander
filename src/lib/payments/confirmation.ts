@@ -1,3 +1,4 @@
+import { getURL } from '@/utils/url';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import { normalizeGhanaPhone } from '@/utils/phone';
@@ -86,7 +87,7 @@ export async function dispatchPaymentConfirmationReceipt(
       // Fall back to default storeSlug
     }
 
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/+$/, '');
+    const appUrl = getURL();
     const trackingUrl = appUrl ? `${appUrl}/store/${storeSlug}/orders/${orderNumber}` : undefined;
 
     // 4. Format payment confirmation receipt message

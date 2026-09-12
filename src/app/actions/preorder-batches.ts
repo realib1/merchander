@@ -1,5 +1,6 @@
 'use server';
 
+import { getURL } from '@/utils/url';
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import {
@@ -334,7 +335,7 @@ export async function getBatchCustomerBroadcastList(batchId: string): Promise<Ba
       customerName: o.customer_name || 'Customer',
       customerPhone: o.customer_phone || '',
       itemsSummary: `Pre-Order #${shortId}`,
-      trackingUrl: `${process.env.NEXT_PUBLIC_APP_URL || ''}/store/${tenantSlug}/orders/${shortId}`,
+      trackingUrl: `${getURL()}/store/${tenantSlug}/orders/${shortId}`,
     };
   });
 }

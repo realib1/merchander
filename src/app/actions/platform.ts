@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getURL } from '@/utils/url';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import {
@@ -1142,7 +1143,7 @@ export async function createMerchanderAction(
     revalidatePath('/platform');
     revalidatePath('/platform/merchants');
 
-    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://merchander.app';
+    const appBaseUrl = getURL();
     const portalUrl = `${appBaseUrl}/login`;
     const subdomainUrl = `https://${normalizedSlug}.merchander.app`;
 

@@ -2,6 +2,7 @@
  * Pure utilities for generating customer-facing payment links,
  * WhatsApp payment requests, payment confirmation receipts, and reminders.
  */
+import { getURL } from '@/utils/url';
 
 export interface StorefrontPaymentUrlParams {
   baseUrl?: string;
@@ -15,7 +16,7 @@ export interface StorefrontPaymentUrlParams {
  * Builds the public storefront order tracking & payment checkout URL.
  */
 export function buildStorefrontOrderPaymentUrl(params: StorefrontPaymentUrlParams): string {
-  const base = (params.baseUrl || process.env.NEXT_PUBLIC_APP_URL || '').trim().replace(/\/+$/, '');
+  const base = (params.baseUrl || getURL() || '').trim().replace(/\/+$/, '');
   const cleanSlug = encodeURIComponent(params.storeSlug.trim());
   const cleanOrderId = encodeURIComponent(params.orderShortIdOrId.trim());
 

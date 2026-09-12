@@ -1,5 +1,6 @@
 'use server';
 
+import { getURL } from '@/utils/url';
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { evaluateAndProcessOutreach, OutreachEvaluationResult } from '@/lib/intelligence/outreach';
@@ -171,7 +172,7 @@ export async function broadcastBatchMilestoneAction(params: {
 
     const storeName = tenantSettings?.store_name || undefined;
     const tenantSlug = tenantSettings?.slug || 'store';
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    const appUrl = getURL();
 
     let expectedArrival: string | undefined;
     if (batch.expected_arrival_start && batch.expected_arrival_end) {
@@ -298,7 +299,7 @@ export async function notifyBackInStockAction(params: {
     const storeName = tenantSettings?.store_name || undefined;
     const storeCurrency = tenantSettings?.store_currency || 'GHS';
     const tenantSlug = tenantSettings?.slug || 'store';
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    const appUrl = getURL();
     const productData = variant.product as unknown as { id: string; name: string } | null;
     const productName = productData?.name || 'Item';
     const storeUrl = productData ? `${appUrl}/store/${tenantSlug}/products/${productData.id}` : undefined;
@@ -414,7 +415,7 @@ export async function sendOrderDeliveryUpdateAction(params: {
 
     const storeName = tenantSettings?.store_name || undefined;
     const tenantSlug = tenantSettings?.slug || 'store';
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    const appUrl = getURL();
     const shortId = (order.order_number || order.id.slice(0, 8)).toUpperCase();
     const trackingUrl = `${appUrl}/store/${tenantSlug}/orders/${shortId}`;
 
