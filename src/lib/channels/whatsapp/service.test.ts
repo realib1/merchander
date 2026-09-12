@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   parseCredentials,
   getTenantByWhatsAppPhoneId,
@@ -9,10 +8,13 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 
 // Mock ./api methods
-vi.mock('./api', () => ({
-  sendWhatsAppTextMessage: vi.fn(),
-  sendWhatsAppTemplateMessage: vi.fn(),
-}));
+vi.mock('./api', () => {
+  console.log('MOCK FACTORY EXECUTED!');
+  return {
+    sendWhatsAppTextMessage: vi.fn(),
+    sendWhatsAppTemplateMessage: vi.fn(),
+  };
+});
 
 import { sendWhatsAppTextMessage, sendWhatsAppTemplateMessage } from './api';
 

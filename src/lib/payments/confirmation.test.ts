@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import { dispatchPaymentConfirmationReceipt } from './confirmation';

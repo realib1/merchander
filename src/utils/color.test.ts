@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { isValidHex, normalizeHex, getContrastTextColor } from './color';
 
 describe('color utils', () => {

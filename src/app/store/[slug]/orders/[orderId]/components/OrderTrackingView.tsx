@@ -174,6 +174,7 @@ export function OrderTrackingView({
               primaryColor={primaryColor}
               slug={slug}
               token={token}
+              config={config}
               onOrderUpdated={(updatedOrder) => setOrder(updatedOrder)}
             />
 

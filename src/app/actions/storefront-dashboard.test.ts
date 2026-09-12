@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { getStorefrontOverview, updateFeaturedProductIds } from './storefront-dashboard';
 
 vi.mock('@/lib/supabase/server', () => ({

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 
 describe('Help & Support Utility Logic', () => {
   it('formats WhatsApp support messages with store context properly', () => {

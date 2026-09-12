@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { escapeHtml, sanitizeInput, slugify } from './sanitize';
 import { normalizeGhanaPhone, formatGhanaLocalDisplay } from './phone';
 import { generateStoreSlug, calculateCartTotals, formatWhatsAppOrderMessage } from './storefront';

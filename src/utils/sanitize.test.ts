@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { escapeHtml, sanitizeInput, slugify, truncate, sanitizeNumeric } from './sanitize';
 
 describe('escapeHtml', () => {

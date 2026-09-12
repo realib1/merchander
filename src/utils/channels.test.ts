@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { ChannelSettings } from '@/types/settings';
 
 describe('ChannelSettings Contract', () => {

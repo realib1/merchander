@@ -35,6 +35,15 @@ export interface StorefrontConfig {
   banner_tagline?: string | null;
   banner_cta_text?: string | null;
   accepted_payment_methods?: AcceptedPaymentMethod[];
+  p2p_accounts?: Array<{
+    id: string;
+    type: string;
+    providerName: string;
+    accountNumber: string;
+    accountName: string;
+    shortcode?: string;
+  }>;
+  payment_instructions?: string | null;
   created_at?: string;
   updated_at?: string;
 }

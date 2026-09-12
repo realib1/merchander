@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { NextRequest } from 'next/server';
 import { POST } from './route';
 
@@ -39,6 +39,12 @@ vi.mock('@/lib/supabase/admin', () => ({
 
 vi.mock('@/lib/payments/hubtel', () => ({
   validateHubtelAuth: vi.fn((authHeader: string | null) => authHeader === 'Basic valid-auth'),
+  checkHubtelTransactionStatus: vi.fn().mockImplementation((ref: string) => {
+    return Promise.resolve({
+      responseCode: '0000',
+      data: { amount: ref.includes('PARTIAL') ? 150.0 : 250.0 }
+    });
+  }),
 }));
 
 vi.mock('@/lib/payments/confirmation', () => ({

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import type { Mock } from 'vitest';
 import { sendWhatsAppTextMessage, sendWhatsAppTemplateMessage, WhatsAppAPIError } from './api';
 
 describe('WhatsApp Graph API Client', () => {

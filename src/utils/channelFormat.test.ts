@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { formatChannelName } from './channelFormat';
 
 describe('formatChannelName', () => {

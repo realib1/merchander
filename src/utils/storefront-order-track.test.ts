@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { normalizeGhanaPhone, formatGhanaLocalDisplay } from '@/utils/phone';
 
 describe('Storefront Phone-Centric Identity & Order Tracking', () => {

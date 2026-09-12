@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { validateHubtelAuth } from '@/lib/payments/hubtel';
+import { validateHubtelAuth, checkHubtelTransactionStatus } from '@/lib/payments/hubtel';
 import { dispatchPaymentConfirmationReceipt } from '@/lib/payments/confirmation';
 import { decryptSecret, isEncrypted } from '@/utils/encryption';
 import { PaymentSettings } from '@/types/settings';
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     const supabase = createAdminClient();
 
     let matchedOrder = null;
+    let tenantCreds: { clientId?: string; clientSecret?: string } = {};
 
     if (clientReference && typeof clientReference === 'string' && clientReference.startsWith('ord_')) {
       const orderShortId = clientReference.split('_')[1];
@@ -70,10 +71,10 @@ export async function POST(req: NextRequest) {
         }
         matchedOrder = data;
 
-        if (!isAuthorized && matchedOrder?.tenant_id) {
-          const creds = await resolveHubtelCredentials(matchedOrder.tenant_id);
-          if (creds.clientId && creds.clientSecret) {
-            isAuthorized = validateHubtelAuth(authHeader, creds.clientId, creds.clientSecret);
+        if (matchedOrder?.tenant_id) {
+          tenantCreds = await resolveHubtelCredentials(matchedOrder.tenant_id);
+          if (!isAuthorized && tenantCreds.clientId && tenantCreds.clientSecret) {
+            isAuthorized = validateHubtelAuth(authHeader, tenantCreds.clientId, tenantCreds.clientSecret);
           }
         }
       }
@@ -99,6 +100,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No order matches this client reference' }, { status: 404 });
     }
 
+    // SERVER-TO-SERVER VERIFICATION
+    let verifiedAmount = amount;
+    try {
+      const verification = await checkHubtelTransactionStatus(
+        clientReference, 
+        tenantCreds.clientId, 
+        tenantCreds.clientSecret
+      );
+      if (verification.responseCode !== '0000') {
+        console.warn('Hubtel webhook: server verification failed', verification);
+        return NextResponse.json({ error: 'Server verification failed' }, { status: 400 });
+      }
+      if (verification.data && verification.data.amount) {
+        verifiedAmount = Number(verification.data.amount);
+      }
+    } catch (verifyErr) {
+      console.error('Hubtel webhook: server-to-server verification error', verifyErr);
+      return NextResponse.json({ error: 'Failed to verify transaction status' }, { status: 500 });
+    }
+
     const paymentRef = transactionId || clientReference;
 
     const { data: existingPayment, error: existingErr } = await supabase
@@ -122,9 +143,9 @@ export async function POST(req: NextRequest) {
       order_id: matchedOrder.id,
       provider: 'hubtel',
       transaction_ref: paymentRef,
-      amount: amount,
+      amount: verifiedAmount,
       fee: 0,
-      net_amount: amount,
+      net_amount: verifiedAmount,
       status: 'completed',
       sender_phone: data?.CustomerMsisdn || null,
       notes: 'Hubtel Mobile Money payment confirmed.',
@@ -136,7 +157,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to record payment' }, { status: 500 });
     }
 
-    if (amount >= matchedOrder.total_amount) {
+    if (verifiedAmount >= matchedOrder.total_amount) {
       const { error: statusErr } = await supabase
         .from('orders')
         .update({
@@ -151,7 +172,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
       }
     } else {
-      console.warn(`Hubtel webhook: partial payment received (${amount} < ${matchedOrder.total_amount}). Status not updated.`);
+      console.warn(`Hubtel webhook: partial payment received (${verifiedAmount} < ${matchedOrder.total_amount}). Status not updated.`);
     }
 
     // Dispatch automated WhatsApp payment confirmation receipt
@@ -159,7 +180,7 @@ export async function POST(req: NextRequest) {
       supabase,
       tenantId: matchedOrder.tenant_id,
       orderId: matchedOrder.id,
-      amount,
+      amount: verifiedAmount,
       provider: 'hubtel',
       transactionRef: paymentRef,
       customerPhone: data?.CustomerMsisdn || null,

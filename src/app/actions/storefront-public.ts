@@ -198,6 +198,8 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
     }
 
     config.accepted_payment_methods = acceptedMethods;
+    config.p2p_accounts = p2pAccounts as NonNullable<import('@/types/storefront').StorefrontConfig['p2p_accounts']>;
+    config.payment_instructions = (paymentSettings.paymentInstructions as string) || null;
 
     const rawCategories = categoriesRes.data || [];
     const rawProducts = productsRes.data || [];

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { extractInitials, formatVariantCode, generateProductSku } from './sku';
 
 describe('SKU Generator Utility', () => {

@@ -82,6 +82,7 @@ export async function initiateSubscriptionUpgradePayment(
       amountInGhs: amount,
       reference,
       callbackUrl: redirectUrl,
+      secretKey: process.env.PAYSTACK_SECRET_KEY,
       metadata: {
         type: 'saas_subscription',
         tenantId,
@@ -171,6 +172,7 @@ export async function initiateBillingMethodSetup(params: {
       amountInGhs: 1, // 1 GHS tokenization charge (refundable/auth token)
       reference,
       callbackUrl: redirectUrl,
+      secretKey: process.env.PAYSTACK_SECRET_KEY,
       metadata: {
         type: 'setup_billing_method',
         tenantId,
@@ -253,7 +255,7 @@ export async function verifyBillingMethodStatus(reference: string, provider: 'pa
     }
 
     // Paystack verification
-    const verifyRes = await verifyPaystackTransaction(reference);
+    const verifyRes = await verifyPaystackTransaction(reference, process.env.PAYSTACK_SECRET_KEY);
     if (verifyRes.status && verifyRes.data?.status === 'success') {
       const auth = verifyRes.data.authorization;
       const meta = verifyRes.data.metadata as Record<string, unknown> | undefined;
@@ -336,7 +338,7 @@ export async function verifyAndApplySubscriptionPayment(reference: string) {
 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
-    const verifyRes = await verifyPaystackTransaction(reference);
+    const verifyRes = await verifyPaystackTransaction(reference, process.env.PAYSTACK_SECRET_KEY);
 
     if (verifyRes.status && verifyRes.data?.status === 'success') {
       const data = verifyRes.data;

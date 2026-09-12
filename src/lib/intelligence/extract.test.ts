@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { extractCartFromChat, EMPTY_CART_FALLBACK } from './extract';
 import { NormalizedMessage } from '@/types/messaging';
 

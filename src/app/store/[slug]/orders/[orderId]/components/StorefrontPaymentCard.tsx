@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CheckCircle2, CreditCard, Smartphone, Loader2, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
-import { StorefrontTrackingOrder } from '@/types/storefront';
+import { StorefrontTrackingOrder, StorefrontConfig } from '@/types/storefront';
 import { formatCurrency } from '@/utils/format';
 import { initiateOrderOnlinePayment } from '@/app/actions/payments-online';
 import { getStorefrontOrderTracking } from '@/app/actions/storefront-tracking';
@@ -13,6 +13,7 @@ interface StorefrontPaymentCardProps {
   primaryColor: string;
   slug: string;
   token?: string;
+  config?: StorefrontConfig;
   onOrderUpdated?: (order: StorefrontTrackingOrder) => void;
 }
 
@@ -22,9 +23,10 @@ export function StorefrontPaymentCard({
   primaryColor,
   slug,
   token,
+  config,
   onOrderUpdated,
 }: StorefrontPaymentCardProps) {
-  const [providerTab, setProviderTab] = useState<'momo' | 'card'>('momo');
+  const [providerTab, setProviderTab] = useState<'momo' | 'card' | 'manual'>('momo');
   const [phone, setPhone] = useState(order.customerPhone || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -167,21 +169,21 @@ export function StorefrontPaymentCard({
       </div>
 
       {/* Payment Provider Selector */}
-      <div className="grid grid-cols-2 gap-2 p-1 bg-surface rounded-2xl border border-separator/60">
+      <div className={`grid gap-2 p-1 bg-surface rounded-2xl border border-separator/60 ${config?.p2p_accounts?.length ? 'grid-cols-3' : 'grid-cols-2'}`}>
         <button
           type="button"
           onClick={() => {
             setProviderTab('momo');
             setError(null);
           }}
-          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer ${
             providerTab === 'momo'
               ? 'bg-surface-elevated text-foreground shadow-2xs border border-separator'
               : 'text-muted hover:text-foreground'
           }`}
         >
-          <Smartphone size={15} />
-          <span>Mobile Money Prompt</span>
+          <Smartphone size={15} className="shrink-0" />
+          <span className="text-center leading-tight">MoMo Prompt</span>
         </button>
 
         <button
@@ -190,15 +192,33 @@ export function StorefrontPaymentCard({
             setProviderTab('card');
             setError(null);
           }}
-          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer ${
             providerTab === 'card'
               ? 'bg-surface-elevated text-foreground shadow-2xs border border-separator'
               : 'text-muted hover:text-foreground'
           }`}
         >
-          <CreditCard size={15} />
-          <span>Card / Paystack</span>
+          <CreditCard size={15} className="shrink-0" />
+          <span className="text-center leading-tight">Online / Card</span>
         </button>
+
+        {config?.p2p_accounts && config.p2p_accounts.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setProviderTab('manual');
+              setError(null);
+            }}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer ${
+              providerTab === 'manual'
+                ? 'bg-surface-elevated text-foreground shadow-2xs border border-separator'
+                : 'text-muted hover:text-foreground'
+            }`}
+          >
+            <ExternalLink size={15} className="shrink-0" />
+            <span className="text-center leading-tight">Direct Transfer</span>
+          </button>
+        )}
       </div>
 
       {error && (
@@ -230,6 +250,37 @@ export function StorefrontPaymentCard({
               <span>I Have Approved Payment</span>
             </button>
           </div>
+        </div>
+      ) : providerTab === 'manual' && config?.p2p_accounts ? (
+        <div className="space-y-4">
+          <div className="p-4 bg-surface rounded-2xl border border-separator/60 space-y-4">
+            <div className="space-y-2">
+              {config.p2p_accounts.map((acc) => (
+                <div key={acc.id} className="p-3 bg-surface-elevated rounded-xl border border-separator/40 text-xs text-foreground">
+                  <p className="font-bold">{acc.providerName}</p>
+                  <p className="font-mono text-sm mt-1">{acc.accountNumber} <span className="text-muted font-sans">- {acc.accountName}</span></p>
+                  {acc.shortcode && <p className="mt-1 text-amber-500 font-mono font-medium">USSD: {acc.shortcode}</p>}
+                </div>
+              ))}
+            </div>
+
+            {config?.payment_instructions && (
+              <div className="text-xs text-muted mt-2 whitespace-pre-wrap leading-relaxed">
+                {config.payment_instructions}
+              </div>
+            )}
+          </div>
+          
+          <button
+            type="button"
+            onClick={handleRefreshStatus}
+            disabled={isChecking}
+            className="w-full py-3.5 px-4 rounded-2xl text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+            style={{ backgroundColor: primaryColor }}
+          >
+            {isChecking ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+            <span>I Have Sent The Money</span>
+          </button>
         </div>
       ) : (
         <form onSubmit={handleInitiatePayment} className="space-y-4">

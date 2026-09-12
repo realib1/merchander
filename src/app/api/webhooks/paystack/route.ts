@@ -68,11 +68,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Malformed JSON body' }, { status: 400 });
     }
     const preMetadata = parsedPayload.data?.metadata;
-    const tenantSecret = await resolvePaystackSecret(preMetadata?.tenantId as string | undefined);
+    let resolvedSecretToVerify: string | undefined = undefined;
 
-    const isValid = tenantSecret
-      ? validatePaystackSignature(rawBody, signature, tenantSecret)
-      : validatePaystackSignature(rawBody, signature);
+    if (preMetadata?.type === 'saas_subscription' || preMetadata?.type === 'setup_billing_method') {
+      resolvedSecretToVerify = process.env.PAYSTACK_SECRET_KEY;
+    } else {
+      resolvedSecretToVerify = await resolvePaystackSecret(preMetadata?.tenantId as string | undefined);
+    }
+
+    const isValid = validatePaystackSignature(rawBody, signature, resolvedSecretToVerify);
     if (!isValid) {
       console.warn('Paystack webhook signature verification failed');
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 });

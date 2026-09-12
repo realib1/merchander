@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { PaymentSettings } from '@/types/settings';
 
 describe('PaymentSettings data contract', () => {

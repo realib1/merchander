@@ -78,11 +78,10 @@ export function pesewasToGhs(amountInPesewas: number): number {
  * Cryptographically validates the Paystack HMAC SHA-512 signature using constant-time equality check
  */
 export function validatePaystackSignature(payloadString: string, signature: string, secretKey?: string): boolean {
-  const key = secretKey || process.env.PAYSTACK_SECRET_KEY;
-  if (!key || !signature) return false;
+  if (!secretKey || !signature) return false;
 
   try {
-    const hash = crypto.createHmac('sha512', key).update(payloadString).digest('hex');
+    const hash = crypto.createHmac('sha512', secretKey).update(payloadString).digest('hex');
     const signatureBuffer = Buffer.from(signature, 'hex');
     const hashBuffer = Buffer.from(hash, 'hex');
 
@@ -101,9 +100,8 @@ export function validatePaystackSignature(payloadString: string, signature: stri
  * Initializes a live Paystack transaction (Checkout URL & Reference)
  */
 export async function initializePaystackTransaction(params: PaystackInitParams): Promise<PaystackInitResponse> {
-  const secretKey = params.secretKey || process.env.PAYSTACK_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error('Paystack secret key is not configured.');
+  if (!params.secretKey) {
+    throw new Error('Paystack secret key is not configured for this transaction.');
   }
 
   const reference = params.reference || `pst_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -122,7 +120,7 @@ export async function initializePaystackTransaction(params: PaystackInitParams):
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${secretKey}`,
+      Authorization: `Bearer ${params.secretKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
@@ -137,11 +135,10 @@ export async function initializePaystackTransaction(params: PaystackInitParams):
  */
 export async function verifyPaystackTransaction(
   reference: string,
-  customSecretKey?: string
+  secretKey?: string
 ): Promise<PaystackVerifyResponse> {
-  const secretKey = customSecretKey || process.env.PAYSTACK_SECRET_KEY;
   if (!secretKey) {
-    throw new Error('Paystack secret key is not configured.');
+    throw new Error('Paystack secret key is not configured for this transaction.');
   }
 
   const res = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {

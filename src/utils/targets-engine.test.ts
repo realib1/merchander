@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+
 import { calculateTargetProgress, generateTargetsIntelligenceSummary, sortTargetsByPriority } from './targets-engine';
 import { BusinessTarget } from '@/types/targets';
 import { addDays, subDays } from 'date-fns';

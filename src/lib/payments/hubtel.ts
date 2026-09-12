@@ -56,13 +56,10 @@ export function validateHubtelAuth(
   expectedClientId?: string,
   expectedClientSecret?: string
 ): boolean {
-  const clientId = expectedClientId || process.env.HUBTEL_CLIENT_ID;
-  const clientSecret = expectedClientSecret || process.env.HUBTEL_CLIENT_SECRET;
-
-  if (!authHeader || !clientId || !clientSecret) return false;
+  if (!authHeader || !expectedClientId || !expectedClientSecret) return false;
 
   try {
-    const expected = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const expected = 'Basic ' + Buffer.from(`${expectedClientId}:${expectedClientSecret}`).toString('base64');
     const received = Buffer.from(authHeader);
     const expectedBuffer = Buffer.from(expected);
 
@@ -79,12 +76,12 @@ export function validateHubtelAuth(
  * Requests a direct USSD Prompt on the buyer's Mobile Money phone via Hubtel Direct Debit API
  */
 export async function requestHubtelMobileMoneyPrompt(params: HubtelPromptParams): Promise<HubtelPromptResponse> {
-  const clientId = params.clientId || process.env.HUBTEL_CLIENT_ID;
-  const clientSecret = params.clientSecret || process.env.HUBTEL_CLIENT_SECRET;
-  const merchantAccount = params.merchantAccountOrPosId || process.env.HUBTEL_MERCHANT_ACCOUNT_NUMBER;
+  const clientId = params.clientId;
+  const clientSecret = params.clientSecret;
+  const merchantAccount = params.merchantAccountOrPosId;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Hubtel API credentials (Client ID / Secret) are not configured.');
+    throw new Error('Hubtel API credentials (Client ID / Secret) are not configured for this tenant.');
   }
 
   const normalizedPhone = formatPhoneForHubtel(params.customerPhone);
@@ -126,11 +123,11 @@ export async function checkHubtelTransactionStatus(
   customClientId?: string,
   customClientSecret?: string
 ): Promise<HubtelStatusResponse> {
-  const clientId = customClientId || process.env.HUBTEL_CLIENT_ID;
-  const clientSecret = customClientSecret || process.env.HUBTEL_CLIENT_SECRET;
+  const clientId = customClientId;
+  const clientSecret = customClientSecret;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Hubtel API credentials are not configured.');
+    throw new Error('Hubtel API credentials are not configured for this tenant.');
   }
 
   const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');

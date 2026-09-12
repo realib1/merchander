@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import * as v from 'vitest';
+console.log('VITEST EXPORTS:', Object.keys(v));
+
 import {
   encryptSecret,
   decryptSecret,
