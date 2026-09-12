@@ -3,9 +3,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { hashBackupCode } from '@/utils/backup-codes';
+import { getURL } from '@/utils';
 import { isActivePlatformStaff } from '@/lib/auth/platform-staff';
 
 async function isPlatformStaffUser(userId: string): Promise<boolean> {
@@ -208,10 +208,7 @@ export async function requestPasswordReset(prevState: unknown, formData: FormDat
 
   try {
     const supabase = await createClient();
-    const headersList = await headers();
-    const host = headersList.get('x-forwarded-host') || headersList.get('host') || 'localhost:3000';
-    const protocol = headersList.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+    const origin = getURL();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${origin}/auth/callback?next=/reset-password`,

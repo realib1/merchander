@@ -7,36 +7,6 @@
 > finding is `open` or `fixed`, then archives resolved findings with the work
 > and resets this file.
 
-### F-01 [P0] open - Entire test suite crashes before running any tests
-
-**File:** `vitest.config.ts` (root) / all 84 test files
-**Found:** 2026-09-12 by /audit (scope: path `src/app/api/webhooks`, `src/lib/payments`, `src/app/actions/payments-online`; lens: security, quality, tests)
-**Why it matters:** `yarn test` exits with code 1 and runs zero tests. Every test file fails immediately with `TypeError: Cannot read properties of undefined (reading 'config')`. The test gate is declared ON in `AGENTS.md`; a suite that cannot run offers no safety net. The previous commit (Feature 32) passed Husky pre-commit, which only runs lint + tsc, not tests — so this regression went undetected.
-**Suggested fix:** Investigate the Vitest worker startup error. The warning `ESM syntax in a file loaded as CommonJS (vitest.config.ts:2:1)` suggests the root cause: `vitest.config.ts` uses ESM `import` syntax but the package does not declare `"type": "module"`. Add `"type": "module"` to `package.json` or rename `vitest.config.ts` → `vitest.config.mts`; then re-run `yarn test` to verify all 84 suites pass.
-**Resolution:**
-
----
-
-### F-02 [P1] open - Hubtel webhook authorizes before signature verification completes
-
-**File:** `src/app/api/webhooks/hubtel/route.ts:44-84`
-**Found:** 2026-09-12 by /audit (scope: path `src/app/api/webhooks/hubtel`; lens: security)
-**Why it matters:** `isAuthorized` is set at line 44 (global env Basic Auth check) _before_ the order is resolved. If the global env credentials are set and match, the request passes even if it came from a different tenant's Hubtel account. Per-tenant credential validation (lines 73-78) only runs when the global check already failed. A merchant with valid global-env credentials could send a spoofed Hubtel callback for another tenant's order and have it processed — the idempotency check guards payment duplication but not cross-tenant data writes.
-**Suggested fix:** Invert the auth order: always attempt per-tenant credential validation first when a `clientReference` starting with `ord_` is present; fall back to global env only for the SaaS billing webhook path (which does not use order references). If neither succeeds, return 401 before processing.
-**Resolution:**
-
----
-
-### F-03 [P1] open - Paystack webhook signature is verified against client-supplied tenantId
-
-**File:** `src/app/api/webhooks/paystack/route.ts:70-79`
-**Found:** 2026-09-12 by /audit (scope: path `src/app/api/webhooks/paystack`; lens: security)
-**Why it matters:** The `tenantId` used to resolve the per-tenant secret key (line 71) comes from `parsedPayload.data?.metadata`, which is part of the unverified JSON body. An attacker who knows any tenant's `tenantId` can embed it in a forged webhook to cause the server to load that tenant's secret key and attempt HMAC verification against a crafted payload. If they also know the secret key (e.g. via a leaked tenant setting), they can forge a valid signature. More practically, supplying a `tenantId` that has no stored key forces fallback to the global env key, widening the attack surface.
-**Suggested fix:** Perform the initial signature check against the global env key only. If that fails, attempt per-tenant key resolution and re-verify. Reject the request if both checks fail. Never use the unauthenticated `tenantId` from the body to select the verification key on the first pass.
-**Resolution:**
-
----
-
 ### F-04 [P2] open - Hubtel amount is taken directly from the webhook payload without independent verification
 
 **File:** `src/app/api/webhooks/hubtel/route.ts:52,120-132`
@@ -94,5 +64,3 @@
 **Why it matters:** The exact same Next.js `<Image src="/images/404-woman.png" ... />` element is declared twice in the JSX—once wrapped in `md:hidden` and once in `hidden md:flex`. Both elements are rendered into the initial HTML DOM tree simultaneously, creating redundant DOM nodes.
 **Suggested fix:** Refactor the container layout using responsive grid or flex order classes (e.g. `order-first lg:order-last` or CSS grid placement) so that a single `<Image>` element serves both mobile and desktop screen sizes.
 **Resolution:** Unified the illustration container into a single responsive `<Image>` element with `priority`, explicit `sizes` attribute, and responsive grid layout.
-
-
