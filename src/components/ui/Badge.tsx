@@ -15,30 +15,30 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const VARIANT_STYLES: Record<BadgeVariant, { container: string; dot: string }> = {
   default: {
-    container: 'bg-surface-elevated text-primary border border-separator',
+    container: 'bg-surface-elevated text-primary',
     dot: 'bg-text-secondary',
   },
   success: {
-    container: 'bg-brand-secondary/15 text-brand-secondary border border-brand-secondary/30',
-    dot: 'bg-brand-secondary',
+    container: 'bg-success/15 text-success',
+    dot: 'bg-success',
   },
   warning: {
-    container: 'bg-warning/15 text-warning border border-warning/30',
+    container: 'bg-warning/15 text-warning',
     dot: 'bg-warning',
   },
   destructive: {
-    container: 'bg-destructive/15 text-destructive border border-destructive/30',
+    container: 'bg-destructive/15 text-destructive',
     dot: 'bg-destructive',
   },
   info: {
-    container: 'bg-info/15 text-info border border-info/30',
+    container: 'bg-info/15 text-info',
     dot: 'bg-info',
   },
 };
 
 const SIZE_STYLES: Record<BadgeSize, string> = {
-  sm: 'px-2 py-0.5 text-caption gap-1 rounded-sm',
-  md: 'px-2.5 py-1 text-xs gap-1.5 rounded-md',
+  sm: 'px-2 py-0.5 text-caption gap-1 rounded-full',
+  md: 'px-2.5 py-1 text-xs gap-1.5 rounded-full',
 };
 
 /**

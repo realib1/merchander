@@ -1,16 +1,16 @@
-import json
 import logging
 import re
-from typing import Optional, List, Dict, Any
+from typing import Any
+
 import httpx
 
 from app.config import settings
 from app.schemas import (
-    NormalizedMessage,
-    CustomerOrderSummary,
-    ReplyResponse,
-    BusinessGroundingContext,
     AiAgentConfig,
+    BusinessGroundingContext,
+    CustomerOrderSummary,
+    NormalizedMessage,
+    ReplyResponse,
 )
 from app.services.catalog import TenantCatalogContext
 from app.services.extractor import call_gemini_llm
@@ -18,10 +18,25 @@ from app.services.extractor import call_gemini_llm
 logger = logging.getLogger(__name__)
 
 
+def _redact_delivery_address(address: str | None) -> str:
+    """Reduce exact customer delivery locations to a privacy-safe area label before model grounding or outbound messaging."""
+    if not address or not str(address).strip():
+        return "Address redacted"
+
+    normalized = str(address).strip()
+    parts = [part.strip() for part in re.split(r"[,/\n]", normalized) if part.strip()]
+    if len(parts) >= 2:
+        area = parts[-1]
+        if area.lower() in {"accra", "kumasi", "tamale", "cape coast", "takoradi"}:
+            return f"Area redacted (city: {area})"
+        return f"Area redacted ({area})"
+    return "Address redacted"
+
+
 def build_qa_grounding_context(
     catalog: TenantCatalogContext,
-    orders: List[CustomerOrderSummary],
-    grounding: Optional[BusinessGroundingContext] = None,
+    orders: list[CustomerOrderSummary],
+    grounding: BusinessGroundingContext | None = None,
 ) -> str:
     """Build formatted text block summarizing catalog, open pre-orders, customer orders, and merchant grounding."""
     lines = []
@@ -50,10 +65,16 @@ def build_qa_grounding_context(
         lines.append("  (No active undelivered orders found for this customer)")
     else:
         for o in orders:
-            item_desc = ", ".join([f"{item.quantity}x {item.name} (@ GH₵{item.unit_price:.2f})" for item in o.items])
+            item_desc = ", ".join(
+                [
+                    f"{item.quantity}x {item.name} (@ GH₵{item.unit_price:.2f})"
+                    for item in o.items
+                ]
+            )
+            safe_address = _redact_delivery_address(o.delivery_address)
             lines.append(
                 f"- Order {o.order_number}: Status='{o.status}', Total=GH₵{o.total_amount:.2f}, Items=[{item_desc}], "
-                f"Delivery Address='{o.delivery_address or 'Not provided'}'"
+                f"Delivery Area='{safe_address}'"
             )
 
     if grounding:
@@ -75,18 +96,28 @@ def build_qa_grounding_context(
 def heuristic_generate_reply(
     message: NormalizedMessage,
     catalog: TenantCatalogContext,
-    orders: List[CustomerOrderSummary],
-    grounding: Optional[BusinessGroundingContext] = None,
+    orders: list[CustomerOrderSummary],
+    grounding: BusinessGroundingContext | None = None,
 ) -> ReplyResponse:
     """
     Deterministic rule-based reply generator for offline tests, local dev, or fallback.
     Guarantees zero hallucinations and adheres to safety boundaries.
     """
     text = message.text.lower().strip()
-    grounded_facts: List[str] = []
+    grounded_facts: list[str] = []
 
     # 1. Check for human escalation requests
-    if any(w in text for w in ["speak to human", "speak to agent", "talk to person", "human agent", "manager", "representative"]):
+    if any(
+        w in text
+        for w in [
+            "speak to human",
+            "speak to agent",
+            "talk to person",
+            "human agent",
+            "manager",
+            "representative",
+        ]
+    ):
         return ReplyResponse(
             reply_text="Understood! I am notifying our store team right now. A representative will attend to you shortly.",
             intent="human_agent",
@@ -98,11 +129,31 @@ def heuristic_generate_reply(
 
     # 2. Check for payment confirmation / MoMo claims
     is_payment_claim = (
-        (
-            any(w in text for w in ["payment", "momo", "paid"])
-            and any(w in text for w in ["sent", "confirm", "done", "made", "transferred", "receipt", "screenshot", "check my payment"])
+        any(w in text for w in ["payment", "momo", "paid"])
+        and any(
+            w in text
+            for w in [
+                "sent",
+                "confirm",
+                "done",
+                "made",
+                "transferred",
+                "receipt",
+                "screenshot",
+                "check my payment",
+            ]
         )
-        or any(w in text for w in ["i paid", "i have paid", "have paid", "already paid", "sent payment", "sent momo", "confirm payment"])
+    ) or any(
+        w in text
+        for w in [
+            "i paid",
+            "i have paid",
+            "have paid",
+            "already paid",
+            "sent payment",
+            "sent momo",
+            "confirm payment",
+        ]
     )
     if is_payment_claim:
         order_ref = None
@@ -110,35 +161,53 @@ def heuristic_generate_reply(
             order_ref = orders[0].order_number
         return ReplyResponse(
             reply_text=(
-                f"Thank you for letting us know! We have received your payment notice"
+                "Thank you for letting us know! We have received your payment notice"
                 + (f" regarding order {order_ref}." if order_ref else ".")
                 + " Please hold on briefly while our team verifies the payment transaction on our merchant account."
             ),
             intent="confirm_payment",
             confidence=0.90,
-            grounded_facts=[f"Active order {order_ref} on file" if order_ref else "Payment notification noted"],
+            grounded_facts=[
+                f"Active order {order_ref} on file"
+                if order_ref
+                else "Payment notification noted"
+            ],
             requires_human_approval=True,
             escalation_reason="Payment confirmation requires merchant verification",
         )
 
     # 3. Check for order status / tracking inquiries
-    if any(w in text for w in ["my order", "order status", "where is my", "tracking", "delivery update", "order dispatch", "track order"]):
+    if any(
+        w in text
+        for w in [
+            "my order",
+            "order status",
+            "where is my",
+            "tracking",
+            "delivery update",
+            "order dispatch",
+            "track order",
+        ]
+    ):
         if orders:
             latest = orders[0]
             status_desc = latest.status.replace("_", " ")
             item_names = [it.name for it in latest.items]
             items_str = ", ".join(item_names) if item_names else "items"
-            address_str = f" to {latest.delivery_address}" if latest.delivery_address else ""
+            safe_address = _redact_delivery_address(latest.delivery_address)
 
             reply = (
-                f"Hello! Your order {latest.order_number} for {items_str} is currently {status_desc}{address_str}. "
-                f"Total amount is GH₵{latest.total_amount:.2f}. We will notify you as soon as the rider moves out!"
+                f"Hello! Your order {latest.order_number} for {items_str} is currently {status_desc}. "
+                f"Delivery area is {safe_address}. Total amount is GH₵{latest.total_amount:.2f}. "
+                "We will notify you as soon as the rider moves out!"
             )
             return ReplyResponse(
                 reply_text=reply,
                 intent="check_order",
                 confidence=0.95,
-                grounded_facts=[f"Matched active order {latest.order_number} with status '{latest.status}'"],
+                grounded_facts=[
+                    f"Matched active order {latest.order_number} with status '{latest.status}'"
+                ],
                 requires_human_approval=False,
             )
         else:
@@ -146,34 +215,71 @@ def heuristic_generate_reply(
                 reply_text="Hello! We could not find an active undelivered order linked to your number. If you have an order number (e.g. #ORD-123), please share it and our team will check for you.",
                 intent="check_order",
                 confidence=0.85,
-                grounded_facts=["No active orders found in database matching customer credentials"],
+                grounded_facts=[
+                    "No active orders found in database matching customer credentials"
+                ],
                 requires_human_approval=True,
                 escalation_reason="No matching active orders found",
             )
 
     # 4. Check for merchant policies & delivery inquiries if grounding provided
     if grounding:
-        if any(w in text for w in ["delivery", "deliver", "shipping", "dispatch", "rider fee", "delivery fee", "delivery terms", "do you deliver"]):
+        if any(
+            w in text
+            for w in [
+                "delivery",
+                "deliver",
+                "shipping",
+                "dispatch",
+                "rider fee",
+                "delivery fee",
+                "delivery terms",
+                "do you deliver",
+            ]
+        ):
             if grounding.delivery_info:
                 return ReplyResponse(
                     reply_text=grounding.delivery_info,
                     intent="inquire_delivery",
                     confidence=0.95,
-                    grounded_facts=[f"Merchant delivery policy: {grounding.delivery_info}"],
+                    grounded_facts=[
+                        f"Merchant delivery policy: {grounding.delivery_info}"
+                    ],
                     requires_human_approval=False,
                 )
 
-        if any(w in text for w in ["return", "refund", "exchange", "money back", "return policy", "can i return"]):
+        if any(
+            w in text
+            for w in [
+                "return",
+                "refund",
+                "exchange",
+                "money back",
+                "return policy",
+                "can i return",
+            ]
+        ):
             if grounding.return_policy:
                 return ReplyResponse(
                     reply_text=grounding.return_policy,
                     intent="inquire_policy",
                     confidence=0.95,
-                    grounded_facts=[f"Merchant return policy: {grounding.return_policy}"],
+                    grounded_facts=[
+                        f"Merchant return policy: {grounding.return_policy}"
+                    ],
                     requires_human_approval=False,
                 )
 
-        if any(w in text for w in ["about you", "about your business", "who are you", "your shop", "tell me about your business"]):
+        if any(
+            w in text
+            for w in [
+                "about you",
+                "about your business",
+                "who are you",
+                "your shop",
+                "tell me about your business",
+            ]
+        ):
             if grounding.about_business:
                 return ReplyResponse(
                     reply_text=grounding.about_business,
@@ -183,18 +289,40 @@ def heuristic_generate_reply(
                     requires_human_approval=False,
                 )
 
-        if any(w in text for w in ["payment methods", "payment policy", "warranty", "customer policy", "how do i pay", "accepted payment"]):
+        if any(
+            w in text
+            for w in [
+                "payment methods",
+                "payment policy",
+                "warranty",
+                "customer policy",
+                "how do i pay",
+                "accepted payment",
+            ]
+        ):
             if grounding.customer_policies:
                 return ReplyResponse(
                     reply_text=grounding.customer_policies,
                     intent="inquire_policy",
                     confidence=0.95,
-                    grounded_facts=[f"Merchant customer policy: {grounding.customer_policies}"],
+                    grounded_facts=[
+                        f"Merchant customer policy: {grounding.customer_policies}"
+                    ],
                     requires_human_approval=False,
                 )
 
     # 5. Check for greetings
-    if any(text.startswith(w) for w in ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]):
+    if any(
+        text.startswith(w)
+        for w in [
+            "hi",
+            "hello",
+            "hey",
+            "good morning",
+            "good afternoon",
+            "good evening",
+        ]
+    ):
         return ReplyResponse(
             reply_text="Hello! Welcome to our store. How can we assist you today? You can ask about our product prices, available stock, pre-orders, or track an existing order.",
             intent="greeting",
@@ -229,14 +357,26 @@ def heuristic_generate_reply(
 
     if matched_product:
         # Determine if inquiry is stock or price
-        is_stock_inquiry = any(w in text for w in ["in stock", "available", "have", "left", "remaining"])
-        v_name = f" ({matched_variant.name})" if matched_variant and matched_variant.name != "Default" else ""
-        price_str = f"GH₵{matched_variant.price:.2f}" if matched_variant else "listed prices"
+        is_stock_inquiry = any(
+            w in text for w in ["in stock", "available", "have", "left", "remaining"]
+        )
+        v_name = (
+            f" ({matched_variant.name})"
+            if matched_variant and matched_variant.name != "Default"
+            else ""
+        )
+        price_str = (
+            f"GH₵{matched_variant.price:.2f}" if matched_variant else "listed prices"
+        )
 
         if is_stock_inquiry:
-            if matched_product.availability_status == "AVAILABLE" and (matched_variant is None or matched_variant.quantity > 0):
+            if matched_product.availability_status == "AVAILABLE" and (
+                matched_variant is None or matched_variant.quantity > 0
+            ):
                 reply = f"Yes, {matched_product.name}{v_name} is currently available in stock! The price is {price_str}."
-                grounded_facts.append(f"{matched_product.name} is AVAILABLE (stock: {matched_variant.quantity if matched_variant else 'ok'})")
+                grounded_facts.append(
+                    f"{matched_product.name} is AVAILABLE (stock: {matched_variant.quantity if matched_variant else 'ok'})"
+                )
                 return ReplyResponse(
                     reply_text=reply,
                     intent="check_stock",
@@ -252,7 +392,9 @@ def heuristic_generate_reply(
                         f"{matched_product.name} is currently out of stock for immediate delivery. However, our open pre-order batch "
                         f"'{batch.name}' ({batch.code}) is open with expected arrival between {batch.expected_arrival_start} and {batch.expected_arrival_end}."
                     )
-                    grounded_facts.append(f"{matched_product.name} out of stock; open pre-order batch {batch.code}")
+                    grounded_facts.append(
+                        f"{matched_product.name} out of stock; open pre-order batch {batch.code}"
+                    )
                 else:
                     reply = f"Currently, {matched_product.name}{v_name} is out of stock. Would you like us to notify you when fresh inventory arrives?"
                     grounded_facts.append(f"{matched_product.name} is OUT_OF_STOCK")
@@ -272,7 +414,9 @@ def heuristic_generate_reply(
             var_str = ", ".join(variants_detail) if variants_detail else price_str
 
             reply = f"{matched_product.name} is available for {var_str}."
-            grounded_facts.append(f"Grounded price for {matched_product.name}: {var_str}")
+            grounded_facts.append(
+                f"Grounded price for {matched_product.name}: {var_str}"
+            )
             return ReplyResponse(
                 reply_text=reply,
                 intent="inquire_product",
@@ -282,9 +426,24 @@ def heuristic_generate_reply(
             )
 
     # 6. Check for general pre-order inquiries
-    if any(w in text for w in ["preorder", "pre-order", "batch", "eta", "arrival date", "when will it arrive"]):
+    if any(
+        w in text
+        for w in [
+            "preorder",
+            "pre-order",
+            "batch",
+            "eta",
+            "arrival date",
+            "when will it arrive",
+        ]
+    ):
         if catalog.pre_orders:
-            batches_str = "; ".join([f"{b.name} ({b.code}): ETA {b.expected_arrival_start} to {b.expected_arrival_end}" for b in catalog.pre_orders])
+            batches_str = "; ".join(
+                [
+                    f"{b.name} ({b.code}): ETA {b.expected_arrival_start} to {b.expected_arrival_end}"
+                    for b in catalog.pre_orders
+                ]
+            )
             return ReplyResponse(
                 reply_text=f"Our current open pre-order batches and estimated arrival times are: {batches_str}.",
                 intent="inquire_product",
@@ -303,13 +462,117 @@ def heuristic_generate_reply(
     )
 
 
+def _requires_human_verification(
+    message: NormalizedMessage, intent_hint: str | None = None
+) -> str | None:
+    """Return a hard safety reason when the message contains payment or escalation triggers that require merchant validation."""
+    text = message.text.lower().strip()
+
+    if any(
+        w in text
+        for w in [
+            "speak to human",
+            "speak to agent",
+            "talk to person",
+            "human agent",
+            "manager",
+            "representative",
+        ]
+    ):
+        return "Customer requested human assistance or escalation."
+
+    is_payment_claim = (
+        any(w in text for w in ["payment", "momo", "paid"])
+        and any(
+            w in text
+            for w in [
+                "sent",
+                "confirm",
+                "done",
+                "made",
+                "transferred",
+                "receipt",
+                "screenshot",
+                "check my payment",
+            ]
+        )
+    ) or any(
+        w in text
+        for w in [
+            "i paid",
+            "i have paid",
+            "have paid",
+            "already paid",
+            "sent payment",
+            "sent momo",
+            "confirm payment",
+        ]
+    )
+    if is_payment_claim:
+        return "Customer payment confirmation requires merchant verification before any success claim."
+
+    if intent_hint == "confirm_payment":
+        return "Payment confirmation must be verified by a human merchant before sending a success reply."
+
+    return None
+
+
+def _coerce_llm_response(
+    message: NormalizedMessage, llm_json: dict[str, Any]
+) -> ReplyResponse | None:
+    """Reject unverified LLM responses that would violate the merchant safety rules."""
+    if not llm_json or not isinstance(llm_json, dict):
+        return None
+    if "reply_text" not in llm_json:
+        return None
+
+    reason = _requires_human_verification(
+        message, str(llm_json.get("intent") or "").strip() or None
+    )
+    if reason:
+        forced = (
+            heuristic_generate_reply(message, None, [], grounding=None)
+            if False
+            else None
+        )
+        return ReplyResponse(
+            reply_text=(
+                str(llm_json.get("reply_text", "").strip())
+                or "Thank you for letting us know. A merchant needs to verify this before we confirm anything."
+            ),
+            intent=str(llm_json.get("intent", "confirm_payment") or "confirm_payment"),
+            confidence=float(llm_json.get("confidence", 0.85) or 0.85),
+            grounded_facts=["Safety rule blocked unverified model confirmation."],
+            requires_human_approval=True,
+            escalation_reason=reason,
+        )
+
+    if llm_json.get("requires_human_approval") is False:
+        if (
+            _requires_human_verification(
+                message, str(llm_json.get("intent") or "").strip() or None
+            )
+            is not None
+        ):
+            return None
+
+    return ReplyResponse(
+        reply_text=str(llm_json.get("reply_text", "")).strip(),
+        intent=str(llm_json.get("intent", "unknown") or "unknown"),
+        confidence=float(llm_json.get("confidence", 0.85) or 0.85),
+        grounded_facts=list(llm_json.get("grounded_facts", []) or []),
+        requires_human_approval=bool(llm_json.get("requires_human_approval", False)),
+        escalation_reason=llm_json.get("escalation_reason"),
+    )
+
+
 async def generate_grounded_reply(
     message: NormalizedMessage,
     catalog: TenantCatalogContext,
-    orders: List[CustomerOrderSummary],
-    client: Optional[httpx.AsyncClient] = None,
-    grounding: Optional[BusinessGroundingContext] = None,
-    agent_config: Optional[AiAgentConfig] = None,
+    orders: list[CustomerOrderSummary],
+    client: httpx.AsyncClient | None = None,
+    grounding: BusinessGroundingContext | None = None,
+    agent_config: AiAgentConfig | None = None,
 ) -> ReplyResponse:
     """
     Generate grounded, conversational reply using LLM reasoning when configured,
@@ -324,13 +587,17 @@ async def generate_grounded_reply(
     if agent_config and agent_config.response_tone:
         tone = agent_config.response_tone.lower()
         if tone == "friendly":
-            tone_str = "Warm, friendly, welcoming, and approachable Ghanaian merchant tone."
+            tone_str = (
+                "Warm, friendly, welcoming, and approachable Ghanaian merchant tone."
+            )
         elif tone == "professional":
             tone_str = "Formal, professional, polite, and precise merchant tone."
         elif tone == "enthusiastic":
             tone_str = "Vibrant, energetic, enthusiastic, and engaging merchant tone."
         elif tone == "concise":
-            tone_str = "Concise, brief, direct, and straight-to-the-point merchant tone."
+            tone_str = (
+                "Concise, brief, direct, and straight-to-the-point merchant tone."
+            )
 
     prompt = f"""
 You are the Merchander AI Assistant for a Ghanaian social-commerce merchant.
@@ -370,15 +637,12 @@ Return ONLY valid JSON matching this schema:
 """
 
     llm_json = await call_gemini_llm(prompt, settings.GEMINI_API_KEY, client=client)
-    if llm_json and "reply_text" in llm_json:
-        return ReplyResponse(
-            reply_text=llm_json["reply_text"],
-            intent=llm_json.get("intent", "unknown"),
-            confidence=float(llm_json.get("confidence", 0.85)),
-            grounded_facts=llm_json.get("grounded_facts", []),
-            requires_human_approval=bool(llm_json.get("requires_human_approval", False)),
-            escalation_reason=llm_json.get("escalation_reason"),
-        )
+    validated = _coerce_llm_response(message, llm_json)
+    if validated is not None:
+        # Hard-stop unsafe or unverifiable responses, but still allow non-sensitive cases to pass.
+        if validated.requires_human_approval:
+            return validated
+        return validated
 
     # Fallback to heuristic if LLM call failed or returned unparseable content
     return heuristic_generate_reply(message, catalog, orders, grounding=grounding)

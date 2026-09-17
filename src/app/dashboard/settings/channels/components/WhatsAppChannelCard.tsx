@@ -13,12 +13,20 @@ import { toast } from 'sonner';
 interface WhatsAppChannelCardProps {
   config: WhatsAppChannelConfig;
   webhookUrl: string;
+  runtimeConnected?: boolean;
   onChange: (updated: WhatsAppChannelConfig) => void;
   disabled?: boolean;
 }
 
-export function WhatsAppChannelCard({ config, webhookUrl, onChange, disabled = false }: WhatsAppChannelCardProps) {
+export function WhatsAppChannelCard({
+  config,
+  webhookUrl,
+  runtimeConnected,
+  onChange,
+  disabled = false,
+}: WhatsAppChannelCardProps) {
   const [copied, setCopied] = useState(false);
+  const isConnected = runtimeConnected ?? config.connected;
 
   const handleCopyWebhook = () => {
     navigator.clipboard.writeText(webhookUrl);
@@ -40,13 +48,13 @@ export function WhatsAppChannelCard({ config, webhookUrl, onChange, disabled = f
                 <CardTitle className="text-base font-bold font-display">WhatsApp Business</CardTitle>
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                    config.connected
+                    isConnected
                       ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                       : 'bg-surface-elevated text-muted'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${config.connected ? 'bg-emerald-500' : 'bg-muted'}`} />
-                  {config.connected ? 'Connected' : 'Not connected'}
+                  <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-muted'}`} />
+                  {isConnected ? 'Runtime connected' : 'Not connected'}
                 </span>
               </div>
               <CardDescription className="text-xs text-muted truncate">
@@ -58,7 +66,7 @@ export function WhatsAppChannelCard({ config, webhookUrl, onChange, disabled = f
             checked={config.connected}
             onCheckedChange={(c) => onChange({ ...config, connected: c })}
             disabled={disabled}
-            aria-label="Connect WhatsApp"
+            aria-label="Activate WhatsApp"
           />
         </div>
       </CardHeader>
@@ -107,6 +115,15 @@ export function WhatsAppChannelCard({ config, webhookUrl, onChange, disabled = f
               placeholder="e.g. 104928374928174"
               value={config.phoneNumberId || ''}
               onChange={(e) => onChange({ ...config, phoneNumberId: e.target.value })}
+              disabled={disabled}
+            />
+            <FormField
+              name="waAccessToken"
+              label="Cloud API Access Token"
+              type="password"
+              placeholder="Token from Meta Business settings"
+              value={config.apiKeyOrToken || ''}
+              onChange={(e) => onChange({ ...config, apiKeyOrToken: e.target.value })}
               disabled={disabled}
             />
             <FormField

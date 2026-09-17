@@ -1,4 +1,3 @@
-
 import {
   getAutomationSettings,
   updateAutomationSettings,
@@ -6,6 +5,7 @@ import {
   updateChannelSettings,
 } from './settings-social';
 import { ChannelSettings } from '@/types/settings';
+import { isSocialIntelligenceAllowed, SOCIAL_INTELLIGENCE_STATUS } from '@/lib/intelligence/social-release';
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
@@ -23,6 +23,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 
 describe('settings-social automation & AI agent actions', () => {
+  it('enables social intelligence for release while keeping the broader intelligence stack available', () => {
+    expect(SOCIAL_INTELLIGENCE_STATUS).toBe('beta');
+    expect(isSocialIntelligenceAllowed()).toBe(true);
+  });
+
   let mockSupabase: {
     auth: {
       getUser: ReturnType<typeof vi.fn>;
@@ -236,7 +241,13 @@ describe('settings-social automation & AI agent actions', () => {
       mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } });
 
       const res = await updateChannelSettings({
-        whatsapp: { connected: false, phoneNumber: '', enableFloatingStorefrontWidget: true, widgetGreeting: '', connectionType: 'direct_link' },
+        whatsapp: {
+          connected: false,
+          phoneNumber: '',
+          enableFloatingStorefrontWidget: true,
+          widgetGreeting: '',
+          connectionType: 'direct_link',
+        },
         instagram: { connected: false, handle: '', syncDirectMessages: false, syncStoryMentions: false },
         messenger: { connected: false, pageId: '', syncMessages: false },
         telegram: { connected: false, botUsername: '', orderNotificationAlerts: false },
@@ -256,7 +267,13 @@ describe('settings-social automation & AI agent actions', () => {
       });
 
       const res = await updateChannelSettings({
-        whatsapp: { connected: false, phoneNumber: '', enableFloatingStorefrontWidget: true, widgetGreeting: '', connectionType: 'direct_link' },
+        whatsapp: {
+          connected: false,
+          phoneNumber: '',
+          enableFloatingStorefrontWidget: true,
+          widgetGreeting: '',
+          connectionType: 'direct_link',
+        },
         instagram: { connected: false, handle: '', syncDirectMessages: false, syncStoryMentions: false },
         messenger: { connected: false, pageId: '', syncMessages: false },
         telegram: { connected: false, botUsername: '', orderNotificationAlerts: false },
@@ -289,11 +306,20 @@ describe('settings-social automation & AI agent actions', () => {
             upsert: upsertMock,
           };
         }
+        if (table === 'channel_connections') {
+          return { upsert: upsertMock };
+        }
         return {};
       });
 
       const payload: ChannelSettings = {
-        whatsapp: { connected: true, phoneNumber: '0241112233', enableFloatingStorefrontWidget: true, widgetGreeting: 'Hi', connectionType: 'direct_link' },
+        whatsapp: {
+          connected: true,
+          phoneNumber: '0241112233',
+          enableFloatingStorefrontWidget: true,
+          widgetGreeting: 'Hi',
+          connectionType: 'direct_link',
+        },
         instagram: { connected: false, handle: '@my_store', syncDirectMessages: false, syncStoryMentions: false },
         messenger: { connected: false, pageId: '987654', syncMessages: false },
         telegram: { connected: false, botUsername: '@store_bot', orderNotificationAlerts: true },

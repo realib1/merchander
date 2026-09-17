@@ -3,6 +3,7 @@
 import React, { useState, useTransition, useMemo } from 'react';
 import { Button } from '@/components/ui/Button';
 import { ChannelSettings } from '@/types/settings';
+import { ChannelConnection } from '@/app/actions/channels';
 import { updateChannelSettings } from '@/app/actions/settings-social';
 import { WhatsAppChannelCard } from './WhatsAppChannelCard';
 import { InstagramChannelCard } from './InstagramChannelCard';
@@ -13,16 +14,31 @@ import { toast } from 'sonner';
 
 interface ChannelsSettingsFormProps {
   initialSettings: ChannelSettings;
+  connections: ChannelConnection[];
 }
 
-export function ChannelsSettingsForm({ initialSettings }: ChannelsSettingsFormProps) {
+export function ChannelsSettingsForm({ initialSettings, connections }: ChannelsSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [settings, setSettings] = useState<ChannelSettings>(initialSettings);
-  const [savedSettings, setSavedSettings] = useState<ChannelSettings>(initialSettings);
+  const initialRuntimeSettings: ChannelSettings = {
+    ...initialSettings,
+    whatsapp: {
+      ...initialSettings.whatsapp,
+      connected: connections.some((connection) => connection.channel === 'whatsapp_cloud' && connection.status === 'connected'),
+    },
+    telegram: {
+      ...initialSettings.telegram,
+      connected: connections.some((connection) => connection.channel === 'telegram' && connection.status === 'connected'),
+    },
+  };
+  const [settings, setSettings] = useState<ChannelSettings>(initialRuntimeSettings);
+  const [savedSettings, setSavedSettings] = useState<ChannelSettings>(initialRuntimeSettings);
 
   const isDirty = useMemo(() => {
     return JSON.stringify(settings) !== JSON.stringify(savedSettings);
   }, [settings, savedSettings]);
+
+  const isConnected = (channel: ChannelConnection['channel']) =>
+    connections.some((connection) => connection.channel === channel && connection.status === 'connected');
 
   const handleReset = () => {
     setSettings(savedSettings);
@@ -56,6 +72,7 @@ export function ChannelsSettingsForm({ initialSettings }: ChannelsSettingsFormPr
       {/* 1. WhatsApp Card */}
       <WhatsAppChannelCard
         config={settings.whatsapp}
+        runtimeConnected={isConnected('whatsapp_cloud')}
         webhookUrl={settings.webhookUrl}
         onChange={(updated) => setSettings((s) => ({ ...s, whatsapp: updated }))}
         disabled={isPending}
@@ -78,6 +95,7 @@ export function ChannelsSettingsForm({ initialSettings }: ChannelsSettingsFormPr
       {/* 4. Telegram Bot Card */}
       <TelegramChannelCard
         config={settings.telegram}
+        runtimeConnected={isConnected('telegram')}
         onChange={(updated) => setSettings((s) => ({ ...s, telegram: updated }))}
         disabled={isPending}
       />

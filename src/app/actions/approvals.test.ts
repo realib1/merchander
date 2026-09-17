@@ -1,4 +1,3 @@
-
 import {
   getPendingApprovals,
   approveAction,
@@ -20,6 +19,11 @@ vi.mock('@/lib/channels/whatsapp/service', () => ({
   sendOutboundWhatsAppMessage: vi.fn(),
 }));
 
+vi.mock('@/lib/channels/telegram/service', () => ({
+  sendTelegramTextMessage: vi.fn(),
+  resolveTelegramConnection: vi.fn(),
+}));
+
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
@@ -27,6 +31,7 @@ vi.mock('next/cache', () => ({
 import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
+import { sendTelegramTextMessage } from '@/lib/channels/telegram/service';
 
 describe('Approval Queue Server Actions', () => {
   const mockTenantId = 'tenant-uuid-123';
@@ -40,6 +45,7 @@ describe('Approval Queue Server Actions', () => {
     chain.order = vi.fn().mockReturnValue(chain);
     chain.limit = vi.fn().mockReturnValue(chain);
     chain.single = vi.fn();
+    chain.maybeSingle = vi.fn();
     chain.update = vi.fn().mockReturnValue(chain);
 
     const mockFrom = vi.fn().mockReturnValue(chain);
@@ -109,6 +115,61 @@ describe('Approval Queue Server Actions', () => {
       const result = await approveAction('action-1');
       expect(result.success).toBe(false);
       expect(result.error).toBe('Unauthorized');
+    });
+
+    it('dispatches approved Telegram replies through the Telegram channel service', async () => {
+      const mockAction = {
+        id: 'action-telegram-1',
+        tenant_id: mockTenantId,
+        channel_identity_id: 'channel-id-telegram',
+        action_type: 'reply',
+        tier: 'yellow',
+        status: 'pending',
+        proposed_payload: {
+          reply_text: 'Hello there! We have noted your message.',
+          to: '123456789',
+        },
+        channel_identity: {
+          id: 'channel-id-telegram',
+          channel: 'telegram',
+          channel_handle: '123456789',
+        },
+      };
+
+      const mockClient = createMockSupabase();
+      mockClient.chain.single.mockResolvedValueOnce({ data: mockAction, error: null });
+      mockClient.chain.update.mockReturnValue(mockClient.chain);
+      (createClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockClient);
+
+      mockClient.chain.eq.mockImplementation(function (this: typeof mockClient.chain) {
+        return this;
+      });
+      mockClient.chain.maybeSingle.mockResolvedValueOnce({
+        data: {
+          credentials: JSON.stringify({ bot_token: 'telegram-token', bot_username: 'merchantbot' }),
+          tenant_id: mockTenantId,
+        },
+        error: null,
+      });
+
+      vi.mocked(sendTelegramTextMessage).mockResolvedValue({ ok: true } as never);
+
+      const result = await approveAction('action-telegram-1');
+      expect(result.success).toBe(true);
+      expect(sendTelegramTextMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          connection: expect.objectContaining({
+            tenantId: mockTenantId,
+            botToken: 'telegram-token',
+          }),
+          chatId: '123456789',
+          text: 'Hello there! We have noted your message.',
+          metadata: expect.objectContaining({
+            action_id: 'action-telegram-1',
+            approved_by: mockUserId,
+          }),
+        })
+      );
     });
 
     it('approves action and sends proposed reply text via WhatsApp', async () => {
@@ -361,9 +422,9 @@ describe('Approval Queue Server Actions', () => {
     it('aggregates pending yellow, red, executed today, and confidence', async () => {
       const todayIso = new Date().toISOString();
       const mockActions = [
-        { tier: 'yellow', status: 'pending', confidence: 0.80, updated_at: todayIso },
-        { tier: 'yellow', status: 'pending', confidence: 0.90, updated_at: todayIso },
-        { tier: 'red', status: 'pending', confidence: 0.40, updated_at: todayIso },
+        { tier: 'yellow', status: 'pending', confidence: 0.8, updated_at: todayIso },
+        { tier: 'yellow', status: 'pending', confidence: 0.9, updated_at: todayIso },
+        { tier: 'red', status: 'pending', confidence: 0.4, updated_at: todayIso },
         { tier: 'yellow', status: 'executed', confidence: 0.85, updated_at: todayIso },
       ];
 

@@ -279,6 +279,7 @@ export interface TelegramChannelConfig {
   connected: boolean;
   botToken?: string;
   botUsername?: string;
+  webhookSecret?: string;
   channelChatId?: string;
   orderNotificationAlerts: boolean;
 }

@@ -127,9 +127,13 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                     Intelligence Engine
                   </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    Social replies: under review
+                  </span>
                 </div>
                 <CardDescription className="text-xs text-muted">
-                  Autonomous sales assistant grounded in your live product inventory and catalog prices.
+                  General intelligence summaries and staff-assisted workflows stay available. Social customer replies
+                  are paused for privacy review and beta testing.
                 </CardDescription>
               </div>
             </div>
@@ -177,7 +181,8 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
                         )}
                       </div>
                       <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                        AI generates smart draft replies in staff chat. Human staff reviews and confirms before sending to the customer.
+                        AI generates smart draft replies in staff chat. Human staff reviews and confirms before sending
+                        to the customer.
                       </p>
                     </div>
                     <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-400 mt-2">
@@ -207,7 +212,8 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
                         )}
                       </div>
                       <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                        AI immediately responds to customer product questions, availability inquiries, and order tracking on WhatsApp.
+                        AI immediately responds to customer product questions, availability inquiries, and order
+                        tracking on WhatsApp.
                       </p>
                     </div>
                     <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-400 mt-2">
@@ -296,7 +302,9 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
             <div className="p-3.5 rounded-xl border border-dashed border-separator bg-surface-elevated/20 flex items-start gap-3 text-xs text-muted">
               <ShieldCheck size={16} className="text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
               <p className="text-[11px] leading-relaxed">
-                When enabled, the AI agent connects with the intelligence service to read buyer inquiries, check live stock in your catalog, suggest or auto-reply to product questions, and hand off disputes to your human team.
+                When enabled, the AI agent connects with the intelligence service to read buyer inquiries, check live
+                stock in your catalog, suggest or auto-reply to product questions, and hand off disputes to your human
+                team.
               </p>
             </div>
           )}

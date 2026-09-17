@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { getChannelSettings } from '@/app/actions/settings-social';
+import { getChannelConnections } from '@/app/actions/channels';
 import { ChannelsSettingsForm } from './components/ChannelsSettingsForm';
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ChannelsSettingsPage() {
-  const settings = await getChannelSettings();
+  const [settings, connections] = await Promise.all([getChannelSettings(), getChannelConnections()]);
 
   return (
     <div className="max-w-4xl space-y-6 sm:space-y-8 animate-fadeIn">
@@ -17,12 +18,12 @@ export default async function ChannelsSettingsPage() {
           Connected Channels
         </h1>
         <p className="text-xs sm:text-sm text-muted mt-1">
-          Connect your social messaging channels and automated bots to sync customer chats, floating storefront widgets,
-          and order alerts into Merchander.
+          Configure channel preferences and review the live runtime connections used for customer chats, automated
+          replies, storefront widgets, and order alerts.
         </p>
       </div>
 
-      <ChannelsSettingsForm initialSettings={settings} />
+      <ChannelsSettingsForm initialSettings={settings} connections={connections} />
     </div>
   );
 }

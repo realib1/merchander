@@ -10,11 +10,18 @@ import { TelegramChannelConfig } from '@/types/settings';
 
 interface TelegramChannelCardProps {
   config: TelegramChannelConfig;
+  runtimeConnected?: boolean;
   onChange: (updated: TelegramChannelConfig) => void;
   disabled?: boolean;
 }
 
-export function TelegramChannelCard({ config, onChange, disabled = false }: TelegramChannelCardProps) {
+export function TelegramChannelCard({
+  config,
+  runtimeConnected,
+  onChange,
+  disabled = false,
+}: TelegramChannelCardProps) {
+  const isConnected = runtimeConnected ?? config.connected;
   return (
     <Card className="shadow-xs">
       <CardHeader>
@@ -28,17 +35,17 @@ export function TelegramChannelCard({ config, onChange, disabled = false }: Tele
                 <CardTitle className="text-base font-bold font-display">Telegram Bot & Alerts</CardTitle>
                 <span
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
-                  title="Telegram bot webhook and order intake are in Developer Preview"
+                  title="Telegram bot webhook and social replies are on hold while under review for privacy and safety testing"
                 >
-                  Developer Preview
+                  Social replies: under review
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                    config.connected ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400' : 'bg-surface-elevated text-muted'
+                    isConnected ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400' : 'bg-surface-elevated text-muted'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${config.connected ? 'bg-sky-500' : 'bg-muted'}`} />
-                  {config.connected ? 'Connected' : 'Not connected'}
+                  <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-sky-500' : 'bg-muted'}`} />
+                  {isConnected ? 'Runtime connected' : 'Not connected'}
                 </span>
               </div>
               <CardDescription className="text-xs text-muted truncate">
@@ -50,7 +57,7 @@ export function TelegramChannelCard({ config, onChange, disabled = false }: Tele
             checked={config.connected}
             onCheckedChange={(c) => onChange({ ...config, connected: c })}
             disabled={disabled}
-            aria-label="Connect Telegram"
+            aria-label="Activate Telegram"
           />
         </div>
       </CardHeader>
@@ -58,12 +65,32 @@ export function TelegramChannelCard({ config, onChange, disabled = false }: Tele
       <CardBody className="space-y-4 pt-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormField
+            name="telegramBotToken"
+            label="Telegram Bot Token"
+            type="password"
+            placeholder="Token from @BotFather"
+            value={config.botToken || ''}
+            onChange={(e) => onChange({ ...config, botToken: e.target.value })}
+            hint="Required to activate inbound webhooks and outbound replies."
+            disabled={disabled}
+          />
+          <FormField
             name="telegramBotUsername"
             label="Telegram Bot Username"
             placeholder="e.g. @merchander_order_bot"
             value={config.botUsername || ''}
             onChange={(e) => onChange({ ...config, botUsername: e.target.value })}
             hint="Your Telegram bot handle created via @BotFather."
+            disabled={disabled}
+          />
+          <FormField
+            name="telegramWebhookSecret"
+            label="Webhook Secret"
+            type="password"
+            placeholder="Unique secret for this bot"
+            value={config.webhookSecret || ''}
+            onChange={(e) => onChange({ ...config, webhookSecret: e.target.value })}
+            hint="Use the same value when configuring Telegram's webhook URL."
             disabled={disabled}
           />
           <FormField
@@ -96,7 +123,9 @@ export function TelegramChannelCard({ config, onChange, disabled = false }: Tele
 
         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-surface-elevated/40 border border-separator text-xs text-muted">
           <p className="text-[11px] leading-relaxed">
-            <strong className="text-foreground">Developer Preview Note:</strong> Inbound Telegram messages currently run intent extraction through the intelligence engine. Automated order creation and outbound notification dispatch are staged for an upcoming release.
+            <strong className="text-foreground">Activation:</strong> Save a bot token and configure Telegram to send
+            webhooks to this app. Social customer replies are paused while in beta review; order alerts and other
+            non-social intelligence remain available.
           </p>
         </div>
       </CardBody>

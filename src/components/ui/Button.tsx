@@ -22,17 +22,17 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
-  primary: 'bg-brand-primary text-white hover:opacity-90 active:scale-[0.98] shadow-xs',
-  secondary: 'bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98] shadow-xs',
+  primary: 'bg-brand-primary text-white hover:opacity-90 active:scale-[0.98]',
+  secondary: 'bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98]',
   outline: 'border border-separator bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]',
   ghost: 'bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]',
-  destructive: 'bg-destructive text-white hover:opacity-90 active:scale-[0.98] shadow-xs',
+  destructive: 'bg-destructive text-white hover:opacity-90 active:scale-[0.98]',
 };
 
 const SIZE_STYLES: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs gap-1.5 min-h-8',
-  md: 'h-10 px-4 text-sm gap-2 min-h-10',
-  lg: 'h-12 px-6 text-base gap-2.5 min-h-12',
+  sm: 'h-7 px-3 text-xs gap-1.5 min-h-7',
+  md: 'h-9 px-4 text-sm gap-2 min-h-9',
+  lg: 'h-11 px-6 text-base gap-2.5 min-h-11',
 };
 
 /**
@@ -62,7 +62,7 @@ export function Button({
       aria-busy={isLoading}
       className={cn(
         'inline-flex items-center justify-center font-medium transition-all duration-150 select-none cursor-pointer',
-        'rounded-xl disabled:cursor-not-allowed disabled:opacity-50',
+        'rounded-md disabled:cursor-not-allowed disabled:opacity-50',
         'focus-visible:ring-3 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:outline-none',
         VARIANT_STYLES[variant],
         SIZE_STYLES[size],

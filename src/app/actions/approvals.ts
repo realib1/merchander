@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getTenantInfo } from '@/lib/supabase/queries';
 import { AIActionRecord, ActionTier, ActionStatus, ApprovalsQueueMetrics } from '@/types/actions';
 import { sendOutboundWhatsAppMessage } from '@/lib/channels/whatsapp/service';
+import { sendTelegramTextMessage } from '@/lib/channels/telegram/service';
 import { revalidatePath } from 'next/cache';
 
 export interface GetApprovalsFilter {
@@ -15,9 +16,7 @@ export interface GetApprovalsFilter {
 /**
  * Retrieves actions from the ai_action_queue for the current tenant.
  */
-export async function getPendingApprovals(
-  filters?: GetApprovalsFilter
-): Promise<AIActionRecord[]> {
+export async function getPendingApprovals(filters?: GetApprovalsFilter): Promise<AIActionRecord[]> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,11 +31,13 @@ export async function getPendingApprovals(
 
     let query = supabase
       .from('ai_action_queue')
-      .select(`
+      .select(
+        `
         *,
         channel_identity:channel_identities(channel, channel_handle, profile_name),
         customer:customers(id, name, phone)
-      `)
+      `
+      )
       .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false });
 
@@ -93,10 +94,12 @@ export async function approveAction(
     // 1. Fetch action and verify ownership
     const { data: action, error: fetchErr } = await supabase
       .from('ai_action_queue')
-      .select(`
+      .select(
+        `
         *,
         channel_identity:channel_identities(id, channel, channel_handle)
-      `)
+      `
+      )
       .eq('id', actionId)
       .eq('tenant_id', tenantId)
       .single();
@@ -112,9 +115,7 @@ export async function approveAction(
     const proposed = (action.proposed_payload as Record<string, unknown>) || {};
     const textToSend = editedPayload?.reply_text || (proposed.reply_text as string) || '';
     const toHandle =
-      (proposed.to as string) ||
-      (proposed.customer_phone as string) ||
-      action.channel_identity?.channel_handle;
+      (proposed.to as string) || (proposed.customer_phone as string) || action.channel_identity?.channel_handle;
 
     if (!textToSend) {
       return { success: false, error: 'No message text available to send' };
@@ -129,6 +130,61 @@ export async function approveAction(
         to: toHandle,
         messageType: 'text',
         text: textToSend,
+        metadata: {
+          action_id: action.id,
+          action_type: action.action_type,
+          tier: action.tier,
+          approved_by: user.id,
+          was_edited: Boolean(editedPayload?.reply_text),
+        },
+      });
+    } else if (action.channel_identity?.channel === 'telegram' && toHandle) {
+      const { data: telegramConnection, error: telegramConnectionErr } = await supabase
+        .from('channel_connections')
+        .select('tenant_id, credentials')
+        .eq('tenant_id', tenantId)
+        .eq('channel', 'telegram')
+        .maybeSingle();
+
+      if (telegramConnectionErr) {
+        console.error('[Approvals Action] Failed to read Telegram connection:', telegramConnectionErr);
+        return { success: false, error: 'Telegram connection lookup failed' };
+      }
+
+      const rawCredentials = telegramConnection?.credentials;
+      const parsedCredentials =
+        typeof rawCredentials === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(rawCredentials) as Record<string, unknown>;
+              } catch {
+                return {} as Record<string, unknown>;
+              }
+            })()
+          : (rawCredentials as Record<string, unknown> | null) || {};
+      const botToken =
+        (typeof parsedCredentials.bot_token === 'string' ? parsedCredentials.bot_token : null) ||
+        (typeof parsedCredentials.botToken === 'string' ? parsedCredentials.botToken : null);
+
+      if (!botToken) {
+        return { success: false, error: 'Telegram bot token is missing' };
+      }
+
+      await sendTelegramTextMessage({
+        supabase,
+        connection: {
+          tenantId,
+          botToken,
+          botUsername:
+            typeof parsedCredentials.bot_username === 'string'
+              ? parsedCredentials.bot_username
+              : typeof parsedCredentials.botUsername === 'string'
+                ? parsedCredentials.botUsername
+                : undefined,
+        },
+        chatId: toHandle,
+        text: textToSend,
+        channelIdentityId: action.channel_identity_id,
         metadata: {
           action_id: action.id,
           action_type: action.action_type,
@@ -152,10 +208,7 @@ export async function approveAction(
         .eq('tenant_id', tenantId);
 
       if (orderStatusErr) {
-        console.warn(
-          '[Approvals Action] Failed to transition draft order to pending_payment:',
-          orderStatusErr
-        );
+        console.warn('[Approvals Action] Failed to transition draft order to pending_payment:', orderStatusErr);
       } else {
         revalidatePath('/dashboard/orders');
       }
@@ -230,10 +283,7 @@ export async function approveAction(
 /**
  * Rejects a queued AI action and records an optional rejection reason.
  */
-export async function rejectAction(
-  actionId: string,
-  reason?: string
-): Promise<{ success: boolean; error?: string }> {
+export async function rejectAction(actionId: string, reason?: string): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -292,10 +342,7 @@ export async function rejectAction(
         .eq('tenant_id', tenantId);
 
       if (orderStatusErr) {
-        console.warn(
-          '[Approvals Action] Failed to transition draft order to cancelled:',
-          orderStatusErr
-        );
+        console.warn('[Approvals Action] Failed to transition draft order to cancelled:', orderStatusErr);
       } else {
         revalidatePath('/dashboard/orders');
       }
@@ -367,8 +414,7 @@ export async function getApprovalsQueueMetrics(): Promise<ApprovalsQueueMetrics>
       }
     }
 
-    const avgConfidencePct =
-      pendingCount > 0 ? Math.round((pendingConfidenceSum / pendingCount) * 100) : 100;
+    const avgConfidencePct = pendingCount > 0 ? Math.round((pendingConfidenceSum / pendingCount) * 100) : 100;
 
     return {
       pendingYellowCount,

@@ -16,17 +16,18 @@ export default async function ResetPasswordPage() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col lg:flex-row relative overflow-hidden">
+    <div className="min-h-dvh bg-background flex flex-col lg:flex-row relative overflow-x-hidden">
       {/* Mobile background brand curve accent */}
-      <div className="lg:hidden absolute -bottom-10 -right-10 pointer-events-none z-0">
-        <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M180 30C100 30 30 100 30 180"
-            stroke="var(--color-brand-primary)"
-            strokeWidth="2"
-            strokeOpacity="0.45"
-          />
-        </svg>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="lg:hidden absolute -bottom-10 -right-10">
+          <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M180 90C180 139.706 139.706 180 90 180C40.2944 180 0 139.706 0 90C0 40.2944 40.2944 0 90 0C139.706 0 180 40.2944 180 90Z"
+              fill="currentColor"
+              className="text-brand-primary opacity-5"
+            />
+          </svg>
+        </div>
       </div>
 
       {/* Left Split: Hero Photography (Desktop only) */}
@@ -43,7 +44,7 @@ export default async function ResetPasswordPage() {
       </div>
 
       {/* Right Split: Clean Auth Container */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-20 relative z-10 min-h-screen">
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-20 relative z-10 grow lg:grow-0">
         {/* Top Logo Lockup */}
         <div className="w-full max-w-md mx-auto flex items-center gap-3 pt-2 sm:pt-4">
           <Link href="/login" className="flex items-center gap-3 hover:opacity-90 transition-opacity">

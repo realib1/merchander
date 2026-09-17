@@ -58,3 +58,7 @@ next-env.d.ts
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+# Docs rough work files
+/docs/design_systems_extracted

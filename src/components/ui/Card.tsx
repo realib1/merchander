@@ -11,10 +11,10 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const VARIANT_STYLES: Record<CardVariant, string> = {
-  default: 'bg-surface border border-separator shadow-xs',
+  default: 'bg-surface border border-separator',
   elevated: 'bg-surface-elevated border border-separator shadow-md',
   interactive:
-    'bg-surface border border-separator shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer',
+    'bg-surface border border-separator hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer',
 };
 
 /**
@@ -25,7 +25,7 @@ export function Card({ ref, children, variant = 'default', className, ...props }
   return (
     <div
       ref={ref}
-      className={cn('overflow-hidden rounded-2xl text-primary', VARIANT_STYLES[variant], className)}
+      className={cn('overflow-hidden rounded-xl text-primary', VARIANT_STYLES[variant], className)}
       {...props}
     >
       {children}

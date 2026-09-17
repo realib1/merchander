@@ -16,9 +16,12 @@ export default async function LoginPage({
   const resolvedSearchParams = await searchParams;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col lg:flex-row relative overflow-x-hidden">
-      <div className="lg:hidden absolute -bottom-20 -right-20 pointer-events-none z-0 opacity-20">
-        <Image src="/merchander.png" alt="" width={220} height={220} aria-hidden="true" />
+    <div className="min-h-dvh bg-background flex flex-col lg:flex-row relative overflow-x-hidden">
+      {/* Mobile background brand curve accent */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="lg:hidden absolute -bottom-20 -right-20 opacity-20">
+          <Image src="/merchander.png" alt="" width={220} height={220} aria-hidden="true" />
+        </div>
       </div>
 
       {/* Left Split: Hero Photography (Desktop only) */}
@@ -35,7 +38,7 @@ export default async function LoginPage({
       </div>
 
       {/* Right Split: Clean Auth Container */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-20 relative z-10">
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-20 relative z-10 grow lg:grow-0">
         {/* Top Logo Lockup */}
         <div className="w-full max-w-md mx-auto flex items-center gap-3 pt-2 sm:pt-4">
           <Image src="/merchander.png" alt="Merchander" width={38} height={38} className="drop-shadow-xs shrink-0" />

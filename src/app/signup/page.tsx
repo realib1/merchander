@@ -27,9 +27,12 @@ export default async function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex flex-col lg:flex-row relative overflow-x-hidden">
-      <div className="lg:hidden absolute -bottom-20 -right-20 pointer-events-none z-0 opacity-20">
-        <Image src="/merchander.png" alt="" width={220} height={220} aria-hidden="true" />
+    <div className="min-h-dvh bg-background flex flex-col lg:flex-row relative overflow-x-hidden">
+      {/* Mobile background brand curve accent */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="lg:hidden absolute -bottom-20 -right-20 opacity-20">
+          <Image src="/merchander.png" alt="" width={220} height={220} aria-hidden="true" />
+        </div>
       </div>
 
       {/* Left Split: Hero Photography (Desktop only) */}
@@ -46,7 +49,7 @@ export default async function SignupPage() {
       </div>
 
       {/* Right Split: Clean Auth & Onboarding Container */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-8 lg:py-5 lg:px-10 xl:px-14 relative z-10 lg:h-screen lg:overflow-y-auto">
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-8 lg:py-5 lg:px-10 xl:px-14 relative z-10 grow lg:grow-0">
         {/* Top Logo Lockup */}
         <div className="w-full max-w-xl mx-auto flex items-center gap-3 pt-1 sm:pt-2">
           <Image src="/merchander.png" alt="Merchander" width={34} height={34} className="drop-shadow-xs shrink-0" />
@@ -107,6 +110,6 @@ export default async function SignupPage() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
