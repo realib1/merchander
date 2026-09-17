@@ -1,9 +1,6 @@
 import type { NextConfig } from 'next';
+import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { assertProductionReady } from './src/config/env';
-
-if (process.env.NODE_ENV === 'production') {
-  assertProductionReady();
-}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 let extraConnectOrigins = '';
@@ -97,7 +94,7 @@ if (supabaseUrl) {
   }
 }
 
-const nextConfig: NextConfig = {
+const nextConfigOptions: NextConfig = {
   turbopack: {
     root: __dirname,
   },
@@ -114,6 +111,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+};
+
+const nextConfig = (phase: string): NextConfig => {
+  if (phase !== PHASE_PRODUCTION_BUILD) {
+    assertProductionReady();
+  }
+
+  return nextConfigOptions;
 };
 
 export default nextConfig;
