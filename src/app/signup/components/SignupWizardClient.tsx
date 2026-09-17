@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { CircleAlert } from 'lucide-react';
 import { useSignupWizard } from './useSignupWizard';
 import { SignupProgressHeader } from './SignupProgressHeader';
@@ -84,17 +83,6 @@ export function SignupWizardClient() {
         />
       </div>
 
-      {wizard.currentStep > 1 && (
-        <p className="text-center text-xs text-muted mt-8">
-          Already have a merchant workspace?{' '}
-          <Link
-            href="/login"
-            className="font-semibold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors"
-          >
-            Sign in here
-          </Link>
-        </p>
-      )}
     </div>
   );
 }

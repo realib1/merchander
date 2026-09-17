@@ -121,12 +121,6 @@ export function StepAccountCredentials({
           Continue to Store Setup
         </button>
 
-        <div className="pt-2 text-sm text-muted font-medium text-center">
-          Already have an account?{' '}
-          <Link href="/login" className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline transition-colors ml-1">
-            Log in
-          </Link>
-        </div>
       </div>
     </div>
   );
