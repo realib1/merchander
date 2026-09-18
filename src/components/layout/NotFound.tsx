@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function NotFound(): React.ReactNode {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+    <div className="flex h-dvh max-h-dvh flex-col justify-between overflow-hidden bg-background text-foreground">
       {/* Brand Header */}
       <header className="w-full max-w-7xl mx-auto px-6 py-4 sm:px-8 lg:px-12 flex items-center">
         <Link
@@ -18,7 +18,7 @@ export default function NotFound(): React.ReactNode {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-8 sm:px-8 lg:px-12">
+      <main className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 py-6 sm:px-8 sm:py-8 lg:px-12">
         <div className="w-full max-w-7xl">
           <div className="grid w-full items-center gap-10 lg:grid-cols-12 lg:gap-16">
             {/* Left: Message & Recovery CTA */}
@@ -58,7 +58,7 @@ export default function NotFound(): React.ReactNode {
                 height={1024}
                 priority
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 560px"
-                className="w-full max-w-[500px] sm:max-w-[540px] lg:max-w-[580px] h-auto object-contain select-none pointer-events-none"
+                className="h-auto max-h-[42dvh] w-full max-w-[500px] object-contain select-none pointer-events-none sm:max-w-[540px] lg:max-h-[64dvh] lg:max-w-[580px]"
               />
             </section>
           </div>
