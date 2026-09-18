@@ -32,14 +32,14 @@ export function StoreNavbar({
   const storeOrdersUrl = `/store/${config.slug}/orders`;
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-surface/90 backdrop-blur-md border-b border-separator/80 transition-all shadow-xs">
+    <header className="sticky top-0 z-40 w-full border-b border-separator/70 bg-background/92 backdrop-blur-md transition-all">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-surface focus:text-foreground focus:top-0 focus:left-0 focus:outline-none focus:ring-2 focus:ring-brand-primary"
       >
         Skip to main content
       </a>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:h-16 sm:px-6 lg:px-8">
         {/* 1. Brand Identity */}
         <div className="flex items-center gap-6 min-w-0">
           <Link href={storeHomeUrl} className="flex items-center gap-2.5 min-w-0 group">
@@ -117,7 +117,7 @@ export function StoreNavbar({
             <button
               type="button"
               onClick={onOpenSearch}
-              className="h-8 w-8 rounded-xl bg-surface-elevated hover:bg-surface-elevated/80 border border-separator text-muted hover:text-foreground flex items-center justify-center cursor-pointer transition active:scale-95"
+              className="h-9 w-9 rounded-full border border-separator bg-surface text-muted transition hover:text-foreground flex items-center justify-center cursor-pointer active:scale-95"
               aria-label="Search catalog"
               title="Search (Press /)"
             >
@@ -129,7 +129,7 @@ export function StoreNavbar({
           <button
             type="button"
             onClick={onOpenCart}
-            className="hidden sm:flex relative items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-xs font-bold shadow-xs hover:opacity-90 transition active:scale-95 cursor-pointer"
+            className="hidden sm:flex relative items-center gap-1.5 rounded-full px-4 py-2 text-white text-xs font-bold shadow-xs hover:opacity-90 transition active:scale-95 cursor-pointer"
             style={{ backgroundColor: primaryColor }}
             aria-label={`Shopping cart (${cartCount} items)`}
           >
@@ -143,14 +143,14 @@ export function StoreNavbar({
           </button>
 
           {/* Theme Switcher */}
-          <ThemeToggle variant="toggle" className="h-8 w-8 rounded-xl bg-surface-elevated border-separator" />
+          <ThemeToggle variant="toggle" className="h-9 w-9 rounded-full bg-surface border-separator" />
 
           {/* Mobile Menu Hamburger Button (strictly hidden on md and above) */}
           {onOpenMenu && (
             <button
               type="button"
               onClick={onOpenMenu}
-              className="md:hidden h-8 w-8 rounded-xl bg-surface-elevated hover:bg-surface-elevated/80 border border-separator text-muted hover:text-foreground flex items-center justify-center cursor-pointer transition active:scale-95"
+              className="md:hidden h-9 w-9 rounded-full bg-surface hover:bg-surface-elevated border border-separator text-muted hover:text-foreground flex items-center justify-center cursor-pointer transition active:scale-95"
               aria-label="Open storefront menu"
             >
               <Menu size={16} />

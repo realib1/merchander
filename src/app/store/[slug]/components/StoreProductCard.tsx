@@ -42,10 +42,10 @@ export function StoreProductCard({
   return (
     <Link
       href={productUrl}
-      className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-xs hover:border-separator/90 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer group relative select-none"
+      className="group relative flex flex-col justify-between overflow-hidden rounded-md border border-separator/80 bg-surface shadow-xs transition-all duration-200 hover:border-separator hover:shadow-md cursor-pointer select-none"
     >
       {/* 1. Product Image Container */}
-      <div className="relative aspect-square w-full bg-surface-elevated overflow-hidden">
+      <div className="relative aspect-square w-full overflow-hidden bg-[#f0ece6]">
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -108,7 +108,7 @@ export function StoreProductCard({
       </div>
 
       {/* 2. Product Details & Quick Commerce Bar */}
-      <div className="p-3 flex flex-col justify-between flex-1 space-y-2.5">
+      <div className="flex flex-1 flex-col justify-between space-y-2.5 p-3.5">
         <div>
           <span className="text-[10px] text-muted font-medium block truncate">{product.category_name}</span>
           <h3 className="text-xs font-bold text-foreground line-clamp-2 mt-0.5 group-hover:opacity-80 transition leading-snug">

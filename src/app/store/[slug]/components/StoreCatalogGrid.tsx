@@ -51,8 +51,15 @@ export function StoreCatalogGrid({
   onResetFilters,
 }: StoreCatalogGridProps) {
   return (
-    <main id="store-catalog-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <main id="store-catalog-section" className="mx-auto max-w-7xl space-y-7 px-4 py-8 sm:px-6 lg:px-8">
       <div id="main-content" tabIndex={-1} className="outline-none" />
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-primary">The collection</p>
+          <h2 className="mt-1 text-2xl font-black tracking-[-0.035em] text-foreground sm:text-3xl">Shop the edit</h2>
+        </div>
+        <span className="hidden text-xs text-muted sm:block">{products.length} pieces to explore</span>
+      </div>
       {/* Controls Bar: Category Pills & Sort Selector */}
       <div className="space-y-4">
         {/* Category Pills Strip */}
@@ -60,7 +67,7 @@ export function StoreCatalogGrid({
           <button
             type="button"
             onClick={() => onSelectCategory('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition border ${
+            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer transition border ${
               selectedCategoryId === 'all'
                 ? 'text-white shadow-xs'
                 : 'bg-surface border-separator text-muted hover:text-foreground'
@@ -77,7 +84,7 @@ export function StoreCatalogGrid({
             <button
               type="button"
               onClick={() => onSelectCategory('preorders')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition border ${
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer transition border ${
                 selectedCategoryId === 'preorders'
                   ? 'text-white shadow-xs'
                   : 'bg-surface border-amber-500/30 text-amber-600 dark:text-amber-400 hover:text-amber-500'
@@ -177,7 +184,7 @@ export function StoreCatalogGrid({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
           {products.map((p) => (
             <StoreProductCard
               key={p.id}

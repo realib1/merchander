@@ -56,54 +56,56 @@ export function StoreHeroSection({ config, featuredProducts = [], onSelectProduc
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-4">
       <div>
         {isBannerMode && config.banner_url ? (
           /* Mode 1: Promotional Flyer Banner */
-          <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-separator/80 shadow-md bg-surface flex flex-col justify-end min-h-65 sm:min-h-85 md:min-h-95 group">
+          <div className="relative w-full min-h-80 sm:min-h-95 md:min-h-105 overflow-hidden rounded-md bg-[#e9e0d4] shadow-sm group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={config.banner_url}
               alt={config.banner_headline || config.store_name}
               className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-r from-black/65 via-black/20 to-transparent" />
 
-            <div className="relative z-10 p-5 sm:p-8 text-white space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-bold tracking-wide uppercase border border-white/30">
-                <Tag size={12} className="text-white" />
-                <span>Featured Promotion</span>
-              </div>
+            <div className="relative z-10 flex min-h-80 sm:min-h-95 md:min-h-105 items-end p-6 sm:p-10 md:p-14 text-white">
+              <div className="max-w-md space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
+                  <Tag size={12} />
+                  <span>New arrivals</span>
+                </div>
 
-              <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
-                {config.banner_headline || config.tagline || `Special Offers at ${config.store_name}`}
-              </h1>
+                <h1 className="max-w-sm text-4xl font-black leading-[0.98] tracking-[-0.04em] sm:text-5xl md:text-6xl">
+                  {config.banner_headline || config.tagline || `Everyday essentials.`}
+                </h1>
 
-              {config.banner_tagline && (
-                <p className="text-xs sm:text-sm text-white/90 line-clamp-2 max-w-xl">{config.banner_tagline}</p>
-              )}
-
-              <div className="pt-2 flex items-center gap-3 flex-wrap">
-                <button
-                  type="button"
-                  onClick={scrollToCatalog}
-                  className="px-6 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-bold shadow-md hover:bg-white/90 transition active:scale-95 cursor-pointer flex items-center gap-1.5"
-                >
-                  <span>{config.banner_cta_text || 'Shop Collection'}</span>
-                  <ArrowDown size={13} />
-                </button>
-
-                {whatsappLink && (
-                  <a
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <MessageCircle size={14} />
-                    <span>Inquire on WhatsApp</span>
-                  </a>
+                {config.banner_tagline && (
+                  <p className="max-w-xs text-sm leading-relaxed text-white/85 sm:text-base">{config.banner_tagline}</p>
                 )}
+
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={scrollToCatalog}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-primary px-5 text-xs font-bold text-white shadow-lg transition hover:brightness-105 active:scale-95"
+                  >
+                    <span>{config.banner_cta_text || 'Shop now'}</span>
+                    <ArrowDown size={13} />
+                  </button>
+
+                  {whatsappLink && (
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/35 bg-white/10 px-4 text-xs font-bold text-white backdrop-blur-md transition hover:bg-white/20"
+                    >
+                      <MessageCircle size={14} />
+                      <span>Ask on WhatsApp</span>
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
