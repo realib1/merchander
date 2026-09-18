@@ -26,9 +26,7 @@ export default async function StorefrontSearchPage({ params, searchParams }: Sea
 
   const primaryColor = data.config.primary_color || '#3b82f6';
   return (
-    <div
-      style={{ '--color-brand-primary': primaryColor, '--brand-primary': primaryColor } as React.CSSProperties}
-    >
+    <div style={{ '--color-brand-primary': primaryColor, '--brand-primary': primaryColor } as React.CSSProperties}>
       <StoreDiscoveryView
         config={data.config}
         categories={data.categories}

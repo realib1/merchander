@@ -15,6 +15,7 @@ import { StoreSearchModal } from './StoreSearchModal';
 import { StoreFloatingWhatsApp } from './StoreFloatingWhatsApp';
 import { StoreAnnouncementBanner } from './StoreAnnouncementBanner';
 import { StoreCatalogGrid, SortOption } from './StoreCatalogGrid';
+import { StoreHomeHighlights } from './StoreHomeHighlights';
 import { calculateCartTotals } from '@/utils/storefront';
 import { slugify } from '@/utils/format';
 import { useStorefrontWishlist, useStorefrontCart } from '@/hooks';
@@ -189,6 +190,14 @@ export function StoreCatalog({ config, categories, products, activeBatches = [] 
           config={config}
           featuredProducts={featuredProducts}
           onSelectProduct={(p) => router.push(`/store/${config.slug}/products/${slugify(p.name)}`)}
+        />
+
+        <StoreHomeHighlights
+          slug={config.slug}
+          categories={categories}
+          products={products}
+          primaryColor={primaryColor}
+          currency={currency}
         />
 
         <StoreCatalogGrid

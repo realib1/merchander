@@ -76,6 +76,20 @@ export function StoreNavbar({
               Shop
             </Link>
 
+            <Link
+              href={`${storeHomeUrl}#store-catalog-section`}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground hover:bg-surface-elevated transition cursor-pointer"
+            >
+              Categories
+            </Link>
+
+            <Link
+              href={`${storeHomeUrl}#store-highlights`}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground hover:bg-surface-elevated transition cursor-pointer"
+            >
+              Collections
+            </Link>
+
             {onOpenTracking ? (
               <button
                 type="button"
