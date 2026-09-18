@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Archive, CircleCheck, CircleX, Clock3 } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 import { calculateTotalStock, calculateTotalUnitsSold, getVariantPriceRange, generateSKU } from '@/utils/product';
 import type { Product } from '@/types/product';
@@ -53,9 +54,9 @@ export function ProductsTableRow({ product, isSelected, onToggleSelect }: Produc
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl border border-separator bg-surface p-1 flex items-center justify-center font-bold text-sm shrink-0 text-brand-primary">
+          <div className="h-10 w-10 rounded-lg border border-separator bg-surface p-1 flex items-center justify-center font-bold text-sm shrink-0 text-brand-primary">
             {product.image_urls && product.image_urls.length > 0 ? (
-              <div className="relative w-full h-full overflow-hidden rounded-lg">
+              <div className="relative w-full h-full overflow-hidden rounded-md">
                 <Image src={product.image_urls[0]} alt={product.name} fill className="object-cover" sizes="32px" />
               </div>
             ) : product.name ? (
@@ -83,14 +84,16 @@ export function ProductsTableRow({ product, isSelected, onToggleSelect }: Produc
           : '-'}
       </td>
 
-      <td className="px-4 py-3 space-y-1.5">
+      <td className="space-y-1.5 px-4 py-3">
         <div>
           {product.is_active ? (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-emerald-500/10 text-emerald-600">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-caption font-semibold text-success">
+              <CircleCheck size={12} strokeWidth={2.5} aria-hidden="true" />
               Active
             </span>
           ) : (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-orange-500/10 text-orange-600">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-amber-subtle px-2.5 py-1 text-caption font-semibold text-brand-amber">
+              <Archive size={12} strokeWidth={2.5} aria-hidden="true" />
               Archived
             </span>
           )}
@@ -98,17 +101,20 @@ export function ProductsTableRow({ product, isSelected, onToggleSelect }: Produc
         {product.availability_status && (
           <div>
             {product.availability_status === 'AVAILABLE' && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-brand-primary/10 text-brand-primary">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/10 px-2.5 py-1 text-caption font-semibold text-brand-primary">
+                <CircleCheck size={12} strokeWidth={2.5} aria-hidden="true" />
                 Available
               </span>
             )}
             {product.availability_status === 'PRE_ORDER' && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-indigo-500/10 text-indigo-600">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-info/10 px-2.5 py-1 text-caption font-semibold text-info">
+                <Clock3 size={12} strokeWidth={2.5} aria-hidden="true" />
                 Pre-Order
               </span>
             )}
             {product.availability_status === 'OUT_OF_STOCK' && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-semibold bg-red-500/10 text-red-600">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-caption font-semibold text-destructive">
+                <CircleX size={12} strokeWidth={2.5} aria-hidden="true" />
                 Out of Stock
               </span>
             )}

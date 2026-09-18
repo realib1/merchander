@@ -41,27 +41,37 @@ export function ProductsHeader() {
   }, [search, router, searchParams]);
 
   return (
-    <div className="mb-6 space-y-6">
-      {/* StudioGrid Single-Row Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">Products</h1>
+          <p className="text-sm text-secondary">Your catalogue, what it is worth, and what is running out.</p>
+        </div>
+        <Link
+          href="/dashboard/products/new"
+          className="inline-flex h-9 items-center gap-2 rounded-md bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover"
+        >
+          <Plus size={15} strokeWidth={2.5} />
+          New product
+        </Link>
+      </div>
+
+      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1 sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={15} />
           <input
             type="text"
-            placeholder="Search products or SKU..."
+            placeholder="Search products, SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={
-              'w-full pl-9 pr-4 py-2 bg-surface border rounded-lg text-body-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all' +
-              ' border-separator   placeholder:text-muted'
-            }
+            className="h-9 w-full rounded-md border border-separator bg-surface-elevated px-3 pl-9 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 placeholder:text-muted"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             disabled
-            className="px-3 py-2 bg-surface border border-separator rounded-lg text-body-sm font-medium  outline-none focus:ring-1 focus:ring-brand-primary min-w-30 flex-1 sm:flex-none"
+            className="h-9 min-w-32 rounded-md border border-separator bg-surface px-3 text-sm font-medium outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option>All categories</option>
           </select>
@@ -69,35 +79,31 @@ export function ProductsHeader() {
           <select
             value={currentStatus}
             onChange={(e) => updateParam('status', e.target.value)}
-            className="px-3 py-2 bg-surface border border-separator rounded-lg text-body-sm font-medium  outline-none focus:ring-1 focus:ring-brand-primary min-w-30 flex-1 sm:flex-none"
+            className="h-9 min-w-32 rounded-md border border-separator bg-surface px-3 text-sm font-medium outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option value="all">All statuses</option>
             <option value="active">Active</option>
             <option value="archived">Archived</option>
           </select>
 
-          <div className="flex bg-surface border border-separator rounded-lg p-1 shrink-0">
+          <div className="flex shrink-0 gap-1 rounded-md bg-surface-elevated p-1">
             <button
+              type="button"
+              aria-label="Table view"
               onClick={() => updateParam('view', 'table')}
-              className={`p-1 rounded-md transition-colors ${currentView === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
+              className={`rounded-md p-1.5 transition-colors ${currentView === 'table' ? 'bg-surface text-foreground shadow-xs' : 'text-muted hover:text-foreground'}`}
             >
               <List size={16} />
             </button>
             <button
+              type="button"
+              aria-label="Grid view"
               onClick={() => updateParam('view', 'grid')}
-              className={`p-1 rounded-md transition-colors ${currentView === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
+              className={`rounded-md p-1.5 transition-colors ${currentView === 'grid' ? 'bg-surface text-foreground shadow-xs' : 'text-muted hover:text-foreground'}`}
             >
               <LayoutGrid size={16} />
             </button>
           </div>
-
-          <Link
-            href="/dashboard/products/new"
-            className="flex justify-center items-center gap-1.5 bg-brand-primary hover:opacity-90 text-white px-4 py-2 rounded-lg text-body-sm font-medium transition-opacity shrink-0"
-          >
-            <Plus size={16} />
-            Add product
-          </Link>
         </div>
       </div>
     </div>

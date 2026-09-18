@@ -48,12 +48,11 @@ export default async function CatalogPage({
   const totalPages = Math.ceil((count || 0) / pageSize);
 
   return (
-    <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full">
-      <h1 className="sr-only">Products Catalog</h1>
+    <div className="flex w-full max-w-7xl flex-col gap-6 animate-fadeIn mx-auto">
       <ProductsMetrics products={products as Product[]} />
       <ProductsHeader />
 
-      <div className="bg-surface border border-separator rounded-xl overflow-hidden min-h-125 flex flex-col min-w-0 w-full">
+      <div className="w-full min-w-0 min-h-125 overflow-hidden rounded-lg border border-separator bg-surface flex flex-col">
         {view === 'grid' ? (
           <ProductGridView
             products={products as Product[]}
@@ -113,7 +112,7 @@ function ProductGridView({
           return (
             <div
               key={product.id}
-              className="group flex flex-col bg-surface border border-separator rounded-xl overflow-hidden hover:border-brand-primary/50 transition-colors shadow-sm hover:shadow-md relative"
+              className="group flex flex-col bg-surface border border-separator rounded-lg overflow-hidden hover:border-brand-primary/50 transition-colors shadow-sm hover:shadow-md relative"
             >
               <div className="aspect-square bg-brand-primary/5 border-b border-separator/30 flex items-center justify-center relative overflow-hidden">
                 {product.image_urls && product.image_urls.length > 0 ? (
@@ -125,7 +124,7 @@ function ProductGridView({
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-3xl">
+                  <div className="w-20 h-20 rounded-lg bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-3xl">
                     {product.name ? product.name.substring(0, 2).toUpperCase() : 'UN'}
                   </div>
                 )}
@@ -173,7 +172,7 @@ function ProductGridView({
             <p className="text-sm mt-1">Try adjusting your search or filters, or create your first product.</p>
             <Link
               href="/dashboard/products/new"
-              className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg text-sm font-semibold hover:bg-brand-primary-600 transition-colors"
+              className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-brand-primary text-white rounded-md text-sm font-semibold hover:bg-brand-primary-600 transition-colors"
             >
               Add Product
             </Link>

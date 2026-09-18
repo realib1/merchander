@@ -33,14 +33,14 @@ export function ProductsPagination({ currentPage, totalPages, totalCount, create
           {currentPage > 1 ? (
             <Link
               href={createPageUrl(currentPage - 1)}
-              className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all"
+              className="rounded-md border border-transparent p-1 text-muted transition-all hover:border-separator hover:bg-surface hover:text-brand-primary"
               aria-label="Previous page"
             >
               <ChevronLeft size={16} />
             </Link>
           ) : (
             <button
-              className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all"
+              className="rounded-md border border-transparent p-1 text-muted transition-all hover:border-separator hover:bg-surface hover:text-brand-primary"
               disabled
               aria-label="Previous page"
             >
@@ -49,7 +49,7 @@ export function ProductsPagination({ currentPage, totalPages, totalCount, create
           )}
 
           <span
-            className="px-2 py-1 min-w-6 text-center rounded bg-surface border border-separator tabular-nums"
+            className="min-w-6 rounded-md border border-separator bg-surface px-2 py-1 text-center tabular-nums"
             aria-current="page"
           >
             {currentPage}
@@ -58,14 +58,14 @@ export function ProductsPagination({ currentPage, totalPages, totalCount, create
           {currentPage < totalPages ? (
             <Link
               href={createPageUrl(currentPage + 1)}
-              className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all"
+              className="rounded-md border border-transparent p-1 text-muted transition-all hover:border-separator hover:bg-surface hover:text-brand-primary"
               aria-label="Next page"
             >
               <ChevronRight size={16} />
             </Link>
           ) : (
             <button
-              className="p-1 rounded text-muted hover:text-brand-primary hover:bg-surface border border-transparent hover:border-separator transition-all"
+              className="rounded-md border border-transparent p-1 text-muted transition-all hover:border-separator hover:bg-surface hover:text-brand-primary"
               disabled
               aria-label="Next page"
             >

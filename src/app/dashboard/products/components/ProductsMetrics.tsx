@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, DollarSign, ShoppingBag, Package } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 import type { Product, ProductVariant, OrderItem } from '@/types/product';
-import { MetricCard } from '@/components/ui/MetricCard';
 
 export function ProductsMetrics({ products }: { products: Product[] }) {
   const totalProducts = products.length;
@@ -37,36 +36,24 @@ export function ProductsMetrics({ products }: { products: Product[] }) {
   });
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <MetricCard
-        title="Total Products"
-        value={totalProducts.toLocaleString()}
-        icon={<Package size={14} />}
-        subtitle={`${activeProducts} active in catalog`}
-        iconBg="bg-brand-primary/10 text-brand-primary"
-      />
-      <MetricCard
-        title="Inventory Units"
-        value={totalStock.toLocaleString()}
-        icon={<Box size={14} />}
-        subtitle={lowStockVariants > 0 ? `${lowStockVariants} products low on stock` : 'Stock levels healthy'}
-        subtitleColor={lowStockVariants > 0 ? 'text-warning' : 'text-muted'}
-        iconBg="bg-warning/10 text-warning"
-      />
-      <MetricCard
-        title="Catalog Value"
-        value={formatCurrency(catalogValue)}
-        icon={<DollarSign size={14} />}
-        subtitle="Current retail inventory value"
-        iconBg="bg-success/10 text-success"
-      />
-      <MetricCard
-        title="Units Sold"
-        value={totalUnitsSold.toLocaleString()}
-        icon={<ShoppingBag size={14} />}
-        subtitle="All-time completed orders"
-        iconBg="bg-info/10 text-info"
-      />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        { label: 'Products', value: totalProducts.toLocaleString(), note: `${activeProducts} active in catalogue`, icon: Package, color: 'text-muted' },
+        { label: 'Inventory units', value: totalStock.toLocaleString(), note: lowStockVariants > 0 ? `${lowStockVariants} products low on stock` : 'Stock levels healthy', icon: Box, color: lowStockVariants > 0 ? 'text-warning' : 'text-muted' },
+        { label: 'Catalogue value', value: formatCurrency(catalogValue), note: 'At current retail price', icon: DollarSign, color: 'text-muted' },
+        { label: 'Units sold · 30d', value: totalUnitsSold.toLocaleString(), note: 'Across completed orders', icon: ShoppingBag, color: 'text-success' },
+      ].map(({ label, value, note, icon: Icon, color }) => (
+        <div key={label} className="flex min-h-28 flex-col justify-between gap-3 rounded-xl border border-separator bg-surface p-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{label}</span>
+            <Icon size={15} className="text-muted" aria-hidden="true" />
+          </div>
+          <div>
+            <span className="font-display text-2xl font-bold tracking-tight text-foreground tabular-nums">{value}</span>
+            <p className={`mt-1 text-xs font-medium ${color}`}>{note}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

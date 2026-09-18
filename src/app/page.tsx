@@ -15,6 +15,7 @@ export default function LandingPage() {
   const navItems = [
     { label: 'How it works', href: '#how-it-works' },
     { label: 'Areas', href: '#areas' },
+    { label: 'About us', href: '/about' },
   ];
 
   const headerActions = (
@@ -36,8 +37,8 @@ export default function LandingPage() {
     {
       title: 'Company',
       items: [
-        { label: 'About SHERO', href: 'https://sherohq.com', external: true },
-        { label: 'Contact Us', href: 'mailto:hello@sherohq.com' },
+        { label: 'About us', href: '/about' },
+        { label: 'Contact us', href: 'mailto:hello@sherohq.com' },
       ],
     },
   ];
