@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { StorefrontCartItem, StorefrontConfig, StoreOrderResponse } from '@/types/storefront';
 import { calculateCartTotals, formatWhatsAppOrderMessage } from '@/utils/storefront';
 import { submitStorefrontOrder } from '@/app/actions/storefront-order';
@@ -31,6 +32,7 @@ export function StoreCartDrawer({
   onRemoveItem,
   onClearCart,
 }: StoreCartDrawerProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -223,6 +225,17 @@ export function StoreCartDrawer({
                   />
                 ))}
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  router.push(`/store/${config.slug}/checkout`);
+                }}
+                className="w-full rounded-full border border-separator bg-surface-elevated px-4 py-3 text-xs font-bold text-foreground transition hover:border-brand-primary hover:text-brand-primary"
+              >
+                Continue to full checkout
+              </button>
 
               {/* Checkout Form */}
               <CartCheckoutForm
