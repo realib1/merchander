@@ -21,6 +21,7 @@ export interface StorefrontOverviewData {
     imageUrl: string | null;
     isFeatured: boolean;
   }>;
+  categories: Array<{ id: string; name: string }>;
   featuredProductIds: string[];
 }
 
@@ -37,7 +38,7 @@ export async function getStorefrontOverview(): Promise<StorefrontOverviewData | 
   try {
     const { tenantId } = await getTenantInfo(supabase, user.id);
 
-    const [productsRes, ordersRes, settingsRes, sfRes] = await Promise.all([
+    const [productsRes, ordersRes, settingsRes, sfRes, categoriesRes] = await Promise.all([
       supabase
         .from('products')
         .select(
@@ -52,10 +53,21 @@ export async function getStorefrontOverview(): Promise<StorefrontOverviewData | 
       supabase.from('orders').select('id, total_amount, status, created_at').eq('tenant_id', tenantId),
       supabase.from('tenant_settings').select('settings_data, store_currency').eq('tenant_id', tenantId).single(),
       supabase.from('storefront_settings').select('featured_product_ids').eq('tenant_id', tenantId).maybeSingle(),
+      (async () => {
+        try {
+          const query = supabase.from('product_categories');
+          if (!query || typeof query.select !== 'function') return { data: [] };
+          const res = await query.select('id, name').eq('tenant_id', tenantId).order('name');
+          return res || { data: [] };
+        } catch {
+          return { data: [] };
+        }
+      })(),
     ]);
 
     const rawProducts = productsRes.data || [];
     const rawOrders = ordersRes.data || [];
+    const rawCategories = categoriesRes.data || [];
     const customSettings = (settingsRes.data?.settings_data as Record<string, unknown> | null) || {};
     const payments = (customSettings.payment_settings || customSettings.payments) as Record<string, unknown> | undefined;
     const providers = payments?.providers as Record<string, { connected?: boolean }> | undefined;
@@ -102,6 +114,7 @@ export async function getStorefrontOverview(): Promise<StorefrontOverviewData | 
       isHubtelConnected: Boolean(providers?.hubtel?.connected),
       isPaystackConnected: Boolean(providers?.paystack?.connected),
       allProducts: formattedProducts,
+      categories: rawCategories,
       featuredProductIds: featuredIds,
     };
   } catch (err) {

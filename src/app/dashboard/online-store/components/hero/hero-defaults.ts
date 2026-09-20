@@ -35,7 +35,7 @@ export function createDefaultSlide(id = 'slide_1'): StorefrontHeroSlide {
     link_type: 'catalog',
     link_id: '',
     contrast_theme: 'auto',
-    image_fit: 'fit',
+    image_fit: 'cover',
   };
 }
 

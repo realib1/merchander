@@ -77,6 +77,13 @@ describe('storefront-dashboard server actions', () => {
             maybeSingle: vi.fn().mockResolvedValue({ data: null }),
           };
         }
+        if (table === 'product_categories') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({ data: [] }),
+          };
+        }
         return {};
       }),
     });
@@ -144,6 +151,13 @@ describe('storefront-dashboard server actions', () => {
             maybeSingle: vi.fn().mockResolvedValue({
               data: { featured_product_ids: ['prod-1'] },
             }),
+          };
+        }
+        if (table === 'product_categories') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({ data: [{ id: 'cat-1', name: 'Apparel' }] }),
           };
         }
         return {};

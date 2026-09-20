@@ -49,6 +49,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
           delivery_policy: 'Fast delivery across Ghana',
           is_active: true,
           currency: 'GHS',
+          show_collections: false,
         };
       }
     }
@@ -170,6 +171,14 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
         image_fit: config.spotlight_two.image_fit || 'fit',
       };
     }
+    if (config.show_collections === undefined || config.show_collections === null) {
+      config.show_collections = Boolean(customData.show_collections || tenantSettings?.show_collections);
+    }
+    if (!config.custom_collections) {
+      config.custom_collections =
+        ((customData.custom_collections || tenantSettings?.custom_collections) as import('@/types/storefront').StorefrontCustomCollection[]) ||
+        null;
+    }
 
     const rawSlides = ((config.hero_slides as unknown) || customData.hero_slides || tenantSettings?.hero_slides) as
       | import('@/types/storefront').StorefrontHeroSlide[]
@@ -196,7 +205,7 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
           link_type: config.banner_link_type || 'catalog',
           link_id: config.banner_link_id || null,
           contrast_theme: config.banner_contrast_theme || 'auto',
-          image_fit: config.banner_image_fit || 'fit',
+          image_fit: config.banner_image_fit || 'cover',
         },
       ];
     }

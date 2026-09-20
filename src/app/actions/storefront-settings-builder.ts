@@ -1,10 +1,11 @@
-import { StorefrontHeroSlide } from '@/types/storefront';
+import { StorefrontHeroSlide, StorefrontCustomCollection } from '@/types/storefront';
 import { StorefrontUpdateInput } from './storefront-config-schema';
 
 export function buildUpdatedSettingsData(
   val: StorefrontUpdateInput,
   current: Record<string, unknown>,
-  parsedHeroSlides?: StorefrontHeroSlide[]
+  parsedHeroSlides?: StorefrontHeroSlide[],
+  parsedCollections?: StorefrontCustomCollection[]
 ) {
   return {
     ...current,
@@ -24,9 +25,11 @@ export function buildUpdatedSettingsData(
     banner_starts_at: val.bannerStartsAt || null,
     banner_ends_at: val.bannerEndsAt || null,
     banner_contrast_theme: parsedHeroSlides?.[0]?.contrast_theme ?? (val.bannerContrastTheme || 'auto'),
-    banner_image_fit: parsedHeroSlides?.[0]?.image_fit ?? (val.bannerImageFit || 'fit'),
+    banner_image_fit: parsedHeroSlides?.[0]?.image_fit ?? (val.bannerImageFit || 'cover'),
     hero_slides: parsedHeroSlides || current.hero_slides || null,
     delivery_policy: val.deliveryPolicy || null,
+    show_collections: val.showCollections ?? (current.show_collections as boolean | undefined) ?? false,
+    custom_collections: parsedCollections || current.custom_collections || null,
     brand_primary_color: val.primaryColor || '#3b82f6',
     brand_secondary_color: val.secondaryColor || '#1e40af',
     social: {

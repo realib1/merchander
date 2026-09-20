@@ -79,6 +79,15 @@ export async function getStorefrontConfig(): Promise<StorefrontConfig | null> {
       primary_color: primaryColor,
       secondary_color: secondaryColor,
       custom_domain: (sfData?.custom_domain as string) || (customData?.custom_domain as string) || null,
+      show_collections:
+        sfData?.show_collections !== undefined
+          ? Boolean(sfData.show_collections)
+          : customData?.show_collections !== undefined
+          ? Boolean(customData.show_collections)
+          : false,
+      custom_collections:
+        ((sfData?.custom_collections || customData?.custom_collections || settingsData?.custom_collections) as
+          | StorefrontConfig['custom_collections']) || null,
       spotlight_one:
         ((sfData?.spotlight_one || settingsData?.spotlight_one || customData?.spotlight_one) as StorefrontConfig['spotlight_one']) || null,
       spotlight_two:
@@ -114,7 +123,7 @@ export async function getStorefrontConfig(): Promise<StorefrontConfig | null> {
             link_type: (sfData?.banner_link_type as 'catalog' | 'product' | 'category') || 'catalog',
             link_id: (sfData?.banner_link_id as string) || null,
             contrast_theme: (sfData?.banner_contrast_theme as 'auto' | 'light' | 'dark') || 'auto',
-            image_fit: (sfData?.banner_image_fit as 'fit' | 'cover') || 'fit',
+            image_fit: (sfData?.banner_image_fit as 'fit' | 'cover') || 'cover',
           },
         ];
       })(),

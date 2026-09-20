@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   Heart,
   ShoppingBag,
+  Sparkles,
   User,
   Headphones,
   Settings,
@@ -178,6 +179,18 @@ export function StoreMenuDrawer({
               </div>
             )}
           </div>
+
+          {/* Collections (if enabled) */}
+          {config.show_collections && (
+            <Link
+              href={`/store/${config.slug}/categories#collections`}
+              onClick={onClose}
+              className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+            >
+              <Sparkles size={18} className="text-zinc-400" />
+              <span>Collections</span>
+            </Link>
+          )}
 
           {/* 3. Wishlist */}
           <button

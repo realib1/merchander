@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { Loader2, Save } from 'lucide-react';
-import { StorefrontHeroSlide } from '@/types/storefront';
+import { StorefrontHeroSlide, StorefrontCustomCollection } from '@/types/storefront';
 import { StorefrontHeroCard } from './StorefrontHeroCard';
 import { StorefrontSpotlightsCard } from './StorefrontSpotlightsCard';
+import { StorefrontCollectionsCard } from './StorefrontCollectionsCard';
 import { StoreIdentitySection } from './branding/StoreIdentitySection';
 import { StoreThemePresetsSection } from './branding/StoreThemePresetsSection';
 import { BRAND_THEME_PRESETS } from './branding/branding-presets';
@@ -64,6 +65,11 @@ interface StorefrontBrandingTabProps {
   onPrimaryColorChange: (val: string) => void;
   onSecondaryColorChange: (val: string) => void;
   onIsActiveChange: (val: boolean) => void;
+  showCollections: boolean;
+  onShowCollectionsChange: (val: boolean) => void;
+  customCollections?: StorefrontCustomCollection[];
+  onCollectionsChange?: (collections: StorefrontCustomCollection[]) => void;
+  categories?: Array<{ id: string; name: string }>;
 }
 
 export function StorefrontBrandingTab(props: StorefrontBrandingTabProps) {
@@ -126,6 +132,16 @@ export function StorefrontBrandingTab(props: StorefrontBrandingTabProps) {
         onSpotlightTwoCtaTextChange={props.onSpotlightTwoCtaTextChange}
         onSpotlightTwoLinkUrlChange={props.onSpotlightTwoLinkUrlChange}
         onSpotlightTwoImageFitChange={props.onSpotlightTwoImageFitChange}
+      />
+
+      <StorefrontCollectionsCard
+        primaryColor={props.primaryColor}
+        showCollections={props.showCollections}
+        onShowCollectionsChange={props.onShowCollectionsChange}
+        collections={props.customCollections}
+        onCollectionsChange={props.onCollectionsChange}
+        categories={props.categories}
+        productCount={props.products?.length || 0}
       />
 
       <div className="flex justify-end pt-2">

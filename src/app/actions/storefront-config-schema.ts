@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { generateStoreSlug } from '@/utils/storefront';
-import { StorefrontHeroSlide } from '@/types/storefront';
+import { StorefrontHeroSlide, StorefrontCustomCollection } from '@/types/storefront';
 
 export const storefrontUpdateSchema = z.object({
   storeName: z.string().min(2, 'Store name must be at least 2 characters').max(100),
@@ -44,6 +44,7 @@ export const storefrontUpdateSchema = z.object({
   deliveryPolicy: z.string().max(500).optional().or(z.literal('')),
   primaryColor: z.string().max(30).optional().or(z.literal('')),
   secondaryColor: z.string().max(30).optional().or(z.literal('')),
+  showCollections: z.boolean().optional(),
   isActive: z.boolean(),
   currency: z.string().max(10).default('GHS'),
 });
@@ -73,6 +74,29 @@ export function parseHeroSlidesFromFormData(formData: FormData): StorefrontHeroS
     }));
   } catch (err) {
     console.warn('Failed to parse heroSlides payload:', err);
+    return undefined;
+  }
+}
+
+export function parseCollectionsFromFormData(formData: FormData): StorefrontCustomCollection[] | undefined {
+  const raw = formData.get('customCollections') as string | null;
+  if (!raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return undefined;
+    return parsed.slice(0, 8).map((c: Record<string, unknown>, idx: number) => ({
+      id: String(c.id || `collection_${idx + 1}`),
+      title: String(c.title || 'Untitled Collection'),
+      description: String(c.description || ''),
+      cta: String(c.cta || 'Shop Collection'),
+      image: (c.image as string) || null,
+      link_type: (c.link_type as 'filter' | 'category' | 'catalog') || 'filter',
+      filter_param: (c.filter_param as string) || undefined,
+      category_id: (c.category_id as string) || null,
+      is_active: c.is_active !== false,
+    }));
+  } catch (err) {
+    console.warn('Failed to parse customCollections payload:', err);
     return undefined;
   }
 }
@@ -119,6 +143,7 @@ export function extractStorefrontFormData(
     deliveryPolicy: (formData.get('deliveryPolicy') as string) || undefined,
     primaryColor: (formData.get('primaryColor') as string) || undefined,
     secondaryColor: (formData.get('secondaryColor') as string) || undefined,
+    showCollections: formData.get('showCollections') === 'true',
     isActive: formData.get('isActive') === 'true',
     currency: (formData.get('currency') as string) || 'GHS',
   };

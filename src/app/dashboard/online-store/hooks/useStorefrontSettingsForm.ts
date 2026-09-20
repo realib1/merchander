@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { StorefrontConfig, CustomDomainConfig, StorefrontHeroSlide } from '@/types/storefront';
+import { StorefrontConfig, CustomDomainConfig, StorefrontHeroSlide, StorefrontCustomCollection } from '@/types/storefront';
+import { DEFAULT_COLLECTIONS } from '../components/StorefrontCollectionsCard';
 import { updateStorefrontConfig } from '@/app/actions/storefront';
 import { generateStoreSlug } from '@/utils/storefront';
 import { getStorefrontSubdomainUrl } from '@/utils/domain';
@@ -29,6 +30,13 @@ export function useStorefrontSettingsForm(
   const [primaryColor, setPrimaryColor] = useState(initialConfig?.primary_color || '#3b82f6');
   const [secondaryColor, setSecondaryColor] = useState(initialConfig?.secondary_color || '#1e40af');
   const [isActive, setIsActive] = useState(initialConfig?.is_active ?? true);
+  const [showCollections, setShowCollections] = useState(Boolean(initialConfig?.show_collections));
+  const [customCollections, setCustomCollections] = useState<StorefrontCustomCollection[]>(() => {
+    if (initialConfig?.custom_collections && initialConfig.custom_collections.length > 0) {
+      return initialConfig.custom_collections;
+    }
+    return DEFAULT_COLLECTIONS;
+  });
   const [bannerUrl, setBannerUrl] = useState(initialConfig?.banner_url || '');
   const heroMode = initialConfig?.hero_mode || 'default';
   const [bannerHeadline, setBannerHeadline] = useState(initialConfig?.banner_headline || '');
@@ -50,7 +58,7 @@ export function useStorefrontSettingsForm(
     initialConfig?.banner_contrast_theme || 'auto'
   );
   const [bannerImageFit, setBannerImageFit] = useState<'fit' | 'cover'>(
-    initialConfig?.banner_image_fit || (initialConfig?.hero_slides?.[0]?.image_fit as 'fit' | 'cover') || 'fit'
+    initialConfig?.banner_image_fit || (initialConfig?.hero_slides?.[0]?.image_fit as 'fit' | 'cover') || 'cover'
   );
   const [spotlightOneHeadline, setSpotlightOneHeadline] = useState(initialConfig?.spotlight_one?.headline || '');
   const [spotlightOneTagline, setSpotlightOneTagline] = useState(initialConfig?.spotlight_one?.tagline || '');
@@ -85,7 +93,7 @@ export function useStorefrontSettingsForm(
         link_type: initialConfig?.banner_link_type || 'catalog',
         link_id: initialConfig?.banner_link_id || null,
         contrast_theme: initialConfig?.banner_contrast_theme || 'auto',
-        image_fit: initialConfig?.banner_image_fit || 'fit',
+        image_fit: initialConfig?.banner_image_fit || 'cover',
       },
     ];
   });
@@ -158,6 +166,8 @@ export function useStorefrontSettingsForm(
       formData.append('primaryColor', primaryColor);
       formData.append('secondaryColor', secondaryColor);
       formData.append('isActive', String(isActive));
+      formData.append('showCollections', String(showCollections));
+      formData.append('customCollections', JSON.stringify(customCollections));
       formData.append('currency', initialConfig?.currency || 'GHS');
       formData.append('heroSlides', JSON.stringify(heroSlides));
 
@@ -228,6 +238,10 @@ export function useStorefrontSettingsForm(
     setSpotlightTwoImageFit,
     currentFeaturedIds,
     setCurrentFeaturedIds,
+    showCollections,
+    setShowCollections,
+    customCollections,
+    setCustomCollections,
     handleSubmit,
   };
 }

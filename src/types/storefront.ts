@@ -46,6 +46,8 @@ export interface StorefrontConfig {
   hero_slides?: StorefrontHeroSlide[] | null;
   spotlight_one?: StorefrontSpotlightBanner | null;
   spotlight_two?: StorefrontSpotlightBanner | null;
+  show_collections?: boolean | null;
+  custom_collections?: StorefrontCustomCollection[] | null;
   accepted_payment_methods?: AcceptedPaymentMethod[];
   p2p_accounts?: Array<{
     id: string;
@@ -84,6 +86,18 @@ export interface StorefrontSpotlightBanner {
   link_url?: string | null;
   badge_text?: string | null;
   image_fit?: 'fit' | 'cover' | null;
+}
+
+export interface StorefrontCustomCollection {
+  id: string;
+  title: string;
+  description: string;
+  cta: string;
+  image?: string | null;
+  link_type: 'filter' | 'category' | 'catalog';
+  filter_param?: string;
+  category_id?: string | null;
+  is_active: boolean;
 }
 
 export interface AcceptedPaymentMethod {

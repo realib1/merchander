@@ -25,6 +25,7 @@ export default async function OnlineStorePage() {
         initialConfig={config}
         domainConfig={domainConfig}
         products={overviewData?.allProducts || []}
+        categories={overviewData?.categories || []}
         featuredProductIds={overviewData?.featuredProductIds || []}
       />
     </div>

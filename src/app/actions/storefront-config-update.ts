@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import {
   storefrontUpdateSchema,
   parseHeroSlidesFromFormData,
+  parseCollectionsFromFormData,
   extractStorefrontFormData,
 } from './storefront-config-schema';
 import { buildUpdatedSettingsData } from './storefront-settings-builder';
@@ -24,6 +25,7 @@ export async function updateStorefrontConfig(formData: FormData) {
     }
 
     const parsedHeroSlides = parseHeroSlidesFromFormData(formData);
+    const parsedCollections = parseCollectionsFromFormData(formData);
     const rawData = extractStorefrontFormData(formData, parsedHeroSlides);
 
     const validation = storefrontUpdateSchema.safeParse(rawData);
@@ -41,7 +43,7 @@ export async function updateStorefrontConfig(formData: FormData) {
       .maybeSingle();
 
     const currentSettingsData = (existingSettings?.settings_data as Record<string, unknown>) || {};
-    const updatedSettingsData = buildUpdatedSettingsData(val, currentSettingsData, parsedHeroSlides);
+    const updatedSettingsData = buildUpdatedSettingsData(val, currentSettingsData, parsedHeroSlides, parsedCollections);
 
     // 2. Update tenants & tenant_settings
     await supabase.from('tenants').update({ name: val.storeName }).eq('id', tenantId);
@@ -89,7 +91,7 @@ export async function updateStorefrontConfig(formData: FormData) {
         banner_starts_at: val.bannerStartsAt ? new Date(val.bannerStartsAt).toISOString() : null,
         banner_ends_at: val.bannerEndsAt ? new Date(val.bannerEndsAt).toISOString() : null,
         banner_contrast_theme: val.bannerContrastTheme || 'auto',
-        banner_image_fit: parsedHeroSlides?.[0]?.image_fit || val.bannerImageFit || 'fit',
+        banner_image_fit: parsedHeroSlides?.[0]?.image_fit || val.bannerImageFit || 'cover',
         hero_slides: parsedHeroSlides || null,
         spotlight_one: updatedSettingsData.spotlight_one,
         spotlight_two: updatedSettingsData.spotlight_two,
@@ -99,6 +101,8 @@ export async function updateStorefrontConfig(formData: FormData) {
         delivery_policy: val.deliveryPolicy || null,
         primary_color: val.primaryColor || '#3b82f6',
         secondary_color: val.secondaryColor || '#1e40af',
+        show_collections: val.showCollections ?? false,
+        custom_collections: parsedCollections || null,
         is_active: val.isActive,
         currency: val.currency,
         featured_product_ids: featuredProductIds,

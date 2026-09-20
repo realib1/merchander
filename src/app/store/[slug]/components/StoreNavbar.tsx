@@ -110,12 +110,14 @@ export function StoreNavbar({
               )}
             </Link>
 
-            <Link
-              href={`${storeHomeUrl}#store-catalog-section`}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition cursor-pointer"
-            >
-              Collections
-            </Link>
+            {config.show_collections && (
+              <Link
+                href={`/store/${config.slug}/categories#collections`}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition cursor-pointer"
+              >
+                Collections
+              </Link>
+            )}
 
             <Link
               href="/about"

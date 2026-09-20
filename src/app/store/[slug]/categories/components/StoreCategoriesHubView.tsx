@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, ShoppingBag, ShoppingCart } from 'lucide-react';
-import { StorefrontCategory, StorefrontConfig, StorefrontProduct } from '@/types/storefront';
+import { StorefrontCategory, StorefrontConfig, StorefrontProduct, StorefrontCustomCollection } from '@/types/storefront';
 import { useStorefrontCart, useStorefrontWishlist } from '@/hooks';
 import { calculateCartTotals } from '@/utils/storefront';
 import { slugify } from '@/utils/format';
@@ -38,6 +38,30 @@ export function StoreCategoriesHubView({
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const activeCollections: StorefrontCustomCollection[] =
+    config.custom_collections && config.custom_collections.length > 0
+      ? config.custom_collections.filter((c) => c.is_active !== false)
+      : CURATED_COLLECTIONS.map((c) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          cta: c.cta,
+          image: c.image,
+          link_type: 'filter' as const,
+          filter_param: c.filterParam,
+          is_active: true,
+        }));
+
+  const getCollectionUrl = (col: StorefrontCustomCollection) => {
+    if (col.link_type === 'category' && col.category_id) {
+      return `/store/${config.slug}/categories/${col.category_id}`;
+    }
+    if (col.link_type === 'filter' && col.filter_param) {
+      return `/store/${config.slug}?sort=${col.filter_param}#store-catalog-section`;
+    }
+    return `/store/${config.slug}#store-catalog-section`;
+  };
 
   const { cart, updateCart, clearCart } = useStorefrontCart(config.slug);
   const wishlist = useStorefrontWishlist(config.slug);
@@ -189,48 +213,50 @@ export function StoreCategoriesHubView({
         </section>
 
         {/* "Shop by Collection" Section matching Screen 3 */}
-        <section aria-label="Shop by collection" className="space-y-4 pt-4 border-t border-separator/70">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">Shop by Collection</h2>
-            <p className="text-xs sm:text-sm text-muted mt-0.5">Curated drops and essentials.</p>
-          </div>
+        {config.show_collections && products.length >= 4 && activeCollections.length > 0 && (
+          <section id="collections" aria-label="Shop by collection" className="space-y-4 pt-4 border-t border-separator/70">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">Shop by Collection</h2>
+              <p className="text-xs sm:text-sm text-muted mt-0.5">Curated drops and essentials.</p>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {CURATED_COLLECTIONS.map((col) => (
-              <Link
-                key={col.id}
-                href={`/store/${config.slug}?sort=${col.filterParam}#store-catalog-section`}
-                className="group relative overflow-hidden rounded-2xl sm:rounded-3xl min-h-[160px] sm:min-h-[200px] flex flex-col justify-end p-5 sm:p-7 shadow-sm transition hover:shadow-md cursor-pointer"
-              >
-                {/* Background image */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={col.image}
-                  alt={col.title}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Dark gradient overlay for legibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/20" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {activeCollections.map((col) => (
+                <Link
+                  key={col.id}
+                  href={getCollectionUrl(col)}
+                  className="group relative overflow-hidden rounded-2xl sm:rounded-3xl min-h-[160px] sm:min-h-[200px] flex flex-col justify-end p-5 sm:p-7 shadow-sm transition hover:shadow-md cursor-pointer"
+                >
+                  {/* Background image */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={col.image || '/images/categories/collection-best-sellers.jpg'}
+                    alt={col.title}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  {/* Dark gradient overlay for legibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/20" />
 
-                {/* Content */}
-                <div className="relative z-10 space-y-1 text-white">
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300">
-                    <ShoppingBag size={12} />
-                    <span>Curated Drop</span>
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">{col.title}</h3>
-                  <p className="text-xs text-zinc-300 leading-relaxed max-w-xs">{col.description}</p>
-                  <div className="pt-2">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white group-hover:underline">
-                      <span>{col.cta}</span>
-                      <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                  {/* Content */}
+                  <div className="relative z-10 space-y-1 text-white">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300">
+                      <ShoppingBag size={12} />
+                      <span>Curated Drop</span>
                     </span>
+                    <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">{col.title}</h3>
+                    <p className="text-xs text-zinc-300 leading-relaxed max-w-xs">{col.description}</p>
+                    <div className="pt-2">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white group-hover:underline">
+                        <span>{col.cta || 'Shop Collection'}</span>
+                        <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       {itemCount > 0 && (

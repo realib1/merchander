@@ -17,6 +17,7 @@ interface StorefrontSettingsFormProps {
   initialConfig: StorefrontConfig | null;
   domainConfig?: CustomDomainConfig | null;
   products?: Array<{ id: string; name: string; description?: string | null; price: number; stock: number; imageUrl: string | null; isFeatured: boolean }>;
+  categories?: Array<{ id: string; name: string }>;
   featuredProductIds?: string[];
 }
 
@@ -24,6 +25,7 @@ export function StorefrontSettingsForm({
   initialConfig,
   domainConfig = null,
   products = [],
+  categories = [],
   featuredProductIds = [],
 }: StorefrontSettingsFormProps) {
   const form = useStorefrontSettingsForm(initialConfig, domainConfig, featuredProductIds);
@@ -83,6 +85,11 @@ export function StorefrontSettingsForm({
               onPrimaryColorChange={form.setPrimaryColor}
               onSecondaryColorChange={form.setSecondaryColor}
               onIsActiveChange={form.setIsActive}
+              showCollections={form.showCollections}
+              onShowCollectionsChange={form.setShowCollections}
+              customCollections={form.customCollections}
+              onCollectionsChange={form.setCustomCollections}
+              categories={categories}
             />
           )}
 
