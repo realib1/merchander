@@ -109,3 +109,105 @@
   - [x] 31c. **Signup Credential Confirmation & Validation** - Password confirmation field, real-time match validation, and terms agreement in `StepAccountCredentials` and `useSignupWizard`.
 - [x] 32. **Signup UI Clean Redesign (Cardless Wizard &amp; Streamlined Step Flow)** - Redesign `/signup` into a clean, cardless layout matching `/login` and `signin-signup desktop.png`: eliminate the heavy outer container card and drop-shadows across all wizard steps, streamline the step progress bar into a minimal indicator, and ensure direct background integration and smooth forward progression on the right pane.
 - [x] 33. **Production Email & Auth Redirects** - Fix the password reset redirect issue by securely allowing dynamic origins for the auth callback, and configure the Resend email service for transactional emails.
+
+## Money Pillar & Business Evolution
+
+> **Framing:** Merchander evolves from pure commerce operations into a
+> four-pillar system: **Commerce** (what am I selling and to whom?), **Money**
+> (where is my money going?), **Business** (am I running things properly?), and
+> **Intelligence** (what is happening in my business?). These features close the
+> financial visibility gap without building a full accounting engine — the
+> merchant sees cash flow, profitability, and compliance obligations alongside
+> their existing operational data. Inspired by competitive analysis of
+> Built.africa and direct merchant feedback.
+
+- [ ] 34. **Expense Reclassification & Financial Categories** - Add
+  `expense_class` column to expenses (`cogs` | `operating` | `other`) with
+  auto-classification based on category (Inventory Procurement → COGS, Salary &
+  Wages → Operating, etc.) and merchant override. Extend expense categories to
+  cover the full inflow/outflow taxonomy. This is the foundation for every
+  financial view that follows.
+
+- [ ] 35. **Inflow / Outflow Financial View** - Unified money-in vs money-out
+  dashboard aggregating order revenue (product sales, delivery fees, deposits)
+  against classified expenses (COGS, operating, other). Show Revenue → Gross
+  Profit → Operating Profit → Cash Position with the critical distinction between
+  profitability (earned) and cash flow (received). Derive inflow from existing
+  orders + payments; add `income_entries` table for non-order income. Enhance
+  existing profitability page with proper margin calculations.
+
+- [ ] 36. **Invoices** - Professional invoice generation from orders or
+  standalone. `invoices` table with `invoice_number`, `customer_id`, `order_id`
+  (nullable), line items, tax calculations (VAT/NHIL), `status` (draft | sent |
+  viewed | partially_paid | paid | overdue | void), `due_date`, payment terms.
+  Shareable public invoice view (`/invoice/[token]`) with integrated payment
+  button. Automated overdue reminders. Connect to customer transaction history
+  and feed into Inflow/Outflow.
+
+- [ ] 37. **Quotes** - Quote-to-invoice conversion flow. `quotes` table with
+  `quote_number`, `customer_id`, line items, `status` (draft | sent | accepted |
+  rejected | expired), `valid_until`. One-click conversion to Invoice on
+  acceptance. Shareable public quote view. Intelligence can generate and send
+  quote links in WhatsApp conversations. Full flow: Quote → accepted → Invoice →
+  Payment → Order → Fulfillment.
+
+- [ ] 38. **Compliance Tracker & Reminders** - Obligation management for tax
+  payments, annual returns, business permits, customs obligations, and custom
+  deadlines. `compliance_obligations` table with `type`, `due_date`,
+  `recurrence` (one-time | monthly | quarterly | annual), `status` (upcoming |
+  due | overdue | completed), `evidence_url` (receipt/proof upload),
+  `reminder_days_before`. Dashboard attention items when due < 7 days. Seeded
+  Ghana-relevant templates per business archetype (VAT/NHIL quarterly, annual
+  returns, business permit renewal). Philosophy: help the merchant not forget,
+  not be the tax authority.
+
+- [ ] 39. **Payroll Recording** - Structured salary/wage tracking per staff
+  member per period. `staff_payroll_records` table with `staff_member_name`,
+  `role`, `period`, `gross_amount`, `ssnit_employee`, `ssnit_employer`,
+  `paye_tax`, `net_amount`, `payment_method`, `status` (pending | paid). "Pay" /
+  "Pay All" buttons that mark records as paid and auto-create corresponding
+  expense entries classified as Operating Expense → Salaries. Feeds directly into
+  Inflow/Outflow. Recording only — Merchander does not process payroll payments.
+
+- [ ] 40. **Business Calculators** - Standalone and in-dashboard calculator tools:
+  breakeven analysis (fixed costs ÷ margin per unit, auto-populated from real
+  data when available), markup calculator (cost → selling price), import cost
+  calculator (supplier price + freight + customs + duty = landed cost per unit),
+  profit margin calculator. Available as quick tools inside the dashboard and as
+  public standalone pages for SEO and merchant acquisition.
+
+- [ ] 41. **Dashboard Reorganization (Four-Pillar Sidebar)** - Restructure
+  sidebar navigation into four clear pillars: **Commerce** (Orders, Products,
+  Categories, Inventory, Customers, Suppliers, Purchasing, Shipments, Online
+  Store), **Money** (Quotes, Invoices, Payments, Inflow/Outflow, Expenses,
+  Profitability), **Business** (Compliance, Staff + Payroll, Settings), and
+  **Intelligence** (Approvals & Inquiries, Insights, Analytics). Module gating
+  updated to match new grouping. Only executed after features 34–40 exist.
+
+- [ ] 42. **Funding Plans & Allocation Tracker** - Record external funding
+  events (grants, loans, investments, savings injections) and plan how to
+  allocate the money across spending categories. `funding_plans` table with
+  `source_type` (grant | loan | investment | savings | other), `source_name`,
+  `total_amount`, `received_date`, `status` (active | completed | closed).
+  `funding_allocations` table with `funding_plan_id`, `category` (maps to
+  expense categories), `planned_amount`. Spent amount derived by summing expenses
+  tagged to each allocation via optional `funding_allocation_id` FK on expenses.
+  Dashboard view showing allocation vs actual spend with progress bars and
+  utilization %. Funding source auto-registers as Inflow → Other Income. If the
+  funding has reporting requirements (e.g. grant milestones), auto-create a
+  compliance obligation. Lives under **Money** in the sidebar.
+
+- [ ] 43. **Module Gating Extension for Money Pillar** - Register all new Money
+  Pillar and Business features in the existing `BusinessModuleKey` union and
+  `MODULE_DEFINITIONS`. New module keys: `invoices` (starter), `quotes`
+  (growth), `compliance` (starter), `payroll` (growth), `funding_plans`
+  (growth), `calculators` (free), `cashflow` (starter). Update
+  `NAV_ITEM_MODULE_MAP` with new sidebar routes. Update each
+  `ARCHETYPE_DEFINITIONS` entry with appropriate defaults: import_resale gets
+  invoices + compliance + cashflow + funding_plans; boutique gets invoices +
+  compliance + cashflow; wholesale gets all money modules; general_pos gets
+  cashflow + calculators only. Extend `PERMISSION_MODULE_MAP` for new
+  permissions. Ensures a typical small African merchant sees a clean, relevant
+  dashboard without overwhelming features, while growing businesses can toggle on
+  advanced money tools from Settings → Modules.
+

@@ -8,6 +8,8 @@ import { validateStoreSlug } from '@/utils/business-modules';
 import { validateCredentialsStep } from '@/utils/signup-validation';
 import { BusinessArchetype, BusinessModuleKey } from '@/types/business-modules';
 
+const INITIAL_CUSTOM_MODULES: BusinessModuleKey[] = ['storefront', 'profitability', 'intelligence', 'cashflow'];
+
 export function useSignupWizard() {
   const router = useRouter();
 
@@ -27,47 +29,30 @@ export function useSignupWizard() {
   const [currency, setCurrency] = useState<string>('GHS');
   const [city, setCity] = useState<string>('Accra');
   const [archetype, setArchetype] = useState<BusinessArchetype>('import_resale');
-  const [customModules, setCustomModules] = useState<BusinessModuleKey[]>([
-    'storefront',
-    'profitability',
-    'intelligence',
-  ]);
+  const [customModules, setCustomModules] = useState<BusinessModuleKey[]>(INITIAL_CUSTOM_MODULES);
 
   const handleStoreNameChange = (val: string) => {
     setStoreName(val);
-    setSlug(
-      val.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)
-    );
+    setSlug(val.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40));
   };
 
   const toggleCustomModule = (modKey: BusinessModuleKey) => {
-    setCustomModules((prev) =>
-      prev.includes(modKey) ? prev.filter((k) => k !== modKey) : [...prev, modKey]
-    );
+    setCustomModules((prev) => (prev.includes(modKey) ? prev.filter((k) => k !== modKey) : [...prev, modKey]));
   };
 
   const validateCurrentStep = (): boolean => {
     setFormError(null);
     if (currentStep === 1) {
-      const validation = validateCredentialsStep({
-        fullName,
-        email,
-        phone,
-        password,
-        confirmPassword,
-        termsAccepted,
-      });
-      if (!validation.isValid) {
-        return setFormError(validation.error || 'Please complete all required fields.'), false;
-      }
+      const v = validateCredentialsStep({ fullName, email, phone, password, confirmPassword, termsAccepted });
+      if (!v.isValid) return (setFormError(v.error || 'Please complete all required fields.'), false);
     }
     if (currentStep === 2) {
-      if (!storeName.trim()) return setFormError('Please enter your store or business name.'), false;
-      const slugValidation = validateStoreSlug(slug);
-      if (!slugValidation.valid) return setFormError(slugValidation.error || 'Invalid store subdomain.'), false;
+      if (!storeName.trim()) return (setFormError('Please enter your store or business name.'), false);
+      const slugV = validateStoreSlug(slug);
+      if (!slugV.valid) return (setFormError(slugV.error || 'Invalid store subdomain.'), false);
     }
     if (currentStep === 3 && archetype === 'custom' && customModules.length === 0) {
-      return setFormError('Please select at least one module for your custom setup.'), false;
+      return (setFormError('Please select at least one module for your custom setup.'), false);
     }
     return true;
   };

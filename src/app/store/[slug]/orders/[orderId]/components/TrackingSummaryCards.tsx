@@ -38,8 +38,10 @@ export function TrackingSummaryCards({ order, currency, primaryColor }: Tracking
 
                 <div className="flex-1 min-w-0">
                   <h4 className="text-xs font-semibold text-foreground truncate">{item.productName}</h4>
-                  <p className="text-[11px] text-muted">
-                    {item.variantTitle} • Qty: {item.quantity}
+                  <p className="text-[11px] text-muted flex items-center gap-1.5 flex-wrap">
+                    <span>{item.variantTitle}</span>
+                    <span className="w-1 h-1 rounded-full bg-separator inline-block" />
+                    <span>Qty: {item.quantity}</span>
                   </p>
                 </div>
 
@@ -110,9 +112,14 @@ export function TrackingSummaryCards({ order, currency, primaryColor }: Tracking
               <Clock size={16} className="text-muted shrink-0 mt-0.5" />
               <div>
                 <span className="font-semibold text-foreground">Recipient:</span>
-                <p className="text-muted text-[11px] mt-0.5">
-                  {order.customerName}
-                  {order.customerPhone ? ` • ${formatGhanaLocalDisplay(order.customerPhone)}` : ''}
+                <p className="text-muted text-[11px] mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span>{order.customerName}</span>
+                  {order.customerPhone && (
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-separator inline-block" />
+                      <span>{formatGhanaLocalDisplay(order.customerPhone)}</span>
+                    </>
+                  )}
                 </p>
               </div>
             </div>

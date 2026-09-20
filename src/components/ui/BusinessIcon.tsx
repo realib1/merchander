@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Ship,
   Clock,
@@ -11,6 +10,14 @@ import {
   Zap,
   SlidersHorizontal,
   Package,
+  FileText,
+  FileCheck,
+  ShieldCheck,
+  Users,
+  Target,
+  Calculator,
+  ArrowLeftRight,
+  Wallet,
 } from 'lucide-react';
 
 export interface BusinessIconProps {
@@ -41,6 +48,22 @@ export function BusinessIcon({ name, className = '', size = 20 }: BusinessIconPr
       return <Zap size={size} className={className} />;
     case 'sliders':
       return <SlidersHorizontal size={size} className={className} />;
+    case 'file-text':
+      return <FileText size={size} className={className} />;
+    case 'file-check':
+      return <FileCheck size={size} className={className} />;
+    case 'shield-check':
+      return <ShieldCheck size={size} className={className} />;
+    case 'users':
+      return <Users size={size} className={className} />;
+    case 'target':
+      return <Target size={size} className={className} />;
+    case 'calculator':
+      return <Calculator size={size} className={className} />;
+    case 'arrow-left-right':
+      return <ArrowLeftRight size={size} className={className} />;
+    case 'wallet':
+      return <Wallet size={size} className={className} />;
     default:
       return <Package size={size} className={className} />;
   }

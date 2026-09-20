@@ -15,8 +15,8 @@ export function StoreFooter({ config }: StoreFooterProps) {
   const whatsappPhone = config.whatsapp_phone?.replace(/[^0-9]/g, '');
   const whatsappLink = whatsappPhone
     ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
-        `Hello ${config.store_name}, I have an inquiry about your store.`
-      )}`
+      `Hello ${config.store_name}, I have an inquiry about your store.`
+    )}`
     : null;
 
   return (
@@ -120,7 +120,7 @@ export function StoreFooter({ config }: StoreFooterProps) {
         {/* Bottom Line */}
         <div className="pt-6 border-t border-separator/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
           <p>
-            © {new Date().getFullYear()} {config.store_name}. All rights reserved.
+            &copy; {new Date().getFullYear()} {config.store_name}. All rights reserved.
           </p>
           <div className="flex items-center gap-1">
             <span>Powered by</span>

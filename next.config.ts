@@ -98,6 +98,11 @@ const nextConfigOptions: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     dangerouslyAllowLocalIP: true,

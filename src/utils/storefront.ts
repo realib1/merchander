@@ -1,4 +1,4 @@
-import { StorefrontCartItem, StorefrontConfig } from '@/types/storefront';
+import { StorefrontCartItem, StorefrontConfig, StorefrontHeroSlide, StorefrontSpotlightBanner } from '@/types/storefront';
 import { formatCurrency } from '@/utils/format';
 
 /**
@@ -78,3 +78,57 @@ export function createWhatsAppOrderLink(phone: string, message: string): string 
   const encodedText = encodeURIComponent(message);
   return `https://wa.me/${cleanedPhone}?text=${encodedText}`;
 }
+
+/**
+ * Resolves active hero slides with fallback to legacy config or default slide.
+ * Strictly bounds slides to max 3 and filters inactive ones.
+ */
+export function resolveActiveHeroSlides(config: StorefrontConfig): StorefrontHeroSlide[] {
+  const active = (config.hero_slides || [])
+    .filter((s) => s.is_active)
+    .slice(0, 3)
+    .map((s) => ({
+      ...s,
+      compare_at_price_pill: s.compare_at_price_pill || null,
+      image_fit: s.image_fit || (s.link_type === 'product' ? 'fit' : 'cover'),
+    }));
+  if (active.length > 0) return active;
+
+  return [
+    {
+      id: 'slide_default',
+      is_active: true,
+      image_url: config.banner_url || null,
+      headline: config.banner_headline || config.tagline || 'Everyday Essentials.',
+      tagline: config.banner_tagline || config.bio || 'Quality, style and comfort in one place.',
+      badge_text: config.banner_badge_text || 'NEW ARRIVALS',
+      price_pill: config.banner_price_pill || '',
+      compare_at_price_pill: config.banner_compare_at_price_pill || '',
+      cta_text: config.banner_cta_text || 'Shop Now',
+      link_type: config.banner_link_type || 'catalog',
+      link_id: config.banner_link_id || null,
+      contrast_theme: config.banner_contrast_theme || 'auto',
+      image_fit: config.banner_image_fit || 'cover',
+    },
+  ];
+}
+
+/**
+ * Normalizes spotlight banner configuration and ensures valid image display mode ('fit' | 'cover').
+ */
+export function resolveSpotlightBanner(
+  spotlight?: StorefrontSpotlightBanner | null,
+  fallback: Partial<StorefrontSpotlightBanner> = {}
+): StorefrontSpotlightBanner {
+  return {
+    headline: spotlight?.headline ?? fallback.headline ?? null,
+    tagline: spotlight?.tagline ?? fallback.tagline ?? null,
+    image_url: spotlight?.image_url ?? fallback.image_url ?? null,
+    cta_text: spotlight?.cta_text ?? fallback.cta_text ?? 'Explore',
+    link_url: spotlight?.link_url ?? fallback.link_url ?? '/products',
+    badge_text: spotlight?.badge_text ?? fallback.badge_text ?? null,
+    image_fit: spotlight?.image_fit ?? fallback.image_fit ?? 'fit',
+  };
+}
+
+

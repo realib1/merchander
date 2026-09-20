@@ -174,13 +174,9 @@ export function StoreCheckoutView({ config }: StoreCheckoutViewProps) {
         </div>
       ) : (
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
-          <section className="space-y-6">
-            <div className="border-b border-separator/70 pb-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">01</p>
-              <h2 className="mt-1 text-xl font-black">Delivery details</h2>
-            </div>
-            <div className="rounded-md border border-separator bg-surface p-4 shadow-xs sm:p-6">
-              {errorMessage && <p className="mb-4 rounded-md bg-destructive/10 p-3 text-xs font-semibold text-destructive">{errorMessage}</p>}
+          <section className="space-y-4">
+            <div className="rounded-2xl border border-separator bg-surface p-4 shadow-2xs sm:p-7">
+              {errorMessage && <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-xs font-semibold text-destructive">{errorMessage}</p>}
               <CartCheckoutForm
                 customerName={customerName}
                 customerPhone={customerPhone}

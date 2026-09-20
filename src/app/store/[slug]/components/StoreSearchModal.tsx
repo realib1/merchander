@@ -204,7 +204,7 @@ export function StoreSearchModal({
               <Package size={36} className="mx-auto opacity-30" />
               <p className="text-sm font-semibold text-foreground">No products found</p>
               <p className="text-xs max-w-xs mx-auto">
-                No items match &quot;{query}&quot;. Try searching with a different name or category.
+                {`No items match "${query}". Try searching with a different name or category.`}
               </p>
             </div>
           ) : (
@@ -242,10 +242,15 @@ export function StoreSearchModal({
                         <p className="text-xs font-bold text-foreground group-hover:text-brand-primary transition truncate">
                           {p.name}
                         </p>
-                        <p className="text-[10px] text-muted truncate mt-0.5">
-                          {p.category_name}
-                          {p.variants.length > 1 && ` • ${p.variants.length} options`}
-                        </p>
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted truncate mt-0.5">
+                          <span>{p.category_name}</span>
+                          {p.variants.length > 1 && (
+                            <>
+                              <span className="w-1 h-1 rounded-full bg-muted/60 inline-block shrink-0" />
+                              <span>{p.variants.length} options</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
 

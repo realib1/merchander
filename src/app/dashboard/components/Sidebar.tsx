@@ -92,11 +92,11 @@ export function Sidebar({
             </div>
             {!isDesktopCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="font-display font-bold text-sm tracking-tight text-foreground truncate leading-tight">
+                <span className="font-display font-bold text-base tracking-tight text-foreground truncate leading-tight">
                   {businessName || 'Merchander'}
                 </span>
                 <span className="text-[10px] text-brand-primary/80 font-semibold uppercase tracking-widest mt-0.5">
-                  MerchanderOS
+                  Merchander
                 </span>
               </div>
             )}

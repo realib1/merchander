@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Package, ArrowUpDown, X } from 'lucide-react';
+import { Package, ArrowUpDown, X, ArrowRight } from 'lucide-react';
 import { StorefrontCategory, StorefrontConfig, StorefrontProduct } from '@/types/storefront';
 import { StoreProductCard } from './StoreProductCard';
 
@@ -11,6 +11,8 @@ interface StoreCatalogGridProps {
   config: StorefrontConfig;
   categories: StorefrontCategory[];
   products: StorefrontProduct[];
+  featuredProducts?: StorefrontProduct[];
+  sidebarContent?: React.ReactNode;
   preorderCount?: number;
   selectedCategoryId: string;
   searchQuery: string;
@@ -33,6 +35,8 @@ export function StoreCatalogGrid({
   config,
   categories,
   products,
+  featuredProducts = [],
+  sidebarContent,
   preorderCount = 0,
   selectedCategoryId,
   searchQuery,
@@ -50,19 +54,16 @@ export function StoreCatalogGrid({
   onQuickAdd,
   onResetFilters,
 }: StoreCatalogGridProps) {
+  const isDefaultView = selectedCategoryId === 'all' && !searchQuery.trim() && sortBy === 'featured';
+  const displayFeatured = featuredProducts.length > 0 ? featuredProducts.slice(0, 4) : products.slice(0, 4);
+  const displayRemaining = isDefaultView ? products.slice(4) : products;
+
   return (
-    <main id="store-catalog-section" className="mx-auto max-w-7xl space-y-7 px-4 py-8 sm:px-6 lg:px-8">
+    <main id="store-catalog-section" className="mx-auto max-w-7xl space-y-7 px-4 py-6 sm:px-6 lg:px-8">
       <div id="main-content" tabIndex={-1} className="outline-none" />
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-primary">The collection</p>
-          <h2 className="mt-1 text-2xl font-black tracking-[-0.035em] text-foreground sm:text-3xl">Shop the edit</h2>
-        </div>
-        <span className="hidden text-xs text-muted sm:block">{products.length} pieces to explore</span>
-      </div>
-      {/* Controls Bar: Category Pills & Sort Selector */}
+
+      {/* Controls Bar: Category Pills Strip */}
       <div className="space-y-4">
-        {/* Category Pills Strip */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
           <button
             type="button"
@@ -126,7 +127,7 @@ export function StoreCatalogGrid({
             </p>
             {searchQuery && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-semibold">
-                <span>&quot;{searchQuery}&quot;</span>
+                <span>{`"${searchQuery}"`}</span>
                 <button
                   type="button"
                   onClick={onClearSearch}
@@ -167,39 +168,120 @@ export function StoreCatalogGrid({
         </div>
       </div>
 
-      {/* Products Grid */}
-      {products.length === 0 ? (
-        <div className="p-12 text-center text-muted space-y-3 shadow-xs">
-          <Package size={42} className="mx-auto opacity-30" />
-          <h3 className="text-sm font-bold text-foreground">No products match your criteria</h3>
-          <p className="text-xs max-w-sm mx-auto">
-            Try clearing your search terms, changing categories, or turning off the in-stock filter.
-          </p>
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="px-4 py-2 rounded-xl bg-surface-elevated border border-separator text-xs font-semibold text-foreground hover:bg-surface-elevated/80 transition cursor-pointer"
-          >
-            Reset Filters
-          </button>
+      {/* Main Catalog Body: Split 2-Column on Desktop with Sidebar */}
+      <div className={sidebarContent ? 'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px] gap-8 items-start' : ''}>
+        {/* Left Area: Product Grids */}
+        <div className="space-y-10 min-w-0">
+          {products.length === 0 ? (
+            <div className="p-12 text-center text-muted space-y-3 rounded-2xl border border-separator bg-surface shadow-2xs">
+              <Package size={42} className="mx-auto opacity-30" />
+              <h3 className="text-sm font-bold text-foreground">No products match your criteria</h3>
+              <p className="text-xs max-w-sm mx-auto">
+                Try clearing your search terms, changing categories, or turning off the in-stock filter.
+              </p>
+              <button
+                type="button"
+                onClick={onResetFilters}
+                className="px-4 py-2 rounded-xl bg-surface-elevated border border-separator text-xs font-semibold text-foreground hover:bg-surface-elevated/80 transition cursor-pointer"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : isDefaultView && displayFeatured.length > 0 ? (
+            <>
+              {/* 1. Featured Products Section matching Mockup */}
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">Featured Products</h2>
+                  <button
+                    type="button"
+                    onClick={() => onSelectCategory('all')}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-muted hover:text-brand-primary transition cursor-pointer"
+                  >
+                    <span>View all</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-4">
+                  {displayFeatured.map((p) => (
+                    <StoreProductCard
+                      key={p.id}
+                      product={p}
+                      storeSlug={config.slug}
+                      currency={currency}
+                      primaryColor={primaryColor}
+                      isSaved={isSaved(p.id)}
+                      isQuickAdded={quickAddedId === p.id}
+                      onToggleWishlist={() => onToggleWishlist(p.id)}
+                      onQuickAdd={() => onQuickAdd(p)}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Mobile Sidebar Content Preview */}
+              {sidebarContent && (
+                <div className="lg:hidden pt-2 pb-2">
+                  {sidebarContent}
+                </div>
+              )}
+
+              {/* 2. Popular Picks / Extended Catalog Section matching Mockup */}
+              {displayRemaining.length > 0 && (
+                <section className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">Popular Picks</h2>
+                    <span className="text-xs text-muted font-medium">{displayRemaining.length} items</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-4">
+                    {displayRemaining.map((p) => (
+                      <StoreProductCard
+                        key={p.id}
+                        product={p}
+                        storeSlug={config.slug}
+                        currency={currency}
+                        primaryColor={primaryColor}
+                        isSaved={isSaved(p.id)}
+                        isQuickAdded={quickAddedId === p.id}
+                        onToggleWishlist={() => onToggleWishlist(p.id)}
+                        onQuickAdd={() => onQuickAdd(p)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
+          ) : (
+            /* Filtered or Searched Results Grid */
+            <section className="space-y-4">
+              <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 sm:gap-4">
+                {products.map((p) => (
+                  <StoreProductCard
+                    key={p.id}
+                    product={p}
+                    storeSlug={config.slug}
+                    currency={currency}
+                    primaryColor={primaryColor}
+                    isSaved={isSaved(p.id)}
+                    isQuickAdded={quickAddedId === p.id}
+                    onToggleWishlist={() => onToggleWishlist(p.id)}
+                    onQuickAdd={() => onQuickAdd(p)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
-          {products.map((p) => (
-            <StoreProductCard
-              key={p.id}
-              product={p}
-              storeSlug={config.slug}
-              currency={currency}
-              primaryColor={primaryColor}
-              isSaved={isSaved(p.id)}
-              isQuickAdded={quickAddedId === p.id}
-              onToggleWishlist={() => onToggleWishlist(p.id)}
-              onQuickAdd={() => onQuickAdd(p)}
-            />
-          ))}
-        </div>
-      )}
+
+        {/* Right Column: Editorial Sidebar on Desktop (Sticky) */}
+        {sidebarContent && (
+          <aside className="space-y-6 lg:sticky lg:top-24 hidden lg:block">
+            {sidebarContent}
+          </aside>
+        )}
+      </div>
     </main>
   );
 }

@@ -1,20 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { StorefrontCategory, StorefrontConfig } from '@/types/storefront';
 import { getBusinessInitials } from '@/utils/format';
 import { useFocusTrap } from '@/hooks';
 import {
   X,
-  ShoppingBag,
-  Grid,
-  Package,
+  Home,
+  LayoutGrid,
   Heart,
-  MessageCircle,
+  ShoppingBag,
+  User,
+  Headphones,
+  Settings,
   ChevronRight,
   ChevronDown,
-  ExternalLink,
-  Truck,
 } from 'lucide-react';
 
 interface StoreMenuDrawerProps {
@@ -22,6 +23,7 @@ interface StoreMenuDrawerProps {
   onClose: () => void;
   config: StorefrontConfig;
   categories?: StorefrontCategory[];
+  wishlistCount?: number;
   onSelectCategory?: (categoryId: string) => void;
   onOpenTracking: () => void;
   onOpenWishlist: () => void;
@@ -32,7 +34,7 @@ export function StoreMenuDrawer({
   onClose,
   config,
   categories = [],
-  onSelectCategory,
+  wishlistCount = 0,
   onOpenTracking,
   onOpenWishlist,
 }: StoreMenuDrawerProps) {
@@ -49,11 +51,11 @@ export function StoreMenuDrawer({
 
   if (!isOpen) return null;
 
-  const primaryColor = config.primary_color || '#3b82f6';
+  const primaryColor = config.primary_color || '#f97316';
   const cleanPhone = config.whatsapp_phone?.replace(/[^0-9]/g, '');
   const whatsappLink = cleanPhone
     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-        `Hello ${config.store_name}, I have an inquiry about your store.`
+        `Hello ${config.store_name}, I need help with your store.`
       )}`
     : null;
 
@@ -62,212 +64,220 @@ export function StoreMenuDrawer({
     onClose();
   };
 
-  const scrollToCatalog = () => {
-    if (typeof window !== 'undefined') {
-      const el = document.getElementById('store-catalog-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-start animate-fadeIn"
+      className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-xs flex justify-start animate-fadeIn"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Store Navigation Menu"
     >
       <div
-        className="w-full max-w-xs sm:max-w-sm bg-surface border-r border-separator h-full flex flex-col justify-between shadow-2xl animate-slideRight"
+        className="w-full max-w-[280px] sm:max-w-xs bg-[#121214] text-zinc-100 border-r border-zinc-800/80 h-full flex flex-col justify-between shadow-2xl animate-slideRight"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Header */}
-        <div className="p-4 border-b border-separator flex items-center justify-between">
+        {/* Top Header matching Screen 13 */}
+        <div className="px-5 py-4 flex items-center justify-between border-b border-zinc-800/60">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-xs"
-              style={{ backgroundColor: primaryColor }}
-            >
-              {config.logo_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={config.logo_url} alt={config.store_name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="font-bold text-white text-xs font-display">
-                  {getBusinessInitials(config.store_name)}
-                </span>
-              )}
-            </div>
-            <div className="min-w-0 truncate">
-              <span className="font-bold text-sm text-foreground truncate block">{config.store_name}</span>
-              {config.tagline && <p className="text-[10px] text-muted truncate font-medium">{config.tagline}</p>}
-            </div>
+            {config.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={config.logo_url}
+                alt={config.store_name}
+                className="h-8 w-auto max-w-28 object-contain rounded-md"
+              />
+            ) : (
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs shadow-xs"
+                style={{ backgroundColor: primaryColor }}
+              >
+                {getBusinessInitials(config.store_name)}
+              </div>
+            )}
+            <span className="font-bold text-sm text-white tracking-tight truncate">
+              {config.store_name}
+            </span>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="h-8 w-8 rounded-xl bg-surface-elevated text-muted hover:text-foreground flex items-center justify-center cursor-pointer transition active:scale-95"
+            className="h-8 w-8 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 flex items-center justify-center cursor-pointer transition active:scale-95"
             aria-label="Close menu"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Navigation Sections */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar text-xs sm:text-sm">
-          {/* 1. Explore */}
-          <div className="space-y-1">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted mb-1.5">Explore</p>
-            <button
-              type="button"
-              onClick={() =>
-                handleAction(() => {
-                  onSelectCategory?.('all');
-                  scrollToCatalog();
-                })
-              }
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-elevated text-foreground font-semibold transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <ShoppingBag size={16} style={{ color: primaryColor }} />
-                <span>All Products</span>
-              </div>
-              <ChevronRight size={14} className="text-muted" />
-            </button>
+        {/* Navigation Items */}
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1 text-sm custom-scrollbar">
+          {/* 1. Home (Active Style) */}
+          <button
+            type="button"
+            onClick={() =>
+              handleAction(() => {
+                if (typeof window !== 'undefined') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              })
+            }
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium transition cursor-pointer text-white bg-zinc-800/70"
+          >
+            <Home size={18} style={{ color: primaryColor }} />
+            <span style={{ color: primaryColor }} className="font-semibold">Home</span>
+          </button>
 
-            {categories.length > 0 && (
-              <div>
+          {/* 2. Categories */}
+          <div>
+            <div className="flex items-center justify-between">
+              <Link
+                href={`/store/${config.slug}/categories`}
+                onClick={onClose}
+                className="flex-1 flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+              >
+                <LayoutGrid size={18} className="text-zinc-400" />
+                <span>Categories</span>
+              </Link>
+              {categories.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-elevated text-foreground font-semibold transition cursor-pointer"
+                  className="p-2 text-zinc-400 hover:text-white transition"
+                  aria-label="Toggle categories list"
                 >
-                  <div className="flex items-center gap-3">
-                    <Grid size={16} className="text-muted" />
-                    <span>Categories ({categories.length})</span>
-                  </div>
                   {isCategoriesExpanded ? (
-                    <ChevronDown size={14} className="text-muted" />
+                    <ChevronDown size={15} className="text-zinc-500" />
                   ) : (
-                    <ChevronRight size={14} className="text-muted" />
+                    <ChevronRight size={15} className="text-zinc-500" />
                   )}
                 </button>
+              )}
+            </div>
 
-                {isCategoriesExpanded && (
-                  <div className="pl-8 pr-2 py-1 space-y-1 border-l-2 border-separator/60 ml-5 my-1 animate-fadeIn">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleAction(() => {
-                          onSelectCategory?.('all');
-                          scrollToCatalog();
-                        })
-                      }
-                      className="w-full text-left py-1.5 px-2 rounded-lg text-xs text-muted hover:text-foreground hover:bg-surface-elevated/60 transition cursor-pointer font-medium"
-                    >
-                      All Categories
-                    </button>
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() =>
-                          handleAction(() => {
-                            onSelectCategory?.(cat.id);
-                            scrollToCatalog();
-                          })
-                        }
-                        className="w-full text-left py-1.5 px-2 rounded-lg text-xs text-muted hover:text-foreground hover:bg-surface-elevated/60 transition cursor-pointer font-medium truncate"
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {isCategoriesExpanded && categories.length > 0 && (
+              <div className="pl-9 pr-2 py-1 space-y-0.5 animate-fadeIn">
+                <Link
+                  href={`/store/${config.slug}/categories`}
+                  onClick={onClose}
+                  className="flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs text-brand-primary hover:text-white hover:bg-zinc-800/50 transition cursor-pointer font-bold"
+                >
+                  <span>All Categories</span>
+                  <ChevronRight size={13} />
+                </Link>
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/store/${config.slug}/categories/${cat.id}`}
+                    onClick={onClose}
+                    className="block w-full text-left py-1.5 px-2.5 rounded-lg text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition cursor-pointer font-medium truncate"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
               </div>
             )}
           </div>
 
-          {/* 2. Customer Account & Orders */}
-          <div className="space-y-1">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted mb-1.5">Account & Orders</p>
+          {/* 3. Wishlist */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenWishlist)}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+          >
+            <div className="flex items-center gap-3.5">
+              <Heart size={18} className="text-zinc-400" />
+              <span>Wishlist</span>
+            </div>
+            {wishlistCount > 0 && (
+              <span
+                className="h-5 min-w-5 px-1.5 rounded-full text-[11px] font-bold text-white flex items-center justify-center leading-none"
+                style={{ backgroundColor: primaryColor }}
+              >
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+
+          {/* 4. Orders */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenTracking)}
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+          >
+            <ShoppingBag size={18} className="text-zinc-400" />
+            <span>Orders</span>
+          </button>
+
+          {/* 5. Account */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenTracking)}
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+          >
+            <User size={18} className="text-zinc-400" />
+            <span>Account</span>
+          </button>
+
+          {/* Divider */}
+          <div className="py-2">
+            <div className="border-t border-zinc-800/80" />
+          </div>
+
+          {/* 6. Help & Support */}
+          {whatsappLink ? (
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
+              className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+            >
+              <Headphones size={18} className="text-zinc-400" />
+              <span>Help & Support</span>
+            </a>
+          ) : (
             <button
               type="button"
               onClick={() => handleAction(onOpenTracking)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-elevated text-foreground font-semibold transition cursor-pointer"
+              className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
             >
-              <div className="flex items-center gap-3">
-                <Package size={16} style={{ color: primaryColor }} />
-                <span>Track My Orders</span>
-              </div>
-              <ChevronRight size={14} className="text-muted" />
+              <Headphones size={18} className="text-zinc-400" />
+              <span>Help & Support</span>
             </button>
+          )}
 
-            <button
-              type="button"
-              onClick={() => handleAction(onOpenWishlist)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-elevated text-foreground font-semibold transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <Heart size={16} className="text-rose-500" />
-                <span>Saved Items (Wishlist)</span>
-              </div>
-              <ChevronRight size={14} className="text-muted" />
-            </button>
-          </div>
-
-          {/* 3. Connect & Help */}
-          <div className="space-y-1">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted mb-1.5">Connect & Help</p>
-            {whatsappLink && (
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={onClose}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-elevated text-foreground font-semibold transition cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <MessageCircle size={16} className="text-emerald-500" />
-                  <span>Chat on WhatsApp</span>
-                </div>
-                <ExternalLink size={13} className="text-muted" />
-              </a>
-            )}
-
-            {config.instagram_handle && (
-              <a
-                href={`https://instagram.com/${config.instagram_handle}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={onClose}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-surface-elevated text-foreground font-semibold transition cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <ExternalLink size={16} className="text-muted" />
-                  <span>Instagram</span>
-                </div>
-                <ExternalLink size={13} className="text-muted" />
-              </a>
-            )}
-          </div>
+          {/* 7. Settings */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenTracking)}
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
+          >
+            <Settings size={18} className="text-zinc-400" />
+            <span>Settings</span>
+          </button>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-separator bg-surface-elevated/30 space-y-2">
-          {config.delivery_policy && (
-            <div className="flex items-center gap-2 text-[11px] text-muted font-medium">
-              <Truck size={13} className="shrink-0 text-brand-primary" />
-              <span className="truncate">{config.delivery_policy}</span>
+        {/* Bottom brand signature matching Screen 13 */}
+        <div className="p-4 border-t border-zinc-800/60 bg-zinc-950/40 flex flex-col gap-1.5">
+          <div className="flex items-center gap-2 text-zinc-400 text-xs">
+            <ShoppingBag size={14} style={{ color: primaryColor }} />
+            <span className="font-medium text-zinc-300">Your store. Online.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div
+              className="w-4 h-4 rounded-xs flex items-center justify-center text-[9px] font-black text-white"
+              style={{ backgroundColor: primaryColor }}
+            >
+              M
             </div>
-          )}
-          <div className="flex items-center justify-between text-[11px] text-muted pt-1">
-            <span className="font-semibold text-foreground">{config.store_name}</span>
-            <span>Powered by Merchander</span>
+            <span className="text-[11px] font-bold text-zinc-400 tracking-tight">
+              Merchander
+            </span>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

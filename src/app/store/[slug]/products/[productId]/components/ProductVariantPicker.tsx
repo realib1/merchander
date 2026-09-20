@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShoppingCart, Share2, MessageCircle, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Share2, MessageCircle, Plus, Minus, Truck, ShieldCheck, RotateCcw } from 'lucide-react';
 import { StorefrontConfig, StorefrontProduct, StorefrontProductVariant } from '@/types/storefront';
 
 interface ProductVariantPickerProps {
@@ -150,6 +150,39 @@ export function ProductVariantPicker({
             <Share2 size={14} />
             <span>Share Product</span>
           </button>
+        </div>
+
+        {/* 3 Trust Badges Strip matching Reference Design */}
+        <div className="pt-4 border-t border-separator/80 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-surface border border-separator/50">
+            <div className="w-7 h-7 rounded-lg bg-surface-elevated flex items-center justify-center shrink-0">
+              <Truck size={14} style={{ color: primaryColor }} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-foreground truncate">Fast Delivery</p>
+              <p className="text-[10px] text-muted truncate">Across Ghana</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-surface border border-separator/50">
+            <div className="w-7 h-7 rounded-lg bg-surface-elevated flex items-center justify-center shrink-0">
+              <ShieldCheck size={14} style={{ color: primaryColor }} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-foreground truncate">Secure Pay</p>
+              <p className="text-[10px] text-muted truncate">MoMo & Cards</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-surface border border-separator/50">
+            <div className="w-7 h-7 rounded-lg bg-surface-elevated flex items-center justify-center shrink-0">
+              <RotateCcw size={14} style={{ color: primaryColor }} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-foreground truncate">Easy Returns</p>
+              <p className="text-[10px] text-muted truncate">Hassle-free</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

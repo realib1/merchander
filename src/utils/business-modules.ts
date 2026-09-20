@@ -16,12 +16,24 @@ export const TIER_RANK: Record<PlatformTier, number> = {
 };
 
 export const MODULE_DEFINITIONS: Record<BusinessModuleKey, BusinessModuleConfig> = {
+  // --- Commerce Pillar ---
+  storefront: {
+    id: 'storefront',
+    name: 'Online Customer Storefront',
+    description:
+      'Customer-facing digital catalog at [store].merchander.store with instant mobile checkout and MoMo payments.',
+    requiredTier: 'starter',
+    icon: 'globe',
+    pillar: 'commerce',
+    impactTags: ['Sidebar: Online Store', 'Custom Subdomain', 'Cart Links'],
+  },
   shipments: {
     id: 'shipments',
     name: 'Inbound Freight & Cargo Shipments',
     description: 'Track air/sea cargo packages from China/Dubai, waybills, landing fees, and port clearing dates.',
     requiredTier: 'growth',
     icon: 'ship',
+    pillar: 'commerce',
     impactTags: ['Sidebar: Shipments', 'Landed Cost Allocation', 'Freight Transit Radar'],
   },
   batches: {
@@ -30,38 +42,105 @@ export const MODULE_DEFINITIONS: Record<BusinessModuleKey, BusinessModuleConfig>
     description: 'Group incoming customer orders into timed batch windows and auto-allocate stock on arrival.',
     requiredTier: 'growth',
     icon: 'clock',
+    pillar: 'commerce',
     impactTags: ['Sidebar: Batches', 'Order Batch Filtering', 'Batch Broadcasts'],
   },
   suppliers: {
     id: 'suppliers',
     name: 'Supplier Accounts & Foreign Debt',
-    description: 'Track overseas factory liabilities in foreign currencies (USD, RMB) and ledger payments across shipments.',
+    description:
+      'Track overseas factory liabilities in foreign currencies (USD, RMB) and ledger payments across shipments.',
     requiredTier: 'growth',
     icon: 'factory',
+    pillar: 'commerce',
     impactTags: ['Sidebar: Suppliers', 'Foreign Currency Ledger', 'Vendor Payables'],
   },
-  storefront: {
-    id: 'storefront',
-    name: 'Online Customer Storefront',
-    description: 'Customer-facing digital catalog at [store].merchander.store with instant mobile checkout and MoMo payments.',
+
+  // --- Money Pillar ---
+  cashflow: {
+    id: 'cashflow',
+    name: 'Inflow / Outflow & Cashflow',
+    description: 'Track fixed and variable operational expenses, daily cash balances, and financial runway.',
     requiredTier: 'starter',
-    icon: 'globe',
-    impactTags: ['Sidebar: Online Store', 'Custom Subdomain', 'Cart Links'],
+    icon: 'arrow-left-right',
+    pillar: 'money',
+    impactTags: ['Inflow & Outflow Radar', 'Fixed & Variable Expenses', 'Operational Runway'],
+  },
+  invoices: {
+    id: 'invoices',
+    name: 'Invoices & Customer Accounts',
+    description: 'Generate branded PDF invoices, track payment status, and offer direct MoMo payment links.',
+    requiredTier: 'starter',
+    icon: 'file-text',
+    pillar: 'money',
+    impactTags: ['Direct Invoicing', 'Payment Links', 'Customer Accounts'],
+  },
+  quotes: {
+    id: 'quotes',
+    name: 'Quotes & Proforma Invoices',
+    description: 'Send formal B2B estimates and proformas that convert directly into orders upon customer approval.',
+    requiredTier: 'growth',
+    icon: 'file-check',
+    pillar: 'money',
+    impactTags: ['Formal B2B Quotes', 'Proforma Invoices', '1-Click Convert to Order'],
+  },
+  compliance: {
+    id: 'compliance',
+    name: 'Tax & Regulatory Compliance',
+    description: 'Timely reminders for GRA VAT/income tax filings, business operating permits, and receipt vault.',
+    requiredTier: 'starter',
+    icon: 'shield-check',
+    pillar: 'money',
+    impactTags: ['GRA Tax Deadlines', 'Permit Renewal Tracker', 'Filing Receipt Vault'],
+  },
+  payroll: {
+    id: 'payroll',
+    name: 'Staff Payroll Recording',
+    description: 'Track employee compensation and record 1-click salary deductions directly into your expense ledger.',
+    requiredTier: 'growth',
+    icon: 'users',
+    pillar: 'money',
+    impactTags: ['Staff Compensation Log', '1-Click Pay-All Deduction', 'Expense Integration'],
+  },
+  funding_plans: {
+    id: 'funding_plans',
+    name: 'Funding Plans & Grants',
+    description:
+      'Track venture capital, SME grants, bank facilities, and capital disbursement milestones against targets.',
+    requiredTier: 'growth',
+    icon: 'target',
+    pillar: 'money',
+    impactTags: ['Grant & Capital Tracking', 'Disbursement Budgets', 'Funding Milestone Radar'],
+  },
+  calculators: {
+    id: 'calculators',
+    name: 'Business Decision Calculators',
+    description: 'Interactive breakeven analysis, target margin modeling, and payment processing fee comparisons.',
+    requiredTier: 'starter',
+    icon: 'calculator',
+    pillar: 'money',
+    impactTags: ['Breakeven Analysis', 'Target Margin Calculator', 'MoMo Fee Deductor'],
   },
   profitability: {
     id: 'profitability',
     name: 'Unit Profitability & Margins',
-    description: 'Direct landed cost calculation per unit, deducting packing, delivery fees, and charges for net take-home profit.',
+    description:
+      'Direct landed cost calculation per unit, deducting packing, delivery fees, and charges for net take-home profit.',
     requiredTier: 'starter',
     icon: 'trending-up',
+    pillar: 'money',
     impactTags: ['Sidebar: Profitability', 'Real Net Margins', 'Profit Reports'],
   },
+
+  // --- Intelligence Pillar ---
   intelligence: {
     id: 'intelligence',
     name: 'Social AI Intelligence',
-    description: 'One-tap WhatsApp customer order receipts, automatic delivery updates, and conversational cart recovery prompts.',
+    description:
+      'One-tap WhatsApp customer order receipts, automatic delivery updates, and conversational cart recovery prompts.',
     requiredTier: 'starter',
     icon: 'bot',
+    pillar: 'intelligence',
     impactTags: ['WhatsApp Receipts', 'Assistant Drawer', 'Cart Recovery'],
   },
 };
@@ -71,15 +150,28 @@ export const ARCHETYPE_DEFINITIONS: Record<BusinessArchetype, BusinessArchetypeD
     id: 'import_resale',
     name: 'Import & Social Resale',
     tagline: 'Sea/air cargo tracking, pre-orders, and foreign vendor debt.',
-    description: 'For sellers ordering cargo from China, Turkey, or Dubai with pre-order batch cycles and staggered port arrivals.',
+    description:
+      'For sellers ordering cargo from China, Turkey, or Dubai with pre-order batch cycles and staggered port arrivals.',
     icon: 'ship',
     badge: 'Most Popular',
     badgeType: 'primary',
-    defaultModules: ['shipments', 'batches', 'suppliers', 'storefront', 'profitability', 'intelligence'],
+    defaultModules: [
+      'shipments',
+      'batches',
+      'suppliers',
+      'storefront',
+      'profitability',
+      'intelligence',
+      'cashflow',
+      'invoices',
+      'compliance',
+      'funding_plans',
+    ],
     highlights: [
       'Sea/Air Freight Inbound Shipments',
       'Customer Pre-Order Batches',
       'Supplier Foreign Currency Balances',
+      'Cashflow & Compliance Reminders',
     ],
     defaultRoles: [
       {
@@ -98,15 +190,17 @@ export const ARCHETYPE_DEFINITIONS: Record<BusinessArchetype, BusinessArchetypeD
     id: 'boutique_fashion',
     name: 'Boutique & Retail Fashion',
     tagline: 'Size/color variants, instant storefront, and dispatch riders.',
-    description: 'For fashion brands, shoe stores, and apparel boutiques needing multi-attribute inventory and courier delivery tracking.',
+    description:
+      'For fashion brands, shoe stores, and apparel boutiques needing multi-attribute inventory and courier delivery tracking.',
     icon: 'shopping-bag',
     badge: 'Fast Setup',
     badgeType: 'emerald',
-    defaultModules: ['storefront', 'profitability', 'intelligence'],
+    defaultModules: ['storefront', 'profitability', 'intelligence', 'cashflow', 'invoices', 'compliance'],
     highlights: [
       'Multi-Attribute Variants (Size, Color)',
       'Instant Online Storefront',
       'Local Courier & Dispatch Tracking',
+      'Customer Invoicing & Tax Reminders',
     ],
     defaultRoles: [
       {
@@ -125,15 +219,28 @@ export const ARCHETYPE_DEFINITIONS: Record<BusinessArchetype, BusinessArchetypeD
     id: 'wholesale_distributor',
     name: 'Wholesale & Distribution',
     tagline: 'Bulk cartons, tiered B2B pricing, waybills, and formal invoices.',
-    description: 'For bulk distributors supplying regional retail shops, supermarkets, and market stalls with master carton inventory.',
+    description:
+      'For bulk distributors supplying regional retail shops, supermarkets, and market stalls with master carton inventory.',
     icon: 'boxes',
     badge: 'High Volume',
     badgeType: 'indigo',
-    defaultModules: ['shipments', 'suppliers', 'profitability', 'intelligence'],
+    defaultModules: [
+      'shipments',
+      'suppliers',
+      'profitability',
+      'intelligence',
+      'cashflow',
+      'invoices',
+      'quotes',
+      'compliance',
+      'payroll',
+      'funding_plans',
+    ],
     highlights: [
       'Tiered Wholesale Price Lists',
-      'Purchase Orders & Formal Invoices',
-      'Waybill Delivery Documents',
+      'Quotes, Invoices & Proformas',
+      'Waybills & Pallet Freight',
+      'Staff Payroll & Regulatory Compliance',
     ],
     defaultRoles: [
       {
@@ -144,7 +251,14 @@ export const ARCHETYPE_DEFINITIONS: Record<BusinessArchetype, BusinessArchetypeD
       {
         name: 'B2B Accounts Clerk',
         description: 'Tracks credit customer invoices, receivables, and payment receipts.',
-        permissions: ['orders.view', 'orders.manage', 'reports.view', 'expenses.view'],
+        permissions: [
+          'orders.view',
+          'orders.manage',
+          'reports.view',
+          'expenses.view',
+          'invoices.view',
+          'invoices.manage',
+        ],
       },
     ],
   },
@@ -152,15 +266,17 @@ export const ARCHETYPE_DEFINITIONS: Record<BusinessArchetype, BusinessArchetypeD
     id: 'general_pos',
     name: 'General Merchant / Fast POS',
     tagline: 'Rapid Cash and MoMo recording, flat catalog, and daily cashup.',
-    description: 'For neighbourhood marts, cosmetics stalls, and fast daily retailers needing lightning-fast mobile sales and WhatsApp receipts.',
+    description:
+      'For neighbourhood marts, cosmetics stalls, and fast daily retailers needing lightning-fast mobile sales and WhatsApp receipts.',
     icon: 'zap',
     badge: 'Streamlined',
     badgeType: 'amber',
-    defaultModules: ['storefront', 'profitability', 'intelligence'],
+    defaultModules: ['storefront', 'profitability', 'intelligence', 'cashflow', 'calculators'],
     highlights: [
       '1-Tap Cash & MoMo Checkout',
       'Clean Flat Product Catalog',
-      'WhatsApp Cart Takeover Link',
+      'Cashflow Inflow/Outflow Tracker',
+      'Breakeven & Pricing Calculators',
     ],
     defaultRoles: [
       {
@@ -176,12 +292,8 @@ export const ARCHETYPE_DEFINITIONS: Record<BusinessArchetype, BusinessArchetypeD
     tagline: 'Hand-pick modules tailored specifically to your business.',
     description: 'Select your own set of tools (electronics, beauty formulations, made-in-Ghana production, and more).',
     icon: 'sliders',
-    defaultModules: ['storefront', 'profitability', 'intelligence'],
-    highlights: [
-      'Custom Module Selection',
-      'Personalized Workflow',
-      'Flexible Add-Ons Anytime',
-    ],
+    defaultModules: ['storefront', 'profitability', 'intelligence', 'cashflow'],
+    highlights: ['Custom Module Selection', 'Personalized Workflow', 'Flexible Add-Ons Anytime'],
     defaultRoles: [
       {
         name: 'Store Associate',
@@ -207,10 +319,7 @@ export function isModuleEntitled(tier: PlatformTier, moduleKey: BusinessModuleKe
  * Returns the effective list of active modules for a tenant, filtering out
  * any modules that exceed their current subscription tier ceiling.
  */
-export function getEffectiveModules(
-  tier: PlatformTier,
-  enabledModules: BusinessModuleKey[]
-): BusinessModuleKey[] {
+export function getEffectiveModules(tier: PlatformTier, enabledModules: BusinessModuleKey[]): BusinessModuleKey[] {
   return enabledModules.filter((mod) => isModuleEntitled(tier, mod));
 }
 
@@ -229,6 +338,18 @@ export const PERMISSION_MODULE_MAP: Record<string, BusinessModuleKey> = {
   'reports.view': 'profitability',
   'expenses.view': 'profitability',
   'expenses.manage': 'profitability',
+  'invoices.view': 'invoices',
+  'invoices.manage': 'invoices',
+  'quotes.view': 'quotes',
+  'quotes.manage': 'quotes',
+  'compliance.view': 'compliance',
+  'compliance.manage': 'compliance',
+  'payroll.view': 'payroll',
+  'payroll.manage': 'payroll',
+  'funding_plans.view': 'funding_plans',
+  'funding_plans.manage': 'funding_plans',
+  'calculators.view': 'calculators',
+  'cashflow.view': 'cashflow',
 };
 
 export interface PermissionItem {

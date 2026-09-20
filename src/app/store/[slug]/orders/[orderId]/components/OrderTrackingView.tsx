@@ -137,8 +137,10 @@ export function OrderTrackingView({
               <div>
                 <span className="text-[11px] font-bold text-brand-primary uppercase tracking-wider">Order Details</span>
                 <h1 className="text-lg font-black text-foreground tracking-tight mt-0.5">Order #{order.shortId}</h1>
-                <p className="text-xs text-muted mt-1">
-                  Placed on {formatDate(order.createdAt)} • {order.items.length} item(s)
+                <p className="text-xs text-muted mt-1 flex items-center gap-1.5 flex-wrap">
+                  <span>Placed on {formatDate(order.createdAt)}</span>
+                  <span className="w-1 h-1 rounded-full bg-separator inline-block" />
+                  <span>{order.items.length} item(s)</span>
                 </p>
               </div>
 

@@ -148,6 +148,58 @@ export async function getPublicStorefrontBySlug(slug: string): Promise<Storefron
     if (!config.delivery_policy) {
       config.delivery_policy = (customData.delivery_policy as string) || null;
     }
+    if (!config.spotlight_one) {
+      config.spotlight_one =
+        ((customData.spotlight_one || tenantSettings?.spotlight_one) as import('@/types/storefront').StorefrontSpotlightBanner) ||
+        null;
+    }
+    if (config.spotlight_one) {
+      config.spotlight_one = {
+        ...config.spotlight_one,
+        image_fit: config.spotlight_one.image_fit || 'fit',
+      };
+    }
+    if (!config.spotlight_two) {
+      config.spotlight_two =
+        ((customData.spotlight_two || tenantSettings?.spotlight_two) as import('@/types/storefront').StorefrontSpotlightBanner) ||
+        null;
+    }
+    if (config.spotlight_two) {
+      config.spotlight_two = {
+        ...config.spotlight_two,
+        image_fit: config.spotlight_two.image_fit || 'fit',
+      };
+    }
+
+    const rawSlides = ((config.hero_slides as unknown) || customData.hero_slides || tenantSettings?.hero_slides) as
+      | import('@/types/storefront').StorefrontHeroSlide[]
+      | undefined;
+
+    if (rawSlides && Array.isArray(rawSlides) && rawSlides.length > 0) {
+      config.hero_slides = rawSlides.map((s, idx) => ({
+        ...s,
+        id: s.id || `slide_${idx + 1}`,
+        is_active: s.is_active !== false,
+        image_fit: s.image_fit || (s.link_type === 'product' ? 'fit' : 'cover'),
+      }));
+    } else {
+      config.hero_slides = [
+        {
+          id: 'slide_1',
+          is_active: true,
+          image_url: config.banner_url || null,
+          headline: config.banner_headline || null,
+          tagline: config.banner_tagline || null,
+          badge_text: config.banner_badge_text || 'NEW ARRIVALS',
+          price_pill: config.banner_price_pill || null,
+          cta_text: config.banner_cta_text || 'Shop Now',
+          link_type: config.banner_link_type || 'catalog',
+          link_id: config.banner_link_id || null,
+          contrast_theme: config.banner_contrast_theme || 'auto',
+          image_fit: config.banner_image_fit || 'fit',
+        },
+      ];
+    }
 
     // Extract real configured payment methods from Dashboard Payment Settings
     const paymentSettings = (customData.payment_settings as Record<string, unknown> | undefined) || {};

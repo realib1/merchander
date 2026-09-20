@@ -34,6 +34,18 @@ export interface StorefrontConfig {
   banner_headline?: string | null;
   banner_tagline?: string | null;
   banner_cta_text?: string | null;
+  banner_badge_text?: string | null;
+  banner_link_type?: 'catalog' | 'product' | 'category' | null;
+  banner_link_id?: string | null;
+  banner_price_pill?: string | null;
+  banner_compare_at_price_pill?: string | null;
+  banner_starts_at?: string | null;
+  banner_ends_at?: string | null;
+  banner_contrast_theme?: 'auto' | 'light' | 'dark' | null;
+  banner_image_fit?: 'fit' | 'cover' | null;
+  hero_slides?: StorefrontHeroSlide[] | null;
+  spotlight_one?: StorefrontSpotlightBanner | null;
+  spotlight_two?: StorefrontSpotlightBanner | null;
   accepted_payment_methods?: AcceptedPaymentMethod[];
   p2p_accounts?: Array<{
     id: string;
@@ -46,6 +58,32 @@ export interface StorefrontConfig {
   payment_instructions?: string | null;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface StorefrontHeroSlide {
+  id: string;
+  is_active: boolean;
+  image_url?: string | null;
+  headline?: string | null;
+  tagline?: string | null;
+  badge_text?: string | null;
+  price_pill?: string | null;
+  compare_at_price_pill?: string | null;
+  cta_text?: string | null;
+  link_type?: 'catalog' | 'product' | 'category' | null;
+  link_id?: string | null;
+  contrast_theme?: 'auto' | 'light' | 'dark' | null;
+  image_fit?: 'fit' | 'cover' | null;
+}
+
+export interface StorefrontSpotlightBanner {
+  headline?: string | null;
+  tagline?: string | null;
+  image_url?: string | null;
+  cta_text?: string | null;
+  link_url?: string | null;
+  badge_text?: string | null;
+  image_fit?: 'fit' | 'cover' | null;
 }
 
 export interface AcceptedPaymentMethod {
@@ -88,6 +126,7 @@ export interface StorefrontProduct {
 export interface StorefrontCategory {
   id: string;
   name: string;
+  slug?: string;
   product_count: number;
 }
 

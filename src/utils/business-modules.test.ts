@@ -1,4 +1,3 @@
-
 import {
   isModuleEntitled,
   getEffectiveModules,
@@ -61,9 +60,7 @@ describe('business-modules utilities', () => {
       },
       {
         category: 'Suppliers',
-        permissions: [
-          { id: 'suppliers.view', label: 'View Suppliers', description: 'View vendor balances' },
-        ],
+        permissions: [{ id: 'suppliers.view', label: 'View Suppliers', description: 'View vendor balances' }],
       },
     ];
 
@@ -138,6 +135,46 @@ describe('business-modules utilities', () => {
           expect(MODULE_DEFINITIONS[mod]).toBeDefined();
         }
       }
+    });
+
+    it('all module definitions have a valid pillar assigned', () => {
+      const validPillars = ['commerce', 'money', 'intelligence', 'operations'];
+      for (const [key, config] of Object.entries(MODULE_DEFINITIONS)) {
+        expect(config.id).toBe(key);
+        expect(validPillars).toContain(config.pillar);
+        expect(config.name).toBeTruthy();
+        expect(config.icon).toBeTruthy();
+      }
+    });
+
+    it('validates money pillar module entitlement by tier', () => {
+      // starter modules
+      expect(isModuleEntitled('starter', 'invoices')).toBe(true);
+      expect(isModuleEntitled('starter', 'compliance')).toBe(true);
+      expect(isModuleEntitled('starter', 'cashflow')).toBe(true);
+      expect(isModuleEntitled('starter', 'calculators')).toBe(true);
+
+      // growth modules
+      expect(isModuleEntitled('starter', 'quotes')).toBe(false);
+      expect(isModuleEntitled('growth', 'quotes')).toBe(true);
+      expect(isModuleEntitled('starter', 'payroll')).toBe(false);
+      expect(isModuleEntitled('growth', 'payroll')).toBe(true);
+      expect(isModuleEntitled('starter', 'funding_plans')).toBe(false);
+      expect(isModuleEntitled('growth', 'funding_plans')).toBe(true);
+    });
+
+    it('archetype defaults reflect targeted business models', () => {
+      const pos = ARCHETYPE_DEFINITIONS.general_pos;
+      expect(pos.defaultModules).toContain('calculators');
+      expect(pos.defaultModules).toContain('cashflow');
+      expect(pos.defaultModules).not.toContain('quotes');
+      expect(pos.defaultModules).not.toContain('payroll');
+
+      const wholesale = ARCHETYPE_DEFINITIONS.wholesale_distributor;
+      expect(wholesale.defaultModules).toContain('quotes');
+      expect(wholesale.defaultModules).toContain('invoices');
+      expect(wholesale.defaultModules).toContain('payroll');
+      expect(wholesale.defaultModules).toContain('compliance');
     });
   });
 });

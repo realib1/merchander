@@ -2,7 +2,22 @@ import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/proxy';
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request);
+  const response = await updateSession(request);
+  const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
+
+  if (
+    process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' &&
+    deploymentId &&
+    !request.cookies.has('__vdpl')
+  ) {
+    response.cookies.set('__vdpl', deploymentId, {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'strict',
+    });
+  }
+
+  return response;
 }
 
 export const config = {

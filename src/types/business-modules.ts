@@ -1,11 +1,9 @@
 import { PlatformTier } from './platform';
 
 export type BusinessArchetype =
-  | 'import_resale'
-  | 'boutique_fashion'
-  | 'wholesale_distributor'
-  | 'general_pos'
-  | 'custom';
+  'import_resale' | 'boutique_fashion' | 'wholesale_distributor' | 'general_pos' | 'custom';
+
+export type BusinessPillar = 'commerce' | 'money' | 'intelligence' | 'operations';
 
 export type BusinessModuleKey =
   | 'shipments'
@@ -13,7 +11,14 @@ export type BusinessModuleKey =
   | 'suppliers'
   | 'storefront'
   | 'profitability'
-  | 'intelligence';
+  | 'intelligence'
+  | 'invoices'
+  | 'quotes'
+  | 'compliance'
+  | 'payroll'
+  | 'funding_plans'
+  | 'calculators'
+  | 'cashflow';
 
 export interface BusinessModuleConfig {
   id: BusinessModuleKey;
@@ -22,6 +27,7 @@ export interface BusinessModuleConfig {
   requiredTier: PlatformTier;
   icon: string;
   impactTags: string[];
+  pillar: BusinessPillar;
 }
 
 export interface ArchetypeDefaultRole {

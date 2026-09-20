@@ -32,7 +32,7 @@ export default async function StorefrontSearchPage({ params, searchParams }: Sea
         categories={data.categories}
         products={data.products}
         initialSearchQuery={q}
-        title={q ? `Results for “${q}”` : 'Search products'}
+        title={q ? `Results for "${q}"` : 'Search products'}
         eyebrow="Find your next favorite"
       />
     </div>

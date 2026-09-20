@@ -23,9 +23,19 @@ interface StepAccountCredentialsProps {
 }
 
 export function StepAccountCredentials({
-  fullName, setFullName, email, setEmail, phone, setPhone,
-  password, setPassword, confirmPassword, setConfirmPassword,
-  termsAccepted, setTermsAccepted, onContinue,
+  fullName,
+  setFullName,
+  email,
+  setEmail,
+  phone,
+  setPhone,
+  password,
+  setPassword,
+  confirmPassword,
+  setConfirmPassword,
+  termsAccepted,
+  setTermsAccepted,
+  onContinue,
 }: StepAccountCredentialsProps) {
   const match = getPasswordMatchStatus(password, confirmPassword);
 
@@ -35,9 +45,7 @@ export function StepAccountCredentials({
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
           Create your account
         </h1>
-        <p className="text-xs sm:text-sm text-muted font-medium mt-1">
-          Get started in minutes. No complicated steps, just your business, online.
-        </p>
+        <p className="text-xs sm:text-sm text-muted mt-1">Set up your workspace owner credentials.</p>
       </div>
 
       <div className="space-y-3 pt-1">
@@ -45,61 +53,67 @@ export function StepAccountCredentials({
           label="Full name"
           value={fullName}
           onChange={setFullName}
-          placeholder="Your full name"
+          placeholder="Kwame Mensah"
           autoComplete="name"
         />
 
-        <SignupCredentialInput
-          label="Email address"
-          type="email"
-          value={email}
-          onChange={setEmail}
-          placeholder="you@example.com"
-          autoComplete="email"
-        />
-
-        <SignupCredentialInput
-          label="Phone number"
-          type="tel"
-          value={phone}
-          onChange={setPhone}
-          placeholder="024 123 4567"
-          autoComplete="tel"
-        />
-
-        <SignupCredentialInput
-          label="Password"
-          type="password"
-          value={password}
-          onChange={setPassword}
-          placeholder="Create a password (min. 8 characters)"
-          autoComplete="new-password"
-        />
-
-        <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <SignupCredentialInput
-            label="Confirm password"
-            type="password"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            placeholder="Confirm your password"
-            autoComplete="new-password"
+            label="Email address"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="kwame@example.com"
+            autoComplete="email"
           />
-          {match.showFeedback && (
-            <p className={`text-xs font-medium flex items-center gap-1 mt-1.5 ${match.isMatching ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
-              {match.isMatching && <Check size={12} />}
-              {match.message}
-            </p>
-          )}
+
+          <SignupCredentialInput
+            label="Phone number"
+            type="tel"
+            value={phone}
+            onChange={setPhone}
+            placeholder="024 123 4567"
+            autoComplete="tel"
+          />
         </div>
 
-        <div className="flex items-start gap-2 pt-1.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <SignupCredentialInput
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            placeholder="Min. 8 characters"
+            autoComplete="new-password"
+          />
+
+          <div>
+            <SignupCredentialInput
+              label="Confirm password"
+              type="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Confirm password"
+              autoComplete="new-password"
+            />
+            {match.showFeedback && (
+              <p
+                className={`text-xs font-medium flex items-center gap-1 mt-1.5 ${match.isMatching ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}
+              >
+                {match.isMatching && <Check size={12} />}
+                {match.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2.5 pt-1">
           <input
             id="terms-agreement"
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm border-separator text-brand-primary focus:ring-brand-primary/30 accent-brand-primary cursor-pointer"
+            className="mt-0.5 w-4 h-4 rounded border-separator text-brand-primary focus:ring-brand-primary/20 accent-brand-primary cursor-pointer shrink-0"
           />
           <label htmlFor="terms-agreement" className="text-xs text-muted leading-relaxed cursor-pointer select-none">
             I agree to the{' '}
@@ -109,18 +123,18 @@ export function StepAccountCredentials({
             and{' '}
             <Link href="/privacy" target="_blank" className="font-semibold text-brand-primary hover:underline">
               Privacy Policy
-            </Link>.
+            </Link>
+            .
           </label>
         </div>
 
         <button
           type="button"
           onClick={onContinue}
-          className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] text-white rounded-xl text-sm font-bold shadow-sm shadow-brand-primary/25 transition-all cursor-pointer mt-2"
+          className="w-full flex items-center justify-center py-2.5 sm:py-3 px-4 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] text-white rounded-xl text-sm font-semibold shadow-xs transition-colors cursor-pointer mt-2"
         >
-          Continue to Store Setup
+          Continue
         </button>
-
       </div>
     </div>
   );

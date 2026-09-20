@@ -67,22 +67,32 @@ Already shipped (see `build-plan.md` for the checked list):
 - Business settings surface (profile, hours, channels, checkout, fulfilment,
   notifications, privacy, export, subscription, branches, staff, permissions)
 
-Not yet built (roadmap - see `build-plan.md`):
+Not yet built (roadmap — Money Pillar & Business Evolution):
 
-- Official channel connectors, WhatsApp Cloud API first, on the merchant's
-  existing business number - inbound/outbound messages, templates, media,
-  delivery receipts, human-takeover coexistence (webhook route stubs exist today)
-- Merchander Intelligence service (Python/FastAPI + queue): grounded reasoning
-  and multimodal, replacing the `src/lib/intelligence/extract.ts` stub
-- AI that acts *on the channel* - grounded product Q&A, conversation-to-order
-  capture, and proactively-timed outreach (payment reminders, pre-order
-  milestones, back-in-stock) - under Green/Yellow/Red safety with a merchant
-  approval & exceptions queue. Not an in-app chat inbox; the conversation stays
-  on the social channel where the customer already is.
-- Live payment provider integration (customer payment links, automated
-  confirmations, reminders) beyond record-first
-- Fulfilment / delivery integrations (zones, pickup, rider tracking)
-- Demand forecasting, restock recommendations, supplier performance
+- Expense reclassification with COGS / Operating / Other classification,
+  auto-mapped from existing categories with merchant override
+- Inflow / Outflow financial view: unified money-in (sales, deposits, delivery
+  fees, other income) vs money-out (COGS, operating expenses, other), showing
+  Revenue → Gross Profit → Operating Profit → Cash Position, with the critical
+  distinction between profitability (earned) and cash flow (received)
+- Professional invoices: generation from orders or standalone, with tax
+  calculations (VAT/NHIL), shareable public view with payment button, automated
+  overdue reminders, customer transaction history integration
+- Quotes: quote-to-invoice conversion flow, shareable public view, Intelligence
+  can generate and send quote links via WhatsApp. Full flow: Quote → accepted →
+  Invoice → Payment → Order → Fulfillment
+- Compliance tracker: tax payments, annual returns, business permits, custom
+  deadlines with recurrence, reminders, evidence/receipt uploads. Help the
+  merchant not forget, not be the tax authority.
+- Payroll recording: structured salary/wage tracking per staff member per period
+  (gross, SSNIT, PAYE, net), "Pay" / "Pay All" buttons that mark records paid
+  and auto-create expense entries classified as Operating → Salaries. Recording
+  only — Merchander does not process payroll payments.
+- Business calculators: breakeven, markup, import cost, profit margin —
+  auto-populated from real data where available, also available as public
+  standalone pages for SEO
+- Dashboard reorganization into four pillars: Commerce, Money, Business,
+  Intelligence
 - Cross-border commerce (multi-currency, international payments) and supplier
   (China) payment infrastructure
 

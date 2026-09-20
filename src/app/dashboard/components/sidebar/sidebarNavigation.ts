@@ -89,6 +89,13 @@ export const NAV_ITEM_MODULE_MAP: Record<string, string> = {
   '/dashboard/purchasing': 'batches',
   '/dashboard/profitability': 'profitability',
   '/dashboard/conversations': 'intelligence',
+  '/dashboard/invoices': 'invoices',
+  '/dashboard/quotes': 'quotes',
+  '/dashboard/compliance': 'compliance',
+  '/dashboard/payroll': 'payroll',
+  '/dashboard/funding-plans': 'funding_plans',
+  '/dashboard/calculators': 'calculators',
+  '/dashboard/cashflow': 'cashflow',
 };
 
 /**

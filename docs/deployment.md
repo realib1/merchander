@@ -72,6 +72,15 @@ Under **Project Settings -> Environment Variables**, add the variables documente
 - `PYTHON_BRAIN_URL`: Public HTTPS endpoint of your deployed Python Intelligence service.
 - `INTELLIGENCE_SERVICE_API_KEY`: Secret API key shared between Next.js and the Python brain.
 
+### Server Action version skew
+
+In **Project Settings -> Advanced**, enable **Skew Protection** and redeploy the latest production build. This keeps
+open dashboard and checkout sessions aligned with the deployment that served their page, preventing stale client
+bundles from calling Server Actions that no longer exist on the latest deployment. The proxy also sets Vercel's
+deployment pin cookie when Skew Protection is enabled.
+
+After enabling the setting, users who already have a stale page open must refresh it once before submitting forms.
+
 ### Domain & Subdomain Routing
 1. In **Project Settings -> Domains**, attach your primary application domain:
    - `app.merchander.com`

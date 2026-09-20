@@ -45,22 +45,22 @@ interface ModuleCategoryGroup {
 
 const MODULE_CATEGORIES: ModuleCategoryGroup[] = [
   {
-    id: 'supply-chain',
-    title: 'Supply Chain & Inbound Logistics',
-    description: 'Track overseas cargo, container shipments, supplier liabilities, and customer batch cycles.',
-    modules: ['shipments', 'batches', 'suppliers'],
+    id: 'commerce-logistics',
+    title: 'Commerce & Inbound Logistics',
+    description: 'Digital storefront, sea/air cargo shipments, pre-order batch cycles, and supplier debt management.',
+    modules: ['storefront', 'shipments', 'batches', 'suppliers'],
   },
   {
-    id: 'commerce-ai',
-    title: 'Digital Storefront & Customer AI',
-    description: 'Direct mobile shopping catalog, order tracking, and automated WhatsApp order communications.',
-    modules: ['storefront', 'intelligence'],
+    id: 'money-cashflow',
+    title: 'Money, Invoicing & Compliance (The Money Pillar)',
+    description: 'Cashflow tracking, formal quotes, customer invoices, GRA compliance reminders, payroll, and funding plans.',
+    modules: ['cashflow', 'invoices', 'quotes', 'compliance', 'payroll', 'funding_plans', 'calculators', 'profitability'],
   },
   {
-    id: 'finance-margins',
-    title: 'Unit Profitability & Cost Allocation',
-    description: 'Direct landed cost calculations, packaging fees, delivery charges, and true net margins.',
-    modules: ['profitability'],
+    id: 'intelligence',
+    title: 'Intelligence & WhatsApp Automation',
+    description: 'Conversational order communications, automated WhatsApp order receipts, and assistant drawer.',
+    modules: ['intelligence'],
   },
 ];
 

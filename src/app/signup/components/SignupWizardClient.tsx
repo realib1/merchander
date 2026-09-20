@@ -82,7 +82,6 @@ export function SignupWizardClient() {
           onLaunch={wizard.handleLaunch}
         />
       </div>
-
     </div>
   );
 }

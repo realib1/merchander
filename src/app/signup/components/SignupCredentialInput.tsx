@@ -25,7 +25,7 @@ export function SignupCredentialInput({
   const effectiveType = isPassword ? (showPassword ? 'text' : 'password') : type;
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <label className="block text-xs font-semibold text-foreground">{label}</label>
       <div className="relative">
         <input
@@ -34,15 +34,15 @@ export function SignupCredentialInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full py-2.5 rounded-xl border border-separator bg-background text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none text-sm font-medium transition-all shadow-xs ${
-            isPassword ? 'pl-3.5 pr-10' : 'px-3.5'
+          className={`w-full px-3.5 py-2.5 rounded-xl border border-separator bg-background text-foreground placeholder:text-muted/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 outline-none text-sm transition-colors ${
+            isPassword ? 'pr-10' : ''
           }`}
         />
         {isPassword && (
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-foreground transition-colors cursor-pointer"
+            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-muted hover:text-foreground transition-colors cursor-pointer"
             aria-label={showPassword ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
