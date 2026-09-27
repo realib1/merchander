@@ -1,6 +1,6 @@
 # Merchander - Project Overview
 
-<!-- blueprint:source-hash 3a70abe02e5ecbb822ce783be45db7b7c41a52cf7f0920582ef68e009672479b -->
+<!-- blueprint:source-hash 743dbf229f4c981585d2509f20ed28104ca50b68275ed339e763f9e981c13d58 -->
 
 > A social-commerce operating system that connects the supply side and sales side
 > of Ghanaian import/resale businesses into one operational system.
@@ -120,6 +120,18 @@ RBAC, self-service onboarding, and deployment readiness.
     cardless, edge-to-edge layout for `/signup` matching `/login` and
     `signin-signup desktop.png`, removing heavy container cards and drop-shadows
     across all wizard steps with streamlined progress indicators and smooth progression.
+33. **Production Email & Auth Redirects** - fix password reset redirect securely, configure Resend for transactional emails.
+34. **Expense Reclassification & Financial Categories** - add expense_class (cogs | operating | other) auto-mapped from categories.
+35. **Inflow / Outflow Financial View** - unified money-in vs money-out dashboard aggregating revenue against classified expenses.
+36. **Invoices** - professional invoice generation, public view, tax calculations, automated overdue reminders.
+37. **Quotes** - quote-to-invoice conversion flow, shareable public view, generation via WhatsApp Intelligence.
+38. **Compliance Tracker & Reminders** - obligation management for tax payments, permits, returns, with evidence upload and dashboard alerts.
+39. **Payroll Recording** - structured salary/wage tracking per staff member feeding into Inflow/Outflow operating expenses.
+40. **Business Calculators** - breakeven, markup, import cost, profit margin tools.
+41. **Dashboard Reorganization (Four-Pillar Sidebar)** - restructure sidebar into Commerce, Money, Business, Intelligence.
+42. **Funding Plans & Allocation Tracker** - record external funding events and track allocation vs actual spend.
+43. **Module Gating Extension for Money Pillar** - register new Money Pillar features and update archetype default modules.
+44. **Settings Reorganization & Contextual Configuration** - decentralize global settings by moving domain-specific configuration into operational pages as tabs, leaving only cross-cutting configurations in dedicated Settings pages.
 
 ## Data model
 

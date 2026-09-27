@@ -10,24 +10,14 @@ import {
   Building2,
   LayoutGrid,
   Store,
-  CreditCard,
   Share2,
   UsersRound,
   Gem,
-  Clock,
-  Sliders,
-  ChevronDown,
   Settings,
-  LifeBuoy,
-  Package,
-  Truck,
-  PackageCheck,
-  ShieldCheck,
-  FileSpreadsheet,
   Activity,
   Cookie,
-  Bot,
-  MessageSquare,
+  ChevronDown,
+  LifeBuoy,
 } from 'lucide-react';
 import { MobileSettingsSheet } from './MobileSettingsSheet';
 
@@ -46,36 +36,20 @@ export const settingsGroups = [
       { name: 'Business Profile', href: '/dashboard/settings/business-profile', icon: Building2 },
       { name: 'Business Modules', href: '/dashboard/settings/modules', icon: LayoutGrid },
       { name: 'Branches & Locations', href: '/dashboard/settings/branches', icon: Store },
-      { name: 'Business Hours', href: '/dashboard/settings/hours', icon: Clock },
-    ],
-  },
-  {
-    title: 'Commerce',
-    items: [
-      { name: 'Order Preferences', href: '/dashboard/settings/orders', icon: Sliders },
-      { name: 'Products & Inventory', href: '/dashboard/settings/inventory', icon: Package },
-      { name: 'Payments & Cashflow', href: '/dashboard/settings/payments', icon: CreditCard },
     ],
   },
   {
     title: 'Operations & Channels',
     items: [
       { name: 'Connected Channels', href: '/dashboard/settings/channels', icon: Share2 },
-      { name: 'Chat Routing & SLA', href: '/dashboard/settings/conversations', icon: MessageSquare },
-      { name: 'Automation & Bots', href: '/dashboard/settings/automation', icon: Bot },
-      { name: 'Suppliers & POs', href: '/dashboard/settings/suppliers', icon: Truck },
-      { name: 'Shipments & Zones', href: '/dashboard/settings/shipments', icon: Truck },
-      { name: 'Fulfillment & Slips', href: '/dashboard/settings/fulfillment', icon: PackageCheck },
     ],
   },
   {
     title: 'Data & Access',
     items: [
       { name: 'Staff Management', href: '/dashboard/staff', icon: UsersRound },
-      { name: 'Roles & Permissions', href: '/dashboard/settings/permissions', icon: ShieldCheck },
       { name: 'Privacy & Retention', href: '/dashboard/settings/privacy', icon: Cookie },
       { name: 'Audit Log', href: '/dashboard/settings/audit-log', icon: Activity },
-      { name: 'Export Data', href: '/dashboard/settings/export', icon: FileSpreadsheet },
     ],
   },
   {

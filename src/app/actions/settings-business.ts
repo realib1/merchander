@@ -83,8 +83,7 @@ export async function updateBusinessHours(payload: BusinessHoursSettings) {
 
     if (error) throw error;
 
-    revalidatePath('/dashboard/settings/hours');
-    revalidatePath('/dashboard/settings/business-hours');
+    revalidatePath('/dashboard/settings/business-profile/hours');
     return { success: true };
   } catch (err) {
     console.error('Error saving business hours:', err);

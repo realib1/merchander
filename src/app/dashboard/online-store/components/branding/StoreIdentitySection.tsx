@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Globe, Store } from 'lucide-react';
-import { LogoUploader } from '@/app/dashboard/settings/business-profile/components/LogoUploader';
+import { LogoUploader } from '@/app/dashboard/settings/business-profile/(main)/components/LogoUploader';
 import { StoreLiveStatusToggle } from './StoreLiveStatusToggle';
 import { StoreSubdomainInput } from './StoreSubdomainInput';
 

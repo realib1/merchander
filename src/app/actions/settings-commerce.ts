@@ -187,7 +187,7 @@ export async function updateOrderSettings(payload: OrderSettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/orders');
+    revalidatePath('/dashboard/orders/preferences');
     return { success: true };
   } catch (err) {
     console.error('Error updating order settings:', err);
@@ -324,7 +324,7 @@ export async function updateInventorySettings(payload: InventorySettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/inventory');
+    revalidatePath('/dashboard/inventory/preferences');
     return { success: true };
   } catch (err) {
     console.error('Error updating inventory settings:', err);
@@ -530,7 +530,7 @@ export async function updatePaymentSettings(payload: PaymentSettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/payments');
+    revalidatePath('/dashboard/payments/gateways');
     return { success: true };
   } catch (err) {
     console.error('Error updating payment settings:', err);

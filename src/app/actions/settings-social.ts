@@ -295,7 +295,7 @@ export async function updateConversationSettings(payload: ConversationSettings) 
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/conversations');
+    revalidatePath('/dashboard/conversations/routing');
     return { success: true };
   } catch (err) {
     console.error('Error updating conversation settings:', err);
@@ -364,7 +364,7 @@ export async function updateAutomationSettings(payload: AutomationSettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/automation');
+    revalidatePath('/dashboard/conversations/automation');
     return { success: true };
   } catch (err) {
     console.error('Error updating automation settings:', err);

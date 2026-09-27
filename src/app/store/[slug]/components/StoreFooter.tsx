@@ -5,12 +5,8 @@ import { StorefrontConfig, StorefrontCategory } from '@/types/storefront';
 import {
   MessageCircle,
   Package,
-  ShoppingBag,
-  Grid3X3,
-  Layers,
   MapPin,
   ArrowUpRight,
-  Heart,
 } from 'lucide-react';
 import { getBusinessInitials } from '@/utils/format';
 

@@ -211,3 +211,4 @@
   dashboard without overwhelming features, while growing businesses can toggle on
   advanced money tools from Settings → Modules.
 
+- [x] 44. **Settings Reorganization & Contextual Configuration** - Decentralize global settings by moving domain-specific configuration into their respective operational pages as tabs (Order Preferences -> Orders, Products & Inventory -> Inventory, Fulfillment -> Orders, Suppliers & POs -> Suppliers, Shipments & Zones -> Shipments, Chat Routing & Automation -> Approvals & Inquiries, Roles & Permissions -> Staff, Business Hours -> Business Profile, Checkout -> Payments, Export Data -> Privacy & Retention). Keep only cross-cutting configurations (Profile, Security, Notifications, Business Profile, Business Modules, Branches & Locations, Payments Setup, Connected Channels, Privacy & Retention, Audit Log, Plan & Billing) as dedicated Settings pages.

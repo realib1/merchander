@@ -102,7 +102,7 @@ export async function updateSupplierSettings(payload: SupplierSettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/suppliers');
+    revalidatePath('/dashboard/suppliers/preferences');
     return { success: true };
   } catch (err) {
     console.error('Error updating supplier settings:', err);
@@ -163,7 +163,7 @@ export async function updateShipmentSettings(payload: ShipmentSettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/shipments');
+    revalidatePath('/dashboard/shipments/preferences');
     return { success: true };
   } catch (err) {
     console.error('Error updating shipment settings:', err);
@@ -224,7 +224,7 @@ export async function updateFulfillmentSettings(payload: FulfillmentSettings) {
     );
 
     if (error) throw error;
-    revalidatePath('/dashboard/settings/fulfillment');
+    revalidatePath('/dashboard/orders/fulfillment');
     return { success: true };
   } catch (err) {
     console.error('Error updating fulfillment settings:', err);
