@@ -229,7 +229,7 @@ export function StoreDiscoveryView({
         onOpenCart={() => setIsCartOpen(true)}
         onOpenWishlist={() => setIsWishlistOpen(true)}
       />
-      <StoreFooter config={config} />
+      <StoreFooter config={config} categories={categories} />
     </div>
   );
 }

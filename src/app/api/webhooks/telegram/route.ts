@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { sendApiError, sendSuccess } from '@/lib/api-responses';
 import { NormalizedMessage } from '@/types/messaging';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { resolveChannelIdentity } from '@/lib/channels/identity';
@@ -22,20 +23,20 @@ export async function POST(request: NextRequest) {
     const secretHeader = request.headers.get('x-telegram-bot-api-secret-token');
     if (!secretTokenValid(secretHeader)) {
       console.warn('Telegram webhook secret token verification failed');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return sendApiError('Unauthorized', 'UNAUTHORIZED', 403);
     }
 
     const update = await request.json();
     const message = update?.message;
     if (!message?.text || !message?.from?.id || !message?.chat?.id || !message?.message_id) {
-      return NextResponse.json({ status: 'ignored' }, { status: 200 });
+      return sendSuccess({ status: 'ignored' }, 200);
     }
 
     const supabase = createAdminClient();
     const connection = await resolveTelegramConnection(supabase, secretHeader as string);
     if (!connection) {
       console.warn('Telegram webhook could not resolve one connected tenant for the supplied secret');
-      return NextResponse.json({ error: 'Telegram connection is not configured' }, { status: 503 });
+      return sendApiError('Telegram connection is not configured', 'SERVICE_UNAVAILABLE', 503);
     }
 
     const senderId = message.from.id.toString();
@@ -61,11 +62,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (insertError?.code === '23505') {
-      return NextResponse.json({ status: 'duplicate' }, { status: 200 });
+      return sendSuccess({ status: 'duplicate' }, 200);
     }
     if (insertError) {
       console.error('Telegram inbound message persistence failed:', insertError);
-      return NextResponse.json({ error: 'Message persistence failed' }, { status: 500 });
+      return sendApiError('Message persistence failed', 'INTERNAL_ERROR', 500);
     }
 
     const { data: tenantSettingsRow } = await supabase
@@ -77,12 +78,12 @@ export async function POST(request: NextRequest) {
     const automation = (settingsData.automation as Record<string, unknown> | null) || {};
     const rawAgent = (automation.aiAgent as Record<string, unknown> | null) || {};
     const rawIntelligence = (settingsData.intelligence as Record<string, unknown> | null) || {};
-    if (rawAgent.enabled === false) return NextResponse.json({ status: 'received' }, { status: 200 });
+    if (rawAgent.enabled === false) return sendSuccess({ status: 'received' }, 200);
     if (!isSocialIntelligenceAllowed()) {
       console.log(
         `Telegram social intelligence is under review for tenant ${connection.tenantId}. Skipping social reply dispatch.`
       );
-      return NextResponse.json({ status: 'social-intelligence-under-review' }, { status: 200 });
+      return sendSuccess({ status: 'social-intelligence-under-review' }, 200);
     }
 
     const agentMode: 'assisted' | 'autonomous' = rawAgent.mode === 'assisted' ? 'assisted' : 'autonomous';
@@ -165,9 +166,9 @@ export async function POST(request: NextRequest) {
       if (queueError) console.error('Failed to queue Telegram reply:', queueError);
     }
 
-    return NextResponse.json({ status: 'success' }, { status: 200 });
+    return sendSuccess({ status: 'success' }, 200);
   } catch (error) {
     console.error('Webhook processing error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return sendApiError('Internal Server Error', 'INTERNAL_ERROR', 500);
   }
 }

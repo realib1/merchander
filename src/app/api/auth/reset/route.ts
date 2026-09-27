@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { sendApiError } from '@/lib/api-responses';
 
 /**
  * Emergency session reset: clears every cookie and sends the caller to /login.
@@ -11,7 +12,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const secFetchSite = request.headers.get('sec-fetch-site');
   if (secFetchSite && secFetchSite !== 'same-origin' && secFetchSite !== 'none') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return sendApiError('Forbidden', 'FORBIDDEN', 403);
   }
 
   const origin = request.headers.get('origin');
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
       originHost = null;
     }
     if (!originHost || originHost !== host) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return sendApiError('Forbidden', 'FORBIDDEN', 403);
     }
   }
 

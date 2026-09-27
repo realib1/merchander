@@ -1,4 +1,3 @@
-'use client';
 
 import React from 'react';
 import { StorefrontCategory, StorefrontProduct, StorefrontConfig } from '@/types/storefront';

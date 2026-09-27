@@ -30,9 +30,9 @@ const VARIANT_STYLES: Record<ButtonVariant, string> = {
 };
 
 const SIZE_STYLES: Record<ButtonSize, string> = {
-  sm: 'h-7 px-3 text-xs gap-1.5 min-h-7',
-  md: 'h-9 px-4 text-sm gap-2 min-h-9',
-  lg: 'h-11 px-6 text-base gap-2.5 min-h-11',
+  sm: 'h-10 px-3 text-xs gap-1.5 min-h-10',
+  md: 'h-12 px-4 text-sm gap-2 min-h-12',
+  lg: 'h-14 px-6 text-base gap-2.5 min-h-14',
 };
 
 /**

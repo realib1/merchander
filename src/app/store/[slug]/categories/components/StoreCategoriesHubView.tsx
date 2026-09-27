@@ -328,7 +328,7 @@ export function StoreCategoriesHubView({
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenAccount={() => router.push(`/store/${config.slug}/orders`)}
       />
-      <StoreFooter config={config} />
+      <StoreFooter config={config} categories={categories} />
     </div>
   );
 }

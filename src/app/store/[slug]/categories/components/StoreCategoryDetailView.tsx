@@ -132,7 +132,7 @@ export function StoreCategoryDetailView({
         </div>
       </main>
 
-      <StoreFooter config={config} />
+      <StoreFooter config={config} categories={categories} />
       <StoreBottomNav storeSlug={config.slug} cartCount={itemCount} wishlistCount={wishlist.count} primaryColor={primaryColor} onOpenCart={() => setIsCartOpen(true)} onOpenWishlist={() => setIsWishlistOpen(true)} onOpenAccount={() => router.push(`/store/${config.slug}/orders`)} />
       <StoreCartDrawer isOpen={isCartOpen} config={config} cart={cart} onClose={() => setIsCartOpen(false)} onUpdateQuantity={handleUpdateQuantity} onRemoveItem={(vId) => updateCart((prev) => prev.filter((i) => i.variantId !== vId))} onClearCart={clearCart} />
       <StoreWishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} products={products} savedIds={wishlist.savedIds} onRemove={wishlist.removeProduct} onAddToCart={(p) => { handleQuickAdd(p); setIsWishlistOpen(false); setIsCartOpen(true); }} onSyncPhone={wishlist.syncWithPhone} currency={currency} primaryColor={primaryColor} />

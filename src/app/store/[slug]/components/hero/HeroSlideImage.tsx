@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface HeroSlideImageProps {
   bannerSrc: string;
@@ -23,27 +24,31 @@ export function HeroSlideImage({
             isActive ? 'opacity-100 scale-100' : 'opacity-30 scale-90'
           }`}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={bannerSrc}
-          alt="Product showcase"
-          decoding="async"
-          className={`relative z-10 max-h-[110px] sm:max-h-[140px] md:max-h-[250px] lg:max-h-[280px] w-auto object-contain drop-shadow-2xl pointer-events-none transform transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        <div className={`relative z-10 w-full h-[110px] sm:h-[140px] md:h-[250px] lg:h-[280px] pointer-events-none transform transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isActive ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-3 opacity-0'
-          }`}
-        />
+          }`}>
+          <Image
+            src={bannerSrc}
+            alt="Product showcase"
+            fill
+            sizes="(max-width: 768px) 100vw, 42vw"
+            priority={isActive}
+            className="object-contain drop-shadow-2xl"
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={bannerSrc}
         alt="Hero banner"
-        decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transform transition-transform duration-1000 ease-out ${
+        fill
+        sizes="100vw"
+        priority={isActive}
+        className={`object-cover object-center pointer-events-none transform transition-transform duration-1000 ease-out ${
           isActive ? 'scale-100 group-hover:scale-105' : 'scale-105'
         }`}
       />

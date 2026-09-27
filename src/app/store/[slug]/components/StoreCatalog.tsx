@@ -141,7 +141,7 @@ export function StoreCatalog({ config, categories, products, activeBatches = [] 
         onOpenWishlist={() => state.setIsWishlistOpen(true)}
         onOpenAccount={() => state.router.push(`/store/${config.slug}/orders`)}
       />
-      <StoreFooter config={config} />
+      <StoreFooter config={config} categories={categories} />
     </div>
   );
 }
