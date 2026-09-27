@@ -236,10 +236,13 @@ def test_build_qa_grounding_context_redacts_delivery_addresses(
     """Delivery addresses must be reduced to a non-sensitive area before being sent to the model."""
     from app.services.qa import build_qa_grounding_context
 
-    context = build_qa_grounding_context(mock_catalog, mock_active_orders)
+    context_omitted = build_qa_grounding_context(mock_catalog, mock_active_orders, include_delivery_area=False)
+    assert "East Legon, Accra" not in context_omitted
+    assert "Delivery Area" not in context_omitted
 
-    assert "East Legon, Accra" not in context
-    assert "Address redacted" in context or "area redacted" in context.lower()
+    context_included = build_qa_grounding_context(mock_catalog, mock_active_orders, include_delivery_area=True)
+    assert "East Legon, Accra" not in context_included
+    assert "Address redacted" in context_included or "area redacted" in context_included.lower()
 
 
 def test_order_status_inquiry_no_active_orders(client, valid_api_key, mock_catalog):

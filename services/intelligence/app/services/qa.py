@@ -37,6 +37,7 @@ def build_qa_grounding_context(
     catalog: TenantCatalogContext,
     orders: list[CustomerOrderSummary],
     grounding: BusinessGroundingContext | None = None,
+    include_delivery_area: bool = False,
 ) -> str:
     """Build formatted text block summarizing catalog, open pre-orders, customer orders, and merchant grounding."""
     lines = []
@@ -71,11 +72,16 @@ def build_qa_grounding_context(
                     for item in o.items
                 ]
             )
-            safe_address = _redact_delivery_address(o.delivery_address)
-            lines.append(
-                f"- Order {o.order_number}: Status='{o.status}', Total=GH₵{o.total_amount:.2f}, Items=[{item_desc}], "
-                f"Delivery Area='{safe_address}'"
-            )
+            if include_delivery_area:
+                safe_address = _redact_delivery_address(o.delivery_address)
+                lines.append(
+                    f"- Order {o.order_number}: Status='{o.status}', Total=GH₵{o.total_amount:.2f}, Items=[{item_desc}], "
+                    f"Delivery Area='{safe_address}'"
+                )
+            else:
+                lines.append(
+                    f"- Order {o.order_number}: Status='{o.status}', Total=GH₵{o.total_amount:.2f}, Items=[{item_desc}]"
+                )
 
     if grounding:
         lines.append("\n=== MERCHANT BUSINESS PROFILE & POLICIES ===")
@@ -581,7 +587,9 @@ async def generate_grounded_reply(
     if not settings.has_llm_key or settings.ENVIRONMENT == "test":
         return heuristic_generate_reply(message, catalog, orders, grounding=grounding)
 
-    grounding_context = build_qa_grounding_context(catalog, orders, grounding=grounding)
+    text_lower = message.text.lower()
+    asks_for_order = any(w in text_lower for w in ["order", "where is my", "tracking", "delivery update", "track", "dispatch", "my package", "status"])
+    grounding_context = build_qa_grounding_context(catalog, orders, grounding=grounding, include_delivery_area=asks_for_order)
 
     tone_str = "Warm, professional Ghanaian merchant tone ('Hello', 'Please note', 'Thank you for reaching out')."
     if agent_config and agent_config.response_tone:
@@ -599,6 +607,11 @@ async def generate_grounded_reply(
                 "Concise, brief, direct, and straight-to-the-point merchant tone."
             )
 
+    # PRIVACY & DATA RETENTION POLICY:
+    # We use Google Gemini API with Enterprise configuration.
+    # By default, Gemini API does not use customer data (prompts/responses) to train their models.
+    # Data is retained ephemerally for processing in the region configured in Google Cloud.
+    # We further minimize risk by redacting the exact sender ID and exact delivery addresses.
     prompt = f"""
 You are the Merchander AI Assistant for a Ghanaian social-commerce merchant.
 Your goal is to provide polite, helpful, and 100% grounded answers to customer messages.
@@ -622,7 +635,7 @@ GROUNDING DATA:
 
 INBOUND CUSTOMER MESSAGE:
 Platform: {message.platform}
-Sender: {message.sender_id}
+Sender: [REDACTED FOR PRIVACY]
 Message: "{message.text}"
 
 Return ONLY valid JSON matching this schema:

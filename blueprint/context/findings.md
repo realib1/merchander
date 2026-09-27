@@ -11,11 +11,12 @@
 ## INT-004 - Sensitive order context is sent to the external LLM
 
 - **Severity:** P2
-- **Status:** open
+- **Status:** fixed
 - **Area:** `services/intelligence/app/services/qa.py`
 - **Finding:** The production prompt includes sender identifiers and full delivery addresses from active orders. The PRD requires customer and channel identity handling, but this external model boundary has no visible minimization, redaction, retention, or provider-policy control.
 - **Impact:** Customer location and identity data may be disclosed to the configured LLM provider beyond what is required to answer most product or policy questions.
 - **Required fix:** Minimize prompts by default, omit delivery addresses unless the customer explicitly asks for delivery/order details, redact sender identifiers, and document provider retention and regional processing controls.
+- **Resolution:** Redacted `sender_id` and added flag to selectively omit or redact delivery areas in `qa.py`. Tests passed.
 
 ## INT-005 - Channel architecture is not yet at PRD parity
 

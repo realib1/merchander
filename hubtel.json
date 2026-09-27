@@ -1,0 +1,18 @@
+{
+    "ResponseCode": "0000",
+    "Status": "Success",
+    "Data": {
+        "CheckoutId": "d81ef83623ce40588cb0762158ac575e",
+        "SalesInvoiceId": "2690e1f8a51a472eb7caaba327b9cdf4",
+        "ClientReference": "edba98d7-a54a-4164-92f8-6c5d56917bae",
+        "Status": "Success",
+        "Amount": 25.5,
+        "CustomerPhoneNumber": "233248547755",
+        "PaymentDetails": {
+            "MobileMoneyNumber": "233248547755",
+            "PaymentType": "mobilemoney",
+            "Channel": "mtn-gh"
+        },
+        "Description": "The MTN Mobile Money payment has been approved and processed successfully."
+    }
+}
