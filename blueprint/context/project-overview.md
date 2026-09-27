@@ -7,7 +7,7 @@
 
 ## Problem
 
-Social-first merchants run real businesses out of WhatsApp, Instagram, Telegram,
+Social-first merchants run real businesses out of WhatsApp, Telegram,
 and spreadsheets. WhatsApp is a good sales channel but a poor operations system,
 so a growing merchant ends up hand-tracking catalogs, orders, inventory,
 pre-orders, supplier purchases, freight shipments, supplier balances, import
@@ -161,7 +161,7 @@ Platform-plane tables are guarded by `is_platform_staff()`.
 
 - **customers**: `id`, `tenant_id`, `name`, `phone`, `first_touch_source`
   (attribution channel), timestamps.
-- **channel_identities**: maps a channel handle (WhatsApp/IG/FB/Telegram/
+- **channel_identities**: maps a channel handle (WhatsApp/Telegram/
   storefront) to a `customer_id` (`id`, `tenant_id`, `customer_id`, `channel`,
   `channel_handle`, `profile_name`, `last_seen_at`).
 - **messages**: `id`, `tenant_id`, `channel_identity_id` -> channel_identities,

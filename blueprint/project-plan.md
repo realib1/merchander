@@ -8,7 +8,7 @@
 ## 1. Problem - What problem are we solving?
 
 Social-first merchants in Ghana (importers and resellers) run real businesses out
-of WhatsApp, Instagram, Telegram, spreadsheets, and manual notes. WhatsApp is a
+of WhatsApp, Telegram, spreadsheets, and manual notes. WhatsApp is a
 good sales channel but a poor operations system. As a merchant grows they end up
 hand-tracking product catalogs, customer conversations, orders, inventory,
 pre-orders, supplier purchases, sea/air-freight shipments, supplier balances,
@@ -165,7 +165,7 @@ payments flow.
 
 - Token-driven theme system: brand primary scale, semantic surfaces
   (`background`, `surface`, `surface-elevated`, `separator`), text roles, and
-  external brand colors (WhatsApp, Instagram, MTN, Telecel, etc.) defined as
+  external brand colors (WhatsApp, Telegram, MTN, Telecel, etc.) defined as
   `@theme` variables in `globals.css`.
 - Typography: DM Sans (body) + Plus Jakarta Sans (display), with a defined type
   scale.
