@@ -64,7 +64,10 @@ export function OrderPreviewPanel({ order, onOpenDetails }: OrderPreviewPanelPro
       </div>
 
       <section className="space-y-3 border-b border-separator/70 p-5" aria-labelledby="order-preview-customer">
-        <h3 id="order-preview-customer" className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted">
+        <h3
+          id="order-preview-customer"
+          className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted"
+        >
           <UserRound size={14} aria-hidden="true" /> Customer
         </h3>
         <div className="min-w-0">
@@ -77,7 +80,10 @@ export function OrderPreviewPanel({ order, onOpenDetails }: OrderPreviewPanelPro
 
       <section className="space-y-3 border-b border-separator/70 p-5" aria-labelledby="order-preview-items">
         <div className="flex items-center justify-between">
-          <h3 id="order-preview-items" className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted">
+          <h3
+            id="order-preview-items"
+            className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted"
+          >
             <Package size={14} aria-hidden="true" /> Items
           </h3>
           <span className="text-[11px] text-muted">{items.length}</span>
@@ -123,7 +129,10 @@ export function OrderPreviewPanel({ order, onOpenDetails }: OrderPreviewPanelPro
 
       {order.delivery_address && (
         <section className="space-y-2 p-5" aria-labelledby="order-preview-delivery">
-          <h3 id="order-preview-delivery" className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted">
+          <h3
+            id="order-preview-delivery"
+            className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted"
+          >
             <MapPin size={14} aria-hidden="true" /> Delivery address
           </h3>
           <p className="text-xs leading-relaxed text-foreground">{order.delivery_address}</p>

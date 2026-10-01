@@ -24,9 +24,8 @@ export default async function PlansBillingPage() {
         <div className="p-8 rounded-xl bg-surface border border-separator text-center space-y-2">
           <div className="text-sm font-bold text-foreground">No commercial plans configured</div>
           <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
-            The <span>platform_plans</span> table is empty. Tier pricing,
-            entitlements and the merchant plan picker all read from it, so add your plans here
-            before onboarding paid merchants.
+            The <span>platform_plans</span> table is empty. Tier pricing, entitlements and the merchant plan picker all
+            read from it, so add your plans here before onboarding paid merchants.
           </p>
         </div>
       ) : (

@@ -259,8 +259,7 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
                 <div className="space-y-0.5">
                   <p className="text-xs font-medium text-foreground">Include Variant Name in SKU</p>
                   <p className="text-[11px] text-muted">
-                    Appends color/size codes (e.g. <span>AJL-BLK-L-01</span> instead of{' '}
-                    <span>AJL-01</span>).
+                    Appends color/size codes (e.g. <span>AJL-BLK-L-01</span> instead of <span>AJL-01</span>).
                   </p>
                 </div>
                 <Switch

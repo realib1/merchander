@@ -17,11 +17,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import {
-  RestockRecommendation,
-  DemandForecastSummary,
-  StockHealthStatus,
-} from '@/types/intelligence-demand';
+import { RestockRecommendation, DemandForecastSummary, StockHealthStatus } from '@/types/intelligence-demand';
 import { createDraftPOFromRestockAction } from '@/app/actions/intelligence-demand';
 import { formatCurrency } from '@/utils/format';
 import { Badge } from '@/components/ui/Badge';
@@ -242,7 +238,8 @@ export function RestockRecommendationsView({
           </div>
           <div className="mt-3 pt-3 border-t border-separator/60">
             <p className="text-[11px] text-muted">
-              <span className="font-semibold text-foreground">{summary.warningStockoutsCount}</span> items nearing reorder threshold
+              <span className="font-semibold text-foreground">{summary.warningStockoutsCount}</span> items nearing
+              reorder threshold
             </p>
           </div>
         </div>
@@ -261,9 +258,7 @@ export function RestockRecommendationsView({
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-separator/60">
-            <p className="text-[11px] text-muted">
-              Est. landed replenishment budget for active stockouts
-            </p>
+            <p className="text-[11px] text-muted">Est. landed replenishment budget for active stockouts</p>
           </div>
         </div>
 
@@ -282,7 +277,8 @@ export function RestockRecommendationsView({
           </div>
           <div className="mt-3 pt-3 border-t border-separator/60">
             <p className="text-[11px] text-muted">
-              Tracked across <span className="font-semibold text-foreground">{summary.totalVariantsTracked}</span> product variants
+              Tracked across <span className="font-semibold text-foreground">{summary.totalVariantsTracked}</span>{' '}
+              product variants
             </p>
           </div>
         </div>
@@ -399,8 +395,7 @@ export function RestockRecommendationsView({
                     <input
                       type="checkbox"
                       checked={
-                        filteredRecommendations.length > 0 &&
-                        selectedIds.size === filteredRecommendations.length
+                        filteredRecommendations.length > 0 && selectedIds.size === filteredRecommendations.length
                       }
                       onChange={toggleSelectAll}
                       className="rounded border-separator text-brand-primary focus:ring-brand-primary/20"
@@ -420,8 +415,7 @@ export function RestockRecommendationsView({
               <tbody className="divide-y divide-separator/60">
                 {filteredRecommendations.map((item) => {
                   const isSelected = selectedIds.has(item.variantId);
-                  const activeQty =
-                    customQuantities[item.variantId] ?? item.suggestedReorderQuantity;
+                  const activeQty = customQuantities[item.variantId] ?? item.suggestedReorderQuantity;
                   const itemTotalCost = activeQty * item.estimatedUnitCost;
 
                   return (
@@ -491,8 +485,7 @@ export function RestockRecommendationsView({
                       <td className="px-4 py-3.5 text-right tabular-nums">
                         {item.dailyVelocity > 0 ? (
                           <span className="font-semibold text-foreground">
-                            {item.dailyVelocity.toFixed(1)}{' '}
-                            <span className="text-[10px] text-muted">/ day</span>
+                            {item.dailyVelocity.toFixed(1)} <span className="text-[10px] text-muted">/ day</span>
                           </span>
                         ) : (
                           <span className="text-muted">-</span>
@@ -535,18 +528,14 @@ export function RestockRecommendationsView({
                           />
                           <span className="text-[10px] text-muted">pcs</span>
                         </div>
-                        <div className="text-[10px] text-muted mt-0.5">
-                          Point: {item.reorderPoint}
-                        </div>
+                        <div className="text-[10px] text-muted mt-0.5">Point: {item.reorderPoint}</div>
                       </td>
 
                       {/* Preferred Supplier */}
                       <td className="px-4 py-3.5">
                         {item.preferredSupplier ? (
                           <div>
-                            <div className="font-semibold text-foreground">
-                              {item.preferredSupplier.name}
-                            </div>
+                            <div className="font-semibold text-foreground">{item.preferredSupplier.name}</div>
                             <div className="flex items-center gap-1.5 text-[10px] text-muted mt-0.5">
                               <span>{item.preferredSupplier.defaultLeadDays}d lead</span>
                               <span>•</span>
@@ -562,9 +551,7 @@ export function RestockRecommendationsView({
 
                       {/* Est Landed Cost */}
                       <td className="px-4 py-3.5 text-right">
-                        <div className="font-bold text-foreground tabular-nums">
-                          {formatCurrency(itemTotalCost)}
-                        </div>
+                        <div className="font-bold text-foreground tabular-nums">{formatCurrency(itemTotalCost)}</div>
                         <div className="text-[10px] text-muted mt-0.5">
                           {formatCurrency(item.estimatedUnitCost)} / unit
                         </div>
@@ -596,130 +583,118 @@ export function RestockRecommendationsView({
         {createdPO ? (
           <div className="text-center flex flex-col items-center">
             <div className="h-12 w-12 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center mb-3">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <h4 className="text-base font-bold text-foreground">
-                  Purchase Order Created
-                </h4>
-                <p className="text-xs text-muted mt-1 max-w-sm">
-                  Draft Purchase Order <span className="font-bold text-foreground">{createdPO.poNumber}</span> has been created with expected delivery lead time automatically calculated.
-                </p>
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <h4 className="text-base font-bold text-foreground">Purchase Order Created</h4>
+            <p className="text-xs text-muted mt-1 max-w-sm">
+              Draft Purchase Order <span className="font-bold text-foreground">{createdPO.poNumber}</span> has been
+              created with expected delivery lead time automatically calculated.
+            </p>
 
-                <div className="flex items-center gap-3 mt-6">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setIsPOModalOpen(false);
-                      setCreatedPO(null);
-                    }}
-                  >
-                    Close
-                  </Button>
-                  <Link href="/dashboard/purchasing">
-                    <Button variant="primary" size="sm" className="flex items-center gap-1.5">
-                      <span>View in Purchasing</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Button>
-                  </Link>
-                </div>
+            <div className="flex items-center gap-3 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsPOModalOpen(false);
+                  setCreatedPO(null);
+                }}
+              >
+                Close
+              </Button>
+              <Link href="/dashboard/purchasing">
+                <Button variant="primary" size="sm" className="flex items-center gap-1.5">
+                  <span>View in Purchasing</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 space-y-4">
+            {/* Supplier Picker */}
+            <div>
+              <label htmlFor="modal-supplier-select" className="block text-xs font-bold text-foreground mb-1.5">
+                Assign Supplier *
+              </label>
+              <select
+                id="modal-supplier-select"
+                value={selectedSupplierId}
+                onChange={(e) => setSelectedSupplierId(e.target.value)}
+                className="w-full px-3 py-2 bg-surface border border-separator rounded-xl text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-brand-primary"
+              >
+                <option value="">Select a supplier...</option>
+                {suppliers.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.default_lead_days || 14} days lead time)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Selected Items Summary List */}
+            <div>
+              <p className="text-xs font-bold text-foreground mb-1.5">Items to Include ({selectedItems.length})</p>
+              <div className="max-h-48 overflow-y-auto border border-separator rounded-xl divide-y divide-separator/60">
+                {selectedItems.map((item) => {
+                  const qty = customQuantities[item.variantId] ?? item.suggestedReorderQuantity;
+                  const lineCost = qty * item.estimatedUnitCost;
+                  return (
+                    <div key={item.variantId} className="px-3 py-2 flex items-center justify-between text-xs">
+                      <div>
+                        <div className="font-semibold text-foreground">{item.productName}</div>
+                        <div className="text-[10px] text-muted">{item.variantName}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold tabular-nums">{qty} pcs</div>
+                        <div className="text-[10px] text-muted">{formatCurrency(lineCost)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ) : (
-              <div className="p-4 space-y-4">
-                {/* Supplier Picker */}
-                <div>
-                  <label htmlFor="modal-supplier-select" className="block text-xs font-bold text-foreground mb-1.5">
-                    Assign Supplier *
-                  </label>
-                  <select
-                    id="modal-supplier-select"
-                    value={selectedSupplierId}
-                    onChange={(e) => setSelectedSupplierId(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-xl text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-brand-primary"
-                  >
-                    <option value="">Select a supplier...</option>
-                    {suppliers.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} ({s.default_lead_days || 14} days lead time)
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            </div>
 
-                {/* Selected Items Summary List */}
-                <div>
-                  <p className="text-xs font-bold text-foreground mb-1.5">
-                    Items to Include ({selectedItems.length})
-                  </p>
-                  <div className="max-h-48 overflow-y-auto border border-separator rounded-xl divide-y divide-separator/60">
-                    {selectedItems.map((item) => {
-                      const qty =
-                        customQuantities[item.variantId] ?? item.suggestedReorderQuantity;
-                      const lineCost = qty * item.estimatedUnitCost;
-                      return (
-                        <div
-                          key={item.variantId}
-                          className="px-3 py-2 flex items-center justify-between text-xs"
-                        >
-                          <div>
-                            <div className="font-semibold text-foreground">{item.productName}</div>
-                            <div className="text-[10px] text-muted">{item.variantName}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold tabular-nums">{qty} pcs</div>
-                            <div className="text-[10px] text-muted">{formatCurrency(lineCost)}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+            {/* PO Notes */}
+            <div>
+              <label htmlFor="po-notes" className="block text-xs font-bold text-foreground mb-1.5">
+                Order Notes (Optional)
+              </label>
+              <textarea
+                id="po-notes"
+                value={poNotes}
+                onChange={(e) => setPoNotes(e.target.value)}
+                rows={2}
+                placeholder="E.g., Expedited sea freight replenishment batch..."
+                className="w-full px-3 py-2 bg-surface border border-separator rounded-xl text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-brand-primary"
+              />
+            </div>
 
-                {/* PO Notes */}
-                <div>
-                  <label htmlFor="po-notes" className="block text-xs font-bold text-foreground mb-1.5">
-                    Order Notes (Optional)
-                  </label>
-                  <textarea
-                    id="po-notes"
-                    value={poNotes}
-                    onChange={(e) => setPoNotes(e.target.value)}
-                    rows={2}
-                    placeholder="E.g., Expedited sea freight replenishment batch..."
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-xl text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-brand-primary"
-                  />
-                </div>
+            {/* Financial Summary */}
+            <div className="p-3 bg-surface-elevated/60 border border-separator/80 rounded-xl flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted">Estimated Total Cost:</span>
+              <span className="text-sm font-black text-foreground tabular-nums">
+                {formatCurrency(selectedTotalCost)}
+              </span>
+            </div>
 
-                {/* Financial Summary */}
-                <div className="p-3 bg-surface-elevated/60 border border-separator/80 rounded-xl flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted">Estimated Total Cost:</span>
-                  <span className="text-sm font-black text-foreground tabular-nums">
-                    {formatCurrency(selectedTotalCost)}
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsPOModalOpen(false)}
-                    disabled={isCreatingPO}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={handleConfirmCreatePO}
-                    disabled={isCreatingPO || !selectedSupplierId}
-                    className="flex items-center gap-1.5 font-bold"
-                  >
-                    {isCreatingPO ? 'Creating PO...' : 'Create Draft Purchase Order'}
-                  </Button>
-                </div>
-              </div>
-            )}
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setIsPOModalOpen(false)} disabled={isCreatingPO}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleConfirmCreatePO}
+                disabled={isCreatingPO || !selectedSupplierId}
+                className="flex items-center gap-1.5 font-bold"
+              >
+                {isCreatingPO ? 'Creating PO...' : 'Create Draft Purchase Order'}
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

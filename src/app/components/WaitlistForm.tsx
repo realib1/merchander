@@ -41,13 +41,13 @@ export function WaitlistForm() {
           placeholder="Enter your email address"
           required
           disabled={status === 'loading'}
-          className="flex h-10 w-full rounded-md border border-separator bg-surface px-3.5 py-2 text-sm shadow-2xs transition-colors placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:opacity-50"
+          className="flex h-10 w-full rounded-md border border-separator bg-surface px-3.5 py-2 shadow-2xs transition-colors placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:opacity-50"
         />
         <Button
           type="submit"
           variant="primary"
-          size="md"
-          className="h-10 w-full sm:w-auto shrink-0 font-medium px-4 text-sm whitespace-nowrap shadow-2xs"
+          size="sm"
+          className="h-10 w-full sm:w-auto shrink-0 font-medium px-4 py-2 whitespace-nowrap shadow-2xs"
           disabled={status === 'loading'}
         >
           {status === 'loading' ? 'Joining...' : 'Join Waitlist'}

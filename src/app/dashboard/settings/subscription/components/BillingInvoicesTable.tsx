@@ -1,5 +1,5 @@
 'use client';
- 
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
@@ -159,7 +159,8 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
             <FileText className="mx-auto h-8 w-8 text-muted/50" />
             <p className="text-xs font-semibold text-foreground">No invoices generated yet</p>
             <p className="text-[11px] text-muted max-w-sm mx-auto">
-              Receipts and invoices will automatically appear here once your account is created or when your plan renews.
+              Receipts and invoices will automatically appear here once your account is created or when your plan
+              renews.
             </p>
           </div>
         ) : (
@@ -171,9 +172,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
                 return (
                   <div key={inv.id} className="p-4 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-xs text-foreground tracking-wide">
-                        {inv.invoiceNumber}
-                      </span>
+                      <span className="font-bold text-xs text-foreground tracking-wide">{inv.invoiceNumber}</span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
                           isZeroAmount
@@ -296,11 +295,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
         size="md"
         footer={
           <div className="flex items-center justify-between w-full">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedInvoice(null)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setSelectedInvoice(null)}>
               Close
             </Button>
             <div className="flex items-center gap-2">
@@ -336,9 +331,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
                 <h4 className="text-xs font-bold font-display uppercase tracking-wider text-brand-primary">
                   Merchander Cloud Commerce
                 </h4>
-                <p className="text-[11px] text-muted mt-0.5">
-                  Accra, Ghana • VAT / TIN: GH-7749102-M
-                </p>
+                <p className="text-[11px] text-muted mt-0.5">Accra, Ghana • VAT / TIN: GH-7749102-M</p>
                 <p className="text-[11px] text-muted">billing@merchander.com</p>
               </div>
               <div className="text-right">
@@ -408,7 +401,8 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
             </div>
 
             <p className="text-[10px] text-muted text-center italic">
-              Thank you for partnering with Merchander. This electronic receipt serves as official proof of subscription payment.
+              Thank you for partnering with Merchander. This electronic receipt serves as official proof of subscription
+              payment.
             </p>
           </div>
         )}

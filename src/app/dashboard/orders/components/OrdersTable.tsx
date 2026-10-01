@@ -202,11 +202,7 @@ export function OrdersTable({
                       aria-label="Sort orders by date"
                     >
                       Order
-                      <SortIcon
-                        column="created_at"
-                        currentSortBy={currentSortBy}
-                        currentSortOrder={currentSortOrder}
-                      />
+                      <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
                     </button>
                   </th>
                   <th className="sticky top-0 z-10 bg-surface-elevated px-4 py-3">Customer</th>
@@ -283,10 +279,7 @@ export function OrdersTable({
           />
         </div>
 
-        <OrderPreviewPanel
-          order={focusedOrder}
-          onOpenDetails={() => focusedOrder && setSelectedOrder(focusedOrder)}
-        />
+        <OrderPreviewPanel order={focusedOrder} onOpenDetails={() => focusedOrder && setSelectedOrder(focusedOrder)} />
       </div>
 
       <OrderDetailsSheet isOpen={selectedOrder !== null} onClose={() => setSelectedOrder(null)} order={selectedOrder} />

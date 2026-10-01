@@ -19,9 +19,9 @@ export default async function PlatformRevenuePage() {
   return (
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-8">
       <div className="p-4 rounded-xl bg-surface-elevated border border-separator text-xs text-muted leading-relaxed">
-        Figures below are <span className="font-semibold text-foreground">contracted</span> subscription
-        value from <span>tenant_subscriptions</span>. No billing provider is
-        connected yet, so collected revenue, net revenue and churn are not available.
+        Figures below are <span className="font-semibold text-foreground">contracted</span> subscription value from{' '}
+        <span>tenant_subscriptions</span>. No billing provider is connected yet, so collected revenue, net revenue and
+        churn are not available.
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -49,9 +49,7 @@ export default async function PlatformRevenuePage() {
                   <div className="text-[11px] text-muted">{tier.subscriberCount} active subscribers</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-foreground tabular-nums">
-                    GH₵ {tier.mrr.toLocaleString()}
-                  </div>
+                  <div className="font-bold text-foreground tabular-nums">GH₵ {tier.mrr.toLocaleString()}</div>
                   <div className="text-[11px] text-muted">MRR contribution</div>
                 </div>
               </div>
