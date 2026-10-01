@@ -48,7 +48,7 @@ export function SystemStatusView({ incidents, onOpenReport }: SystemStatusViewPr
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Top Banner */}
-      <div className="p-5 rounded-2xl border border-separator bg-surface-elevated flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+      <div className="p-5 rounded-xl border border-separator bg-surface-elevated flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -77,7 +77,7 @@ export function SystemStatusView({ incidents, onOpenReport }: SystemStatusViewPr
       {activeIncidents.length > 0 && (
         <div className="space-y-3">
           {activeIncidents.map((inc) => (
-            <div key={inc.id} className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 space-y-2 text-xs">
+            <div key={inc.id} className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2 text-xs">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400" />
@@ -99,7 +99,7 @@ export function SystemStatusView({ incidents, onOpenReport }: SystemStatusViewPr
         {incidents.map((srv) => (
           <div
             key={srv.id}
-            className="p-4 rounded-2xl border border-separator bg-surface flex items-center justify-between gap-3 shadow-xs"
+            className="p-4 rounded-xl border border-separator bg-surface flex items-center justify-between gap-3 shadow-xs"
           >
             <div className="space-y-0.5">
               <h3 className="text-xs font-bold text-foreground">{srv.title}</h3>

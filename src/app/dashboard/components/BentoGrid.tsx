@@ -26,7 +26,7 @@ export function BentoTile({ children, className = '', colSpan = 1, ...props }: B
 
   return (
     <div
-      className={`bg-surface border border-separator rounded-2xl shadow-sm shadow-brand-primary/5 p-6 flex flex-col relative overflow-hidden transition-all hover:shadow-md ${spanClasses[colSpan]} ${className}`}
+      className={`bg-surface border border-separator rounded-xl shadow-sm shadow-brand-primary/5 p-6 flex flex-col relative overflow-hidden transition-all hover:shadow-md ${spanClasses[colSpan]} ${className}`}
       {...props}
     >
       {children}

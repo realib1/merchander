@@ -10,24 +10,16 @@ interface SupportClientProps {
 
 export function SupportClient({ initialTickets }: SupportClientProps) {
   const [tickets, setTickets] = useState<PlatformSupportTicket[]>(initialTickets);
-  const [selectedTicket, setSelectedTicket] = useState<PlatformSupportTicket | null>(
-    initialTickets[0] || null
-  );
+  const [selectedTicket, setSelectedTicket] = useState<PlatformSupportTicket | null>(initialTickets[0] || null);
   const [newNote, setNewNote] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleStatusChange = async (
-    ticketId: string,
-    tenantId: string,
-    newStatus: PlatformSupportTicket['status']
-  ) => {
+  const handleStatusChange = async (ticketId: string, tenantId: string, newStatus: PlatformSupportTicket['status']) => {
     setIsUpdating(true);
     try {
       const res = await updateSupportTicketStatusAction(tenantId, ticketId, { status: newStatus });
       if (res.success) {
-        setTickets((prev) =>
-          prev.map((t) => (t.id === ticketId ? { ...t, status: newStatus } : t))
-        );
+        setTickets((prev) => prev.map((t) => (t.id === ticketId ? { ...t, status: newStatus } : t)));
         if (selectedTicket && selectedTicket.id === ticketId) {
           setSelectedTicket((prev) => (prev ? { ...prev, status: newStatus } : null));
         }
@@ -44,11 +36,9 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
 
     setIsUpdating(true);
     try {
-      const res = await updateSupportTicketStatusAction(
-        selectedTicket.tenant_id,
-        selectedTicket.id,
-        { newInternalNote: newNote }
-      );
+      const res = await updateSupportTicketStatusAction(selectedTicket.tenant_id, selectedTicket.id, {
+        newInternalNote: newNote,
+      });
       if (res.success) {
         const updatedNotes = [
           ...(selectedTicket.internal_notes || []),
@@ -72,13 +62,11 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Ticket List (Left 1 col) */}
       <div className="space-y-3 lg:col-span-1">
-        <div className="text-xs font-bold text-muted uppercase font-mono tracking-wider">
-          Ticket Queue ({tickets.length})
-        </div>
+        <div className="text-xs font-bold text-muted uppercase tracking-wider">Ticket Queue ({tickets.length})</div>
 
         <div className="space-y-2 max-h-150 overflow-y-auto custom-scrollbar pr-1">
           {tickets.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-surface border border-separator text-center text-xs text-muted">
+            <div className="p-6 rounded-xl bg-surface border border-separator text-center text-xs text-muted">
               No active support tickets in queue.
             </div>
           ) : (
@@ -90,7 +78,7 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
                 <div
                   key={t.id}
                   onClick={() => setSelectedTicket(t)}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
                     isSelected
                       ? 'bg-brand-primary/10 border-brand-primary/40 shadow-xs'
                       : 'bg-surface border-separator hover:bg-surface-elevated'
@@ -99,12 +87,12 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-xs text-foreground truncate">{t.tenant_name}</span>
                     <span
-                      className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${
+                      className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${
                         t.status === 'open'
                           ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/20'
                           : t.status === 'in_progress'
-                          ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                          : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                       }`}
                     >
                       {t.status.replace('_', ' ')}
@@ -113,10 +101,8 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
 
                   <div className="text-xs font-semibold text-foreground mt-1.5 truncate">{t.subject}</div>
 
-                  <div className="flex items-center justify-between text-[11px] text-muted font-mono mt-2 pt-2 border-t border-separator/40">
-                    <span className={isUrgent ? 'text-destructive font-bold' : ''}>
-                      {t.priority.toUpperCase()}
-                    </span>
+                  <div className="flex items-center justify-between text-[11px] text-muted mt-2 pt-2 border-t border-separator/40">
+                    <span className={isUrgent ? 'text-destructive font-bold' : ''}>{t.priority.toUpperCase()}</span>
                     <span>{new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
@@ -129,24 +115,22 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
       {/* Ticket Details & Action Drawer (Right 2 cols) */}
       <div className="lg:col-span-2">
         {selectedTicket ? (
-          <div className="p-6 rounded-2xl bg-surface border border-separator shadow-xs space-y-6">
+          <div className="p-6 rounded-xl bg-surface border border-separator shadow-xs space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-separator/60 pb-4">
               <div>
-                <div className="text-xs text-muted font-mono">
+                <div className="text-xs text-muted ">
                   Ticket #{selectedTicket.id} • {selectedTicket.category.toUpperCase()}
                 </div>
-                <h2 className="text-lg font-bold text-foreground font-display mt-0.5">
-                  {selectedTicket.subject}
-                </h2>
-                <div className="text-xs text-secondary font-mono mt-0.5">
+                <h2 className="text-lg font-bold text-foreground font-display mt-0.5">{selectedTicket.subject}</h2>
+                <div className="text-xs text-secondary mt-0.5">
                   Reporter: {selectedTicket.merchant_email} ({selectedTicket.tenant_name})
                 </div>
               </div>
 
               {/* Status Selector */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted font-mono">Status:</span>
+                <span className="text-xs text-muted ">Status:</span>
                 <select
                   disabled={isUpdating}
                   value={selectedTicket.status}
@@ -171,20 +155,23 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
 
             {/* Merchant Message */}
             <div className="p-4 rounded-xl bg-surface-elevated border border-separator text-xs text-foreground leading-relaxed">
-              <div className="text-[10px] text-muted font-mono uppercase mb-1.5">Original Merchant Request:</div>
+              <div className="text-[10px] text-muted uppercase mb-1.5">Original Merchant Request:</div>
               {selectedTicket.message || 'No additional message details provided.'}
             </div>
 
             {/* Internal Staff Notes */}
             <div className="space-y-3">
-              <div className="text-xs font-bold text-muted uppercase font-mono">
+              <div className="text-xs font-bold text-muted uppercase ">
                 Internal Collaboration Notes ({selectedTicket.internal_notes?.length || 0})
               </div>
 
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {(selectedTicket.internal_notes || []).map((note, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-surface-elevated border border-separator text-xs space-y-1">
-                    <div className="flex items-center justify-between text-[10px] font-mono text-muted">
+                  <div
+                    key={idx}
+                    className="p-3 rounded-xl bg-surface-elevated border border-separator text-xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between text-[10px] text-muted">
                       <span className="font-bold text-brand-primary">{note.author}</span>
                       <span>{new Date(note.created_at).toLocaleString()}</span>
                     </div>
@@ -214,7 +201,7 @@ export function SupportClient({ initialTickets }: SupportClientProps) {
             </div>
           </div>
         ) : (
-          <div className="p-12 rounded-2xl bg-surface border border-separator text-center text-xs text-muted">
+          <div className="p-12 rounded-xl bg-surface border border-separator text-center text-xs text-muted">
             Select a ticket from the queue to review details.
           </div>
         )}

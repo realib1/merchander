@@ -227,10 +227,10 @@ function StockTransferContent({
                       <p className="truncate font-medium text-foreground">
                         {v.productName} {v.name ? `(${v.name})` : ''}
                       </p>
-                      <p className="text-[10px] text-muted font-mono">SKU: {v.sku}</p>
+                      <p className="text-[10px] text-muted ">SKU: {v.sku}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-surface border border-separator">
+                      <span className="text-[11px] px-2 py-0.5 rounded-md bg-surface border border-separator">
                         {available} in stock
                       </span>
                       <Plus size={14} className="text-muted" />
@@ -272,7 +272,7 @@ function StockTransferContent({
                     <p className="font-semibold text-foreground truncate">
                       {variant?.productName} {variant?.name ? `(${variant.name})` : ''}
                     </p>
-                    <p className="text-[10px] text-muted font-mono">
+                    <p className="text-[10px] text-muted ">
                       SKU: {variant?.sku} | Available: {available}
                     </p>
                   </div>
@@ -286,7 +286,7 @@ function StockTransferContent({
                         max={available}
                         value={item.quantity}
                         onChange={(e) => handleUpdateQuantity(item.variantId, parseInt(e.target.value, 10) || 1)}
-                        className="w-16 bg-surface-elevated border border-separator rounded-lg px-2 py-1 text-xs font-mono text-center outline-none focus:ring-1 focus:ring-brand-primary"
+                        className="w-16 bg-surface-elevated border border-separator rounded-lg px-2 py-1 text-xs text-center outline-none focus:ring-1 focus:ring-brand-primary"
                       />
                     </div>
 

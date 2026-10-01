@@ -146,7 +146,7 @@ export function ReconcileMoMoModal({ orders }: ReconcileMoMoModalProps) {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-muted">Extracted Ref:</span>{' '}
-                  <span className="font-mono font-bold text-brand-primary">{extractedRef || 'Searching...'}</span>
+                  <span className="font-bold text-brand-primary">{extractedRef || 'Searching...'}</span>
                 </div>
                 <div>
                   <span className="text-muted">Detected Amount:</span>{' '}

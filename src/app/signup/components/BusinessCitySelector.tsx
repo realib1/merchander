@@ -33,10 +33,10 @@ export function BusinessCitySelector({ city, setCity }: BusinessCitySelectorProp
 
   return (
     <div className="space-y-1.5" ref={containerRef}>
-      <label className="block text-xs font-semibold text-foreground">Operating city / town</label>
+      <label className="block font-semibold text-foreground">Operating city / town</label>
 
       <div className="relative">
-        <div className="relative rounded-xl border border-separator bg-background flex items-center shadow-2xs focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 transition-all">
+        <div className="relative rounded-md border border-separator bg-background flex items-center shadow-2xs focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 transition-all">
           <input
             type="text"
             value={city}
@@ -46,7 +46,7 @@ export function BusinessCitySelector({ city, setCity }: BusinessCitySelectorProp
             }}
             onFocus={() => setIsDropdownOpen(true)}
             placeholder="Type city or select below"
-            className="w-full py-2.5 pl-3.5 pr-8 bg-transparent border-0 outline-none text-sm font-medium text-foreground placeholder:text-muted/50 min-w-0"
+            className="w-full py-2 pl-3.5 pr-8 bg-transparent border-0 outline-none text-sm font-medium text-foreground placeholder:text-muted/50 min-w-0"
           />
           {city ? (
             <button
@@ -72,7 +72,7 @@ export function BusinessCitySelector({ city, setCity }: BusinessCitySelectorProp
 
         {/* Autocomplete Dropdown List */}
         {isDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1.5 max-h-52 overflow-y-auto rounded-xl border border-separator bg-surface shadow-md z-30 p-1 divide-y divide-separator/40 animate-in fade-in-50 zoom-in-95">
+          <div className="absolute top-full left-0 right-0 mt-1.5 max-h-52 overflow-y-auto rounded-md border border-separator bg-surface shadow-md z-30 p-1 divide-y divide-separator/40 animate-in fade-in-50 zoom-in-95">
             {filteredCities.length > 0 ? (
               filteredCities.map((item) => {
                 const isSelected = city.toLowerCase() === item.name.toLowerCase();
@@ -84,7 +84,7 @@ export function BusinessCitySelector({ city, setCity }: BusinessCitySelectorProp
                       setCity(item.name);
                       setIsDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-md flex items-center justify-between cursor-pointer transition-colors ${
                       isSelected
                         ? 'bg-brand-primary/10 text-brand-primary font-semibold'
                         : 'hover:bg-surface-elevated text-foreground'
@@ -99,7 +99,7 @@ export function BusinessCitySelector({ city, setCity }: BusinessCitySelectorProp
                 );
               })
             ) : (
-              <div className="p-3 text-center text-xs text-muted">
+              <div className="p-3 text-center text-muted">
                 <span>
                   Will use &ldquo;<strong>{city}</strong>&rdquo; as your store location
                 </span>

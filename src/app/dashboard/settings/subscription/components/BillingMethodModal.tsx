@@ -434,11 +434,11 @@ export function BillingMethodModal({ isOpen, onClose, onSuccess, currentMethod }
               </div>
               <h4 className="text-xs font-bold text-foreground">USSD Prompt Dispatched!</h4>
               <p className="text-[11px] text-muted leading-relaxed">
-                Please check your phone (<span className="font-mono font-semibold text-foreground">{phone}</span>) and
+                Please check your phone (<span className="font-semibold text-foreground">{phone}</span>) and
                 enter your Mobile Money PIN to authorize the mandate.
               </p>
               <div className="pt-1">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface border border-separator text-muted">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface border border-separator text-muted">
                   Expires in {countdown}s
                 </span>
               </div>

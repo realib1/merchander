@@ -126,13 +126,13 @@ export function TrackingSummaryCards({ order, currency, primaryColor }: Tracking
 
             {/* Waybill / Rider Information Card */}
             {order.waybill && (
-              <div className="mt-4 p-3.5 rounded-2xl bg-surface border border-separator space-y-2.5">
+              <div className="mt-4 p-3.5 rounded-xl bg-surface border border-separator space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
                     <Truck size={14} className="text-brand-primary" />
                     <span>{order.waybill.courierName}</span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-surface-elevated text-muted border border-separator/60">
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-surface-elevated text-muted border border-separator/60">
                     #{order.waybill.trackingNumber}
                   </span>
                 </div>

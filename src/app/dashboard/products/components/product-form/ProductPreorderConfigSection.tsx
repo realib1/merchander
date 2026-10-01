@@ -150,7 +150,7 @@ export function ProductPreorderConfigSection({
 
       {/* Custom Batch Form */}
       {activeTab === 'new' && (
-        <div className="p-3.5 rounded-2xl bg-surface-elevated/70 border border-separator space-y-3 text-xs">
+        <div className="p-3.5 rounded-xl bg-surface-elevated/70 border border-separator space-y-3 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <label className="block font-bold text-muted text-[11px] mb-1">Batch Title *</label>

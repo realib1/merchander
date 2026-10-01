@@ -57,7 +57,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             if (isInline) {
               return (
                 <code
-                  className="px-1.5 py-0.5 mx-0.5 rounded-md bg-surface-elevated border border-separator text-brand-primary text-[11px] font-mono"
+                  className="px-1.5 py-0.5 mx-0.5 rounded-md bg-surface-elevated border border-separator text-brand-primary text-[11px] "
                   {...props}
                 >
                   {children}
@@ -72,7 +72,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           },
           pre: ({ node: _node, ...props }) => (
             <pre
-              className="p-3.5 rounded-xl bg-surface-elevated border border-separator text-[11px] font-mono overflow-x-auto text-foreground/90 my-3 shadow-xs"
+              className="p-3.5 rounded-xl bg-surface-elevated border border-separator text-[11px] overflow-x-auto text-foreground/90 my-3 shadow-xs"
               {...props}
             />
           ),

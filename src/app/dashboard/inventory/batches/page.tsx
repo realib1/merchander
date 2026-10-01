@@ -48,7 +48,7 @@ export default async function PreorderBatchesPage() {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface-elevated border border-separator/80">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface-elevated border border-separator/80">
           <Link
             href="/dashboard/inventory"
             className="px-3 py-1.5 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition flex items-center gap-1.5"

@@ -118,7 +118,7 @@ export function ProfileForm({
       <CardBody className="space-y-6">
         {/* Profile Avatar Section */}
         <div className="flex items-center gap-6">
-          <div className="relative h-20 w-20 shrink-0 rounded-2xl bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-xs">
+          <div className="relative h-20 w-20 shrink-0 rounded-xl bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-xs">
             <div className="relative w-full h-full rounded-[14px] bg-surface flex items-center justify-center overflow-hidden">
               {photoPreview ? (
                 <Image src={photoPreview} alt="Profile Avatar" fill className="object-cover" unoptimized />
@@ -186,7 +186,7 @@ export function ProfileForm({
               type="email"
               value={email}
               readOnly
-              className="w-full rounded-xl border border-separator bg-surface-elevated/70 px-3.5 py-2 text-xs text-muted cursor-not-allowed outline-none font-mono"
+              className="w-full rounded-xl border border-separator bg-surface-elevated/70 px-3.5 py-2 text-xs text-muted cursor-not-allowed outline-none "
             />
             <p className="text-[11px] text-muted">Primary account email used for sign-in.</p>
           </div>

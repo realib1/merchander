@@ -88,15 +88,15 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
       {/* Broadcast List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {broadcasts.length === 0 ? (
-          <div className="col-span-2 p-8 rounded-2xl bg-surface border border-separator text-center text-xs text-muted">
+          <div className="col-span-2 p-8 rounded-xl bg-surface border border-separator text-center text-xs text-muted">
             No platform broadcasts published yet.
           </div>
         ) : (
           broadcasts.map((b) => (
-            <div key={b.id} className="p-5 rounded-2xl bg-surface border border-separator shadow-xs space-y-3">
+            <div key={b.id} className="p-5 rounded-xl bg-surface border border-separator shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${
+                  className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
                     b.type === 'maintenance'
                       ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                       : b.type === 'security'
@@ -109,7 +109,7 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
 
                 <button
                   onClick={() => handleToggle(b.id, b.is_active)}
-                  className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                     b.is_active
                       ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       : 'bg-surface-elevated text-muted border border-separator'
@@ -124,7 +124,7 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
                 <div className="text-xs text-secondary mt-1 leading-relaxed">{b.message}</div>
               </div>
 
-              <div className="text-[11px] text-muted font-mono pt-2 border-t border-separator/40 flex items-center justify-between">
+              <div className="text-[11px] text-muted pt-2 border-t border-separator/40 flex items-center justify-between">
                 <span>Published {new Date(b.created_at).toLocaleDateString()}</span>
               </div>
             </div>
@@ -163,7 +163,7 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
       >
         <form onSubmit={handleCreate} className="space-y-4 text-xs">
           <div className="space-y-1">
-            <label className="text-muted font-mono">Title</label>
+            <label className="text-muted ">Title</label>
             <input
               type="text"
               required
@@ -176,7 +176,7 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-muted font-mono">Type</label>
+              <label className="text-muted ">Type</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as BroadcastType)}
@@ -191,7 +191,7 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
             </div>
 
             <div className="space-y-1">
-              <label className="text-muted font-mono">Target Tier</label>
+              <label className="text-muted ">Target Tier</label>
               <select
                 value={target}
                 onChange={(e) => setTarget(e.target.value as BroadcastTarget)}
@@ -207,7 +207,7 @@ export function CommunicationsClient({ initialBroadcasts }: CommunicationsClient
           </div>
 
           <div className="space-y-1">
-            <label className="text-muted font-mono">Message</label>
+            <label className="text-muted ">Message</label>
             <textarea
               required
               rows={3}

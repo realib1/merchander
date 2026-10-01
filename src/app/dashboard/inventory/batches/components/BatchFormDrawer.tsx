@@ -99,13 +99,13 @@ function BatchFormContent({
             placeholder="e.g. BATCH-A"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="w-full font-mono uppercase rounded-xl bg-surface border border-separator px-3 py-2 text-foreground focus:ring-1 focus:ring-brand-primary"
+            className="w-full uppercase rounded-xl bg-surface border border-separator px-3 py-2 text-foreground focus:ring-1 focus:ring-brand-primary"
           />
         </div>
       </div>
 
       {/* Dates Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3.5 rounded-2xl bg-surface border border-separator">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3.5 rounded-xl bg-surface border border-separator">
         <div>
           <label className="block font-semibold text-muted text-[11px] mb-1">Pre-Orders Open *</label>
           <input

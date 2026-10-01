@@ -156,7 +156,7 @@ export function OrderDetailsSheet({
         title={
           <span className="flex items-center gap-2">
             Order Details
-            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
+            <span className="text-xs px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
               #{order.short_id || order.id.substring(0, 8).toUpperCase()}
             </span>
           </span>
@@ -264,7 +264,7 @@ export function OrderDetailsSheet({
                 )}
               </div>
               {order.customer?.phone && (
-                <div className="text-xs text-muted font-mono">{formatGhanaLocalDisplay(order.customer.phone)}</div>
+                <div className="text-xs text-muted ">{formatGhanaLocalDisplay(order.customer.phone)}</div>
               )}
             </div>
           </div>
@@ -309,13 +309,13 @@ export function OrderDetailsSheet({
                 {order.rider_phone && (
                   <div className="flex justify-between">
                     <span className="text-muted">Rider Phone:</span>
-                    <span className="font-mono text-foreground">{order.rider_phone}</span>
+                    <span className="text-foreground">{order.rider_phone}</span>
                   </div>
                 )}
                 {order.tracking_number && (
                   <div className="flex justify-between">
                     <span className="text-muted">Tracking Ref:</span>
-                    <span className="font-mono text-foreground">{order.tracking_number}</span>
+                    <span className="text-foreground">{order.tracking_number}</span>
                   </div>
                 )}
                 {order.dispatch_notes && (

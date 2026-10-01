@@ -3,7 +3,7 @@
 import React from 'react';
 import { ApprovalsQueueMetrics } from '@/types/actions';
 import { MetricCard } from '@/components/ui/MetricCard';
-import { Clock, AlertTriangle, CheckCircle2, Sparkles } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle2, Gauge } from 'lucide-react';
 
 interface ApprovalsTopMetricsProps {
   metrics: ApprovalsQueueMetrics;
@@ -59,7 +59,7 @@ export function ApprovalsTopMetrics({ metrics }: ApprovalsTopMetricsProps) {
       <MetricCard
         title="Grounded Accuracy"
         value={`${metrics.avgConfidencePct}%`}
-        icon={<Sparkles size={16} />}
+        icon={<Gauge size={16} />}
         iconBg="bg-brand-primary/10 text-brand-primary"
         subtitle="Average confidence across queue"
         badge={

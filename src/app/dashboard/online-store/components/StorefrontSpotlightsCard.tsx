@@ -83,7 +83,7 @@ export function StorefrontSpotlightsCard({
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 sm:p-6 shadow-xs space-y-6">
+    <div className="bg-surface border border-separator rounded-xl p-5 sm:p-6 shadow-xs space-y-6">
       <div className="pb-3 border-b border-separator/60">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <Layers size={16} style={{ color: primaryColor }} /> Homepage Promotional Spotlights

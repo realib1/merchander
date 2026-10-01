@@ -81,7 +81,11 @@ export async function assignOrderRiderAction(
 
     // 5. Automated Customer Notification (Fire and forget, swallowed on failure)
     try {
-      const rawCustomer = order.customer as unknown as { id?: string; name?: string | null; phone?: string | null } | null;
+      const rawCustomer = order.customer as unknown as {
+        id?: string;
+        name?: string | null;
+        phone?: string | null;
+      } | null;
       const rawStore = order.store as unknown as { name?: string | null } | null;
       const customerPhone = rawCustomer?.phone ? normalizeGhanaPhone(rawCustomer.phone) : null;
       const storeName = rawStore?.name || 'our store';
@@ -196,14 +200,18 @@ export async function markOrderDeliveredAction(
 
     // 5. Automated Customer Completion Notice (Fire and forget)
     try {
-      const rawCustomer = order.customer as unknown as { id?: string; name?: string | null; phone?: string | null } | null;
+      const rawCustomer = order.customer as unknown as {
+        id?: string;
+        name?: string | null;
+        phone?: string | null;
+      } | null;
       const rawStore = order.store as unknown as { name?: string | null } | null;
       const customerPhone = rawCustomer?.phone ? normalizeGhanaPhone(rawCustomer.phone) : null;
       const storeName = rawStore?.name || 'our store';
       const orderRef = order.short_id || order.id.slice(0, 8).toUpperCase();
 
       if (customerPhone) {
-        const deliveredNotice = `Hello ${rawCustomer?.name || 'there'}! 🎉\n\nYour order *#${orderRef}* from *${storeName}* has been marked as delivered / collected!\n\nWe hope you love your purchase. If you have any questions or feedback, simply reply to this message.\n\nThank you for shopping with us! ✨`;
+        const deliveredNotice = `Hello ${rawCustomer?.name || 'there'}! 🎉\n\nYour order *#${orderRef}* from *${storeName}* has been marked as delivered / collected!\n\nWe hope you love your purchase. If you have any questions or feedback, simply reply to this message.\n\nThank you for shopping with us!`;
 
         const identity = await resolveChannelIdentity(supabase, tenantId, 'whatsapp', customerPhone, rawCustomer?.id);
         if (identity) {

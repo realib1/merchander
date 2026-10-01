@@ -62,7 +62,7 @@ export function PlanTiersGrid({ currentTier, currentCycle, onSelectPlan, isPendi
           return (
             <div
               key={t.id}
-              className={`p-5 rounded-2xl bg-surface border transition-all relative flex flex-col justify-between space-y-4 shadow-xs ${
+              className={`p-5 rounded-xl bg-surface border transition-all relative flex flex-col justify-between space-y-4 shadow-xs ${
                 t.isPopular
                   ? 'border-brand-primary ring-1 ring-brand-primary/50'
                   : 'border-separator hover:border-separator/80'

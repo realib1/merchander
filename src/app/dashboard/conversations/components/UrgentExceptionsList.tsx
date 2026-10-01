@@ -13,7 +13,7 @@ interface UrgentExceptionsListProps {
 export function UrgentExceptionsList({ exceptions, onMutated }: UrgentExceptionsListProps) {
   if (exceptions.length === 0) {
     return (
-      <div className="bg-surface border border-separator rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3">
+      <div className="bg-surface border border-separator rounded-xl p-12 text-center flex flex-col items-center justify-center gap-3">
         <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
           <ShieldCheck size={24} />
         </div>

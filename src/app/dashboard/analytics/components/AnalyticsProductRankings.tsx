@@ -26,7 +26,7 @@ export function AnalyticsProductRankings({ topProducts, categories }: AnalyticsP
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       {/* 1. Best Selling Products Table (2 Cols) */}
-      <div className="lg:col-span-2 bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="lg:col-span-2 bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           {/* Header & Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -84,10 +84,10 @@ export function AnalyticsProductRankings({ topProducts, categories }: AnalyticsP
                     <tr key={p.id} className="hover:bg-surface-elevated/40 transition">
                       <td className="px-3.5 py-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-muted font-mono w-4">#{idx + 1}</span>
+                          <span className="text-[10px] font-bold text-muted w-4">#{idx + 1}</span>
                           <div>
                             <div className="font-semibold text-foreground truncate max-w-40 sm:max-w-50">{p.name}</div>
-                            {p.sku && <div className="text-[10px] text-muted font-mono">{p.sku}</div>}
+                            {p.sku && <div className="text-[10px] text-muted ">{p.sku}</div>}
                           </div>
                         </div>
                       </td>
@@ -108,7 +108,7 @@ export function AnalyticsProductRankings({ topProducts, categories }: AnalyticsP
       </div>
 
       {/* 2. Category Distribution Share */}
-      <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">

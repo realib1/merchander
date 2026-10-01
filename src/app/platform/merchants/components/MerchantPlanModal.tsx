@@ -154,7 +154,7 @@ export function MerchantPlanModal({
       onClose={onClose}
       title={
         <div className="flex flex-col">
-          <span className="text-xs font-mono font-bold text-brand-primary uppercase tracking-wider">
+          <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">
             Subscription Override
           </span>
           <span className="text-base font-bold text-foreground font-display mt-0.5">

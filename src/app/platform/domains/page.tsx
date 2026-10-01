@@ -18,24 +18,23 @@ export default async function DomainsPage() {
       <div className="p-4 rounded-xl bg-surface-elevated border border-separator text-xs text-muted leading-relaxed flex gap-3">
         <Info size={15} className="shrink-0 mt-0.5" />
         <span>
-          This lists the hostnames merchants have configured. DNS resolution and TLS certificate
-          state are <span className="font-semibold text-foreground">not yet monitored</span>: no
-          probe runs against these domains, so nothing here reflects whether they currently serve
-          traffic.
+          This lists the hostnames merchants have configured. DNS resolution and TLS certificate state are{' '}
+          <span className="font-semibold text-foreground">not yet monitored</span>: no probe runs against these domains,
+          so nothing here reflects whether they currently serve traffic.
         </span>
       </div>
 
-      <div className="bg-surface rounded-2xl border border-separator overflow-hidden shadow-xs">
+      <div className="bg-surface rounded-xl border border-separator overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-surface-elevated text-muted font-mono uppercase text-[10px] border-b border-separator">
+            <thead className="bg-surface-elevated text-muted uppercase text-[10px] border-b border-separator">
               <tr>
                 <th className="py-3 px-4">Merchant Store</th>
                 <th className="py-3 px-4">Configured Hostname</th>
                 <th className="py-3 px-4 text-right">Type</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-separator/60 font-mono">
+            <tbody className="divide-y divide-separator/60 ">
               {(domains || []).length === 0 ? (
                 <tr>
                   <td colSpan={3} className="py-8 text-center text-muted font-sans">

@@ -32,11 +32,11 @@ export function CustomDomainSection({ customDomain, onChange, disabled = false }
         onChange={(e) => onChange(e.target.value.toLowerCase().trim())}
         disabled={disabled}
         placeholder="shop.yourbrand.com"
-        className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+        className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
       />
       <p className="text-[11px] text-muted">
         Connect a custom domain by creating a CNAME record pointing to{' '}
-        <span className="font-mono text-foreground font-medium">{CNAME_TARGET}</span>
+        <span className="text-foreground font-medium">{CNAME_TARGET}</span>
       </p>
     </div>
   );

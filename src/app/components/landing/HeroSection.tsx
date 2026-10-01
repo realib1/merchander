@@ -54,14 +54,14 @@ export function HeroSection() {
             {/* Floating Decorative Storefront Icon */}
             <div className="absolute -top-5 -right-2 sm:-top-6 sm:-right-6 z-20">
               <FadeInView delay={0.3}>
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-xl ring-4 ring-background">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-brand-primary text-white shadow-xl ring-4 ring-background">
                   <Store className="h-6 w-6" />
                 </div>
               </FadeInView>
             </div>
 
             <FadeInView delay={0.2}>
-              <div className="rounded-2xl border border-separator bg-surface-elevated/20 shadow-sm overflow-hidden flex flex-col relative z-10">
+              <div className="rounded-xl border border-separator bg-surface-elevated/20 shadow-sm overflow-hidden flex flex-col relative z-10">
                 {/* Minimalist OS/Browser Header Bar */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-separator bg-surface-elevated/50">
                   <div className="flex gap-1.5">

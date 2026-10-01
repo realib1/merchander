@@ -50,7 +50,7 @@ export function GeneralSettingsForm({ initialData }: GeneralSettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 animate-fadeIn">
-      <div className="bg-surface border border-separator/80 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-surface border border-separator/80 rounded-xl shadow-xs overflow-hidden">
         <div className="px-5 py-4 border-b border-separator/80 bg-surface/50">
           <h2 className="font-semibold text-foreground text-sm">Platform Information</h2>
           <p className="text-xs text-muted mt-0.5">Basic details about the platform displayed to merchants.</p>

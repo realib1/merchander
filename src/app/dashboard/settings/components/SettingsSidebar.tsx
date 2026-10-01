@@ -77,7 +77,7 @@ export function SettingsSidebar() {
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
-          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-surface border border-separator/80 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
+          className="w-full flex items-center justify-between p-3.5 rounded-xl bg-surface border border-separator/80 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
           aria-label="Open settings menu"
         >
           <div className="flex items-center gap-3">
@@ -104,7 +104,7 @@ export function SettingsSidebar() {
       {/* 2. Desktop Sticky Nav Rail (>= md) */}
       <nav
         aria-label="Settings navigation"
-        className="hidden md:block bg-surface border border-separator/80 rounded-2xl p-4 shadow-xs space-y-6"
+        className="hidden md:block bg-surface border border-separator/80 rounded-xl p-4 shadow-xs space-y-6"
       >
         {settingsGroups.map((group) => {
           const groupId = `group-${group.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;

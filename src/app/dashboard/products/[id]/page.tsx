@@ -115,7 +115,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Details */}
         <div className="md:col-span-2 space-y-6">
-          <div className="bg-surface border border-separator rounded-2xl p-6 shadow-sm">
+          <div className="bg-surface border border-separator rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold  mb-4 flex items-center gap-2">
               <Package size={18} className="text-brand-primary" />
               Product Information
@@ -142,8 +142,8 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
                 <div>
                   <div className="text-sm text-muted mb-1">Category</div>
-                  <div className="text-sm font-medium  flex items-center gap-2">
-                    <Tag size={14} className="" />
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <Tag size={14} />
                     {product.category?.name || 'Uncategorized'}
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
           {/* Product Specifications */}
           {product.specifications && Array.isArray(product.specifications) && product.specifications.length > 0 && (
-            <div className="bg-surface border border-separator rounded-2xl p-6 shadow-sm">
+            <div className="bg-surface border border-separator rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <SlidersHorizontal size={18} className="text-brand-primary" />
                 Technical Specifications & Details
@@ -178,7 +178,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           )}
 
           {/* Variants & Inventory */}
-          <div className="bg-surface border border-separator rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
             <div className="p-6 border-b border-separator">
               <h2 className="text-lg font-semibold  flex items-center gap-2">
                 <Layers size={18} className="text-brand-primary" />
@@ -196,7 +196,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
                       <div>
                         <div className="font-semibold  mb-1">{variant.name || product.name}</div>
-                        <div className="text-xs font-mono text-muted bg-surface-elevated px-2 py-1 rounded inline-block">
+                        <div className="text-xs text-muted bg-surface-elevated px-2 py-1 rounded inline-block">
                           {variant.sku}
                         </div>
                       </div>
@@ -238,7 +238,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
         {/* Sidebar Info */}
         <div className="space-y-6">
-          <div className="bg-surface border border-separator rounded-2xl p-6 shadow-sm">
+          <div className="bg-surface border border-separator rounded-xl p-6 shadow-sm">
             <h3 className="text-sm font-semibold mb-4 uppercase tracking-wider text-muted">Summary</h3>
 
             <div className="space-y-4">
@@ -277,7 +277,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           </div>
 
           {product.vendor && (
-            <div className="bg-surface border border-separator rounded-2xl p-6 shadow-sm">
+            <div className="bg-surface border border-separator rounded-xl p-6 shadow-sm">
               <h3 className="text-sm font-semibold mb-4 uppercase tracking-wider text-muted">Vendor</h3>
               <div className="font-medium">{product.vendor}</div>
             </div>

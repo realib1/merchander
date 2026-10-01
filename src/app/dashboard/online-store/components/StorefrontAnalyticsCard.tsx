@@ -15,7 +15,7 @@ export function StorefrontAnalyticsCard({ data }: StorefrontAnalyticsCardProps) 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* 1. Catalog Products */}
-      <div className="p-4 rounded-2xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
+      <div className="p-4 rounded-xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
         <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
           <Package size={20} />
         </div>
@@ -27,7 +27,7 @@ export function StorefrontAnalyticsCard({ data }: StorefrontAnalyticsCardProps) 
       </div>
 
       {/* 2. Total Store GMV */}
-      <div className="p-4 rounded-2xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
+      <div className="p-4 rounded-xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
         <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
           <TrendingUp size={20} />
         </div>
@@ -39,7 +39,7 @@ export function StorefrontAnalyticsCard({ data }: StorefrontAnalyticsCardProps) 
       </div>
 
       {/* 3. Orders Received */}
-      <div className="p-4 rounded-2xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
+      <div className="p-4 rounded-xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
         <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-500 shrink-0">
           <ShoppingBag size={20} />
         </div>
@@ -51,7 +51,7 @@ export function StorefrontAnalyticsCard({ data }: StorefrontAnalyticsCardProps) 
       </div>
 
       {/* 4. Payment Gateway Health */}
-      <div className="p-4 rounded-2xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
+      <div className="p-4 rounded-xl bg-surface border border-separator shadow-xs flex items-center gap-3.5">
         <div className="p-2.5 rounded-xl bg-brand-primary/10 text-brand-primary shrink-0">
           <BadgeCheck size={20} />
         </div>

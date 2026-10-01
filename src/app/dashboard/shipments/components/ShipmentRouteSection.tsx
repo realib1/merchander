@@ -49,7 +49,7 @@ export function ShipmentRouteSection({
             placeholder="e.g. COSU638291048"
             value={trackingNumber}
             onChange={(e) => onTrackingNumberChange(e.target.value)}
-            className="w-full text-sm rounded-xl bg-surface-elevated border border-separator px-3.5 py-2 text-foreground focus:ring-1 focus:ring-brand-primary focus:outline-none font-mono"
+            className="w-full text-sm rounded-xl bg-surface-elevated border border-separator px-3.5 py-2 text-foreground focus:ring-1 focus:ring-brand-primary focus:outline-none "
           />
         </div>
 

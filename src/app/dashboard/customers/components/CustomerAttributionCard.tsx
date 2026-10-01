@@ -2,16 +2,7 @@
 
 import React from 'react';
 import { CustomerAttributionBreakdown, CustomerAttributionSource } from '@/app/actions/customers';
-import {
-  TrendingUp,
-  MessageSquare,
-  Share2,
-  Globe,
-  Layers,
-  Sparkles,
-  Camera,
-  Compass,
-} from 'lucide-react';
+import { TrendingUp, MessageSquare, Share2, Globe, Layers, Trophy, Camera, Compass } from 'lucide-react';
 
 interface CustomerAttributionCardProps {
   attribution: CustomerAttributionBreakdown;
@@ -54,10 +45,7 @@ function getChannelBarColor(source: CustomerAttributionSource) {
   }
 }
 
-export function CustomerAttributionCard({
-  attribution,
-  currency = 'GH₵',
-}: CustomerAttributionCardProps) {
+export function CustomerAttributionCard({ attribution, currency = 'GH₵' }: CustomerAttributionCardProps) {
   return (
     <div className="p-5 rounded-3xl bg-surface border border-separator shadow-xs space-y-4 animate-fadeIn">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-separator/60 pb-3">
@@ -66,17 +54,13 @@ export function CustomerAttributionCard({
             <TrendingUp size={16} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-foreground font-display">
-              Customer Acquisition &amp; Attribution
-            </h3>
-            <p className="text-[11px] text-muted">
-              First-touch discovery channels and lifetime GMV contribution
-            </p>
+            <h3 className="text-sm font-bold text-foreground font-display">Customer Acquisition &amp; Attribution</h3>
+            <p className="text-[11px] text-muted">First-touch discovery channels and lifetime GMV contribution</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-elevated border border-separator/60 text-[11px] font-mono font-semibold text-foreground">
-          <Sparkles size={12} className="text-amber-400" />
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-elevated border border-separator/60 text-[11px] font-semibold text-foreground">
+          <Trophy size={12} className="text-amber-400" />
           <span>Top: {attribution?.topChannel || 'Direct'}</span>
         </div>
       </div>
@@ -92,20 +76,16 @@ export function CustomerAttributionCard({
           return (
             <div
               key={channel.source}
-              className="p-3.5 rounded-2xl bg-surface-elevated/70 border border-separator/60 space-y-2.5 hover:border-separator transition-all"
+              className="p-3.5 rounded-xl bg-surface-elevated/70 border border-separator/60 space-y-2.5 hover:border-separator transition-all"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-lg bg-surface border border-separator/40">
                     {getChannelIcon(channel.source)}
                   </div>
-                  <span className="text-xs font-bold text-foreground truncate max-w-32.5">
-                    {channel.label}
-                  </span>
+                  <span className="text-xs font-bold text-foreground truncate max-w-32.5">{channel.label}</span>
                 </div>
-                <span className="text-xs font-mono font-bold text-foreground">
-                  {percentage}%
-                </span>
+                <span className="text-xs font-bold text-foreground">{percentage}%</span>
               </div>
 
               {/* Progress Bar */}
@@ -116,7 +96,7 @@ export function CustomerAttributionCard({
                 />
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-muted font-mono pt-1">
+              <div className="flex items-center justify-between text-[11px] text-muted pt-1">
                 <span>{customerCount} customers</span>
                 <span className="font-semibold text-foreground">
                   {currency} {totalGmv.toLocaleString()} GMV

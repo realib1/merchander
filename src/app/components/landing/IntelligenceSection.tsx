@@ -62,7 +62,7 @@ export function IntelligenceSection() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-separator bg-surface-elevated/40 p-5 transition-all duration-150 hover:border-separator/80"
+                  className="rounded-xl border border-separator bg-surface-elevated/40 p-5 transition-all duration-150 hover:border-separator/80"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary mb-3">
                     <Icon className="h-4 w-4" />

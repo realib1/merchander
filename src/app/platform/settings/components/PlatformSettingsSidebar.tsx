@@ -14,7 +14,10 @@ export function PlatformSettingsSidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-surface border border-separator/80 rounded-2xl p-4 shadow-xs space-y-1.5" aria-label="Platform settings navigation">
+    <nav
+      className="bg-surface border border-separator/80 rounded-xl p-4 shadow-xs space-y-1.5"
+      aria-label="Platform settings navigation"
+    >
       <h2 className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-muted/70 select-none pb-2">
         Platform Settings
       </h2>

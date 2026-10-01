@@ -152,7 +152,7 @@ function PlanEditorFormContent({
             placeholder="e.g., growth"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            className="w-full bg-surface border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary disabled:opacity-50 font-mono"
+            className="w-full bg-surface border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary disabled:opacity-50 "
           />
         </div>
       </div>
@@ -169,7 +169,7 @@ function PlanEditorFormContent({
       </div>
 
       {/* Multi-Currency Pricing */}
-      <div className="p-4 rounded-2xl bg-surface border border-separator space-y-3">
+      <div className="p-4 rounded-xl bg-surface border border-separator space-y-3">
         <div className="font-bold text-foreground flex items-center gap-2">
           <CreditCard size={15} className="text-brand-primary" />
           <span className="text-sm">Subscription Pricing</span>
@@ -184,7 +184,7 @@ function PlanEditorFormContent({
               required
               value={priceGhs}
               onChange={(e) => setPriceGhs(Number(e.target.value))}
-              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-mono font-bold"
+              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-bold"
             />
           </div>
           <div className="space-y-1">
@@ -196,7 +196,7 @@ function PlanEditorFormContent({
               required
               value={priceUsd}
               onChange={(e) => setPriceUsd(Number(e.target.value))}
-              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-mono font-bold"
+              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-bold"
             />
           </div>
           <div className="space-y-1">
@@ -214,7 +214,7 @@ function PlanEditorFormContent({
       </div>
 
       {/* Entitlement Quotas */}
-      <div className="p-4 rounded-2xl bg-surface border border-separator space-y-3">
+      <div className="p-4 rounded-xl bg-surface border border-separator space-y-3">
         <div className="font-bold text-foreground flex items-center gap-2">
           <Layers size={15} className="text-brand-primary" />
           <span className="text-sm">Entitlement Quotas &amp; Boundaries</span>
@@ -229,7 +229,7 @@ function PlanEditorFormContent({
               required
               value={maxProducts}
               onChange={(e) => setMaxProducts(Number(e.target.value))}
-              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-mono"
+              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground "
             />
           </div>
           <div className="space-y-1">
@@ -240,7 +240,7 @@ function PlanEditorFormContent({
               required
               value={maxMonthlyOrders}
               onChange={(e) => setMaxMonthlyOrders(Number(e.target.value))}
-              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-mono"
+              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground "
             />
           </div>
           <div className="space-y-1">
@@ -251,7 +251,7 @@ function PlanEditorFormContent({
               required
               value={maxStaffSeats}
               onChange={(e) => setMaxStaffSeats(Number(e.target.value))}
-              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-mono"
+              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground "
             />
           </div>
           <div className="space-y-1">
@@ -262,7 +262,7 @@ function PlanEditorFormContent({
               required
               value={aiQueriesMonthly}
               onChange={(e) => setAiQueriesMonthly(Number(e.target.value))}
-              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground font-mono"
+              className="w-full bg-surface-elevated border border-separator rounded-lg px-2.5 py-1.5 text-foreground "
             />
           </div>
         </div>

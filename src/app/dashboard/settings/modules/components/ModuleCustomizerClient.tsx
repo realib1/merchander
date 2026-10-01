@@ -8,23 +8,16 @@ import {
   RotateCcw,
   Save,
   CircleAlert,
-  Sparkles,
+  ArrowUpRight,
   ShieldAlert,
   LayoutDashboard,
   Package,
   Settings,
   ShoppingBag,
 } from 'lucide-react';
-import {
-  BusinessArchetype,
-  BusinessModuleKey,
-} from '@/types/business-modules';
+import { BusinessArchetype, BusinessModuleKey } from '@/types/business-modules';
 import { PlatformTier } from '@/types/platform';
-import {
-  MODULE_DEFINITIONS,
-  ARCHETYPE_DEFINITIONS,
-  isModuleEntitled,
-} from '@/utils/business-modules';
+import { MODULE_DEFINITIONS, ARCHETYPE_DEFINITIONS, isModuleEntitled } from '@/utils/business-modules';
 import { BusinessIcon } from '@/components/ui/BusinessIcon';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from '@/components/ui/Card';
@@ -53,8 +46,18 @@ const MODULE_CATEGORIES: ModuleCategoryGroup[] = [
   {
     id: 'money-cashflow',
     title: 'Money, Invoicing & Compliance (The Money Pillar)',
-    description: 'Cashflow tracking, formal quotes, customer invoices, GRA compliance reminders, payroll, and funding plans.',
-    modules: ['cashflow', 'invoices', 'quotes', 'compliance', 'payroll', 'funding_plans', 'calculators', 'profitability'],
+    description:
+      'Cashflow tracking, formal quotes, customer invoices, GRA compliance reminders, payroll, and funding plans.',
+    modules: [
+      'cashflow',
+      'invoices',
+      'quotes',
+      'compliance',
+      'payroll',
+      'funding_plans',
+      'calculators',
+      'profitability',
+    ],
   },
   {
     id: 'intelligence',
@@ -64,11 +67,7 @@ const MODULE_CATEGORIES: ModuleCategoryGroup[] = [
   },
 ];
 
-export function ModuleCustomizerClient({
-  initialArchetype,
-  initialModules,
-  tier,
-}: ModuleCustomizerClientProps) {
+export function ModuleCustomizerClient({ initialArchetype, initialModules, tier }: ModuleCustomizerClientProps) {
   const [archetype, setArchetype] = useState<BusinessArchetype>(initialArchetype);
   const [enabledModules, setEnabledModules] = useState<BusinessModuleKey[]>(initialModules);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -98,9 +97,7 @@ export function ModuleCustomizerClient({
     const isEntitled = isModuleEntitled(tier, modKey);
     if (!isEntitled) {
       const def = MODULE_DEFINITIONS[modKey];
-      toast.error(
-        `"${def.name}" requires a ${def.requiredTier.toUpperCase()} plan. Please upgrade your subscription.`
-      );
+      toast.error(`"${def.name}" requires a ${def.requiredTier.toUpperCase()} plan. Please upgrade your subscription.`);
       return;
     }
 
@@ -283,7 +280,7 @@ export function ModuleCustomizerClient({
                               href="/dashboard/settings/subscription"
                               className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-brand-amber/10 text-brand-amber border border-brand-amber/20 hover:bg-brand-amber/20 transition-all"
                             >
-                              <Sparkles size={12} />
+                              <ArrowUpRight size={12} />
                               <span>Upgrade</span>
                             </Link>
                           )}
@@ -377,9 +374,7 @@ export function ModuleCustomizerClient({
                   <div
                     key={item.mod}
                     className={`flex items-center justify-between p-2 rounded-lg text-xs transition-all ${
-                      isShown
-                        ? 'text-foreground font-medium'
-                        : 'text-muted line-through opacity-40 bg-background/30'
+                      isShown ? 'text-foreground font-medium' : 'text-muted line-through opacity-40 bg-background/30'
                     }`}
                   >
                     <span className="flex items-center gap-2">
@@ -392,9 +387,7 @@ export function ModuleCustomizerClient({
                     </span>
                     <span
                       className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        isShown
-                          ? 'bg-brand-primary/10 text-brand-primary'
-                          : 'bg-separator text-muted'
+                        isShown ? 'bg-brand-primary/10 text-brand-primary' : 'bg-separator text-muted'
                       }`}
                     >
                       {isShown ? 'Active' : 'Hidden'}
@@ -418,7 +411,8 @@ export function ModuleCustomizerClient({
                 <span>Data Protection Guarantee</span>
               </div>
               <p>
-                Turning off a module hides it from your menus and forms, but safely preserves all historical records in your database.
+                Turning off a module hides it from your menus and forms, but safely preserves all historical records in
+                your database.
               </p>
             </div>
           </CardBody>

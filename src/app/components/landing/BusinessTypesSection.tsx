@@ -140,7 +140,7 @@ export function BusinessTypesSection() {
           </div>
 
           {/* Active Sector Card */}
-          <div className="rounded-2xl border border-separator bg-surface p-5 sm:p-7 shadow-xs">
+          <div className="rounded-xl border border-separator bg-surface p-5 sm:p-7 shadow-xs">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
               <div className="md:col-span-8">
                 <h3 className="text-xl sm:text-2xl font-bold font-display text-primary">{activeSector.name}</h3>

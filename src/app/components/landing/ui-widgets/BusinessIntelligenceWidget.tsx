@@ -3,7 +3,7 @@ import { ArrowUpRight, AlertTriangle, Users, CheckCircle2 } from 'lucide-react';
 
 export function BusinessIntelligenceWidget() {
   return (
-    <div className="rounded-2xl border border-separator bg-surface p-5 sm:p-7 shadow-xs">
+    <div className="rounded-xl border border-separator bg-surface p-5 sm:p-7 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-separator pb-4 mb-5">
         <div>
           <h3 className="text-lg sm:text-xl font-bold text-primary font-display">Your Business This Month</h3>

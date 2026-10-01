@@ -18,7 +18,7 @@ export function StoreThemePresetsSection({
   onSecondaryColorChange,
 }: StoreThemePresetsSectionProps) {
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs space-y-5">
+    <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs space-y-5">
       <div className="pb-3 border-b border-separator/60">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <Palette size={16} style={{ color: primaryColor }} /> Color Palette &amp; Theme Presets
@@ -51,8 +51,14 @@ export function StoreThemePresetsSection({
                 }`}
               >
                 <div className="flex items-center -space-x-1 shrink-0">
-                  <span className="w-4 h-4 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: preset.primary }} />
-                  <span className="w-4 h-4 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: preset.secondary }} />
+                  <span
+                    className="w-4 h-4 rounded-full border border-white/20 shadow-xs"
+                    style={{ backgroundColor: preset.primary }}
+                  />
+                  <span
+                    className="w-4 h-4 rounded-full border border-white/20 shadow-xs"
+                    style={{ backgroundColor: preset.secondary }}
+                  />
                 </div>
                 <span className="text-xs font-medium truncate text-foreground">{preset.name}</span>
               </button>
@@ -76,7 +82,7 @@ export function StoreThemePresetsSection({
               type="text"
               value={primaryColor}
               onChange={(e) => onPrimaryColorChange(e.target.value)}
-              className="flex-1 bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-mono text-foreground outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
+              className="flex-1 bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
             />
           </div>
         </div>
@@ -94,7 +100,7 @@ export function StoreThemePresetsSection({
               type="text"
               value={secondaryColor}
               onChange={(e) => onSecondaryColorChange(e.target.value)}
-              className="flex-1 bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-mono text-foreground outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
+              className="flex-1 bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs text-foreground outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
             />
           </div>
         </div>

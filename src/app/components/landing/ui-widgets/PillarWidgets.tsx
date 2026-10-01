@@ -8,7 +8,7 @@ export function SellMiniWidget() {
       <div className="flex items-center justify-between rounded-lg bg-surface-elevated px-2.5 py-1.5 border border-separator/60 text-xs">
         <div className="flex items-center gap-1.5 text-secondary truncate">
           <Globe className="h-3.5 w-3.5 text-brand-primary shrink-0" />
-          <span className="font-mono text-[11px] truncate">yourstore.merchander.app</span>
+          <span className="text-[11px] truncate">yourstore.merchander.app</span>
         </div>
         <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">Storefront</span>
       </div>

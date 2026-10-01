@@ -18,7 +18,7 @@ export function AnalyticsCustomerCohorts({ cohorts }: AnalyticsCustomerCohortsPr
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       {/* 1. Visual Cohort Breakdown Card */}
-      <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">
@@ -90,7 +90,7 @@ export function AnalyticsCustomerCohorts({ cohorts }: AnalyticsCustomerCohortsPr
       </div>
 
       {/* 2. Top VIP Customer Spenders Table (2 Cols) */}
-      <div className="lg:col-span-2 bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="lg:col-span-2 bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -129,11 +129,11 @@ export function AnalyticsCustomerCohorts({ cohorts }: AnalyticsCustomerCohortsPr
                     <tr key={c.id} className="hover:bg-surface-elevated/40 transition">
                       <td className="px-3.5 py-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-muted font-mono w-4">#{idx + 1}</span>
+                          <span className="text-[10px] font-bold text-muted w-4">#{idx + 1}</span>
                           <span className="font-semibold text-foreground truncate max-w-35 sm:max-w-45">{c.name}</span>
                         </div>
                       </td>
-                      <td className="px-3.5 py-2.5 text-muted font-mono text-[11px] flex items-center gap-1">
+                      <td className="px-3.5 py-2.5 text-muted text-[11px] flex items-center gap-1">
                         <Phone size={11} className="text-muted" /> {c.phone}
                       </td>
                       <td className="px-3.5 py-2.5 text-right font-medium text-foreground tabular-nums">

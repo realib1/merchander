@@ -110,7 +110,7 @@ export function CustomerIdentitiesCard({ customerId, initialIdentities }: Custom
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs flex flex-col gap-4">
+    <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-foreground font-display">Unified Social Identities</h2>
@@ -157,7 +157,7 @@ export function CustomerIdentitiesCard({ customerId, initialIdentities }: Custom
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] font-mono text-muted truncate">{item.identifier}</p>
+                    <p className="text-[11px] text-muted truncate">{item.identifier}</p>
                   </div>
                 </div>
 

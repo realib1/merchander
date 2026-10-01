@@ -68,7 +68,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
   return (
     <div className="space-y-4">
       {/* Search & Filter Header */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface p-4 rounded-2xl border border-separator shadow-xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface p-4 rounded-xl border border-separator shadow-xs">
         <div className="relative w-full sm:w-96">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
           <input
@@ -83,7 +83,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <div className="flex items-center gap-1.5 bg-surface-elevated px-3 py-1.5 rounded-xl border border-separator text-xs">
             <Filter size={13} className="text-muted" />
-            <span className="text-muted text-[11px] font-mono">Status:</span>
+            <span className="text-muted text-[11px] ">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -99,7 +99,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
           </div>
 
           <div className="flex items-center gap-1.5 bg-surface-elevated px-3 py-1.5 rounded-xl border border-separator text-xs">
-            <span className="text-muted text-[11px] font-mono">Tier:</span>
+            <span className="text-muted text-[11px] ">Tier:</span>
             <select
               value={tierFilter}
               onChange={(e) => setTierFilter(e.target.value)}
@@ -128,10 +128,10 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
       </div>
 
       {/* Merchants Table */}
-      <div className="bg-surface rounded-2xl border border-separator overflow-hidden shadow-xs">
+      <div className="bg-surface rounded-xl border border-separator overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-surface-elevated text-muted font-mono uppercase text-[10px] border-b border-separator">
+            <thead className="bg-surface-elevated text-muted uppercase text-[10px] border-b border-separator">
               <tr>
                 <th className="py-3 px-4">Merchant Business</th>
                 <th className="py-3 px-4">Owner & Contact</th>
@@ -155,12 +155,12 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
                       {/* Business Name */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold font-mono text-sm shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm shrink-0">
                             {t.name.charAt(0)}
                           </div>
                           <div>
                             <div className="font-bold text-foreground text-xs sm:text-sm">{t.name}</div>
-                            <div className="text-[11px] text-muted font-mono">
+                            <div className="text-[11px] text-muted ">
                               ID: {t.id.substring(0, 8)}... • Joined {new Date(t.createdAt).toLocaleDateString()}
                             </div>
                           </div>
@@ -168,7 +168,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
                       </td>
 
                       {/* Owner & Contact */}
-                      <td className="py-3.5 px-4 font-mono text-[11px]">
+                      <td className="py-3.5 px-4 text-[11px]">
                         <div className="text-foreground font-semibold flex items-center gap-1">
                           <Mail size={11} className="text-muted" />
                           <span>{t.email || 'No email registered'}</span>
@@ -182,7 +182,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
                       </td>
 
                       {/* Store count & Catalog */}
-                      <td className="py-3.5 px-4 font-mono text-[11px]">
+                      <td className="py-3.5 px-4 text-[11px]">
                         <div className="flex items-center gap-2 text-foreground">
                           <span className="flex items-center gap-1">
                             <Store size={11} className="text-muted" />
@@ -201,7 +201,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
                       </td>
 
                       {/* Plan Tier with Override Modal Button */}
-                      <td className="py-3.5 px-4 font-mono">
+                      <td className="py-3.5 px-4 ">
                         <button
                           onClick={() => handleOpenPlanModal(t)}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold capitalize border border-separator bg-surface-elevated hover:border-brand-primary transition-colors cursor-pointer"
@@ -226,7 +226,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
                               t.status === 'suspended' ? 'active' : 'suspended'
                             )
                           }
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border font-mono transition-opacity hover:opacity-80 cursor-pointer ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border transition-opacity hover:opacity-80 cursor-pointer ${
                             t.status === 'active'
                               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                               : t.status === 'trial'
@@ -242,7 +242,7 @@ export function MerchantsClient({ initialTenants, plans, currentRole }: Merchant
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2 font-mono">
+                        <div className="flex items-center justify-end gap-2 ">
                           {t.status === 'suspended' ? (
                             <button
                               onClick={() => handleOpenStatusModal(t, 'active')}

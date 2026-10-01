@@ -10,7 +10,7 @@ Equip platform staff (SHERO internal operators) with an administrative workspace
 ## Design reference
 
 - Existing Platform Management Modals: `src/app/platform/security/components/StaffManagementClient.tsx` (staff provisioning modal) and `src/app/platform/merchants/components/MerchantsClient.tsx` (status and plan override modals).
-- StudioGrid Pro & AdminCN Design Tokens: rounded-2xl surfaces, tabbed step indicator, monospace credentials summary box, and Ghanaian currency/phone formatting.
+- StudioGrid Pro & AdminCN Design Tokens: rounded-xl surfaces, tabbed step indicator, monospace credentials summary box, and Ghanaian currency/phone formatting.
 - Drawer Primitive: `src/components/ui/Drawer.tsx` slide-over layout for comfortable multi-section form inputs.
 
 ## In scope
@@ -76,9 +76,9 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [x] **Step 1 - Pure merchant provisioning utilities & unit tests** - Create `src/utils/merchant-provisioning.ts` with slug validation, temporary password generation, and credentials message formatting, backed by comprehensive unit tests in `src/utils/merchant-provisioning.test.ts`. *Done when:* `yarn test src/utils/merchant-provisioning.test.ts` passes with 100% branch coverage.
-- [x] **Step 2 - Server action for merchant provisioning & role-separation guards** - Implement `createMerchanderAction` in `src/app/actions/platform.ts` enforcing RBAC (`platform_owner`, `platform_admin`, `operations`), platform staff email rejection, auth user creation, workspace initialization (`tenants`, `tenant_users`, `stores`, `tenant_settings`, `storefront_settings`, `tenant_subscriptions`), and audit logging, backed by `src/app/actions/platform-provisioning.test.ts`. *Done when:* Unit tests pass verifying RBAC checks, staff email rejection, slug collision handling, and tenant data creation.
-- [x] **Step 3 - Add Merchander Modal & Platform Console integration** - Create `src/app/platform/merchants/components/AddMerchanderModal.tsx` with business identity inputs, archetype presets, owner credentials, and post-creation copyable card, and integrate into `src/app/platform/merchants/components/MerchantsClient.tsx` and `src/app/platform/merchants/page.tsx`. *Done when:* Platform operators can open the modal, provision a new merchant workspace, view immediate table updates, and copy login credentials, with `yarn check`, `yarn lint`, and `yarn test` passing cleanly.
+- [x] **Step 1 - Pure merchant provisioning utilities & unit tests** - Create `src/utils/merchant-provisioning.ts` with slug validation, temporary password generation, and credentials message formatting, backed by comprehensive unit tests in `src/utils/merchant-provisioning.test.ts`. _Done when:_ `yarn test src/utils/merchant-provisioning.test.ts` passes with 100% branch coverage.
+- [x] **Step 2 - Server action for merchant provisioning & role-separation guards** - Implement `createMerchanderAction` in `src/app/actions/platform.ts` enforcing RBAC (`platform_owner`, `platform_admin`, `operations`), platform staff email rejection, auth user creation, workspace initialization (`tenants`, `tenant_users`, `stores`, `tenant_settings`, `storefront_settings`, `tenant_subscriptions`), and audit logging, backed by `src/app/actions/platform-provisioning.test.ts`. _Done when:_ Unit tests pass verifying RBAC checks, staff email rejection, slug collision handling, and tenant data creation.
+- [x] **Step 3 - Add Merchander Modal & Platform Console integration** - Create `src/app/platform/merchants/components/AddMerchanderModal.tsx` with business identity inputs, archetype presets, owner credentials, and post-creation copyable card, and integrate into `src/app/platform/merchants/components/MerchantsClient.tsx` and `src/app/platform/merchants/page.tsx`. _Done when:_ Platform operators can open the modal, provision a new merchant workspace, view immediate table updates, and copy login credentials, with `yarn check`, `yarn lint`, and `yarn test` passing cleanly.
 
 ## Files / areas
 

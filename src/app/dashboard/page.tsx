@@ -55,11 +55,11 @@ export default async function DashboardOverview({
       {/* Main Content Grid: 12-column Bento Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* ROW 2: Chart & Intelligence */}
-        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs p-6 flex flex-col min-h-100">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-8 bg-surface border border-separator/70 rounded-xl shadow-2xs p-6 flex flex-col min-h-100">
+          <div className="flex items-center justify-between mb-2">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Sales Overview</h2>
-              <p className="text-sm text-muted mt-0.5">Gross revenue across all sales channels.</p>
+              <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">Sales Overview</h2>
+              <p className="text-xs text-muted mt-0.5">Gross revenue across all sales channels.</p>
             </div>
           </div>
           <div className="flex-1 min-h-87.5">
@@ -74,8 +74,8 @@ export default async function DashboardOverview({
         <DashboardAttentionCenter attention={metrics.attention} />
 
         {/* ROW 4: Top Products & Incoming Shipments */}
-        <div className="lg:col-span-8 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-75">
-          <div className="px-6 py-4 border-b border-separator bg-surface-elevated flex items-center justify-between">
+        <div className="lg:col-span-8 bg-surface border border-separator/70 rounded-xl shadow-2xs overflow-hidden flex flex-col min-h-75">
+          <div className="px-6 py-4 border-b border-separator/60 bg-surface flex items-center justify-between">
             <h2 className="text-xs font-bold text-foreground uppercase tracking-wider">Top Products</h2>
           </div>
           <div className="flex-1 overflow-y-auto">

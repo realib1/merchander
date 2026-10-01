@@ -18,7 +18,7 @@ export function SignupWizardClient() {
       <SignupProgressHeader currentStep={wizard.currentStep} />
 
       {wizard.formError && (
-        <div className="mb-5 p-3.5 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-2.5 animate-in fade-in">
+        <div className="mb-5 p-3.5 bg-destructive/10 border border-destructive/20 rounded-md text-sm font-medium text-destructive flex items-start gap-2.5 animate-in fade-in">
           <CircleAlert size={18} className="mt-0.5 shrink-0" />
           <span>{wizard.formError}</span>
         </div>

@@ -7,7 +7,7 @@ interface DashboardIncomingCardProps {
 
 export function DashboardIncomingCard({ incoming }: DashboardIncomingCardProps) {
   return (
-    <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs p-6 flex flex-col min-h-75">
+    <div className="lg:col-span-4 bg-surface border border-separator/70 rounded-xl shadow-2xs p-6 flex flex-col min-h-75">
       <h2 className="text-xs font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
         <Ship size={15} className="text-brand-primary" /> Incoming Purchase Orders
       </h2>

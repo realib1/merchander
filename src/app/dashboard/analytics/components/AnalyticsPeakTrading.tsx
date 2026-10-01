@@ -13,7 +13,7 @@ export function AnalyticsPeakTrading({ peakTrading }: AnalyticsPeakTradingProps)
   const maxDayGmv = Math.max(...peakTrading.dayOfWeekBreakdown.map((d) => d.gmv), 1);
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs mb-6">
+    <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs mb-6">
       {/* Header & Quick Diagnostics */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -105,7 +105,7 @@ export function AnalyticsPeakTrading({ peakTrading }: AnalyticsPeakTradingProps)
                 >
                   <div>
                     <div className="font-semibold text-foreground">{hw.periodName}</div>
-                    <div className="text-[11px] text-muted font-mono">{hw.windowLabel}</div>
+                    <div className="text-[11px] text-muted ">{hw.windowLabel}</div>
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-foreground">{formatCurrency(hw.gmv, 'GHS')}</div>

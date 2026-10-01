@@ -47,7 +47,7 @@ export function ControlsSettingsForm({ initialData }: ControlsSettingsFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 animate-fadeIn">
-      <div className="bg-surface border border-red-500/30 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-surface border border-red-500/30 rounded-xl shadow-xs overflow-hidden">
         <div className="px-5 py-4 border-b border-red-500/20 bg-red-500/5">
           <h2 className="font-semibold text-red-600 text-sm">Master Controls</h2>
           <p className="text-xs text-red-600/80 mt-0.5">Critical platform-wide toggles. Handle with care.</p>

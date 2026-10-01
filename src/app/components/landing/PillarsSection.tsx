@@ -71,7 +71,7 @@ export function PillarsSection() {
         </div>
 
         {/* 6 Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-separator border border-separator sm:rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-separator border border-separator sm:rounded-xl overflow-hidden">
           {pillars.map((pillar, idx) => (
             <FadeInView
               key={pillar.id}
@@ -82,7 +82,7 @@ export function PillarsSection() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl sm:text-2xl font-bold font-display text-primary">{pillar.verb}</h3>
-                    <span className="text-sm font-mono font-bold text-muted/60">0{idx + 1}</span>
+                    <span className="text-sm font-bold text-muted/60">0{idx + 1}</span>
                   </div>
                   <p className="mt-1 text-sm sm:text-base font-semibold text-brand-primary leading-snug">
                     {pillar.tagline}

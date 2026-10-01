@@ -85,7 +85,7 @@ export function MyRequestsView({ tickets, initialSelectedId, onRefresh, onOpenNe
     <div className="space-y-6 animate-fadeIn">
       {selectedTicket ? (
         /* Detailed Ticket Conversation Thread */
-        <div className="rounded-2xl border border-separator bg-surface p-5 sm:p-6 space-y-6 animate-fadeIn">
+        <div className="rounded-xl border border-separator bg-surface p-5 sm:p-6 space-y-6 animate-fadeIn">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-separator pb-4">
             <div className="space-y-1">
@@ -98,7 +98,7 @@ export function MyRequestsView({ tickets, initialSelectedId, onRefresh, onOpenNe
                 <span>Back to all requests</span>
               </button>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono font-bold text-sm text-foreground">{selectedTicket.reference_code}</span>
+                <span className="font-bold text-sm text-foreground">{selectedTicket.reference_code}</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface-elevated border border-separator text-muted">
                   {selectedTicket.category}
                 </span>
@@ -119,7 +119,7 @@ export function MyRequestsView({ tickets, initialSelectedId, onRefresh, onOpenNe
               return (
                 <div
                   key={msg.id}
-                  className={`p-4 rounded-2xl border text-xs space-y-1.5 ${
+                  className={`p-4 rounded-xl border text-xs space-y-1.5 ${
                     isSupport
                       ? 'bg-brand-primary/5 border-brand-primary/20 mr-4 sm:mr-8'
                       : 'bg-surface-elevated border-separator/80 ml-4 sm:ml-8'
@@ -197,11 +197,11 @@ export function MyRequestsView({ tickets, initialSelectedId, onRefresh, onOpenNe
                   key={tkt.id}
                   type="button"
                   onClick={() => setSelectedTicketId(tkt.id)}
-                  className="w-full p-4 rounded-2xl border border-separator bg-surface hover:bg-surface-elevated hover:border-brand-primary/50 transition-all text-left flex items-center justify-between gap-4 group cursor-pointer shadow-xs"
+                  className="w-full p-4 rounded-xl border border-separator bg-surface hover:bg-surface-elevated hover:border-brand-primary/50 transition-all text-left flex items-center justify-between gap-4 group cursor-pointer shadow-xs"
                 >
                   <div className="space-y-1.5 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono font-bold text-xs text-brand-primary">{tkt.reference_code}</span>
+                      <span className="font-bold text-xs text-brand-primary">{tkt.reference_code}</span>
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface-elevated border border-separator text-muted">
                         {tkt.category}
                       </span>
@@ -223,7 +223,7 @@ export function MyRequestsView({ tickets, initialSelectedId, onRefresh, onOpenNe
               ))}
             </div>
           ) : (
-            <div className="p-10 rounded-2xl border border-dashed border-separator bg-surface text-center space-y-3">
+            <div className="p-10 rounded-xl border border-dashed border-separator bg-surface text-center space-y-3">
               <MessageSquare size={24} className="mx-auto text-muted" />
               <div className="space-y-1 max-w-sm mx-auto">
                 <h4 className="text-xs font-bold text-foreground">No Support Requests Yet</h4>

@@ -68,7 +68,7 @@ export function StoreHeader({ config }: StoreHeaderProps) {
           {/* Logo & Store Names */}
           <div className="flex items-end gap-3.5">
             <div
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-surface bg-surface-elevated shadow-md flex items-center justify-center overflow-hidden shrink-0"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl border-4 border-surface bg-surface-elevated shadow-md flex items-center justify-center overflow-hidden shrink-0"
               style={{
                 borderColor: 'var(--color-surface)',
                 backgroundColor: config.logo_url ? undefined : primaryColor,

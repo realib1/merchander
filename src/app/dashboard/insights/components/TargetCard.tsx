@@ -96,7 +96,7 @@ export function TargetCard({ progress, currency = 'GHS', onDeleted }: TargetCard
   };
 
   return (
-    <div className="rounded-2xl border border-separator/80 bg-surface p-5 space-y-4 shadow-xs transition hover:border-separator">
+    <div className="rounded-xl border border-separator/80 bg-surface p-5 space-y-4 shadow-xs transition hover:border-separator">
       {/* Top Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
@@ -130,7 +130,7 @@ export function TargetCard({ progress, currency = 'GHS', onDeleted }: TargetCard
             </span>
             <span className="text-xs font-semibold text-muted">/ {formatVal(progress.target_value)}</span>
           </div>
-          <span className="text-xs font-bold font-mono text-foreground">{progress.percentage}%</span>
+          <span className="text-xs font-bold text-foreground">{progress.percentage}%</span>
         </div>
 
         {/* Progress Bar with Milestone Ticks */}

@@ -15,18 +15,25 @@ This skill provides mandatory standards and practical patterns to ensure the Mer
 ## 1. Core Accessibility Standards
 
 ### 1.1 Semantic HTML Structure
+
 Always use proper native HTML elements rather than `<div>` soups:
+
 - Use `<main>`, `<nav>`, `<aside>`, `<header>`, `<footer>`, `<section>` for layout landmarks.
 - Headings must follow strict hierarchy: Single `<h1>` per page, followed by `<h2>`, `<h3>` with no skipped levels.
 - Interactive controls must use native `<button>` or `<a>` with `href`. Never use `<div onClick={...}>` without `role="button"`, `tabIndex={0}`, and `onKeyDown`.
 
 ### 1.2 Accessible Forms & Validation
+
 - **Label Associations**: Every input must have a `<label htmlFor="field-id">` or `aria-label`.
 - **Error Linkage**: Associate error messages with inputs using `aria-describedby="error-id"` and `aria-invalid="true"`:
+
 ```tsx
 <div className="space-y-1.5">
   <label htmlFor="product-price" className="block text-sm font-medium text-slate-200">
-    Price (GH₵) <span className="text-rose-400" aria-hidden="true">*</span>
+    Price (GH₵){' '}
+    <span className="text-rose-400" aria-hidden="true">
+      *
+    </span>
   </label>
   <input
     id="product-price"
@@ -36,7 +43,7 @@ Always use proper native HTML elements rather than `<div>` soups:
     required
     aria-required="true"
     aria-invalid={Boolean(errors.price)}
-    aria-describedby={errors.price ? "price-error" : undefined}
+    aria-describedby={errors.price ? 'price-error' : undefined}
     className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
   />
   {errors.price && (
@@ -52,7 +59,9 @@ Always use proper native HTML elements rather than `<div>` soups:
 ## 2. Keyboard Navigation & Focus Management
 
 ### 2.1 Visible Focus Indicators
+
 Never remove focus outlines with `outline: none` without providing a distinct replacement:
+
 ```css
 /* Accessible focus ring */
 *:focus-visible {
@@ -62,16 +71,23 @@ Never remove focus outlines with `outline: none` without providing a distinct re
 ```
 
 ### 2.2 Modal Dialogs & Focus Trapping
+
 When a modal opens:
+
 1. Save the previous focused element.
 2. Trap focus inside the modal dialog container (`Escape` key closes dialog).
 3. Set `aria-modal="true"` and `role="dialog"`.
 4. Restore focus to the triggering element when the modal closes.
 
 ```tsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
-export function AccessibleModal({ isOpen, onClose, title, children }: {
+export function AccessibleModal({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -83,26 +99,31 @@ export function AccessibleModal({ isOpen, onClose, title, children }: {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === 'Escape') onClose();
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" role="presentation">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      role="presentation"
+    >
       <div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl"
+        className="w-full max-w-lg rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <h2 id="modal-title" className="text-lg font-bold text-white">{title}</h2>
+          <h2 id="modal-title" className="text-lg font-bold text-white">
+            {title}
+          </h2>
           <button
             onClick={onClose}
             aria-label="Close modal"
@@ -123,7 +144,9 @@ export function AccessibleModal({ isOpen, onClose, title, children }: {
 ## 3. Screen Reader & Dynamic Announcements
 
 ### 3.1 Live Regions for Dynamic Updates
+
 Use `aria-live="polite"` for non-critical status updates (e.g. order saved toast) and `aria-live="assertive"` for critical error alerts:
+
 ```tsx
 <div aria-live="polite" aria-atomic="true" className="sr-only">
   {statusAnnouncement}
@@ -131,6 +154,7 @@ Use `aria-live="polite"` for non-critical status updates (e.g. order saved toast
 ```
 
 ### 3.2 Color Contrast Ratios (WCAG AA)
+
 - Normal text (< 18pt): Minimum contrast ratio of **4.5:1** against background.
 - Large text (≥ 18pt or 14pt bold): Minimum contrast ratio of **3:1**.
 - UI components and graphical objects: Minimum contrast ratio of **3:1**.

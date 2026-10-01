@@ -172,7 +172,7 @@ export function WhatsAppChannelCard({
               type="text"
               readOnly
               value={webhookUrl}
-              className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 text-muted font-mono"
+              className="w-full text-xs rounded-xl bg-surface-elevated border border-separator px-3 py-2 text-muted "
             />
             <Button
               variant="outline"

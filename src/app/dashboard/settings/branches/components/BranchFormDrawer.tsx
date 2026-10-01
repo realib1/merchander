@@ -137,7 +137,7 @@ function BranchFormContent({
             value={digitalAddress}
             onChange={(e) => setDigitalAddress(e.target.value.toUpperCase())}
             placeholder="e.g. GA-183-9022"
-            className="w-full bg-surface border border-separator rounded-xl px-3.5 py-2 text-xs font-mono placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition uppercase"
+            className="w-full bg-surface border border-separator rounded-xl px-3.5 py-2 text-xs placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary transition uppercase"
           />
         </div>
 

@@ -40,14 +40,13 @@ export function ForgotPasswordForm() {
   if (isSubmitted) {
     return (
       <div className="w-full space-y-6 animate-in fade-in-50 duration-200">
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start gap-3.5">
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-3.5">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300">
-              Check your inbox
-            </h2>
+            <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300">Check your inbox</h2>
             <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-400/90 leading-relaxed">
-              If an account exists for <strong className="font-semibold text-foreground">{email}</strong>, we sent a password reset link. Please check your spam folder if it doesn&apos;t arrive in a few minutes.
+              If an account exists for <strong className="font-semibold text-foreground">{email}</strong>, we sent a
+              password reset link. Please check your spam folder if it doesn&apos;t arrive in a few minutes.
             </p>
           </div>
         </div>

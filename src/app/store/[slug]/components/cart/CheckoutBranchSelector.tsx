@@ -36,7 +36,7 @@ export function CheckoutBranchSelector({
               <div className="flex items-center justify-between">
                 <span className="font-bold text-foreground">{b.name}</span>
                 {b.digital_address && (
-                  <span className="text-[10px] font-mono text-brand-primary flex items-center gap-0.5">
+                  <span className="text-[10px] text-brand-primary flex items-center gap-0.5">
                     <Navigation size={10} /> {b.digital_address}
                   </span>
                 )}

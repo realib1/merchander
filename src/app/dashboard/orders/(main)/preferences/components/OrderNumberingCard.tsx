@@ -92,7 +92,7 @@ export function OrderNumberingCard({ numbering, onChange, disabled = false }: Or
             <span className="text-xs font-bold text-foreground">Next Generated Order:</span>
             <p className="text-[11px] text-muted">Preview of how your next customer receipt will be formatted.</p>
           </div>
-          <span className="font-mono font-bold text-sm text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-lg border border-brand-primary/20">
+          <span className="font-bold text-sm text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-lg border border-brand-primary/20">
             {getPreviewNumber()}
           </span>
         </div>

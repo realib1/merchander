@@ -8,7 +8,7 @@ interface StoreTrustBadgesProps {
 
 export function StoreTrustBadges({ primaryColor = '#f97316' }: StoreTrustBadgesProps) {
   return (
-    <div className="rounded-2xl border border-separator/70 bg-surface p-4 sm:p-5 space-y-3.5 shadow-2xs select-none">
+    <div className="rounded-xl border border-separator/70 bg-surface p-4 sm:p-5 space-y-3.5 shadow-2xs select-none">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-surface-elevated flex items-center justify-center text-foreground shrink-0">
           <Truck size={16} style={{ color: primaryColor }} />

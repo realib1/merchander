@@ -35,7 +35,7 @@ export function OwnerCredentialsSection({
 
   return (
     <div className="space-y-3 pt-4 border-t border-separator/60">
-      <div className="font-mono text-[11px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
+      <div className="text-[11px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
         <User size={13} />
         <span>3. Owner Identity & Initial Credentials</span>
       </div>
@@ -67,7 +67,7 @@ export function OwnerCredentialsSection({
               placeholder="merchant@example.com"
               value={ownerEmail}
               onChange={(e) => onOwnerEmailChange(e.target.value)}
-              className="w-full bg-surface-elevated border border-separator rounded-xl pl-8 pr-3 py-2 text-foreground focus:outline-hidden focus:border-brand font-mono text-xs"
+              className="w-full bg-surface-elevated border border-separator rounded-xl pl-8 pr-3 py-2 text-foreground focus:outline-hidden focus:border-brand text-xs"
             />
           </div>
         </div>
@@ -83,7 +83,7 @@ export function OwnerCredentialsSection({
               placeholder="+233 24 123 4567"
               value={ownerPhone}
               onChange={(e) => onOwnerPhoneChange(e.target.value)}
-              className="w-full bg-surface-elevated border border-separator rounded-xl pl-8 pr-3 py-2 text-foreground focus:outline-hidden focus:border-brand font-mono text-xs"
+              className="w-full bg-surface-elevated border border-separator rounded-xl pl-8 pr-3 py-2 text-foreground focus:outline-hidden focus:border-brand text-xs"
             />
           </div>
         </div>
@@ -94,7 +94,7 @@ export function OwnerCredentialsSection({
             <button
               type="button"
               onClick={handleGenerate}
-              className="text-[10px] text-brand hover:underline flex items-center gap-1 font-mono cursor-pointer"
+              className="text-[10px] text-brand hover:underline flex items-center gap-1 cursor-pointer"
             >
               <RefreshCw size={10} />
               <span>Generate</span>
@@ -107,7 +107,7 @@ export function OwnerCredentialsSection({
               placeholder="Leave blank to auto-generate"
               value={password}
               onChange={(e) => onPasswordChange(e.target.value)}
-              className="w-full bg-surface-elevated border border-separator rounded-xl pl-8 pr-8 py-2 text-foreground focus:outline-hidden focus:border-brand font-mono text-xs"
+              className="w-full bg-surface-elevated border border-separator rounded-xl pl-8 pr-8 py-2 text-foreground focus:outline-hidden focus:border-brand text-xs"
             />
             <button
               type="button"

@@ -113,7 +113,7 @@ export function AddStaffModal({ isOpen, onClose, onStaffAdded }: AddStaffModalPr
       onClose={handleClose}
       title={
         <div className="flex flex-col">
-          <span className="text-xs font-mono font-bold text-brand-primary uppercase tracking-wider">
+          <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">
             Staff Onboarding
           </span>
           <span className="text-base font-bold text-foreground font-display mt-0.5">
@@ -149,7 +149,7 @@ export function AddStaffModal({ isOpen, onClose, onStaffAdded }: AddStaffModalPr
             placeholder="e.g., alex@merchander.app"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary font-mono"
+            className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary "
           />
         </div>
 

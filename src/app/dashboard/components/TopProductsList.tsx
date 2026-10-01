@@ -22,11 +22,11 @@ export function TopProductsList({ products }: { products: TopProduct[] }) {
   }
 
   return (
-    <div className="divide-y divide-separator">
+    <div className="divide-y divide-separator/60">
       {products.map((product) => (
         <div
           key={product.id}
-          className="flex items-center gap-3 py-3 px-4 hover:bg-surface-elevated/50 transition-colors"
+          className="flex items-center gap-3 py-3 px-4 hover:bg-surface-elevated/40 transition-colors"
         >
           <div className="w-10 h-10 rounded-lg bg-surface-elevated border border-separator overflow-hidden shrink-0 flex items-center justify-center relative">
             {product.image_url ? (

@@ -29,7 +29,7 @@ export default async function MerchantsPage() {
 
   if (error) {
     return (
-      <div className="p-6 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive">
+      <div className="p-6 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
         Failed to load merchants: {error}
       </div>
     );

@@ -47,7 +47,7 @@ export function ApprovalsWorkspace({ initialActions }: ApprovalsWorkspaceProps) 
   return (
     <div className="flex flex-col gap-5 w-full">
       {/* 1. Header Toolbar & Tab Filter */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-surface border border-separator rounded-2xl p-3 shadow-xs">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-surface border border-separator rounded-xl p-3 shadow-xs">
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           <button
@@ -163,7 +163,7 @@ export function ApprovalsWorkspace({ initialActions }: ApprovalsWorkspaceProps) 
 
       {/* 2. Action List / Empty State */}
       {filteredActions.length === 0 ? (
-        <div className="bg-surface border border-separator rounded-2xl p-14 text-center flex flex-col items-center justify-center gap-3">
+        <div className="bg-surface border border-separator rounded-xl p-14 text-center flex flex-col items-center justify-center gap-3">
           <div className="w-12 h-12 rounded-full bg-surface-muted text-muted flex items-center justify-center border border-separator">
             <Inbox size={24} />
           </div>

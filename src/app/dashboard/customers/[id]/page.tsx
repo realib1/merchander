@@ -58,7 +58,7 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
             Back to Customers
           </Link>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center border border-brand-primary/20 shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center border border-brand-primary/20 shrink-0">
               <User size={32} />
             </div>
             <div>
@@ -106,7 +106,7 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
 
       <div className="mt-2">
         <h2 className="text-xl font-bold text-foreground mb-4 font-display">Order History</h2>
-        <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-surface border border-separator rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-surface-elevated border-b border-separator  text-xs uppercase tracking-wider">
@@ -140,7 +140,7 @@ export default async function CustomerProfilePage({ params }: { params: Promise<
                       <td className="px-6 py-4">
                         <Link
                           href={`/dashboard/orders?q=${order.id.substring(0, 8)}`}
-                          className="font-mono font-medium text-brand-primary hover:underline"
+                          className="font-medium text-brand-primary hover:underline"
                         >
                           #{order.id.substring(0, 8).toUpperCase()}
                         </Link>

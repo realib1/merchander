@@ -63,7 +63,7 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
     >
       <div className="space-y-6">
         {/* Amount Banner */}
-        <div className="p-4 rounded-2xl bg-surface-elevated/60 border border-separator flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-surface-elevated/60 border border-separator flex items-center justify-between">
           <div>
             <div className="text-xs text-muted font-medium">Gross Amount</div>
             <div className="text-2xl font-bold text-foreground mt-0.5">{formatCurrency(payment.amount, 'GHS')}</div>
@@ -79,7 +79,7 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
         </div>
 
         {/* Financial Breakdown */}
-        <div className="p-4 rounded-2xl border border-separator bg-surface space-y-2.5">
+        <div className="p-4 rounded-xl border border-separator bg-surface space-y-2.5">
           <div className="text-xs font-semibold text-foreground uppercase tracking-wider">Settlement Breakdown</div>
           <div className="flex justify-between text-sm">
             <span className="text-muted">Gross Inflow</span>
@@ -120,7 +120,7 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
                 </button>
               )}
             </div>
-            <div className="font-mono text-sm font-semibold text-foreground truncate">
+            <div className="text-sm font-semibold text-foreground truncate">
               {payment.transaction_ref || 'N/A'}
             </div>
           </div>
@@ -145,7 +145,7 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
             </div>
             {payment.order ? (
               <div>
-                <span className="font-mono font-semibold text-sm text-brand-primary">
+                <span className="font-semibold text-sm text-brand-primary">
                   #ORD-{payment.order.id.slice(0, 8)}
                 </span>
                 <span className="text-xs text-muted ml-2">({payment.order.status})</span>
@@ -177,7 +177,7 @@ export function PaymentDetailsDrawer({ payment, isOpen, onClose }: PaymentDetail
           {payment.notes && (
             <div className="pt-2 border-t border-separator">
               <span className="text-muted block mb-1">Notes / Memo:</span>
-              <p className="text-foreground bg-surface-elevated/50 p-2 rounded-lg font-mono text-[11px]">
+              <p className="text-foreground bg-surface-elevated/50 p-2 rounded-lg text-[11px]">
                 {payment.notes}
               </p>
             </div>

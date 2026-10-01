@@ -173,7 +173,7 @@ export function StoreCatalogGrid({
         {/* Left Area: Product Grids */}
         <div className="space-y-10 min-w-0">
           {products.length === 0 ? (
-            <div className="p-12 text-center text-muted space-y-3 rounded-2xl border border-separator bg-surface shadow-2xs">
+            <div className="p-12 text-center text-muted space-y-3 rounded-xl border border-separator bg-surface shadow-2xs">
               <Package size={42} className="mx-auto opacity-30" />
               <h3 className="text-sm font-bold text-foreground">No products match your criteria</h3>
               <p className="text-xs max-w-sm mx-auto">

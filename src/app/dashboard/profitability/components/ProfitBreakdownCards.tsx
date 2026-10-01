@@ -13,7 +13,7 @@ export function ProfitBreakdownCards({ categories, channels, metrics }: ProfitBr
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-6">
       {/* 1. Category Profit Contribution */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
@@ -49,7 +49,7 @@ export function ProfitBreakdownCards({ categories, channels, metrics }: ProfitBr
       </div>
 
       {/* 2. Channel Profitability */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
@@ -87,7 +87,7 @@ export function ProfitBreakdownCards({ categories, channels, metrics }: ProfitBr
       </div>
 
       {/* 3. Cost & Outlays Allocation */}
-      <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
@@ -114,7 +114,7 @@ export function ProfitBreakdownCards({ categories, channels, metrics }: ProfitBr
 
             <div className="pt-2 border-t border-separator flex items-center justify-between text-xs font-bold">
               <span className="text-foreground">Total Operating Deductions</span>
-              <span className="text-destructive font-mono">{formatCurrency(metrics.totalExpenses, 'GHS')}</span>
+              <span className="text-destructive ">{formatCurrency(metrics.totalExpenses, 'GHS')}</span>
             </div>
           </div>
         </div>

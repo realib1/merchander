@@ -49,7 +49,7 @@ export default async function MerchantContextPage({ params, searchParams }: Page
           </Link>
         </div>
 
-        <div className="max-w-md mx-auto mt-12 p-8 bg-surface border border-separator rounded-2xl shadow-xl w-full">
+        <div className="max-w-md mx-auto mt-12 p-8 bg-surface border border-separator rounded-xl shadow-xl w-full">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary">
               <Lock size={28} />
@@ -131,13 +131,13 @@ export default async function MerchantContextPage({ params, searchParams }: Page
 
       {/* Support Delegation Handshake Banner */}
       {activeGrant ? (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shrink-0">
               <Key size={16} />
             </div>
             <div>
-              <div className="font-bold text-amber-300 font-mono flex items-center gap-2">
+              <div className="font-bold text-amber-300 flex items-center gap-2">
                 <span>ACTIVE DELEGATION TOKEN VERIFIED</span>
                 <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 border border-amber-500/30">
                   Read-Only
@@ -149,13 +149,13 @@ export default async function MerchantContextPage({ params, searchParams }: Page
             </div>
           </div>
 
-          <div className="flex items-center gap-2 font-mono text-[11px] text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 shrink-0">
+          <div className="flex items-center gap-2 text-[11px] text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 shrink-0">
             <Clock size={13} />
             <span>Valid until {new Date(activeGrant.expires_at).toLocaleTimeString()}</span>
           </div>
         </div>
       ) : (
-        <div className="p-4 rounded-2xl bg-surface border border-separator text-muted flex items-center justify-between gap-3 text-xs shadow-xs">
+        <div className="p-4 rounded-xl bg-surface border border-separator text-muted flex items-center justify-between gap-3 text-xs shadow-xs">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-muted/10 text-muted shrink-0">
               <ShieldAlert size={16} />
@@ -171,9 +171,9 @@ export default async function MerchantContextPage({ params, searchParams }: Page
       )}
 
       {/* Main Header Card */}
-      <div className="bg-surface p-6 rounded-2xl border border-separator shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-surface p-6 rounded-xl border border-separator shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-lg shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-lg shrink-0">
             {tenant.name.charAt(0)}
           </div>
           <div>
@@ -251,7 +251,7 @@ export default async function MerchantContextPage({ params, searchParams }: Page
       {/* Operational Metadata & Audit Trail */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Connected Rails */}
-        <div className="bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
+        <div className="bg-surface border border-separator rounded-xl shadow-xs p-6 space-y-4">
           <h2 className="text-base font-bold text-foreground flex items-center gap-2">
             <Network size={18} className="text-brand-primary" />
             <span>Connected Rails & Infrastructure</span>
@@ -286,7 +286,7 @@ export default async function MerchantContextPage({ params, searchParams }: Page
         </div>
 
         {/* Audit Trail from Database */}
-        <div className="bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
+        <div className="bg-surface border border-separator rounded-xl shadow-xs p-6 space-y-4">
           <h2 className="text-base font-bold text-foreground flex items-center gap-2">
             <History size={18} className="text-brand-primary" />
             <span>Administrative Audit Log</span>

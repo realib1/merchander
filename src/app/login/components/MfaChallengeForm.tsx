@@ -72,7 +72,7 @@ export function MfaChallengeForm({ email, onBack }: MfaChallengeFormProps) {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-1">
-        <div className="inline-flex p-3 rounded-2xl bg-brand-primary/10 text-brand-primary mb-2">
+        <div className="inline-flex p-3 rounded-xl bg-brand-primary/10 text-brand-primary mb-2">
           <ShieldCheck size={28} />
         </div>
         <h3 className="text-lg font-bold text-foreground">Two-Factor Authentication</h3>
@@ -81,7 +81,7 @@ export function MfaChallengeForm({ email, onBack }: MfaChallengeFormProps) {
             ? 'Enter one of your emergency recovery codes.'
             : `Enter the 6-digit code from your authenticator app.`}
         </p>
-        {email && <p className="text-[11px] font-mono text-muted/80">{email}</p>}
+        {email && <p className="text-[11px] text-muted/80">{email}</p>}
       </div>
 
       {errorMessage && (
@@ -112,7 +112,7 @@ export function MfaChallengeForm({ email, onBack }: MfaChallengeFormProps) {
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
               placeholder="000000"
-              className="w-full text-center tracking-[0.4em] font-mono text-xl font-bold rounded-xl border border-separator bg-surface px-4 py-2.5 placeholder:text-muted focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+              className="w-full text-center tracking-[0.4em] text-xl font-bold rounded-xl border border-separator bg-surface px-4 py-2.5 placeholder:text-muted focus:ring-2 focus:ring-brand-primary outline-none transition-all"
             />
           </div>
 
@@ -151,7 +151,7 @@ export function MfaChallengeForm({ email, onBack }: MfaChallengeFormProps) {
               value={backupCode}
               onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
               placeholder="XXXXX-XXXXX"
-              className="w-full text-center font-mono text-base font-semibold rounded-xl border border-separator bg-surface px-4 py-2.5 placeholder:text-muted focus:ring-2 focus:ring-brand-primary outline-none tracking-wider"
+              className="w-full text-center text-base font-semibold rounded-xl border border-separator bg-surface px-4 py-2.5 placeholder:text-muted focus:ring-2 focus:ring-brand-primary outline-none tracking-wider"
             />
           </div>
 

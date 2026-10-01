@@ -161,7 +161,7 @@ export function Modal({
         aria-describedby={description ? 'modal-description' : undefined}
         className={cn(
           'relative z-10 flex flex-col w-full bg-surface-elevated text-primary',
-          'animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-2xl rounded-2xl duration-150 outline-none',
+          'animate-in fade-in zoom-in-95 overflow-hidden border border-separator shadow-2xl rounded-xl duration-150 outline-none',
           'max-h-[min(90dvh,800px)]',
           SIZE_STYLES[size],
           className

@@ -66,7 +66,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
   return (
     <div className="w-full space-y-6">
       {errorMessage && (
-        <div className="py-2.5 px-3.5 bg-destructive/10 border border-destructive/20 rounded-xl text-sm font-medium text-destructive flex items-start gap-3 animate-in fade-in-50 duration-200">
+        <div className="py-2.5 px-3.5 bg-destructive/10 border border-destructive/20 rounded-md text-sm font-medium text-destructive flex items-start gap-3 animate-in fade-in-50 duration-200">
           <CircleAlert size={18} className="mt-0.5 shrink-0" />
           <div>{errorMessage}</div>
         </div>
@@ -74,7 +74,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-foreground block">
+          <label htmlFor="email" className="font-medium text-foreground block">
             Email or phone number
           </label>
           <input
@@ -86,12 +86,12 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
             autoComplete="username"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none text-sm font-medium transition-all shadow-xs"
+            className="w-full px-4 py-2 rounded-md border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none font-medium transition-all shadow-xs"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="password" className="text-sm font-medium text-foreground block">
+          <label htmlFor="password" className="font-medium text-foreground block">
             Password
           </label>
           <div className="relative">
@@ -102,7 +102,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
               placeholder="Enter your password"
               required
               autoComplete="current-password"
-              className="w-full pl-4 pr-11 py-3 rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none text-sm font-medium transition-all shadow-xs"
+              className="w-full pl-4 pr-11 py-2 rounded-md border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none font-medium transition-all shadow-xs"
             />
             <button
               type="button"
@@ -138,7 +138,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] disabled:opacity-60 text-white rounded-xl text-sm font-bold shadow-sm shadow-brand-primary/25 transition-all cursor-pointer mt-3"
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] disabled:opacity-60 text-white rounded-md font-semibold shadow-sm shadow-brand-primary/25 transition-all cursor-pointer mt-3"
         >
           {isPending ? 'Signing in...' : 'Sign In'}
         </button>

@@ -192,7 +192,7 @@ export function ProductInquiryDrawer({
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-xs ${
+                  className={`max-w-[80%] rounded-xl px-3.5 py-2 text-xs ${
                     m.sender === 'user'
                       ? 'bg-brand-primary text-white rounded-br-xs'
                       : 'bg-surface-elevated border border-separator text-foreground rounded-bl-xs'
@@ -212,7 +212,7 @@ export function ProductInquiryDrawer({
                 <div className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary">
                   <Bot size={14} />
                 </div>
-                <div className="flex gap-1 py-2 px-3 bg-surface-elevated rounded-2xl border border-separator">
+                <div className="flex gap-1 py-2 px-3 bg-surface-elevated rounded-xl border border-separator">
                   <span className="w-1.5 h-1.5 rounded-full bg-muted animate-bounce"></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-muted animate-bounce [animation-delay:0.2s]"></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-muted animate-bounce [animation-delay:0.4s]"></span>

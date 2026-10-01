@@ -16,7 +16,7 @@ export default function SettingsErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-87.5 p-8 text-center bg-surface border border-separator rounded-2xl shadow-xs max-w-3xl">
+    <div className="flex flex-col items-center justify-center min-h-87.5 p-8 text-center bg-surface border border-separator rounded-xl shadow-xs max-w-3xl">
       <div className="w-14 h-14 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-4">
         <AlertTriangle className="h-7 w-7" aria-hidden="true" />
       </div>

@@ -64,7 +64,7 @@ export function ProductShareModal({
       />
 
       <div className="min-h-full flex items-center justify-center p-4">
-        <div className="relative w-full max-w-sm bg-surface border border-separator rounded-2xl p-5 shadow-2xl space-y-4">
+        <div className="relative w-full max-w-sm bg-surface border border-separator rounded-xl p-5 shadow-2xl space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

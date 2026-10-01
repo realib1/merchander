@@ -133,7 +133,7 @@ export function CustomersTable({
 
   return (
     <>
-      <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
+      <div className="bg-surface border border-separator rounded-xl overflow-hidden shadow-sm h-full flex flex-col">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-surface-elevated border-b border-separator text-xs uppercase tracking-wider">

@@ -14,7 +14,9 @@ This skill provides guidelines and patterns for creating high-polish, state-of-t
 ## 1. Core Visual Principles
 
 ### 1.1 Curated Color Palette & Glassmorphism
+
 Avoid raw, oversaturated primary colors. Use harmonious, balanced color tokens:
+
 - **Backgrounds**: Sleek dark slate (`#0B0F17`, `#111827`) and crisp light ivory (`#FAFAF9`, `#F8FAFC`).
 - **Surface & Cards**: Glassmorphic panels with subtle frosted borders:
   ```css
@@ -32,8 +34,9 @@ Avoid raw, oversaturated primary colors. Use harmonious, balanced color tokens:
   - Warm Amber (`#F59E0B`) for pending MoMo payments and alerts.
 
 ### 1.2 Typography & Hierarchy
+
 - Use modern Google Fonts (`Outfit` or `Plus Jakarta Sans` for headings, `Inter` for data tables and UI controls).
-- Number / Metric display: Use `tabular-nums` (`font-mono` or `font-feature-settings: 'tnum'`) on prices and quantities so figures align vertically in tables.
+- Number / Metric display: Use `tabular-nums` or `font-feature-settings: 'tnum'` on prices and quantities so figures align vertically in tables.
 - Visual hierarchy: Always distinguish primary values (bold 18px-24px), labels (medium 12px-14px uppercase muted), and helper text (regular 12px subtle).
 
 ---
@@ -59,6 +62,7 @@ Every dynamic component MUST handle 5 fundamental UI states:
 ## 3. Component Design Patterns
 
 ### 3.1 Stat & KPI Card Pattern
+
 ```tsx
 interface MetricCardProps {
   title: string;
@@ -72,7 +76,7 @@ export function MetricCard({ title, value, changePercent, periodLabel, icon }: M
   const isPositive = (changePercent ?? 0) >= 0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md shadow-xl transition hover:border-slate-700">
+    <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md shadow-xl transition hover:border-slate-700">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">{title}</span>
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
@@ -83,7 +87,9 @@ export function MetricCard({ title, value, changePercent, periodLabel, icon }: M
         <div className="text-3xl font-extrabold tracking-tight text-white tabular-nums">{value}</div>
         {changePercent !== undefined && (
           <div className="mt-2 flex items-center gap-1.5 text-xs">
-            <span className={`inline-flex items-center font-medium ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <span
+              className={`inline-flex items-center font-medium ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}
+            >
               {isPositive ? '↑' : '↓'} {Math.abs(changePercent)}%
             </span>
             <span className="text-slate-500">{periodLabel || 'vs last month'}</span>
@@ -96,6 +102,7 @@ export function MetricCard({ title, value, changePercent, periodLabel, icon }: M
 ```
 
 ### 3.2 Mobile-First Responsive Design
+
 - African merchants conduct >70% of store management on smartphones.
 - Dashboards must collapse sidebars into smooth slide-over bottom sheets or drawers on viewport `< 768px`.
 - Tables switch to touch-friendly card list views on mobile screens.

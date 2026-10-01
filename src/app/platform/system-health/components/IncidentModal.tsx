@@ -210,7 +210,7 @@ export function IncidentModal({
       onClose={onClose}
       title={
         <div className="flex flex-col">
-          <span className="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider">
+          <span className="text-xs font-bold text-rose-400 uppercase tracking-wider">
             Operational Incident
           </span>
           <span className="text-base font-bold text-foreground font-display mt-0.5">

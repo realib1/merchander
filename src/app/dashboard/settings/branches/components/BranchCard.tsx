@@ -18,7 +18,7 @@ export function BranchCard({ branch, onEdit, onDelete, onSetPrimary, onTransfer,
 
   return (
     <div
-      className={`p-5 rounded-2xl border transition-all relative flex flex-col justify-between ${
+      className={`p-5 rounded-xl border transition-all relative flex flex-col justify-between ${
         branch.is_primary
           ? 'bg-surface border-brand-primary shadow-xs ring-1 ring-brand-primary/50'
           : 'bg-surface border-separator hover:border-separator/80'
@@ -57,21 +57,21 @@ export function BranchCard({ branch, onEdit, onDelete, onSetPrimary, onTransfer,
           {branch.digital_address && (
             <div className="flex items-center gap-1.5">
               <Navigation size={12} className="text-brand-primary shrink-0" />
-              <span className="font-mono text-[11px] font-bold text-foreground">{branch.digital_address}</span>
+              <span className="text-[11px] font-bold text-foreground">{branch.digital_address}</span>
             </div>
           )}
 
           {branch.phone && (
             <div className="flex items-center gap-1.5">
               <Phone size={12} className="text-muted shrink-0" />
-              <span className="font-mono text-[11px]">{branch.phone}</span>
+              <span className="text-[11px]">{branch.phone}</span>
             </div>
           )}
 
           {branch.whatsapp_phone && (
             <div className="flex items-center gap-1.5">
               <MessageCircle size={12} className="text-success shrink-0" />
-              <span className="font-mono text-[11px] text-success font-medium">{branch.whatsapp_phone}</span>
+              <span className="text-[11px] text-success font-medium">{branch.whatsapp_phone}</span>
             </div>
           )}
 

@@ -102,7 +102,7 @@ export function TotpSetupModal({ isOpen, onClose, onSuccess, enrollData }: TotpS
                 type="text"
                 readOnly
                 value={enrollData.secret}
-                className="flex-1 font-mono text-xs text-center bg-surface border border-separator rounded-lg px-2.5 py-1.5 text-foreground select-all outline-none"
+                className="flex-1 text-xs text-center bg-surface border border-separator rounded-lg px-2.5 py-1.5 text-foreground select-all outline-none"
               />
               <Button
                 variant="outline"
@@ -132,7 +132,7 @@ export function TotpSetupModal({ isOpen, onClose, onSuccess, enrollData }: TotpS
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
               placeholder="000000"
-              className="w-full text-center tracking-[0.4em] font-mono text-lg font-bold rounded-xl border border-separator bg-surface px-4 py-2.5 placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand-primary/50 outline-none transition-colors"
+              className="w-full text-center tracking-[0.4em] text-lg font-bold rounded-xl border border-separator bg-surface px-4 py-2.5 placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand-primary/50 outline-none transition-colors"
             />
             <p className="text-[11px] text-muted text-center">
               Enter the numerical code currently showing in your authenticator app.

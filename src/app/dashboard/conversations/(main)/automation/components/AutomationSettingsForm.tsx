@@ -14,7 +14,6 @@ import {
   Loader2,
   Save,
   RotateCcw,
-  Sparkles,
   CheckCircle2,
   ShieldCheck,
 } from 'lucide-react';
@@ -119,7 +118,7 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                <Sparkles className="h-5 w-5" aria-hidden="true" />
+                <Bot className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -402,7 +401,7 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
                         {rule.keywords.map((kw) => (
                           <span
                             key={kw}
-                            className="px-1.5 py-0.5 rounded bg-surface-elevated border border-separator text-[10px] text-muted font-mono"
+                            className="px-1.5 py-0.5 rounded bg-surface-elevated border border-separator text-[10px] text-muted "
                           >
                             {kw}
                           </span>
@@ -494,7 +493,7 @@ export function AutomationSettingsForm({ initialSettings }: AutomationSettingsFo
 
       {/* Sticky Bottom Save Bar */}
       {isDirty && (
-        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
+        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
             <span className="text-xs font-semibold text-foreground">You have unsaved automation settings</span>

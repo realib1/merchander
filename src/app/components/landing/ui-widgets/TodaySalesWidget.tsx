@@ -3,7 +3,7 @@ import { ArrowUpRight, Globe, Store } from 'lucide-react';
 
 export function TodaySalesWidget() {
   return (
-    <div className="rounded-2xl border border-separator/80 bg-surface p-4 sm:p-5 shadow-2xs">
+    <div className="rounded-xl border border-separator/80 bg-surface p-4 sm:p-5 shadow-2xs">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-bold tracking-wider uppercase text-muted">TODAY</span>
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">

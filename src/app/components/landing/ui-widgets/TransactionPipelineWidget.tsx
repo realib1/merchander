@@ -109,7 +109,7 @@ export function TransactionPipelineWidget() {
   const [activeStep, setActiveStep] = useState<number>(0);
 
   return (
-    <div className="w-full rounded-2xl border border-separator bg-surface p-4 sm:p-6 lg:p-7 shadow-xs">
+    <div className="w-full rounded-xl border border-separator bg-surface p-4 sm:p-6 lg:p-7 shadow-xs">
       <div className="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-separator pb-3.5">
         <div>
           <span className="text-xs font-bold text-brand-primary">One sale. Everything updates.</span>

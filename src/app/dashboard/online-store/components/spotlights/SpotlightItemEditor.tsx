@@ -69,7 +69,7 @@ export function SpotlightItemEditor({
 
       {/* Live Preview */}
       {imageFit === 'cover' && imageUrl ? (
-        <div className="relative overflow-hidden rounded-2xl min-h-[140px] flex items-center p-4 shadow-xs">
+        <div className="relative overflow-hidden rounded-xl min-h-[140px] flex items-center p-4 shadow-xs">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imageUrl} alt={title} className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent pointer-events-none" />
@@ -86,7 +86,7 @@ export function SpotlightItemEditor({
           </div>
         </div>
       ) : (
-        <div className={`relative overflow-hidden rounded-2xl p-4 shadow-xs ${previewBg}`}>
+        <div className={`relative overflow-hidden rounded-xl p-4 shadow-xs ${previewBg}`}>
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0 pr-2 space-y-1 z-10">
               <span className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-zinc-400' : 'text-amber-600 dark:text-amber-400'}`}>{badgeLabel}</span>

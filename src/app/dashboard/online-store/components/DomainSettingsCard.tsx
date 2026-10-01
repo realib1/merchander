@@ -102,11 +102,11 @@ export function DomainSettingsCard({ slug, initialDomainConfig }: DomainSettings
                 Active
               </Badge>
             </div>
-            <span className="text-[11px] text-muted font-mono">Zero Configuration</span>
+            <span className="text-[11px] text-muted ">Zero Configuration</span>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="flex-1 rounded-xl border border-separator bg-surface-elevated px-3 py-2 text-xs font-mono text-foreground truncate select-all">
+            <div className="flex-1 rounded-xl border border-separator bg-surface-elevated px-3 py-2 text-xs text-foreground truncate select-all">
               {defaultUrl}
             </div>
             <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function DomainSettingsCard({ slug, initialDomainConfig }: DomainSettings
             <div>
               <h3 className="text-xs font-bold text-foreground">Custom Domain</h3>
               <p className="text-[11px] text-muted">
-                Connect your own branded domain (e.g. <span className="font-mono text-foreground">shop.brand.com</span>)
+                Connect your own branded domain (e.g. <span className="text-foreground">shop.brand.com</span>)
               </p>
             </div>
             {domainConfig && (
@@ -169,7 +169,7 @@ export function DomainSettingsCard({ slug, initialDomainConfig }: DomainSettings
                 onChange={(e) => setDomainInput(e.target.value.toLowerCase().trim())}
                 placeholder="shop.yourbrand.com"
                 disabled={isPending}
-                className="flex-1 rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+                className="flex-1 rounded-xl border border-separator bg-surface px-3 py-2 text-xs text-foreground placeholder:text-muted outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
               />
               <Button
                 type="button"
@@ -187,7 +187,7 @@ export function DomainSettingsCard({ slug, initialDomainConfig }: DomainSettings
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-3 rounded-lg bg-surface-elevated border border-separator">
                 <div className="flex items-center gap-2 min-w-0">
                   <Globe size={14} className="text-brand-primary shrink-0" />
-                  <span className="text-xs font-mono font-bold text-foreground truncate">{domainConfig.domain}</span>
+                  <span className="text-xs font-bold text-foreground truncate">{domainConfig.domain}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
@@ -222,7 +222,7 @@ export function DomainSettingsCard({ slug, initialDomainConfig }: DomainSettings
                         <th className="px-3 py-1.5">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-separator font-mono text-[11px]">
+                    <tbody className="divide-y divide-separator text-[11px]">
                       <tr>
                         <td className="px-3 py-2 font-bold text-brand-primary">{dnsRecord.type}</td>
                         <td className="px-3 py-2 text-foreground">{dnsRecord.host}</td>

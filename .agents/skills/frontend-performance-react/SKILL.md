@@ -72,7 +72,7 @@ export function OrderRow({ order }: { order: OrderItem }) {
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-slate-800">
-      <span className="font-mono text-white">{optimisticOrder.orderNumber}</span>
+      <span className="text-white">{optimisticOrder.orderNumber}</span>
       <span className={`px-2.5 py-1 text-xs rounded-full ${optimisticOrder.paymentStatus === 'PAID' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
         {optimisticOrder.paymentStatus}
       </span>

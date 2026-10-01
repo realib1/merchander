@@ -75,7 +75,7 @@ export function StoreHeroSection({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 h-[390px] sm:h-[410px] md:h-[420px] lg:h-[440px] shadow-xs sm:shadow-sm group select-none bg-slate-900">
+      <div className="relative w-full rounded-xl sm:rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 h-[390px] sm:h-[410px] md:h-[420px] lg:h-[440px] shadow-xs sm:shadow-sm group select-none bg-slate-900">
         {slides.map((slide, idx) => {
           const isActive = idx === currentSlideIndex;
           const isPrevious = idx === previousSlideIndex && !isActive;

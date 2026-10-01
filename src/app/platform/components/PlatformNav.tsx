@@ -179,7 +179,7 @@ export function PlatformNav({
         {/* Brand Header */}
         <div className="flex items-center justify-between h-18 px-4 border-b border-separator/60">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center text-brand-primary-foreground font-bold font-mono text-sm shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center text-brand-primary-foreground font-bold text-sm shrink-0">
               M
             </div>
             {!isDesktopCollapsed && (
@@ -205,7 +205,7 @@ export function PlatformNav({
           {navSections.map((sec) => (
             <div key={sec.group} className="space-y-1">
               {!isDesktopCollapsed && (
-                <div className="px-3 text-[10px] font-mono font-bold uppercase tracking-wider text-muted/70 mb-1.5">
+                <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted/70 mb-1.5">
                   {sec.group}
                 </div>
               )}
@@ -235,7 +235,7 @@ export function PlatformNav({
 
                     {!isDesktopCollapsed && item.badge && (
                       <span
-                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                           isActive
                             ? 'bg-white/20 text-white'
                             : 'bg-destructive/10 text-destructive border border-destructive/20'
@@ -257,7 +257,7 @@ export function PlatformNav({
             <div className="px-3 py-2 rounded-xl bg-surface-elevated border border-separator/50 flex items-center justify-between text-xs">
               <div className="truncate pr-2">
                 <div className="text-[11px] font-semibold text-foreground truncate">{userEmail}</div>
-                <div className="text-[10px] font-mono text-muted uppercase font-semibold tracking-wider">
+                <div className="text-[10px] text-muted uppercase font-semibold tracking-wider">
                   {userRole.replace('_', ' ')}
                 </div>
               </div>

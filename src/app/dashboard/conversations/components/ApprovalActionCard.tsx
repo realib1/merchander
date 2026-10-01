@@ -21,7 +21,7 @@ import {
   AlertTriangle,
   CreditCard,
   Truck,
-  Sparkles,
+  PackagePlus,
   Layers,
   ExternalLink,
 } from 'lucide-react';
@@ -49,7 +49,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
   const [showFacts, setShowFacts] = useState(false);
   const [showRejectInput, setShowRejectInput] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
-  
+
   const proposed = (action.proposed_payload as Record<string, unknown>) || {};
   const initialText = (proposed.reply_text as string) || '';
   const [editText, setEditText] = useState(initialText);
@@ -87,7 +87,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs transition hover:border-separator/80 flex flex-col gap-4">
+    <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs transition hover:border-separator/80 flex flex-col gap-4">
       {/* 1. Header: Customer & Channel Info */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-foreground text-sm">{customerName}</span>
-              <span className="text-xs text-muted font-mono">{customerPhone}</span>
+              <span className="text-xs text-muted ">{customerPhone}</span>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-muted">{channelName}</span>
@@ -148,7 +148,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
               <Package size={14} className="text-brand-primary" />
               <span className="font-semibold text-foreground">Draft Order #{String(proposed.order_number)}</span>
             </div>
-            <span className="font-bold text-foreground font-mono">
+            <span className="font-bold text-foreground ">
               Total: {String(proposed.currency || 'GHS')} {Number(proposed.total_amount || 0).toFixed(2)}
             </span>
           </div>
@@ -179,14 +179,14 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-foreground">{item.quantity}x</span>
                       <span className="text-foreground">{name}</span>
-                      {item.sku && <span className="text-muted font-mono text-[10px]">({item.sku})</span>}
+                      {item.sku && <span className="text-muted text-[10px]">({item.sku})</span>}
                       {item.hasStockWarning && (
                         <span className="text-[10px] px-1.5 py-0.5 bg-rose-500/10 text-rose-500 rounded font-medium">
                           Low Stock
                         </span>
                       )}
                     </div>
-                    <span className="text-muted font-mono">
+                    <span className="text-muted ">
                       {String(proposed.currency || 'GHS')} {lineTotal.toFixed(2)}
                     </span>
                   </div>
@@ -198,7 +198,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
           {Number(proposed.delivery_fee || 0) > 0 && (
             <div className="flex justify-between text-[11px] text-muted border-t border-separator/40 pt-1">
               <span>Delivery Fee:</span>
-              <span className="font-mono">
+              <span>
                 {String(proposed.currency || 'GHS')} {Number(proposed.delivery_fee).toFixed(2)}
               </span>
             </div>
@@ -206,9 +206,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
 
           {Boolean(proposed.payment_url) && (
             <div className="flex items-center justify-between text-[11px] text-muted border-t border-separator/40 pt-1.5">
-              <span className="flex items-center gap-1 font-medium text-brand-primary">
-                Payment Link:
-              </span>
+              <span className="flex items-center gap-1 font-medium text-brand-primary">Payment Link:</span>
               <a
                 href={String(proposed.payment_url)}
                 target="_blank"
@@ -246,7 +244,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
               )}
               {proposed.trigger_type === 'back_in_stock' && (
                 <>
-                  <Sparkles size={14} className="text-emerald-500" />
+                  <PackagePlus size={14} className="text-emerald-500" />
                   <span className="font-semibold text-foreground">
                     Back in Stock: {String(proposed.product_name || 'Product')}
                     {proposed.variant_name ? ` (${String(proposed.variant_name)})` : ''}
@@ -272,16 +270,14 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
             </div>
 
             {Boolean(proposed.total_amount) && (
-              <span className="font-bold text-foreground font-mono">
+              <span className="font-bold text-foreground ">
                 {String(proposed.currency || 'GHS')} {Number(proposed.total_amount).toFixed(2)}
               </span>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-separator/40 text-[11px] text-muted">
-            <span className="px-2 py-0.5 rounded bg-surface border border-separator/60">
-              Channel: WhatsApp
-            </span>
+            <span className="px-2 py-0.5 rounded bg-surface border border-separator/60">Channel: WhatsApp</span>
             {Boolean(proposed.milestone) && (
               <span className="px-2 py-0.5 rounded bg-surface border border-separator/60">
                 Milestone: {String(proposed.milestone)}
@@ -422,11 +418,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
                 onClick={handleApprove}
                 className="w-full sm:w-auto px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-xs"
               >
-                {isPending ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Send size={14} />
-                )}
+                {isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 {isEditing || editText !== initialText ? 'Approve & Send Edited' : 'Approve & Send Outbound'}
               </button>
             </>
@@ -445,9 +437,7 @@ export function ApprovalActionCard({ action, onMutated }: ApprovalActionCardProp
               </span>
             )}
           </span>
-          {action.reviewed_at && (
-            <span>{new Date(action.reviewed_at).toLocaleDateString()}</span>
-          )}
+          {action.reviewed_at && <span>{new Date(action.reviewed_at).toLocaleDateString()}</span>}
         </div>
       )}
     </div>

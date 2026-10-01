@@ -28,8 +28,8 @@ export default function MaintenancePage() {
       </header>
 
       {/* Center Maintenance Card */}
-      <main className="w-full max-w-lg bg-surface border border-separator rounded-2xl p-8 sm:p-10 shadow-lg shadow-black/5 text-center my-auto">
-        <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+      <main className="w-full max-w-lg bg-surface border border-separator rounded-xl p-8 sm:p-10 shadow-lg shadow-black/5 text-center my-auto">
+        <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-6">
           <Hammer className="w-8 h-8 animate-pulse" />
         </div>
 

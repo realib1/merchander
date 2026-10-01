@@ -51,7 +51,7 @@ export function AfricanRootsSection() {
               return (
                 <div
                   key={item.title}
-                  className="bg-surface border border-separator rounded-2xl p-6 md:p-8 flex flex-col items-start transition-shadow hover:shadow-sm"
+                  className="bg-surface border border-separator rounded-xl p-6 md:p-8 flex flex-col items-start transition-shadow hover:shadow-sm"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary mb-6">
                     <Icon className="h-6 w-6" strokeWidth={2} />

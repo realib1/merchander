@@ -58,7 +58,7 @@ export function ProductImageUploader({
           /* Empty State Full Dropzone */
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-separator hover:border-brand-primary rounded-2xl p-10 flex flex-col items-center justify-center text-center hover:bg-surface-elevated/50 transition-all cursor-pointer relative overflow-hidden group"
+            className="border-2 border-dashed border-separator hover:border-brand-primary rounded-xl p-10 flex flex-col items-center justify-center text-center hover:bg-surface-elevated/50 transition-all cursor-pointer relative overflow-hidden group"
           >
             <input
               ref={fileInputRef}
@@ -68,7 +68,7 @@ export function ProductImageUploader({
               className="hidden"
               onChange={handleInputChange}
             />
-            <div className="w-16 h-16 bg-surface border border-separator rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-brand-primary transition-all duration-300 shadow-xs">
+            <div className="w-16 h-16 bg-surface border border-separator rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-brand-primary transition-all duration-300 shadow-xs">
               <UploadCloud className="w-8 h-8 text-brand-primary" />
             </div>
             <p className="text-sm font-semibold text-foreground">Click or drag product images to upload</p>
@@ -95,7 +95,7 @@ export function ProductImageUploader({
                   <span className="text-[11px] font-medium text-muted">Position #1</span>
                 </div>
 
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden border-2 border-brand-primary/50 bg-surface-elevated shadow-sm group">
+                <div className="relative aspect-square w-full rounded-xl overflow-hidden border-2 border-brand-primary/50 bg-surface-elevated shadow-sm group">
                   <Image
                     src={primaryImage.type === 'existing' ? primaryImage.url : primaryImage.preview}
                     alt="Primary product cover"

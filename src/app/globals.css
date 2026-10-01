@@ -116,13 +116,13 @@
     --warning: oklch(0.75 0.15 85);
     --success: oklch(0.65 0.15 150);
     --info: oklch(0.6 0.15 250);
-    --background: oklch(0.99 0 0);
-    --surface: oklch(1 0 0);
-    --surface-elevated: oklch(0.98 0 0);
-    --text-primary: oklch(0.2 0.02 260);
-    --text-secondary: oklch(0.45 0.02 260);
-    --text-muted: oklch(0.6 0.01 260);
-    --separator: oklch(0.9 0.01 260);
+    --background: #fbfbfc;
+    --surface: #ffffff;
+    --surface-elevated: #f4f4f6;
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --text-muted: #71717a;
+    --separator: #e4e4e7;
 
     /* Prototype Theme Tokens - Light */
     --brand-primary-hover: #e55f00;
@@ -213,15 +213,15 @@
     --success: oklch(0.75 0.15 150);
     --info: oklch(0.7 0.17 250);
 
-    /* Dark Navy background from our first design */
-    --background: oklch(0.18 0.02 260);
-    --surface: oklch(0.22 0.02 260);
-    --surface-elevated: oklch(0.26 0.02 260);
+    /* Dark Slate/Charcoal background matching Apex/Zenith */
+    --background: #111318;
+    --surface: #181b22;
+    --surface-elevated: #20242e;
 
-    --text-primary: oklch(0.93 0.01 260);
-    --text-secondary: oklch(0.65 0.01 260);
-    --text-muted: oklch(0.5 0.01 260);
-    --separator: oklch(0.35 0.02 260);
+    --text-primary: #f9fafb;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --separator: #272a34;
 
     /* Prototype Theme Tokens - Dark */
     --brand-primary-hover: #ff7a1a;

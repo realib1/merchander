@@ -58,7 +58,7 @@ export function BatchLifecycleStepper({
             );
           })}
         </div>
-        <div className="flex items-center justify-between text-[10px] font-mono text-muted">
+        <div className="flex items-center justify-between text-[10px] text-muted">
           <span>Step {activeIdx + 1} of 8</span>
           <span className="font-semibold text-foreground">
             {ORDERED_STEPS[activeIdx]?.label || currentStatus}
@@ -91,7 +91,7 @@ export function BatchLifecycleStepper({
               }`}
             >
               <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs mb-1 font-mono ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs mb-1 ${
                   isCompleted
                     ? 'bg-emerald-500 text-white font-bold'
                     : isCurrent

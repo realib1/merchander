@@ -107,15 +107,15 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
           <div className="space-y-4">
             {/* Top Metrics Cards */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 rounded-2xl bg-surface-elevated border border-separator">
+              <div className="p-3 rounded-xl bg-surface-elevated border border-separator">
                 <p className="text-[10px] font-bold text-muted uppercase">Total Units to Order</p>
                 <p className="text-lg font-black text-foreground tabular-nums mt-0.5">{summary.totalUnits} pcs</p>
               </div>
-              <div className="p-3 rounded-2xl bg-surface-elevated border border-separator">
+              <div className="p-3 rounded-xl bg-surface-elevated border border-separator">
                 <p className="text-[10px] font-bold text-muted uppercase">Customer Orders</p>
                 <p className="text-lg font-black text-foreground tabular-nums mt-0.5">{summary.totalOrders}</p>
               </div>
-              <div className="p-3 rounded-2xl bg-surface-elevated border border-separator">
+              <div className="p-3 rounded-xl bg-surface-elevated border border-separator">
                 <p className="text-[10px] font-bold text-muted uppercase">Estimated Gross Value</p>
                 <p className="text-lg font-black text-foreground tabular-nums mt-0.5">
                   {formatCurrency(summary.totalEstimatedRevenue, currency)}
@@ -124,7 +124,7 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
             </div>
 
             {/* Manifest Table */}
-            <div className="rounded-2xl border border-separator overflow-hidden bg-surface">
+            <div className="rounded-xl border border-separator overflow-hidden bg-surface">
               <table className="w-full text-left text-xs">
                 <thead className="bg-surface-elevated text-muted uppercase text-[10px] font-bold border-b border-separator">
                   <tr>
@@ -139,7 +139,7 @@ export function SupplierPOExportModal({ isOpen, onClose, batch, currency = 'GHS'
                     <tr key={item.variantId} className="hover:bg-surface-elevated/40">
                       <td className="p-3 font-semibold text-foreground">{item.productName}</td>
                       <td className="p-3 text-muted">{item.variantTitle}</td>
-                      <td className="p-3 font-mono text-[11px] text-muted">{item.sku || 'N/A'}</td>
+                      <td className="p-3 text-[11px] text-muted">{item.sku || 'N/A'}</td>
                       <td className="p-3 text-right font-black text-foreground tabular-nums">
                         {item.totalQuantity} pcs
                       </td>

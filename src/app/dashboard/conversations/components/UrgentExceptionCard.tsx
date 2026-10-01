@@ -45,7 +45,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
   };
 
   return (
-    <div className="bg-rose-500/5 border border-rose-500/30 rounded-2xl p-5 shadow-xs transition hover:border-rose-500/50 flex flex-col gap-4">
+    <div className="bg-rose-500/5 border border-rose-500/30 rounded-xl p-5 shadow-xs transition hover:border-rose-500/50 flex flex-col gap-4">
       {/* 1. Header: Customer & Urgent Alert */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
@@ -55,7 +55,7 @@ export function UrgentExceptionCard({ action, onMutated }: UrgentExceptionCardPr
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-foreground text-sm">{customerName}</span>
-              <span className="text-xs text-muted font-mono">{customerPhone}</span>
+              <span className="text-xs text-muted ">{customerPhone}</span>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-rose-500 font-medium">{channelName} Takeover Needed</span>

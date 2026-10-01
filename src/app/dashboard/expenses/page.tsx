@@ -132,7 +132,7 @@ export default async function ExpensesPage({
       />
 
       {/* Table and Toolbar */}
-      <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
+      <div className="bg-surface border border-separator rounded-xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
         <ExpensesToolbar expenses={fetchedExpenses} />
         <ExpensesTable expenses={fetchedExpenses} />
       </div>

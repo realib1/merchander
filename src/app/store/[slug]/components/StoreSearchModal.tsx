@@ -222,7 +222,7 @@ export function StoreSearchModal({
                       onSelectProduct(p);
                       onClose();
                     }}
-                    className="w-full flex items-center justify-between p-2.5 rounded-2xl hover:bg-surface-elevated border border-transparent hover:border-separator/80 text-left transition cursor-pointer group"
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-elevated border border-transparent hover:border-separator/80 text-left transition cursor-pointer group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-separator/80 overflow-hidden shrink-0 flex items-center justify-center relative">

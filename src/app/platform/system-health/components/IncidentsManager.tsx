@@ -1,18 +1,9 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import {
-  Radio,
-  Plus,
-  Trash2,
-  Edit2,
-  ShieldAlert,
-} from 'lucide-react';
+import { Radio, Plus, Trash2, Edit2, ShieldAlert } from 'lucide-react';
 import { SystemIncident, ServiceStatus } from '@/types/support';
-import {
-  createOrUpdateSystemIncident,
-  deleteSystemIncident,
-} from '@/app/actions/platform';
+import { createOrUpdateSystemIncident, deleteSystemIncident } from '@/app/actions/platform';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { IncidentModal, IncidentService } from './IncidentModal';
@@ -76,9 +67,7 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
 
       if (res.success) {
         setIncidents((prev) =>
-          prev.map((i) =>
-            i.id === inc.id ? { ...i, status: 'operational' as ServiceStatus, is_active: false } : i
-          )
+          prev.map((i) => (i.id === inc.id ? { ...i, status: 'operational' as ServiceStatus, is_active: false } : i))
         );
       }
     });
@@ -110,7 +99,7 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-4 rounded-2xl border border-separator shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-separator shadow-xs">
         <div>
           <div className="text-xs font-bold text-foreground flex items-center gap-2">
             <Radio size={14} className="text-rose-500" />
@@ -133,14 +122,14 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
       {/* Active Incidents Banner */}
       {activeIncidents.length > 0 && (
         <div className="space-y-3">
-          <div className="text-xs font-bold font-mono text-rose-400 uppercase tracking-wider">
+          <div className="text-xs font-bold text-rose-400 uppercase tracking-wider">
             Active Incidents ({activeIncidents.length})
           </div>
           <div className="space-y-3">
             {activeIncidents.map((inc) => (
               <div
                 key={inc.id}
-                className="p-4 rounded-2xl border border-rose-500/30 bg-rose-500/5 text-foreground space-y-3 shadow-xs"
+                className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/5 text-foreground space-y-3 shadow-xs"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
@@ -151,17 +140,15 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-foreground">{inc.title}</span>
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                             STATUS_LABELS[inc.status]?.color || 'bg-rose-500 text-white'
                           }`}
                         >
                           {STATUS_LABELS[inc.status]?.label || inc.status}
                         </span>
                       </div>
-                      <div className="text-xs text-secondary mt-1 leading-relaxed">
-                        {inc.message}
-                      </div>
-                      <div className="text-[11px] text-muted font-mono mt-1.5 flex items-center gap-2">
+                      <div className="text-xs text-secondary mt-1 leading-relaxed">{inc.message}</div>
+                      <div className="text-[11px] text-muted mt-1.5 flex items-center gap-2">
                         <span>
                           Service: <strong>{SERVICE_LABELS[inc.service] || inc.service}</strong>
                         </span>
@@ -196,8 +183,8 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
       )}
 
       {/* Past / Resolved Incidents */}
-      <div className="bg-surface rounded-2xl border border-separator overflow-hidden shadow-xs">
-        <div className="p-3.5 border-b border-separator bg-surface-elevated flex items-center justify-between text-xs font-semibold text-muted font-mono uppercase">
+      <div className="bg-surface rounded-xl border border-separator overflow-hidden shadow-xs">
+        <div className="p-3.5 border-b border-separator bg-surface-elevated flex items-center justify-between text-xs font-semibold text-muted uppercase">
           <span>Incident History & Log</span>
           <span>{resolvedIncidents.length} Resolved</span>
         </div>
@@ -216,14 +203,14 @@ export function IncidentsManager({ initialIncidents }: IncidentsManagerProps) {
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-foreground">{inc.title}</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span className="px-2 py-0.5 rounded text-[10px] uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       Resolved
                     </span>
                   </div>
                   <div className="text-[11px] text-muted truncate max-w-xl">{inc.message}</div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0 font-mono text-[11px] text-muted">
+                <div className="flex items-center gap-3 shrink-0 text-[11px] text-muted">
                   <span>{new Date(inc.created_at).toLocaleDateString()}</span>
                   <button
                     disabled={isPending}

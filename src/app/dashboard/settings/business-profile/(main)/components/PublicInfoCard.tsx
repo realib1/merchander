@@ -57,7 +57,7 @@ export function PublicInfoCard({
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-foreground block">Storefront URL</label>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="flex-1 rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono text-foreground truncate select-all">
+            <div className="flex-1 rounded-xl border border-separator bg-surface px-3 py-2 text-xs text-foreground truncate select-all">
               {data.storefrontUrl || 'https://yourstore.merchander.app'}
             </div>
             <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export function PublicInfoCard({
                   onChange={(e) => onChangeSocial(platform, e.target.value)}
                   disabled={disabled}
                   placeholder={platform === 'facebook' ? 'facebook.com/yourbrand' : '@yourbrand'}
-                  className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+                  className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
                 />
               </div>
             ))}

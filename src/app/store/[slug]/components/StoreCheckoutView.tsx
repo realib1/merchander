@@ -175,7 +175,7 @@ export function StoreCheckoutView({ config }: StoreCheckoutViewProps) {
       ) : (
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
           <section className="space-y-4">
-            <div className="rounded-2xl border border-separator bg-surface p-4 shadow-2xs sm:p-7">
+            <div className="rounded-xl border border-separator bg-surface p-4 shadow-2xs sm:p-7">
               {errorMessage && <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-xs font-semibold text-destructive">{errorMessage}</p>}
               <CartCheckoutForm
                 customerName={customerName}

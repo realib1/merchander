@@ -165,8 +165,8 @@ export function BranchManagementClient({ initialBranches, variants }: BranchMana
 
       {/* Branches Grid */}
       {branches.length === 0 ? (
-        <div className="p-8 text-center bg-surface border border-dashed border-separator rounded-2xl space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-surface-elevated text-muted mx-auto flex items-center justify-center">
+        <div className="p-8 text-center bg-surface border border-dashed border-separator rounded-xl space-y-3">
+          <div className="w-12 h-12 rounded-xl bg-surface-elevated text-muted mx-auto flex items-center justify-center">
             <Store size={24} />
           </div>
           <h3 className="text-sm font-bold text-foreground">No branches found</h3>

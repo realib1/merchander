@@ -99,7 +99,7 @@ export function StorefrontPoliciesTab({
                 <InstagramIcon size={13} className="text-pink-500" /> Instagram Handle
               </label>
               <div className="flex items-center bg-surface-elevated border border-separator rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-brand-primary">
-                <span className="text-xs text-muted px-2.5 bg-surface border-r border-separator select-none font-mono">
+                <span className="text-xs text-muted px-2.5 bg-surface border-r border-separator select-none ">
                   @
                 </span>
                 <input
@@ -117,7 +117,7 @@ export function StorefrontPoliciesTab({
                 <TikTokIcon size={13} className="text-foreground" /> TikTok Handle
               </label>
               <div className="flex items-center bg-surface-elevated border border-separator rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-brand-primary">
-                <span className="text-xs text-muted px-2.5 bg-surface border-r border-separator select-none font-mono">
+                <span className="text-xs text-muted px-2.5 bg-surface border-r border-separator select-none ">
                   @
                 </span>
                 <input

@@ -20,7 +20,7 @@ export function WizardControls({ currentStep, isSubmitting, onBack, onNext, onLa
         type="button"
         onClick={onBack}
         disabled={isSubmitting}
-        className="inline-flex items-center gap-1 px-3.5 py-2 text-xs font-semibold rounded-xl border border-separator text-foreground hover:bg-surface cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-1 px-3.5 py-2 text-xs font-semibold rounded-md border border-separator text-foreground hover:bg-surface cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft size={14} />
         <span>Back</span>
@@ -30,7 +30,7 @@ export function WizardControls({ currentStep, isSubmitting, onBack, onNext, onLa
         <button
           type="button"
           onClick={onNext}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.99] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-md bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.99] transition-colors cursor-pointer"
         >
           <span>Continue</span>
           <ChevronRight size={14} />
@@ -40,7 +40,7 @@ export function WizardControls({ currentStep, isSubmitting, onBack, onNext, onLa
           type="button"
           onClick={onLaunch}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-xl bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.99] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-md bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.99] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <>

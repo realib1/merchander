@@ -204,7 +204,7 @@ export function RestockRecommendationsView({
       {/* Bento Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Critical Stockouts */}
-        <div className="bg-surface border border-separator rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+        <div className="bg-surface border border-separator rounded-xl p-4 flex flex-col justify-between shadow-xs">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs font-semibold text-muted tracking-wider uppercase">Critical Stockouts</p>
@@ -228,7 +228,7 @@ export function RestockRecommendationsView({
         </div>
 
         {/* Suggested Restock Items */}
-        <div className="bg-surface border border-separator rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+        <div className="bg-surface border border-separator rounded-xl p-4 flex flex-col justify-between shadow-xs">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs font-semibold text-muted tracking-wider uppercase">Suggested Restocks</p>
@@ -248,7 +248,7 @@ export function RestockRecommendationsView({
         </div>
 
         {/* Projected Capital Needed */}
-        <div className="bg-surface border border-separator rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+        <div className="bg-surface border border-separator rounded-xl p-4 flex flex-col justify-between shadow-xs">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs font-semibold text-muted tracking-wider uppercase">Projected Reorder Capital</p>
@@ -268,7 +268,7 @@ export function RestockRecommendationsView({
         </div>
 
         {/* Average Daily Velocity */}
-        <div className="bg-surface border border-separator rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+        <div className="bg-surface border border-separator rounded-xl p-4 flex flex-col justify-between shadow-xs">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs font-semibold text-muted tracking-wider uppercase">Average Daily Velocity</p>
@@ -290,7 +290,7 @@ export function RestockRecommendationsView({
 
       {/* Floating Selection Action Bar */}
       {selectedIds.size > 0 && (
-        <div className="sticky top-4 z-20 bg-surface-elevated border border-brand-primary/40 rounded-2xl p-3.5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+        <div className="sticky top-4 z-20 bg-surface-elevated border border-brand-primary/40 rounded-xl p-3.5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-brand-primary/15 text-brand-primary flex items-center justify-center font-bold text-xs">
               {selectedIds.size}
@@ -330,7 +330,7 @@ export function RestockRecommendationsView({
       )}
 
       {/* Table & Filtering Container */}
-      <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-xs flex flex-col">
+      <div className="bg-surface border border-separator rounded-xl overflow-hidden shadow-xs flex flex-col">
         {/* Table Toolbar */}
         <div className="p-4 border-b border-separator flex flex-col md:flex-row md:items-center justify-between gap-3 bg-surface-elevated/20">
           <div className="flex flex-1 items-center gap-2 max-w-md">
@@ -380,7 +380,7 @@ export function RestockRecommendationsView({
         {/* Table Content */}
         {filteredRecommendations.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center">
-            <div className="h-12 w-12 rounded-2xl bg-surface-elevated border border-separator flex items-center justify-center text-muted mb-3">
+            <div className="h-12 w-12 rounded-xl bg-surface-elevated border border-separator flex items-center justify-center text-muted mb-3">
               <Boxes className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-foreground">No restock recommendations found</h3>
@@ -450,7 +450,7 @@ export function RestockRecommendationsView({
                           {item.sku && (
                             <>
                               <span>•</span>
-                              <span className="font-mono">{item.sku}</span>
+                              <span>{item.sku}</span>
                             </>
                           )}
                         </div>

@@ -51,10 +51,10 @@ export function Checkbox({
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={cn(
-          'relative flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-1 cursor-pointer',
+          'relative flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-1 cursor-pointer',
           checked
             ? 'border-brand-primary bg-brand-primary text-white shadow-xs'
-            : 'border-separator bg-surface hover:border-text-secondary/50'
+            : 'border-text-secondary/70 bg-surface hover:border-text-secondary'
         )}
         {...props}
       >

@@ -17,7 +17,7 @@ const TABS = [
 
 export function StorefrontTabsNav({ activeTab, onSelectTab, primaryColor }: StorefrontTabsNavProps) {
   return (
-    <div className="flex items-center gap-1.5 p-1 bg-surface border border-separator rounded-2xl overflow-x-auto">
+    <div className="flex items-center gap-1.5 p-1 bg-surface border border-separator rounded-xl overflow-x-auto">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActiveTab = activeTab === tab.id;

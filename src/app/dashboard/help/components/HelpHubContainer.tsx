@@ -86,7 +86,7 @@ export function HelpHubContainer({
         </div>
 
         {/* Global Tab Switcher */}
-        <div className="flex items-center gap-1.5 p-1 bg-surface rounded-2xl border border-separator shadow-xs overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-surface rounded-xl border border-separator shadow-xs overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveTab('help_center')}

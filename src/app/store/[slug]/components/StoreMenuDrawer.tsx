@@ -11,7 +11,7 @@ import {
   LayoutGrid,
   Heart,
   ShoppingBag,
-  Sparkles,
+  Layers,
   User,
   Headphones,
   Settings,
@@ -96,9 +96,7 @@ export function StoreMenuDrawer({
                 {getBusinessInitials(config.store_name)}
               </div>
             )}
-            <span className="font-bold text-sm text-white tracking-tight truncate">
-              {config.store_name}
-            </span>
+            <span className="font-bold text-sm text-white tracking-tight truncate">{config.store_name}</span>
           </div>
 
           <button
@@ -126,7 +124,9 @@ export function StoreMenuDrawer({
             className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium transition cursor-pointer text-white bg-zinc-800/70"
           >
             <Home size={18} style={{ color: primaryColor }} />
-            <span style={{ color: primaryColor }} className="font-semibold">Home</span>
+            <span style={{ color: primaryColor }} className="font-semibold">
+              Home
+            </span>
           </button>
 
           {/* 2. Categories */}
@@ -187,7 +187,7 @@ export function StoreMenuDrawer({
               onClick={onClose}
               className="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/40 transition cursor-pointer"
             >
-              <Sparkles size={18} className="text-zinc-400" />
+              <Layers size={18} className="text-zinc-400" />
               <span>Collections</span>
             </Link>
           )}
@@ -284,13 +284,10 @@ export function StoreMenuDrawer({
             >
               M
             </div>
-            <span className="text-[11px] font-bold text-zinc-400 tracking-tight">
-              Merchander
-            </span>
+            <span className="text-[11px] font-bold text-zinc-400 tracking-tight">Merchander</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { LifeBuoy } from 'lucide-react';
+import { LifeBuoy, ChevronLeft } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useMobileNav } from './MobileNavContext';
 import { toast } from 'sonner';
@@ -32,7 +32,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const supabase = createClient();
-  const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
+  const { isOpen, setIsOpen, isDesktopCollapsed, setIsDesktopCollapsed } = useMobileNav();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -64,12 +64,13 @@ export function Sidebar({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-separator/60 bg-surface/50 backdrop-blur-xl transition-all duration-300 ease-in-out xl:static xl:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-separator/70 bg-surface/90 backdrop-blur-xl transition-all duration-300 ease-in-out xl:static xl:relative xl:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isDesktopCollapsed ? 'xl:w-20' : 'xl:w-64'} w-64`}
       >
+
         {/* Brand Header */}
-        <div className="flex h-18 shrink-0 items-center justify-between px-4 border-b border-separator/60">
+        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-separator/60">
           <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 min-w-0 group">
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
               {businessLogoUrl ? (
@@ -125,9 +126,9 @@ export function Sidebar({
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+                    className={`group relative flex items-center gap-3 rounded px-3 py-2 text- font-medium transition-all ${
                       isActive
-                        ? 'bg-brand-primary/10 text-brand-primary font-bold shadow-2xs'
+                        ? 'bg-brand-primary/10 text-brand-primary font-semibold shadow-2xs'
                         : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
                     }`}
                     title={isDesktopCollapsed ? item.name : undefined}

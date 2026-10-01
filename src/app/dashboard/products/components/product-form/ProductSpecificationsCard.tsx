@@ -131,7 +131,7 @@ export function ProductSpecificationsCard({ specifications, onChange }: ProductS
   });
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs">
+    <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2">

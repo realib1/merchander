@@ -125,7 +125,7 @@ export function ShipmentDetailsDrawer({ isOpen, onClose, shipment, onEdit }: Shi
     >
       <div className="space-y-6">
         {/* Progress Stepper */}
-        <div className="bg-surface border border-separator rounded-2xl p-4">
+        <div className="bg-surface border border-separator rounded-xl p-4">
           <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-4">
             Transit & Clearance Progress
           </div>
@@ -168,7 +168,7 @@ export function ShipmentDetailsDrawer({ isOpen, onClose, shipment, onEdit }: Shi
             <div>
               <p className="text-xs text-muted font-medium">Carrier & Tracking</p>
               <p className="text-sm font-bold text-foreground mt-0.5">{shipment.carrier || 'No carrier specified'}</p>
-              <p className="text-xs font-mono text-secondary mt-0.5">{shipment.tracking_number || 'No tracking #'}</p>
+              <p className="text-xs text-secondary mt-0.5">{shipment.tracking_number || 'No tracking #'}</p>
             </div>
           </div>
 
@@ -240,7 +240,7 @@ export function ShipmentDetailsDrawer({ isOpen, onClose, shipment, onEdit }: Shi
                 <FileText size={18} className="text-muted" />
                 <div>
                   <span className="text-xs text-muted block">Linked Purchase Order</span>
-                  <span className="text-sm font-semibold font-mono text-brand-primary">
+                  <span className="text-sm font-semibold text-brand-primary">
                     {shipment.purchase_order.po_number}
                   </span>
                 </div>

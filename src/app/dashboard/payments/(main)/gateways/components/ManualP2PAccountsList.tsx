@@ -72,7 +72,7 @@ export function ManualP2PAccountsList({ accounts, onChangeAccounts, disabled = f
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-foreground">{acc.providerName}</span>
-                      <span className="text-xs font-mono font-medium text-foreground">{acc.accountNumber}</span>
+                      <span className="text-xs font-medium text-foreground">{acc.accountNumber}</span>
                     </div>
                     <p className="text-[11px] text-muted">
                       {acc.accountName} {acc.bankBranch ? `• ${acc.bankBranch}` : ''}

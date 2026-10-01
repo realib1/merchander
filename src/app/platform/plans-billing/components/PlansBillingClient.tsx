@@ -57,7 +57,7 @@ export function PlansBillingClient({ initialPlans }: PlansBillingClientProps) {
   return (
     <div className="space-y-6">
       {/* Action Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-4 rounded-2xl border border-separator shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-separator shadow-xs">
         <div>
           <div className="text-xs font-bold text-foreground">Commercial Plan Tiers & Quotas</div>
           <div className="text-xs text-muted mt-0.5">
@@ -82,7 +82,7 @@ export function PlansBillingClient({ initialPlans }: PlansBillingClientProps) {
           return (
             <div
               key={plan.id}
-              className={`p-6 rounded-2xl border flex flex-col justify-between transition-all ${
+              className={`p-6 rounded-xl border flex flex-col justify-between transition-all ${
                 !plan.is_active
                   ? 'opacity-60 bg-surface/50 border-separator'
                   : isBusiness
@@ -95,18 +95,18 @@ export function PlansBillingClient({ initialPlans }: PlansBillingClientProps) {
                   <div className="flex items-center gap-2">
                     <div className="font-bold text-base text-foreground font-display">{plan.name}</div>
                     {!plan.is_active && (
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-muted/20 text-muted">
+                      <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-muted/20 text-muted">
                         Inactive
                       </span>
                     )}
                   </div>
                   {isBusiness && plan.is_active && (
-                    <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-brand-primary text-brand-primary-foreground">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-brand-primary text-brand-primary-foreground">
                       Popular
                     </span>
                   )}
                   {isEnterprise && plan.is_active && (
-                    <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-purple-500 text-white">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-purple-500 text-white">
                       Custom
                     </span>
                   )}
@@ -118,12 +118,12 @@ export function PlansBillingClient({ initialPlans }: PlansBillingClientProps) {
 
                 <div className="pt-2 border-t border-separator/50">
                   <div className="flex items-baseline gap-1 font-display">
-                    <span className="text-2xl font-bold text-foreground font-mono">
+                    <span className="text-2xl font-bold text-foreground ">
                       GH₵ {plan.price_ghs.toLocaleString()}
                     </span>
-                    <span className="text-xs text-muted font-mono">/ month</span>
+                    <span className="text-xs text-muted ">/ month</span>
                   </div>
-                  <div className="text-[11px] text-muted font-mono mt-0.5">
+                  <div className="text-[11px] text-muted mt-0.5">
                     Approx. ${plan.price_usd} USD ({plan.billing_cycle})
                   </div>
                 </div>

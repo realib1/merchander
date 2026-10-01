@@ -17,7 +17,7 @@ Redesign the merchant `/signup` onboarding experience into a clean, cardless, ed
 ## In scope
 
 1. **Cardless Container & Layout (`src/app/signup/page.tsx` & `src/app/signup/components/SignupWizardClient.tsx`)**:
-   - Remove the heavy card wrapper (`bg-surface rounded-2xl border border-separator shadow-xl p-5 sm:p-7`).
+   - Remove the heavy card wrapper (`bg-surface rounded-xl border border-separator shadow-xl p-5 sm:p-7`).
    - Allow the wizard form content to sit directly on the clean `bg-background` canvas with max-w-md / max-w-xl container symmetry matching `/login`.
    - Update `page.tsx` padding, scrolling, and footer spacing.
 2. **Minimalist Step Progress Header (`src/app/signup/components/SignupProgressHeader.tsx`)**:
@@ -52,8 +52,8 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [x] **Step 1 - Cardless Container & Streamlined Progress Header** - Remove the outer card container in `SignupWizardClient.tsx`, streamline `SignupProgressHeader.tsx` into a minimal progress bar with right-aligned step count, and polish layout in `src/app/signup/page.tsx`. *Done when:* `/signup` renders cardless directly on the background with a sleek progress header, and `yarn check` and `yarn lint` pass.
-- [x] **Step 2 - Streamline Wizard Steps & Controls (Steps 1–4 & WizardControls)** - Refine `StepAccountCredentials.tsx`, `StepBusinessProfile.tsx`, `StepArchetypeSelection.tsx`, `StepReviewLaunch.tsx`, and `WizardControls.tsx` for cardless aesthetics, ensure all components stay < 150 LOC, and verify across full test suite and build. *Done when:* All 4 onboarding steps render cleanly without card encapsulation, step controls flow naturally, component line counts are < 150 LOC, and `yarn check`, `yarn lint`, `yarn test`, and `yarn build` pass with 0 errors.
+- [x] **Step 1 - Cardless Container & Streamlined Progress Header** - Remove the outer card container in `SignupWizardClient.tsx`, streamline `SignupProgressHeader.tsx` into a minimal progress bar with right-aligned step count, and polish layout in `src/app/signup/page.tsx`. _Done when:_ `/signup` renders cardless directly on the background with a sleek progress header, and `yarn check` and `yarn lint` pass.
+- [x] **Step 2 - Streamline Wizard Steps & Controls (Steps 1–4 & WizardControls)** - Refine `StepAccountCredentials.tsx`, `StepBusinessProfile.tsx`, `StepArchetypeSelection.tsx`, `StepReviewLaunch.tsx`, and `WizardControls.tsx` for cardless aesthetics, ensure all components stay < 150 LOC, and verify across full test suite and build. _Done when:_ All 4 onboarding steps render cleanly without card encapsulation, step controls flow naturally, component line counts are < 150 LOC, and `yarn check`, `yarn lint`, `yarn test`, and `yarn build` pass with 0 errors.
 
 ## Files / areas
 

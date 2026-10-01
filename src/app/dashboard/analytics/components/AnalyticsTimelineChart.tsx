@@ -52,7 +52,7 @@ export function AnalyticsTimelineChart({ timeline, periodLabel }: AnalyticsTimel
   const config = getMetricConfig();
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs mb-6">
+    <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs mb-6">
       {/* Chart Header & Metric Mode Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>

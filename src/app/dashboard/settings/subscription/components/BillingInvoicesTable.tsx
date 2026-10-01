@@ -171,7 +171,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
                 return (
                   <div key={inv.id} className="p-4 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono font-bold text-xs text-foreground tracking-wide">
+                      <span className="font-bold text-xs text-foreground tracking-wide">
                         {inv.invoiceNumber}
                       </span>
                       <span
@@ -188,7 +188,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
 
                     <div className="flex items-center justify-between text-xs text-muted">
                       <span className="font-medium text-foreground">{inv.planName}</span>
-                      <span className="font-mono font-bold text-foreground">
+                      <span className="font-bold text-foreground">
                         {isZeroAmount ? 'GH₵ 0.00 (Free)' : formatCurrency(inv.amount, 'GHS')}
                       </span>
                     </div>
@@ -237,12 +237,12 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
                     const isZeroAmount = inv.amount === 0;
                     return (
                       <tr key={inv.id} className="hover:bg-surface-elevated/30 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-semibold text-foreground">{inv.invoiceNumber}</td>
+                        <td className="py-3.5 px-4 font-semibold text-foreground">{inv.invoiceNumber}</td>
                         <td className="py-3.5 px-4 text-muted font-medium">
                           {formatDate(inv.date, { month: 'short', day: 'numeric', year: 'numeric' })}
                         </td>
                         <td className="py-3.5 px-4 font-semibold text-foreground">{inv.planName}</td>
-                        <td className="py-3.5 px-4 text-right font-mono font-bold text-foreground">
+                        <td className="py-3.5 px-4 text-right font-bold text-foreground">
                           {isZeroAmount ? 'GH₵ 0.00' : formatCurrency(inv.amount, 'GHS')}
                         </td>
                         <td className="py-3.5 px-4">
@@ -352,7 +352,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
                   <CheckCircle2 size={11} />
                   <span>{selectedInvoice.amount === 0 ? 'Active Trial' : 'Paid'}</span>
                 </span>
-                <p className="text-[11px] font-mono text-muted mt-1">
+                <p className="text-[11px] text-muted mt-1">
                   {formatDate(selectedInvoice.date, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
@@ -362,7 +362,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-2.5 rounded-lg bg-surface border border-separator/60">
                 <span className="text-[10px] uppercase font-bold text-muted tracking-wider block">Receipt Number</span>
-                <span className="font-mono font-bold text-foreground text-xs">{selectedInvoice.invoiceNumber}</span>
+                <span className="font-bold text-foreground text-xs">{selectedInvoice.invoiceNumber}</span>
               </div>
               <div className="p-2.5 rounded-lg bg-surface border border-separator/60">
                 <span className="text-[10px] uppercase font-bold text-muted tracking-wider block">Payment Method</span>
@@ -383,7 +383,7 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
                   <p className="font-bold text-foreground">{selectedInvoice.planName}</p>
                   <p className="text-[11px] text-muted">SaaS Commerce Operating System</p>
                 </div>
-                <span className="font-mono font-bold text-foreground">
+                <span className="font-bold text-foreground">
                   {selectedInvoice.amount === 0 ? 'GH₵ 0.00' : formatCurrency(selectedInvoice.amount, 'GHS')}
                 </span>
               </div>
@@ -393,15 +393,15 @@ export function BillingInvoicesTable({ invoices }: BillingInvoicesTableProps) {
             <div className="space-y-1.5 pt-2 border-t border-separator text-xs">
               <div className="flex justify-between text-muted text-xs">
                 <span>Subtotal</span>
-                <span className="font-mono">{selectedInvoice.amount === 0 ? 'GH₵ 0.00' : formatCurrency(selectedInvoice.amount, 'GHS')}</span>
+                <span>{selectedInvoice.amount === 0 ? 'GH₵ 0.00' : formatCurrency(selectedInvoice.amount, 'GHS')}</span>
               </div>
               <div className="flex justify-between text-muted text-xs">
                 <span>VAT / Levies (0% Exempt / Inclusive)</span>
-                <span className="font-mono">GH₵ 0.00</span>
+                <span>GH₵ 0.00</span>
               </div>
               <div className="flex justify-between text-foreground font-bold text-sm pt-1.5 border-t border-separator/60">
                 <span>Total Amount Paid</span>
-                <span className="font-mono text-brand-primary">
+                <span className="text-brand-primary">
                   {selectedInvoice.amount === 0 ? 'GH₵ 0.00' : formatCurrency(selectedInvoice.amount, 'GHS')}
                 </span>
               </div>

@@ -7,6 +7,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ShoppingCart } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { OrderDetailsSheet } from './OrderDetailsSheet';
 import { OrdersTableRow, Order } from './OrdersTableRow';
+import { OrderPreviewPanel } from './OrderPreviewPanel';
 import { OrdersPagination } from './OrdersPagination';
 import { OrdersBulkActionBar } from './OrdersBulkActionBar';
 import { MoMoReconciliationModal } from './MoMoReconciliationModal';
@@ -50,6 +51,7 @@ export function OrdersTable({
   const pathname = usePathname();
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [focusedOrderId, setFocusedOrderId] = useState<string | null>(initialOrders[0]?.id ?? null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [reconciliationOrder, setReconciliationOrder] = useState<Order | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -167,87 +169,123 @@ export function OrdersTable({
   };
 
   const allSelected = orders.length > 0 && selectedOrderIds.size === orders.length;
+  const focusedOrder = orders.find((order) => order.id === focusedOrderId) || orders[0] || null;
 
   return (
     <>
-      <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-xs flex flex-col">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-separator bg-surface-elevated/40 text-xs font-semibold text-muted">
-                <th className="p-4 w-10">
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedOrderIds(new Set(orders.map((o) => o.id)));
-                      } else {
-                        setSelectedOrderIds(new Set());
-                      }
-                    }}
-                    className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer"
-                  />
-                </th>
-                <th className="p-4 cursor-pointer group" onClick={() => handleSort('id')}>
-                  <span>Order ID</span>
-                  <SortIcon column="id" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
-                </th>
-                <th className="p-4 cursor-pointer group hidden sm:table-cell" onClick={() => handleSort('created_at')}>
-                  <span>Date</span>
-                  <SortIcon column="created_at" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
-                </th>
-                <th className="p-4">Customer</th>
-                <th className="p-4 cursor-pointer group" onClick={() => handleSort('status')}>
-                  <span>Status</span>
-                  <SortIcon column="status" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
-                </th>
-                <th className="p-4 cursor-pointer group" onClick={() => handleSort('total_amount')}>
-                  <span>Total (GH₵)</span>
-                  <SortIcon column="total_amount" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
-                </th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-separator/40">
-              {orders.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="p-12 text-center text-muted">
-                    <ShoppingCart size={28} className="mx-auto mb-2 opacity-20" />
-                    <p className="font-medium text-foreground">No orders found</p>
-                    <p className="text-xs text-muted mt-1">Try adjusting search query or status filter.</p>
-                  </td>
+      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,23.25rem)] xl:items-start">
+        <div className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-separator bg-surface shadow-xs">
+          <div className="max-h-[72vh] overflow-auto overscroll-contain custom-scrollbar">
+            <table className="w-full min-w-[48rem] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-separator text-[11px] font-bold uppercase tracking-wider text-muted">
+                  <th className="sticky top-0 z-10 w-10 bg-surface-elevated px-4 py-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedOrderIds(new Set(orders.map((o) => o.id)));
+                        } else {
+                          setSelectedOrderIds(new Set());
+                        }
+                      }}
+                      aria-label="Select all orders on this page"
+                      className="rounded border-separator text-brand-primary focus:ring-brand-primary cursor-pointer"
+                    />
+                  </th>
+                  <th className="sticky top-0 z-10 bg-surface-elevated px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('created_at')}
+                      className="group cursor-pointer"
+                      aria-label="Sort orders by date"
+                    >
+                      Order
+                      <SortIcon
+                        column="created_at"
+                        currentSortBy={currentSortBy}
+                        currentSortOrder={currentSortOrder}
+                      />
+                    </button>
+                  </th>
+                  <th className="sticky top-0 z-10 bg-surface-elevated px-4 py-3">Customer</th>
+                  <th className="sticky top-0 z-10 bg-surface-elevated px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('status')}
+                      className="group cursor-pointer"
+                      aria-label="Sort orders by status"
+                    >
+                      Status
+                      <SortIcon column="status" currentSortBy={currentSortBy} currentSortOrder={currentSortOrder} />
+                    </button>
+                  </th>
+                  <th className="sticky top-0 z-10 bg-surface-elevated px-4 py-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('total_amount')}
+                      className="group cursor-pointer"
+                      aria-label="Sort orders by total"
+                    >
+                      Total
+                      <SortIcon
+                        column="total_amount"
+                        currentSortBy={currentSortBy}
+                        currentSortOrder={currentSortOrder}
+                      />
+                    </button>
+                  </th>
+                  <th className="sticky top-0 z-10 bg-surface-elevated px-4 py-3 text-right">Actions</th>
                 </tr>
-              ) : (
-                orders.map((order) => (
-                  <OrdersTableRow
-                    key={order.id}
-                    order={order}
-                    isSelected={selectedOrderIds.has(order.id)}
-                    isMenuOpen={activeMenuId === order.id}
-                    onToggleSelect={(id, checked) => {
-                      const next = new Set(selectedOrderIds);
-                      if (checked) next.add(id);
-                      else next.delete(id);
-                      setSelectedOrderIds(next);
-                    }}
-                    onToggleMenu={(id) => setActiveMenuId(activeMenuId === id ? null : id)}
-                    onOpenDetails={(o) => setSelectedOrder(o)}
-                    onOpenReconcile={(o) => setReconciliationOrder(o)}
-                    onStatusChange={handleStatusChange}
-                    onOpenCancel={(id) => setOrderToCancel(id)}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-separator/40">
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-12 text-center text-muted">
+                      <ShoppingCart size={28} className="mx-auto mb-2 opacity-20" />
+                      <p className="font-medium text-foreground">No orders found</p>
+                      <p className="mt-1 text-xs text-muted">Try adjusting search query or status filter.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  orders.map((order) => (
+                    <OrdersTableRow
+                      key={order.id}
+                      order={order}
+                      isSelected={selectedOrderIds.has(order.id)}
+                      isFocused={focusedOrder?.id === order.id}
+                      isMenuOpen={activeMenuId === order.id}
+                      onToggleSelect={(id, checked) => {
+                        const next = new Set(selectedOrderIds);
+                        if (checked) next.add(id);
+                        else next.delete(id);
+                        setSelectedOrderIds(next);
+                      }}
+                      onToggleMenu={(id) => setActiveMenuId(activeMenuId === id ? null : id)}
+                      onSelectOrder={(order) => setFocusedOrderId(order.id)}
+                      onOpenDetails={(order) => setSelectedOrder(order)}
+                      onOpenReconcile={(order) => setReconciliationOrder(order)}
+                      onStatusChange={handleStatusChange}
+                      onOpenCancel={(id) => setOrderToCancel(id)}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <OrdersPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            onPageChange={handlePageChange}
+          />
         </div>
 
-        <OrdersPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          onPageChange={handlePageChange}
+        <OrderPreviewPanel
+          order={focusedOrder}
+          onOpenDetails={() => focusedOrder && setSelectedOrder(focusedOrder)}
         />
       </div>
 

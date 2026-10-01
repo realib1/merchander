@@ -179,7 +179,7 @@ export function ProductVariantManager({
                         options: { sequenceNumber: index + 1 },
                       }) || 'e.g. KENTE-RED-L'
                     }
-                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase font-mono text-xs"
+                    className="w-full px-3 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary transition-all placeholder:text-muted uppercase text-xs"
                   />
                 </div>
               </div>

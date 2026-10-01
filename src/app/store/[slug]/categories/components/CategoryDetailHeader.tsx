@@ -48,7 +48,7 @@ export function CategoryDetailHeader({
       </div>
 
       {/* Title & Subtitle Banner */}
-      <div className="rounded-2xl sm:rounded-3xl border border-separator/80 bg-surface p-6 sm:p-8 shadow-xs">
+      <div className="rounded-xl sm:rounded-3xl border border-separator/80 bg-surface p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-xl">
             <div className="flex items-center gap-2.5">

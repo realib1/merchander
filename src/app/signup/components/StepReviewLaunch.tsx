@@ -39,7 +39,7 @@ export function StepReviewLaunch({ archetype, slug, customModules, onChangeArche
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">{activeArchetypeDef.name}</h3>
-            <p className="text-xs font-mono text-muted mt-0.5">https://{slug}.merchander.store</p>
+            <p className="text-xs text-muted mt-0.5">https://{slug}.merchander.store</p>
           </div>
         </div>
         <button

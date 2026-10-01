@@ -50,7 +50,7 @@ export function WaybillSlipModal({ isOpen, onClose, order }: WaybillSlipModalPro
       title={
         <div className="flex items-center gap-2">
           <span>Dispatch Waybill Slip</span>
-          <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
+          <span className="text-xs px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
             #{order.shortId || order.orderId.slice(0, 8).toUpperCase()}
           </span>
         </div>
@@ -83,7 +83,7 @@ export function WaybillSlipModal({ isOpen, onClose, order }: WaybillSlipModalPro
 
         {/* Monospace Thermal Slip Preview */}
         <div className="p-4 bg-muted/20 border border-separator rounded-xl overflow-x-auto">
-          <pre className="text-[11px] font-mono whitespace-pre text-foreground leading-relaxed">
+          <pre className="text-[11px] whitespace-pre text-foreground leading-relaxed">
             {slipText}
           </pre>
         </div>

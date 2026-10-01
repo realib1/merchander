@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 
 export function LowStockWidget() {
   return (
-    <div className="group relative rounded-2xl border border-separator bg-surface p-4 sm:p-5 shadow-2xs transition-colors duration-150">
+    <div className="group relative rounded-xl border border-separator bg-surface p-4 sm:p-5 shadow-2xs transition-colors duration-150">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-bold tracking-wider uppercase text-amber-600 dark:text-amber-400">
           LOW STOCK

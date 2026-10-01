@@ -12,14 +12,14 @@ interface ProfitabilityTimelineChartProps {
 export function ProfitabilityTimelineChart({ timeline }: ProfitabilityTimelineChartProps) {
   if (!timeline || timeline.length === 0) {
     return (
-      <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs flex flex-col items-center justify-center min-h-75 text-center">
+      <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs flex flex-col items-center justify-center min-h-75 text-center">
         <p className="text-sm text-muted">No sales or financial activity recorded for this period.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs flex flex-col justify-between min-h-95 mb-6">
+    <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs flex flex-col justify-between min-h-95 mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
           <h2 className="text-base font-bold text-foreground tracking-tight">Revenue vs Profit Velocity</h2>

@@ -52,10 +52,10 @@ export function PaymentMobileCard({ payment: p, onViewDetails, onRefund, onDelet
       {/* Top row: Ref + Status */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="font-mono font-bold text-xs text-foreground truncate">
+          <span className="font-bold text-xs text-foreground truncate">
             {p.transaction_ref || '#' + p.id.slice(0, 8)}
           </span>
-          {p.order && <span className="text-[10px] text-muted font-mono shrink-0">#ORD-{p.order.id.slice(0, 6)}</span>}
+          {p.order && <span className="text-[10px] text-muted shrink-0">#ORD-{p.order.id.slice(0, 6)}</span>}
         </div>
         <span
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${statusConfig.badgeClass}`}
@@ -69,7 +69,7 @@ export function PaymentMobileCard({ payment: p, onViewDetails, onRefund, onDelet
       <div className="flex items-center justify-between text-xs">
         <div className="min-w-0 pr-2">
           <p className="font-semibold text-foreground truncate">{customerName}</p>
-          {customerPhone && <p className="text-[11px] text-muted font-mono">{customerPhone}</p>}
+          {customerPhone && <p className="text-[11px] text-muted ">{customerPhone}</p>}
         </div>
         <p className="text-[11px] text-muted shrink-0">{formatDate(p.payment_date)}</p>
       </div>

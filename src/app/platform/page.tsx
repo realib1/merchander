@@ -1,13 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import {
-  Building2,
-  TrendingUp,
-  CreditCard,
-  AlertTriangle,
-  Network,
-  ArrowRight,
-} from 'lucide-react';
+import { Building2, TrendingUp, CreditCard, AlertTriangle, Network, ArrowRight } from 'lucide-react';
 import { getPlatformOverviewData, getPlatformPlansAction } from '@/app/actions/platform';
 import { MetricCard } from '@/components/ui/MetricCard';
 
@@ -29,7 +22,7 @@ export default async function PlatformOverviewPage() {
 
   if (error) {
     return (
-      <div className="p-6 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-3">
+      <div className="p-6 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-3">
         <AlertTriangle size={20} />
         <div>
           <div className="font-semibold text-sm">Error Loading Platform Overview</div>
@@ -141,7 +134,7 @@ export default async function PlatformOverviewPage() {
             {attentionItems.map((item) => (
               <div
                 key={item.id}
-                className="p-4 rounded-2xl border bg-surface border-separator shadow-xs flex flex-col justify-between"
+                className="p-4 rounded-xl border bg-surface border-separator shadow-xs flex flex-col justify-between"
               >
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-foreground">{item.title}</div>
@@ -166,7 +159,7 @@ export default async function PlatformOverviewPage() {
       {/* Main Bento Layout: Commercial Tiers & Merchants Snapshot */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Tier Distribution */}
-        <div className="lg:col-span-5 bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
+        <div className="lg:col-span-5 bg-surface border border-separator rounded-xl shadow-xs p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-foreground">Commercial Tiers</h2>
             <Link href="/platform/plans-billing" className="text-xs font-semibold text-brand-primary hover:underline">
@@ -176,23 +169,24 @@ export default async function PlatformOverviewPage() {
 
           {plans.length === 0 ? (
             <p className="text-xs text-muted leading-relaxed">
-              No plans configured. Add commercial tiers in Plans &amp; Billing (pricing shown
-              across the console reads from that table).
+              No plans configured. Add commercial tiers in Plans &amp; Billing (pricing shown across the console reads
+              from that table).
             </p>
           ) : (
             <div className="space-y-2.5">
               {plans.map((plan) => {
                 const count = kpis.tierCounts[plan.slug as keyof typeof kpis.tierCounts] ?? 0;
                 return (
-                  <div key={plan.id} className="flex items-center justify-between text-xs p-3 rounded-xl bg-surface-elevated border border-separator/40">
+                  <div
+                    key={plan.id}
+                    className="flex items-center justify-between text-xs p-3 rounded-xl bg-surface-elevated border border-separator/40"
+                  >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${TIER_DOT[plan.slug] || 'bg-muted'}`} />
                       <span className="font-medium text-foreground">{plan.name}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-muted tabular-nums">
-                        GH₵ {plan.price_ghs.toLocaleString()}/mo
-                      </span>
+                      <span className="text-muted tabular-nums">GH₵ {plan.price_ghs.toLocaleString()}/mo</span>
                       <span className="px-2 py-0.5 rounded bg-surface border border-separator font-bold text-foreground tabular-nums">
                         {count}
                       </span>
@@ -205,10 +199,13 @@ export default async function PlatformOverviewPage() {
         </div>
 
         {/* Real Merchants Snapshot */}
-        <div className="lg:col-span-7 bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
+        <div className="lg:col-span-7 bg-surface border border-separator rounded-xl shadow-xs p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-foreground">Merchants Registry</h2>
-            <Link href="/platform/merchants" className="text-xs font-semibold text-brand-primary hover:underline flex items-center gap-1">
+            <Link
+              href="/platform/merchants"
+              className="text-xs font-semibold text-brand-primary hover:underline flex items-center gap-1"
+            >
               <span>View All ({tenants.length})</span>
               <ArrowRight size={12} />
             </Link>
@@ -225,7 +222,8 @@ export default async function PlatformOverviewPage() {
                     <div className="font-semibold text-foreground truncate">{tenant.name}</div>
                     <div className="text-[11px] text-muted truncate">
                       {tenant.email || 'No email registered'} •{' '}
-                      {tenant.subscription.tier === 'none' ? 'UNPROVISIONED' : tenant.subscription.tier.toUpperCase()} • Joined {new Date(tenant.createdAt).toLocaleDateString()}
+                      {tenant.subscription.tier === 'none' ? 'UNPROVISIONED' : tenant.subscription.tier.toUpperCase()} •
+                      Joined {new Date(tenant.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
@@ -236,8 +234,8 @@ export default async function PlatformOverviewPage() {
                       tenant.status === 'active'
                         ? 'bg-emerald-500/10 text-emerald-500'
                         : tenant.status === 'trial'
-                        ? 'bg-amber-500/10 text-amber-500'
-                        : 'bg-destructive/10 text-destructive'
+                          ? 'bg-amber-500/10 text-amber-500'
+                          : 'bg-destructive/10 text-destructive'
                     }`}
                   >
                     {tenant.status}

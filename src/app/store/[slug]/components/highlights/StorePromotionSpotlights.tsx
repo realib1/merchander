@@ -61,7 +61,7 @@ export function StorePromotionSpotlights({
     <div className="space-y-5 select-none">
       {/* Promo Card 1: Featured Spotlight */}
       {spotOneImageFit === 'cover' && spotOneImage ? (
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl min-h-[220px] sm:min-h-[240px] flex items-center p-5 sm:p-6 shadow-sm group">
+        <div className="relative overflow-hidden rounded-xl sm:rounded-3xl min-h-[220px] sm:min-h-[240px] flex items-center p-5 sm:p-6 shadow-sm group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={spotOneImage}
@@ -93,7 +93,7 @@ export function StorePromotionSpotlights({
           </div>
         </div>
       ) : (
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#0e0e10] text-white p-5 sm:p-6 shadow-sm group">
+        <div className="relative overflow-hidden rounded-xl sm:rounded-3xl bg-[#0e0e10] text-white p-5 sm:p-6 shadow-sm group">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0 pr-2 sm:pr-3 space-y-2 z-10">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
@@ -134,7 +134,7 @@ export function StorePromotionSpotlights({
 
       {/* Promo Card 2: Popular Edit */}
       {spotTwoImageFit === 'cover' && spotTwoImage ? (
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl min-h-[220px] sm:min-h-[240px] flex items-center p-5 sm:p-6 shadow-sm group">
+        <div className="relative overflow-hidden rounded-xl sm:rounded-3xl min-h-[220px] sm:min-h-[240px] flex items-center p-5 sm:p-6 shadow-sm group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={spotTwoImage}
@@ -166,7 +166,7 @@ export function StorePromotionSpotlights({
           </div>
         </div>
       ) : (
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-surface border border-separator/70 text-foreground p-5 sm:p-6 shadow-2xs group">
+        <div className="relative overflow-hidden rounded-xl sm:rounded-3xl bg-surface border border-separator/70 text-foreground p-5 sm:p-6 shadow-2xs group">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0 pr-2 sm:pr-3 space-y-1.5 z-10">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted">

@@ -26,7 +26,7 @@ export function SignupCredentialInput({
 
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-foreground">{label}</label>
+      <label className="block font-semibold text-foreground">{label}</label>
       <div className="relative">
         <input
           type={effectiveType}
@@ -34,7 +34,7 @@ export function SignupCredentialInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full px-3.5 py-2.5 rounded-xl border border-separator bg-background text-foreground placeholder:text-muted/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 outline-none text-sm transition-colors ${
+          className={`w-full px-3.5 py-2 rounded-md border border-separator bg-background text-foreground placeholder:text-muted/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 outline-none transition-colors ${
             isPassword ? 'pr-10' : ''
           }`}
         />

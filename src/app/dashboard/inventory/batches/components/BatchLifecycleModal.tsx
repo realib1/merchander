@@ -68,7 +68,7 @@ export function BatchLifecycleModal({ isOpen, onClose, batch }: BatchLifecycleMo
       size="md"
       title={
         <div>
-          <div className="text-[10px] font-mono font-bold text-brand-primary uppercase">
+          <div className="text-[10px] font-bold text-brand-primary uppercase">
             Procurement State Machine
           </div>
           <h2 className="text-base font-bold text-foreground font-display mt-0.5">
@@ -135,7 +135,7 @@ export function BatchLifecycleModal({ isOpen, onClose, batch }: BatchLifecycleMo
         </div>
 
         {selectedStatus === 'ARRIVED' && (
-          <div className="p-3 rounded-2xl bg-surface-elevated border border-separator space-y-1">
+          <div className="p-3 rounded-xl bg-surface-elevated border border-separator space-y-1">
             <label className="block text-xs font-bold text-foreground">Actual Arrival Date at Ghana Hub</label>
             <input
               type="date"

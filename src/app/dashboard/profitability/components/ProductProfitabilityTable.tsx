@@ -44,7 +44,7 @@ export function ProductProfitabilityTable({ products }: ProductProfitabilityTabl
   }, [products, searchTerm, statusFilter, sortField, sortAsc]);
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl flex flex-col overflow-hidden shadow-xs">
+    <div className="bg-surface border border-separator rounded-xl flex flex-col overflow-hidden shadow-xs">
       {/* Table Toolbar */}
       <div className="p-4 border-b border-separator/60 flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Search */}

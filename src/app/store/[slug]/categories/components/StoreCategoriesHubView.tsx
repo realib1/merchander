@@ -178,7 +178,7 @@ export function StoreCategoriesHubView({
               <Link
                 key={cat.id}
                 href={cat.href}
-                className="group relative flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-separator/70 bg-surface shadow-2xs transition hover:-translate-y-1 hover:border-brand-primary/50 hover:shadow-md cursor-pointer"
+                className="group relative flex flex-col overflow-hidden rounded-xl sm:rounded-3xl border border-separator/70 bg-surface shadow-2xs transition hover:-translate-y-1 hover:border-brand-primary/50 hover:shadow-md cursor-pointer"
               >
                 {/* Photo container */}
                 <div className="relative aspect-square w-full overflow-hidden bg-surface-elevated">
@@ -225,7 +225,7 @@ export function StoreCategoriesHubView({
                 <Link
                   key={col.id}
                   href={getCollectionUrl(col)}
-                  className="group relative overflow-hidden rounded-2xl sm:rounded-3xl min-h-[160px] sm:min-h-[200px] flex flex-col justify-end p-5 sm:p-7 shadow-sm transition hover:shadow-md cursor-pointer"
+                  className="group relative overflow-hidden rounded-xl sm:rounded-3xl min-h-[160px] sm:min-h-[200px] flex flex-col justify-end p-5 sm:p-7 shadow-sm transition hover:shadow-md cursor-pointer"
                 >
                   {/* Background image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -137,7 +137,7 @@ export function StaffManagementClient({
   return (
     <div className="space-y-5">
       {/* Action Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-4 rounded-2xl border border-separator shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-separator shadow-xs">
         <div>
           <div className="text-xs font-bold text-foreground flex items-center gap-2">
             <Shield size={14} className="text-brand-primary" />
@@ -160,10 +160,10 @@ export function StaffManagementClient({
       </div>
 
       {/* Staff Roster Table */}
-      <div className="bg-surface rounded-2xl border border-separator overflow-hidden shadow-xs">
+      <div className="bg-surface rounded-xl border border-separator overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-surface-elevated text-muted font-mono uppercase text-[10px] border-b border-separator">
+            <thead className="bg-surface-elevated text-muted uppercase text-[10px] border-b border-separator">
               <tr>
                 <th className="py-3 px-4">Staff Member</th>
                 <th className="py-3 px-4">Assigned Role</th>
@@ -193,12 +193,12 @@ export function StaffManagementClient({
                       {/* Email & Avatar */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold font-mono text-xs shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-xs shrink-0">
                             {staff.email.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-bold text-foreground font-mono">{staff.email}</div>
-                            <div className="text-[11px] text-muted font-mono">
+                            <div className="font-bold text-foreground ">{staff.email}</div>
+                            <div className="text-[11px] text-muted ">
                               Added {new Date(staff.created_at).toLocaleDateString()}
                             </div>
                           </div>
@@ -206,7 +206,7 @@ export function StaffManagementClient({
                       </td>
 
                       {/* Role Selector */}
-                      <td className="py-3.5 px-4 font-mono">
+                      <td className="py-3.5 px-4 ">
                         {currentStaffRole === 'platform_owner' ? (
                           <select
                             disabled={isPending}
@@ -230,7 +230,7 @@ export function StaffManagementClient({
                       </td>
 
                       {/* Access Status */}
-                      <td className="py-3.5 px-4 font-mono">
+                      <td className="py-3.5 px-4 ">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
                             staff.is_active
@@ -243,7 +243,7 @@ export function StaffManagementClient({
                       </td>
 
                       {/* Security MFA */}
-                      <td className="py-3.5 px-4 font-mono text-[11px]">
+                      <td className="py-3.5 px-4 text-[11px]">
                         <div className="flex items-center gap-1 text-emerald-400">
                           <ShieldCheck size={13} />
                           <span>MFA Enforced</span>

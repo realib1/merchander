@@ -259,8 +259,8 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
                 <div className="space-y-0.5">
                   <p className="text-xs font-medium text-foreground">Include Variant Name in SKU</p>
                   <p className="text-[11px] text-muted">
-                    Appends color/size codes (e.g. <span className="font-mono">AJL-BLK-L-01</span> instead of{' '}
-                    <span className="font-mono">AJL-01</span>).
+                    Appends color/size codes (e.g. <span>AJL-BLK-L-01</span> instead of{' '}
+                    <span>AJL-01</span>).
                   </p>
                 </div>
                 <Switch
@@ -286,7 +286,7 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
               {/* Live Preview */}
               <div className="p-3 rounded-xl bg-surface border border-separator flex items-center justify-between gap-3">
                 <span className="text-xs text-muted">SKU Example Preview:</span>
-                <span className="font-mono text-xs font-bold text-brand-primary px-2.5 py-1 rounded-md bg-brand-primary/10 border border-brand-primary/20">
+                <span className="text-xs font-bold text-brand-primary px-2.5 py-1 rounded-md bg-brand-primary/10 border border-brand-primary/20">
                   {settings.skuSettings?.style === 'prefix'
                     ? `${settings.skuSettings.prefix || 'SKU'}${settings.skuSettings.includeVariantName ? '-RED-L' : ''}-01`
                     : settings.skuSettings?.style === 'category_initials'
@@ -301,7 +301,7 @@ export function InventorySettingsForm({ initialSettings }: InventorySettingsForm
 
       {/* Sticky Bottom Save Bar */}
       {isDirty && (
-        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
+        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
             <span className="text-xs font-semibold text-foreground">You have unsaved inventory settings</span>

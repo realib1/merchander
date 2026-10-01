@@ -90,7 +90,7 @@ export default async function PaymentsPage({ searchParams }: PaymentsPageProps) 
       <PaymentsTopMetrics metrics={metrics} />
 
       {/* Table & Controls */}
-      <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
+      <div className="bg-surface border border-separator rounded-xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
         <PaymentsToolbar payments={payments} orders={unpaidOrders} customers={customers} />
         <PaymentsTable payments={payments} />
       </div>

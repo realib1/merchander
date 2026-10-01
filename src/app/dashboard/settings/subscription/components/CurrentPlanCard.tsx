@@ -48,7 +48,7 @@ export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPla
             {icon}
             <span className="truncate">{label}</span>
           </div>
-          <span className="font-mono text-muted text-[11px] font-semibold shrink-0">
+          <span className="text-muted text-[11px] font-semibold shrink-0">
             {current} {isUnlimited ? `(${unit})` : `/ ${limit} ${unit}`}
           </span>
         </div>
@@ -116,7 +116,7 @@ export function CurrentPlanCard({ settings, onOpenPlans, showPlans }: CurrentPla
                 <Clock size={13} className="text-amber-600 dark:text-amber-400" />
                 <span>{trialMetrics.formattedTimeline}</span>
               </div>
-              <span className="text-[11px] font-mono">{trialMetrics.percentElapsed}% of trial period</span>
+              <span className="text-[11px] ">{trialMetrics.percentElapsed}% of trial period</span>
             </div>
             <div className="w-full h-1.5 bg-amber-500/20 rounded-full overflow-hidden">
               <div

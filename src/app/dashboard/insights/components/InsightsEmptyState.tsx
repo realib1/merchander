@@ -8,7 +8,7 @@ interface InsightsEmptyStateProps {
 export function InsightsEmptyState({ hasFilters = false }: InsightsEmptyStateProps) {
   if (hasFilters) {
     return (
-      <div className="bg-surface border border-separator rounded-2xl p-12 text-center shadow-xs flex flex-col items-center justify-center min-h-60">
+      <div className="bg-surface border border-separator rounded-xl p-12 text-center shadow-xs flex flex-col items-center justify-center min-h-60">
         <div className="w-12 h-12 bg-surface-elevated text-muted rounded-full flex items-center justify-center mb-3">
           <Search size={22} />
         </div>
@@ -21,7 +21,7 @@ export function InsightsEmptyState({ hasFilters = false }: InsightsEmptyStatePro
   }
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-12 text-center shadow-xs flex flex-col items-center justify-center min-h-75">
+    <div className="bg-surface border border-separator rounded-xl p-12 text-center shadow-xs flex flex-col items-center justify-center min-h-75">
       <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center mb-4">
         <CheckCircle2 size={32} />
       </div>

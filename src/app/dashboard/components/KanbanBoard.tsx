@@ -132,7 +132,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
           return (
             <div
               key={col.id}
-              className={`shrink-0 w-80 rounded-2xl border border-separator flex flex-col bg-surface shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden h-full`}
+              className={`shrink-0 w-80 rounded-xl border border-separator flex flex-col bg-surface shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] overflow-hidden h-full`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -176,7 +176,7 @@ export function KanbanBoard({ initialOrders, searchQuery }: { initialOrders: Ord
                         className="bg-surface p-4 rounded-xl border border-separator shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-200 group relative cursor-grab"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <span className="text-xs font-mono text-muted">
+                          <span className="text-xs text-muted">
                             #{order.short_id ? order.short_id : order.id.substring(0, 6).toUpperCase()}
                           </span>
                           <span className="text-sm font-bold">{formatCurrency(order.total_amount)}</span>

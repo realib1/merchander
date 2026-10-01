@@ -78,7 +78,7 @@ export default async function ResetPasswordPage() {
             </div>
           ) : (
             <div className="space-y-6 text-center animate-in fade-in-50 duration-200">
-              <div className="w-16 h-16 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto shadow-xs">
+              <div className="w-16 h-16 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto shadow-xs">
                 <KeyRound size={32} />
               </div>
               <div className="space-y-2">

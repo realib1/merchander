@@ -117,7 +117,7 @@ export function ProviderConnectModal({
               onChange={(e) => setSecretKey(e.target.value)}
               placeholder={providerKey === 'paystack' ? 'sk_live_xxxxxxxx' : 'client_secret_xxxxxxxx'}
               disabled={isTesting || disabled}
-              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
             />
             <p className="text-[11px] text-muted">
               Used securely on backend for server-to-server transaction verification.

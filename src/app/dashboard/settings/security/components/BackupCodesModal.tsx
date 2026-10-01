@@ -74,7 +74,7 @@ export function BackupCodesModal({ isOpen, onClose, backupCodes }: BackupCodesMo
             {backupCodes.map((code, idx) => (
               <div
                 key={code}
-                className="flex items-center gap-2 p-2 rounded-lg bg-surface border border-separator/60 font-mono text-xs font-semibold text-foreground tracking-wider select-all justify-center"
+                className="flex items-center gap-2 p-2 rounded-lg bg-surface border border-separator/60 text-xs font-semibold text-foreground tracking-wider select-all justify-center"
               >
                 <span className="text-muted text-[10px] select-none font-sans font-normal">{idx + 1}.</span>
                 <span>{code}</span>

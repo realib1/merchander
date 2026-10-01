@@ -77,7 +77,7 @@ export function BusinessVerificationCard({ data, onChange, disabled = false }: B
               onChange={(e) => onChange('taxId', e.target.value)}
               disabled={disabled}
               placeholder="e.g. C0001234567 / TIN-P000987654"
-              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
             />
           </div>
 

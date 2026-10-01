@@ -102,7 +102,7 @@ export function StorefrontHeroCard({
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 sm:p-6 shadow-xs space-y-6">
+    <div className="bg-surface border border-separator rounded-xl p-5 sm:p-6 shadow-xs space-y-6">
       <HeroCardHeader
         slides={slides}
         selectedSlideIndex={selectedSlideIndex}

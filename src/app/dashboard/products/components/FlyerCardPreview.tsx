@@ -31,7 +31,7 @@ export function FlyerCardPreview({
   onCopyLink,
 }: FlyerCardPreviewProps) {
   return (
-    <div className="w-full max-w-75 rounded-2xl border border-separator bg-surface shadow-md overflow-hidden flex flex-col">
+    <div className="w-full max-w-75 rounded-xl border border-separator bg-surface shadow-md overflow-hidden flex flex-col">
       {/* Top: Product Image (Object-Contain) */}
       <div className="w-full h-44 relative bg-surface-elevated flex items-center justify-center border-b border-separator/80 p-2 overflow-hidden">
         {product.image_url ? (
@@ -88,7 +88,7 @@ export function FlyerCardPreview({
               unoptimized
             />
           </div>
-          <p className="font-mono text-[11px] font-bold text-foreground tracking-tight select-all">{shortDisplayUrl}</p>
+          <p className="text-[11px] font-bold text-foreground tracking-tight select-all">{shortDisplayUrl}</p>
           <span className="text-[10px] text-muted">Scan / tap to view</span>
         </div>
 

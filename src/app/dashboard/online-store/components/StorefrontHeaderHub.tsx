@@ -25,11 +25,11 @@ export function StorefrontHeaderHub({ slug, publicUrl, isActive, primaryColor = 
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 sm:p-6 shadow-xs">
+    <div className="bg-surface border border-separator rounded-xl p-5 sm:p-6 shadow-xs">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div
-            className="h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs"
+            className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
             style={{
               backgroundColor: `${primaryColor}18`,
               color: primaryColor,
@@ -48,7 +48,7 @@ export function StorefrontHeaderHub({ slug, publicUrl, isActive, primaryColor = 
                 {isActive ? '● Active' : '○ Offline / Draft'}
               </span>
             </div>
-            <p className="text-sm font-bold text-foreground font-mono mt-0.5 break-all">{publicUrl}</p>
+            <p className="text-sm font-bold text-foreground mt-0.5 break-all">{publicUrl}</p>
           </div>
         </div>
 

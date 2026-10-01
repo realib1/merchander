@@ -78,7 +78,7 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
               </div>
             </div>
             {userEmail && (
-              <span className="text-xs font-mono text-muted bg-surface-elevated px-2.5 py-1 rounded-lg border border-separator/60">
+              <span className="text-xs text-muted bg-surface-elevated px-2.5 py-1 rounded-lg border border-separator/60">
                 {userEmail}
               </span>
             )}
@@ -216,7 +216,7 @@ export function NotificationsForm({ initialSettings, userEmail }: NotificationsF
 
       {/* Sticky Bottom Save Bar */}
       {isDirty && (
-        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
+        <div className="fixed sm:sticky bottom-4 left-4 right-4 sm:left-auto sm:right-auto z-40 bg-surface-elevated/95 backdrop-blur-md border border-separator shadow-lg rounded-xl p-3 sm:p-4 flex items-center justify-between gap-3 animate-slideUp">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
             <span className="text-xs font-semibold text-foreground">You have unsaved notification preferences</span>

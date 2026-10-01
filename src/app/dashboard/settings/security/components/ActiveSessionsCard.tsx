@@ -57,7 +57,7 @@ export function ActiveSessionsCard({ userEmail }: ActiveSessionsCardProps) {
             <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Current Device</span>
           </div>
           <p className="text-xs text-muted">
-            Authenticated as <span className="font-mono text-foreground font-medium">{userEmail}</span>
+            Authenticated as <span className="text-foreground font-medium">{userEmail}</span>
           </p>
         </div>
 

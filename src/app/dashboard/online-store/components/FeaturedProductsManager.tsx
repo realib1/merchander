@@ -87,7 +87,7 @@ export function FeaturedProductsManager({
               <div
                 key={p.id}
                 onClick={() => handleToggle(p.id)}
-                className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                   isFeatured
                     ? 'border-brand-primary bg-brand-primary/5 shadow-xs ring-1 ring-brand-primary/50'
                     : 'border-separator bg-surface hover:bg-surface-elevated/60'
@@ -104,7 +104,7 @@ export function FeaturedProductsManager({
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-foreground truncate">{p.name}</p>
-                    <p className="text-[11px] font-mono text-muted">{formatCurrency(p.price, currency)}</p>
+                    <p className="text-[11px] text-muted">{formatCurrency(p.price, currency)}</p>
                   </div>
                 </div>
 

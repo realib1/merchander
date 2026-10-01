@@ -133,7 +133,7 @@ export function StoreWishlistDrawer({
                 return (
                   <div
                     key={product.id}
-                    className="flex gap-3 p-3 rounded-2xl bg-surface-elevated border border-separator/80 hover:border-separator transition"
+                    className="flex gap-3 p-3 rounded-xl bg-surface-elevated border border-separator/80 hover:border-separator transition"
                   >
                     {/* Thumbnail */}
                     <div className="relative w-18 h-18 rounded-xl overflow-hidden bg-surface border border-separator/40 shrink-0">

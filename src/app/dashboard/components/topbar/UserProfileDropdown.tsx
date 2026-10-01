@@ -86,7 +86,7 @@ export function UserProfileDropdown({ user, isOpen, onToggle, onClose }: UserPro
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-68 bg-surface border border-separator rounded-2xl shadow-xl z-50 p-1 overflow-hidden"
+            className="absolute right-0 top-full mt-2 w-68 bg-surface border border-separator rounded-xl shadow-xl z-50 p-1 overflow-hidden"
           >
             {/* Identity Card */}
             <div className="p-3 border-b border-separator/50 bg-surface-elevated/30 rounded-xl mb-1">

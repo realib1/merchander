@@ -21,10 +21,10 @@ export default async function PlansBillingPage() {
       )}
 
       {!error && plans.length === 0 ? (
-        <div className="p-8 rounded-2xl bg-surface border border-separator text-center space-y-2">
+        <div className="p-8 rounded-xl bg-surface border border-separator text-center space-y-2">
           <div className="text-sm font-bold text-foreground">No commercial plans configured</div>
           <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
-            The <span className="font-mono">platform_plans</span> table is empty. Tier pricing,
+            The <span>platform_plans</span> table is empty. Tier pricing,
             entitlements and the merchant plan picker all read from it, so add your plans here
             before onboarding paid merchants.
           </p>

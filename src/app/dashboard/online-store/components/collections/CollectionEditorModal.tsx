@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useTransition } from 'react';
-import { X, Upload, Loader2, Image as ImageIcon, Sparkles, Filter, FolderTree, ShoppingBag } from 'lucide-react';
+import { X, Upload, Loader2, Image as ImageIcon, Layers, Filter, FolderTree, ShoppingBag } from 'lucide-react';
 import { StorefrontCustomCollection } from '@/types/storefront';
 import { uploadStorefrontBanner } from '@/app/actions/storefront';
 import { compressImageForUpload } from '@/utils/image-compression';
@@ -40,7 +40,7 @@ export function CollectionEditorModal({
   const [image, setImage] = useState(collection?.image || '');
   const [linkType, setLinkType] = useState<'filter' | 'category' | 'catalog'>(collection?.link_type || 'filter');
   const [filterParam, setFilterParam] = useState(collection?.filter_param || 'new');
-  const [categoryId, setCategoryId] = useState(collection?.category_id || (categories[0]?.id || ''));
+  const [categoryId, setCategoryId] = useState(collection?.category_id || categories[0]?.id || '');
   const [isActive, setIsActive] = useState(collection ? collection.is_active : true);
 
   if (!isOpen) return null;
@@ -101,13 +101,13 @@ export function CollectionEditorModal({
       aria-label="Edit Collection"
     >
       <div
-        className="w-full max-w-lg bg-surface border border-separator rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scaleUp"
+        className="w-full max-w-lg bg-surface border border-separator rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-separator/70 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles size={16} style={{ color: primaryColor }} />
+            <Layers size={16} style={{ color: primaryColor }} />
             <h3 className="text-sm font-bold text-foreground">
               {collection ? 'Edit Collection' : 'Create New Collection'}
             </h3>

@@ -74,10 +74,10 @@ export function BusinessIdentityCard({ data, onChange, disabled = false }: Busin
           <div className="space-y-1.5">
             <label htmlFor="handle" className="text-xs font-semibold text-foreground flex items-center justify-between">
               <span>Username / Handle</span>
-              <span className="text-[10px] font-mono text-muted">@{data.handle || 'handle'}</span>
+              <span className="text-[10px] text-muted">@{data.handle || 'handle'}</span>
             </label>
             <div className="relative flex items-center">
-              <span className="absolute left-3 text-xs font-mono font-bold text-muted select-none">@</span>
+              <span className="absolute left-3 text-xs font-bold text-muted select-none">@</span>
               <input
                 id="handle"
                 type="text"
@@ -85,7 +85,7 @@ export function BusinessIdentityCard({ data, onChange, disabled = false }: Busin
                 onChange={(e) => onChange('handle', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                 disabled={disabled}
                 placeholder="handle"
-                className="w-full rounded-xl border border-separator bg-surface pl-7 pr-3 py-2 text-xs font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+                className="w-full rounded-xl border border-separator bg-surface pl-7 pr-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
               />
             </div>
           </div>

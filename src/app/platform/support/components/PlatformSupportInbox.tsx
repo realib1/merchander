@@ -162,7 +162,7 @@ export function PlatformSupportInbox({ initialTickets }: PlatformSupportInboxPro
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono font-bold text-xs text-brand-primary">{tkt.reference_code}</span>
+                    <span className="font-bold text-xs text-brand-primary">{tkt.reference_code}</span>
                     <span className="font-semibold text-foreground text-xs truncate max-w-32">{tkt.store_name}</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -197,12 +197,12 @@ export function PlatformSupportInbox({ initialTickets }: PlatformSupportInboxPro
       {/* Right Column: Ticket Inspection & Action Desk */}
       <div className="lg:col-span-7">
         {selectedTicket ? (
-          <div className="rounded-2xl border border-separator bg-surface p-5 space-y-5 shadow-xs">
+          <div className="rounded-xl border border-separator bg-surface p-5 space-y-5 shadow-xs">
             {/* Ticket Header & Status Switcher */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-separator pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono font-bold text-sm text-foreground">{selectedTicket.reference_code}</span>
+                  <span className="font-bold text-sm text-foreground">{selectedTicket.reference_code}</span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-brand-primary/10 text-brand-primary">
                     {selectedTicket.category}
                   </span>
@@ -262,7 +262,7 @@ export function PlatformSupportInbox({ initialTickets }: PlatformSupportInboxPro
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] text-muted">
                   <div>
                     <span className="block font-semibold text-foreground/80">Tenant ID:</span>
-                    <span className="font-mono truncate block">{selectedTicket.tenant_id}</span>
+                    <span className="truncate block">{selectedTicket.tenant_id}</span>
                   </div>
                   <div>
                     <span className="block font-semibold text-foreground/80">Area / Module:</span>
@@ -360,7 +360,7 @@ export function PlatformSupportInbox({ initialTickets }: PlatformSupportInboxPro
             </form>
           </div>
         ) : (
-          <div className="p-12 rounded-2xl border border-dashed border-separator bg-surface text-center space-y-2 text-muted">
+          <div className="p-12 rounded-xl border border-dashed border-separator bg-surface text-center space-y-2 text-muted">
             <FileText size={24} className="mx-auto opacity-50" />
             <h4 className="text-xs font-bold text-foreground">Select a Support Ticket</h4>
             <p className="text-[11px]">

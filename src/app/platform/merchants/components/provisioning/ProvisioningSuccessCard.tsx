@@ -45,7 +45,7 @@ export function ProvisioningSuccessCard({
         </p>
       </div>
 
-      <div className="bg-surface border border-separator rounded-xl p-4 space-y-3 font-mono text-xs">
+      <div className="bg-surface border border-separator rounded-xl p-4 space-y-3 text-xs">
         <div className="flex items-center justify-between border-b border-separator/60 pb-2">
           <span className="text-muted font-medium">Merchant Business:</span>
           <span className="text-foreground font-bold">{credentials.storeName}</span>

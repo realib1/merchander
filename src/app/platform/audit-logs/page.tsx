@@ -51,7 +51,7 @@ export default async function AuditLogsPage({
       </div>
 
       {/* Filters Form */}
-      <div className="bg-surface rounded-2xl border border-separator p-4 shadow-xs">
+      <div className="bg-surface rounded-xl border border-separator p-4 shadow-xs">
         <form className="flex flex-col flex-wrap lg:flex-row gap-4 items-end">
           <div className="flex-1 min-w-[200px] space-y-1">
             <label htmlFor="actorEmail" className="text-xs font-semibold text-muted">Staff Email</label>
@@ -147,9 +147,9 @@ export default async function AuditLogsPage({
       )}
 
       {/* Logs Table */}
-      <div className="bg-surface rounded-2xl border border-separator overflow-hidden shadow-xs">
+      <div className="bg-surface rounded-xl border border-separator overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
+          <table className="w-full text-left text-xs ">
             <thead className="bg-surface-elevated text-muted uppercase text-[10px] border-b border-separator">
               <tr>
                 <th className="py-3 px-4">Timestamp</th>

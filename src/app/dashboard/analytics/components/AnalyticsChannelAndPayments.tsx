@@ -19,7 +19,7 @@ export function AnalyticsChannelAndPayments({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       {/* 1. Sales Channel Performance */}
-      <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">
@@ -54,7 +54,7 @@ export function AnalyticsChannelAndPayments({
       </div>
 
       {/* 2. Payment Rails Breakdown */}
-      <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">
@@ -91,7 +91,7 @@ export function AnalyticsChannelAndPayments({
       </div>
 
       {/* 3. Order Status Funnel */}
-      <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+      <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider flex items-center gap-2">

@@ -27,12 +27,12 @@ export function StorefrontShareCard({ config }: StorefrontShareCardProps) {
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicUrl)}`;
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-6 shadow-xs">
+    <div className="bg-surface border border-separator rounded-xl p-6 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Store link details */}
         <div className="flex items-center gap-4">
           <div
-            className="h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs"
+            className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
             style={{
               backgroundColor: `${primaryColor}18`,
               color: primaryColor,
@@ -51,7 +51,7 @@ export function StorefrontShareCard({ config }: StorefrontShareCardProps) {
                 {config?.is_active ? '● Live' : '○ Offline'}
               </span>
             </div>
-            <p className="text-sm font-bold text-foreground font-mono mt-0.5 break-all">{publicUrl}</p>
+            <p className="text-sm font-bold text-foreground mt-0.5 break-all">{publicUrl}</p>
           </div>
         </div>
 

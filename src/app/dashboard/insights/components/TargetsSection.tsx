@@ -60,7 +60,7 @@ export function TargetsSection({
       </div>
 
       {/* Intelligence Executive Summary Banner */}
-      <div className="p-4 rounded-2xl border border-separator bg-surface-elevated flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="p-4 rounded-xl border border-separator bg-surface-elevated flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2">
             <span className="p-1 rounded bg-brand-primary/10 text-brand-primary">
@@ -78,16 +78,14 @@ export function TargetsSection({
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div className="px-3 py-2 rounded-xl bg-surface border border-separator text-center min-w-20">
             <span className="text-[10px] font-semibold text-muted uppercase block">Active</span>
-            <span className="text-sm font-bold font-mono text-foreground">{summary.total_active_targets}</span>
+            <span className="text-sm font-bold text-foreground">{summary.total_active_targets}</span>
           </div>
 
           <div className="px-3 py-2 rounded-xl bg-surface border border-separator text-center min-w-20">
             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase block">
               On Track
             </span>
-            <span className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">
-              {summary.on_track_count}
-            </span>
+            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{summary.on_track_count}</span>
           </div>
 
           {summary.at_risk_count > 0 && (
@@ -95,9 +93,7 @@ export function TargetsSection({
               <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase block">
                 At Risk
               </span>
-              <span className="text-sm font-bold font-mono text-amber-600 dark:text-amber-400">
-                {summary.at_risk_count}
-              </span>
+              <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{summary.at_risk_count}</span>
             </div>
           )}
 
@@ -106,9 +102,7 @@ export function TargetsSection({
               <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-400 uppercase block">
                 Achieved
               </span>
-              <span className="text-sm font-bold font-mono text-purple-600 dark:text-purple-400">
-                {summary.achieved_count}
-              </span>
+              <span className="text-sm font-bold text-purple-600 dark:text-purple-400">{summary.achieved_count}</span>
             </div>
           )}
         </div>
@@ -127,7 +121,7 @@ export function TargetsSection({
           ))}
         </div>
       ) : (
-        <div className="p-8 rounded-2xl border border-dashed border-separator bg-surface text-center space-y-3">
+        <div className="p-8 rounded-xl border border-dashed border-separator bg-surface text-center space-y-3">
           <div className="w-10 h-10 mx-auto rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center">
             <Target size={20} />
           </div>

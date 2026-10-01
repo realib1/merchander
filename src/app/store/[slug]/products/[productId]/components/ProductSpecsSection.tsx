@@ -27,7 +27,7 @@ export function ProductSpecsSection({ config, product }: ProductSpecsSectionProp
       {specs.length > 0 && (
         <div className="space-y-2.5">
           <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Specifications</h3>
-          <div className="rounded-2xl border overflow-hidden bg-surface divide-y divide-separator/60">
+          <div className="rounded-xl border overflow-hidden bg-surface divide-y divide-separator/60">
             {specs.map((item, idx) => (
               <div key={idx} className="grid grid-cols-2 p-3 text-xs">
                 <span className="font-semibold text-muted">{item.key}</span>
@@ -40,7 +40,7 @@ export function ProductSpecsSection({ config, product }: ProductSpecsSectionProp
 
       {/* Dynamic Merchant Delivery Policy */}
       {config.delivery_policy && (
-        <div className="p-3.5 rounded-2xl bg-surface-elevated border border-separator/80 flex items-start gap-3">
+        <div className="p-3.5 rounded-xl bg-surface-elevated border border-separator/80 flex items-start gap-3">
           <Truck size={18} className="text-brand-primary shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <h4 className="text-xs font-bold text-foreground">Delivery & Dispatch Policy</h4>

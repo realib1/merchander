@@ -115,7 +115,7 @@ export function OrderDispatchModal({
         <div className="flex items-center gap-2">
           <Truck size={18} className="text-brand-primary" />
           <span>Dispatch Order</span>
-          <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
+          <span className="text-xs px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary font-semibold">
             #{order.short_id || order.id.slice(0, 8).toUpperCase()}
           </span>
         </div>
@@ -213,7 +213,7 @@ export function OrderDispatchModal({
                     value={riderPhone}
                     onChange={(e) => setRiderPhone(e.target.value)}
                     placeholder="024 411 2233"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:outline-none focus:border-brand-primary font-mono"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:outline-none focus:border-brand-primary "
                   />
                 </div>
               </div>
@@ -229,7 +229,7 @@ export function OrderDispatchModal({
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
                     placeholder="e.g. YNG-98124 or STC-KMS-004"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:outline-none focus:border-brand-primary font-mono"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:outline-none focus:border-brand-primary "
                   />
                 </div>
                 <div>

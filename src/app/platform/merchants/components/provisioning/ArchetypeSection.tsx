@@ -12,7 +12,7 @@ interface ArchetypeSectionProps {
 export function ArchetypeSection({ selectedArchetype, onSelect }: ArchetypeSectionProps) {
   return (
     <div className="space-y-3 pt-4 border-t border-separator/60">
-      <div className="font-mono text-[11px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
+      <div className="text-[11px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
         <Layers size={13} />
         <span>2. Business Archetype & Capabilities</span>
       </div>

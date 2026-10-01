@@ -118,7 +118,7 @@ export function StorefrontCollectionsCard({
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+    <div className="bg-surface border border-separator rounded-xl p-5 sm:p-6 shadow-xs space-y-5">
       {/* Card Header with Title and Toggle Switch */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-separator/70">
         <div>
@@ -190,7 +190,7 @@ export function StorefrontCollectionsCard({
               return (
                 <div
                   key={col.id}
-                  className={`p-3.5 rounded-2xl border transition flex flex-col justify-between space-y-3 bg-surface ${
+                  className={`p-3.5 rounded-xl border transition flex flex-col justify-between space-y-3 bg-surface ${
                     isColActive ? 'border-separator/80 shadow-xs' : 'border-dashed border-separator opacity-60'
                   }`}
                 >

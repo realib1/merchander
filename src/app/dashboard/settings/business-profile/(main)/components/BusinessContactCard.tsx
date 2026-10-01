@@ -43,7 +43,7 @@ export function BusinessContactCard({ data, onChange, disabled = false }: Busine
               onChange={(e) => onChange('phone', e.target.value)}
               disabled={disabled}
               placeholder="e.g. +233 24 123 4567"
-              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
+              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 disabled:opacity-50"
             />
           </div>
 

@@ -10,7 +10,7 @@ export default async function PlatformRevenuePage() {
 
   if (error) {
     return (
-      <div className="p-6 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive">
+      <div className="p-6 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
         Failed to load platform revenue: {error}
       </div>
     );
@@ -20,7 +20,7 @@ export default async function PlatformRevenuePage() {
     <div className="flex flex-col animate-fadeIn max-w-7xl mx-auto w-full space-y-8">
       <div className="p-4 rounded-xl bg-surface-elevated border border-separator text-xs text-muted leading-relaxed">
         Figures below are <span className="font-semibold text-foreground">contracted</span> subscription
-        value from <span className="font-mono">tenant_subscriptions</span>. No billing provider is
+        value from <span>tenant_subscriptions</span>. No billing provider is
         connected yet, so collected revenue, net revenue and churn are not available.
       </div>
 
@@ -34,7 +34,7 @@ export default async function PlatformRevenuePage() {
         />
       </div>
 
-      <div className="bg-surface border border-separator rounded-2xl shadow-xs p-6 space-y-4">
+      <div className="bg-surface border border-separator rounded-xl shadow-xs p-6 space-y-4">
         <h2 className="text-base font-bold text-foreground">Contracted MRR by Plan</h2>
         {metrics.revenueByPlan.length === 0 ? (
           <p className="text-xs text-muted">

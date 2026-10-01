@@ -68,7 +68,7 @@ export function ContactSupportForm({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 rounded-2xl border border-separator bg-surface space-y-5 shadow-xs">
+      <form onSubmit={handleSubmit} className="p-6 rounded-xl border border-separator bg-surface space-y-5 shadow-xs">
         {/* Category & Priority Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">

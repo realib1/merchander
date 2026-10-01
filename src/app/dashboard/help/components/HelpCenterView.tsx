@@ -66,7 +66,7 @@ export function HelpCenterView({ articles, onOpenContact }: HelpCenterViewProps)
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for an answer (e.g. pre-order batch, WhatsApp webhook, MoMo SMS)..."
-            className="w-full bg-surface border border-separator rounded-2xl pl-10 pr-4 py-3 text-xs placeholder:text-muted outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 shadow-xs transition"
+            className="w-full bg-surface border border-separator rounded-xl pl-10 pr-4 py-3 text-xs placeholder:text-muted outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 shadow-xs transition"
           />
         </div>
 
@@ -91,7 +91,7 @@ export function HelpCenterView({ articles, onOpenContact }: HelpCenterViewProps)
 
       {/* Article List / Active Reader */}
       {activeArticle ? (
-        <div className="rounded-2xl border border-separator bg-surface p-6 space-y-4 animate-fadeIn">
+        <div className="rounded-xl border border-separator bg-surface p-6 space-y-4 animate-fadeIn">
           <button
             type="button"
             onClick={() => setActiveArticle(null)}
@@ -139,7 +139,7 @@ export function HelpCenterView({ articles, onOpenContact }: HelpCenterViewProps)
                 key={art.id}
                 type="button"
                 onClick={() => setActiveArticle(art)}
-                className="p-4 rounded-2xl border border-separator bg-surface hover:border-brand-primary/50 hover:bg-surface-elevated transition-all text-left flex items-start justify-between gap-3 group cursor-pointer shadow-xs"
+                className="p-4 rounded-xl border border-separator bg-surface hover:border-brand-primary/50 hover:bg-surface-elevated transition-all text-left flex items-start justify-between gap-3 group cursor-pointer shadow-xs"
               >
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export function HelpCenterView({ articles, onOpenContact }: HelpCenterViewProps)
           </div>
 
           {filteredArticles.length === 0 && (
-            <div className="p-10 rounded-2xl border border-dashed border-separator bg-surface text-center space-y-3">
+            <div className="p-10 rounded-xl border border-dashed border-separator bg-surface text-center space-y-3">
               <BookOpen size={24} className="mx-auto text-muted" />
               <div className="space-y-1 max-w-sm mx-auto">
                 <h3 className="text-xs font-bold text-foreground">No matching guides found</h3>

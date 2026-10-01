@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 import { PlatformPlan, PlatformTier } from '@/types/platform';
 
 interface SubscriptionTierSectionProps {
@@ -21,8 +21,8 @@ export function SubscriptionTierSection({
 }: SubscriptionTierSectionProps) {
   return (
     <div className="space-y-3 pt-4 border-t border-separator/60">
-      <div className="font-mono text-[11px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
-        <Sparkles size={13} />
+      <div className="text-[11px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
+        <CreditCard size={13} />
         <span>4. Subscription Tier & Billing Cycle</span>
       </div>
 

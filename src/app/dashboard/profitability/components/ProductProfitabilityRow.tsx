@@ -50,7 +50,7 @@ export function ProductProfitabilityRow({ product }: ProductProfitabilityRowProp
           {product.sku && (
             <>
               <span>•</span>
-              <span className="font-mono">SKU: {product.sku}</span>
+              <span>SKU: {product.sku}</span>
             </>
           )}
         </div>
@@ -80,7 +80,7 @@ export function ProductProfitabilityRow({ product }: ProductProfitabilityRowProp
       {/* Gross Profit */}
       <td
         className={`px-4 py-3.5 text-right font-bold tabular-nums ${
-          isNegative ? 'text-destructive font-mono' : 'text-foreground'
+          isNegative ? 'text-destructive ' : 'text-foreground'
         }`}
       >
         {formatCurrency(product.grossProfit, 'GHS')}

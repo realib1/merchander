@@ -33,7 +33,7 @@ export function ProductBatchInfoCard({ batch, primaryColor = '#3b82f6' }: Produc
   const arrivalWindowText = formatArrivalWindow(batch.expected_arrival_start, batch.expected_arrival_end);
 
   return (
-    <div className="rounded-2xl border border-separator/80 bg-surface-elevated/60 p-4 space-y-3.5 shadow-xs">
+    <div className="rounded-xl border border-separator/80 bg-surface-elevated/60 p-4 space-y-3.5 shadow-xs">
       {/* Header Banner */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">

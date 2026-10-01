@@ -143,7 +143,7 @@ export function AnalyticsDataExplorer({ data }: AnalyticsDataExplorerProps) {
               {items.map((cust) => (
                 <tr key={cust.id} className="hover:bg-surface-elevated/40 transition">
                   <td className="px-4 py-3 font-semibold text-foreground">{cust.name}</td>
-                  <td className="px-4 py-3 text-muted font-mono">{cust.phone}</td>
+                  <td className="px-4 py-3 text-muted ">{cust.phone}</td>
                   <td className="px-4 py-3 text-right font-medium text-foreground">{cust.ordersCount}</td>
                   <td className="px-4 py-3 text-right font-bold text-foreground">
                     {formatCurrency(cust.totalSpent, 'GHS')}
@@ -192,7 +192,7 @@ export function AnalyticsDataExplorer({ data }: AnalyticsDataExplorerProps) {
                   <tr key={p.id} className="hover:bg-surface-elevated/40 transition">
                     <td className="px-4 py-3 font-semibold text-foreground">
                       <div>{p.name}</div>
-                      {p.sku && <div className="text-[10px] text-muted font-mono mt-0.5">{p.sku}</div>}
+                      {p.sku && <div className="text-[10px] text-muted mt-0.5">{p.sku}</div>}
                     </td>
                     <td className="px-4 py-3 text-muted">{p.categoryName}</td>
                     <td className="px-4 py-3 text-right font-medium text-foreground">{p.unitsSold.toLocaleString()}</td>
@@ -211,7 +211,7 @@ export function AnalyticsDataExplorer({ data }: AnalyticsDataExplorerProps) {
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs mb-6">
+    <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs mb-6">
       {/* Dimension Switcher & Search Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div>

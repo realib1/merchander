@@ -17,7 +17,7 @@ export function CheckoutCostSummary({
   primaryColor,
 }: CheckoutCostSummaryProps) {
   return (
-    <div className="p-3.5 rounded-2xl bg-surface-elevated/70 border border-separator/80 space-y-2 text-xs">
+    <div className="p-3.5 rounded-xl bg-surface-elevated/70 border border-separator/80 space-y-2 text-xs">
       <div className="flex justify-between items-center text-muted">
         <span>Subtotal</span>
         <span className="font-semibold text-foreground tabular-nums">{formatCurrency(subtotal, currency)}</span>

@@ -31,7 +31,7 @@ const batchSteps: Array<{ id: PreorderBatchStatus | 'JOINED'; label: string; des
 export function TrackingTimeline({ status, batch, primaryColor = '#3b82f6' }: TrackingTimelineProps) {
   if (status === 'cancelled') {
     return (
-      <div className="p-4 rounded-2xl bg-danger/10 border border-danger/20 text-danger text-xs font-bold flex items-center gap-2">
+      <div className="p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-xs font-bold flex items-center gap-2">
         <AlertCircle size={16} />
         <span>This order was cancelled. Please contact the store on WhatsApp for assistance.</span>
       </div>

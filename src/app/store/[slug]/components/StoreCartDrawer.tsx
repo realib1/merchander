@@ -196,7 +196,7 @@ export function StoreCartDrawer({
             />
           ) : cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-surface-elevated flex items-center justify-center text-muted">
+              <div className="w-12 h-12 rounded-xl bg-surface-elevated flex items-center justify-center text-muted">
                 <ShoppingBag size={24} />
               </div>
               <div>

@@ -104,7 +104,7 @@ export function SupportAccessDelegationView({
     <div className="space-y-6 animate-fadeIn">
       {/* Active Grant Status Card */}
       {activeGrant ? (
-        <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-foreground space-y-4 shadow-xs">
+        <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30 text-foreground space-y-4 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 shrink-0 mt-0.5">
@@ -115,7 +115,7 @@ export function SupportAccessDelegationView({
                   <h3 className="font-bold text-base text-foreground font-display">
                     Platform Support Access Active
                   </h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500 text-black">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500 text-black">
                     Delegated
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export function SupportAccessDelegationView({
                 </p>
 
                 <div className="mt-3 p-3 rounded-xl bg-surface/60 border border-separator/40 space-y-1 text-xs">
-                  <div className="flex items-center gap-2 text-foreground font-mono">
+                  <div className="flex items-center gap-2 text-foreground ">
                     <Clock size={13} className="text-amber-400" />
                     <span>Expires: <strong>{new Date(activeGrant.expires_at).toLocaleString()}</strong></span>
                   </div>
@@ -152,7 +152,7 @@ export function SupportAccessDelegationView({
           </div>
         </div>
       ) : (
-        <div className="p-6 rounded-2xl bg-surface border border-separator shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-6 rounded-xl bg-surface border border-separator shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
               <Lock size={20} />
@@ -162,7 +162,7 @@ export function SupportAccessDelegationView({
                 <h3 className="font-bold text-sm text-foreground">
                   Support Access: Locked (Default)
                 </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   Protected
                 </span>
               </div>
@@ -183,8 +183,8 @@ export function SupportAccessDelegationView({
       )}
 
       {/* Grant History */}
-      <div className="bg-surface rounded-2xl border border-separator overflow-hidden shadow-xs">
-        <div className="p-4 border-b border-separator bg-surface-elevated flex items-center justify-between text-xs font-semibold text-muted font-mono uppercase">
+      <div className="bg-surface rounded-xl border border-separator overflow-hidden shadow-xs">
+        <div className="p-4 border-b border-separator bg-surface-elevated flex items-center justify-between text-xs font-semibold text-muted uppercase">
           <div className="flex items-center gap-2">
             <History size={14} className="text-brand-primary" />
             <span>Support Delegation Audit Trail</span>
@@ -207,7 +207,7 @@ export function SupportAccessDelegationView({
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-foreground">{g.reason}</span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase ${
+                      className={`px-2 py-0.5 rounded text-[10px] uppercase ${
                         g.status === 'active'
                           ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                           : g.status === 'revoked'
@@ -218,13 +218,13 @@ export function SupportAccessDelegationView({
                       {g.status}
                     </span>
                   </div>
-                  <div className="text-[11px] text-muted font-mono">
+                  <div className="text-[11px] text-muted ">
                     Duration: {g.duration_hours}h • Granted {new Date(g.created_at).toLocaleString()}
                     {g.ticket_id && ` • Ticket #${g.ticket_id}`}
                   </div>
                 </div>
 
-                <div className="text-[11px] text-muted font-mono shrink-0">
+                <div className="text-[11px] text-muted shrink-0">
                   {g.status === 'revoked' && g.revoked_at ? (
                     <span className="text-destructive">Revoked {new Date(g.revoked_at).toLocaleTimeString()}</span>
                   ) : (
@@ -244,7 +244,7 @@ export function SupportAccessDelegationView({
         size="sm"
         title={
           <div>
-            <div className="text-xs font-mono font-bold text-brand-primary uppercase">Security Handshake</div>
+            <div className="text-xs font-bold text-brand-primary uppercase">Security Handshake</div>
             <div className="text-base font-bold text-foreground font-display mt-0.5">
               Grant Support Access
             </div>
@@ -296,7 +296,7 @@ export function SupportAccessDelegationView({
               placeholder="e.g., TCK-48201 or MoMo Webhook issue"
               value={ticketId}
               onChange={(e) => setTicketId(e.target.value)}
-              className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary font-mono"
+              className="w-full bg-surface-elevated border border-separator rounded-xl px-3 py-2 text-foreground focus:outline-hidden focus:border-brand-primary "
             />
           </div>
 

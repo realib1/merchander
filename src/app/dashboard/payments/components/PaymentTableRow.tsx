@@ -58,7 +58,7 @@ export function PaymentTableRow({ payment: p, onViewDetails, onRefund, onDelete 
       {/* Transaction Ref */}
       <td className="py-3 px-4">
         <div className="flex items-center gap-1.5">
-          <span className="font-mono font-semibold text-foreground">{p.transaction_ref || '#' + p.id.slice(0, 8)}</span>
+          <span className="font-semibold text-foreground">{p.transaction_ref || '#' + p.id.slice(0, 8)}</span>
           {p.transaction_ref && (
             <button
               onClick={() => copyToClipboard(p.transaction_ref!, 'Ref')}
@@ -70,7 +70,7 @@ export function PaymentTableRow({ payment: p, onViewDetails, onRefund, onDelete 
             </button>
           )}
         </div>
-        {p.order && <div className="text-[10px] text-muted font-mono mt-0.5">Order #{p.order.id.slice(0, 8)}</div>}
+        {p.order && <div className="text-[10px] text-muted mt-0.5">Order #{p.order.id.slice(0, 8)}</div>}
       </td>
 
       {/* Payment Date */}
@@ -79,7 +79,7 @@ export function PaymentTableRow({ payment: p, onViewDetails, onRefund, onDelete 
       {/* Customer / Sender */}
       <td className="py-3 px-4">
         <div className="font-semibold text-foreground truncate max-w-37.5">{customerName}</div>
-        {customerPhone && <div className="text-[10px] text-muted font-mono">{customerPhone}</div>}
+        {customerPhone && <div className="text-[10px] text-muted ">{customerPhone}</div>}
       </td>
 
       {/* Method Pill */}
@@ -100,7 +100,7 @@ export function PaymentTableRow({ payment: p, onViewDetails, onRefund, onDelete 
       {/* Fee */}
       <td className="py-3 px-4 text-right text-muted whitespace-nowrap">
         {p.fee > 0 ? (
-          <span className="text-destructive font-mono">- {formatCurrency(p.fee, 'GHS')}</span>
+          <span className="text-destructive ">- {formatCurrency(p.fee, 'GHS')}</span>
         ) : (
           <span className="text-muted/60">GHS 0.00</span>
         )}

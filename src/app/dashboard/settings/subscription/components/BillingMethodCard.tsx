@@ -130,7 +130,7 @@ export function BillingMethodCard({
                     )}
                   </div>
 
-                  <p className="text-[11px] text-muted font-mono">
+                  <p className="text-[11px] text-muted ">
                     {method.identifier}{' '}
                     {method.expMonth && method.expYear ? `• Exp ${method.expMonth}/${method.expYear}` : ''}{' '}
                     {tier === 'starter' ? (

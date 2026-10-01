@@ -93,7 +93,7 @@ export default async function ShipmentsPage({
       <ShipmentsTopMetrics shipments={shipmentsData || []} currency={storeCurrency} />
 
       {/* Table & Controls */}
-      <div className="bg-surface border border-separator rounded-2xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
+      <div className="bg-surface border border-separator rounded-xl flex-1 flex flex-col overflow-hidden shadow-xs min-h-105">
         <ShipmentsToolbar suppliers={suppliers} purchaseOrders={purchaseOrders} />
         <ShipmentsTable shipments={shipments} suppliers={suppliers} purchaseOrders={purchaseOrders} />
       </div>

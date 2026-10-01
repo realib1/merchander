@@ -107,7 +107,7 @@ export function BatchesOverviewClient({
       </div>
 
       {/* Controls Hub */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-4 rounded-2xl border border-separator shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-4 rounded-xl border border-separator shadow-xs">
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -187,7 +187,7 @@ export function BatchesOverviewClient({
                 <div className="space-y-3.5">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase text-brand-primary px-2 py-0.5 rounded bg-brand-primary/10 border border-brand-primary/20">
+                      <span className="text-[10px] font-bold uppercase text-brand-primary px-2 py-0.5 rounded bg-brand-primary/10 border border-brand-primary/20">
                         {batch.code}
                       </span>
                       <h3 className="text-sm font-bold text-foreground mt-1 truncate font-display">
@@ -195,7 +195,7 @@ export function BatchesOverviewClient({
                       </h3>
                     </div>
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border font-mono ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
                     >
                       {getBatchStatusLabel(batch.status)}
                     </span>
@@ -216,7 +216,7 @@ export function BatchesOverviewClient({
                       <span className="flex items-center gap-1.5 text-[11px]">
                         <Clock size={12} className="text-brand-primary" /> Cutoff Window
                       </span>
-                      <span className="font-semibold text-foreground font-mono">{countdown.label}</span>
+                      <span className="font-semibold text-foreground ">{countdown.label}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -228,21 +228,21 @@ export function BatchesOverviewClient({
                         )}{' '}
                         Expected Arrival
                       </span>
-                      <span className="font-bold text-foreground font-mono">{arrivalWindow}</span>
+                      <span className="font-bold text-foreground ">{arrivalWindow}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 text-[11px]">
                         <Calendar size={12} className="text-purple-400" /> Freight Mode
                       </span>
-                      <span className="font-semibold text-foreground capitalize font-mono">
+                      <span className="font-semibold text-foreground capitalize ">
                         {batch.freight_mode || 'Sea Freight'} ({batch.origin_country || 'China'})
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-[11px]">Assigned Products</span>
-                      <span className="font-semibold text-foreground font-mono">
+                      <span className="font-semibold text-foreground ">
                         {batch.product_count || 0} catalog items
                       </span>
                     </div>

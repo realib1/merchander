@@ -32,7 +32,7 @@ export function StorefrontLivePreview({
   const displayTagline = tagline || 'Curated fashion & beauty products';
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-4 shadow-xs flex flex-col items-center sticky top-6">
+    <div className="bg-surface border border-separator rounded-xl p-4 shadow-xs flex flex-col items-center sticky top-6">
       <div className="flex items-center justify-between w-full mb-3">
         <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">Live Mockup Preview</h3>
         <span className="text-[10px] text-muted">Real-time</span>

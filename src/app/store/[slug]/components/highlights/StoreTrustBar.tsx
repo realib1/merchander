@@ -32,7 +32,7 @@ export function StoreTrustBar({ primaryColor = '#f97316' }: StoreTrustBarProps) 
   ];
 
   return (
-    <div className="rounded-2xl border border-separator/80 bg-surface/70 backdrop-blur-xs p-3 sm:p-5 shadow-2xs select-none">
+    <div className="rounded-xl border border-separator/80 bg-surface/70 backdrop-blur-xs p-3 sm:p-5 shadow-2xs select-none">
       <div className="grid grid-cols-3 gap-2 sm:gap-6 divide-x divide-separator/60">
         {items.map((item, idx) => {
           const Icon = item.icon;

@@ -105,7 +105,7 @@ export function ProductVariantPicker({
             type="button"
             onClick={onAddToCart}
             disabled={!isAvailable}
-            className="w-full py-3.5 px-4 rounded-2xl bg-surface-elevated border border-separator text-foreground text-xs font-bold hover:bg-surface transition shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-xl bg-surface-elevated border border-separator text-foreground text-xs font-bold hover:bg-surface transition shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <ShoppingCart size={16} />
             <span>Add to Cart</span>
@@ -115,7 +115,7 @@ export function ProductVariantPicker({
             type="button"
             onClick={onBuyNow}
             disabled={!isAvailable}
-            className="w-full py-3.5 px-4 rounded-2xl text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-xl text-white text-xs font-bold shadow-md hover:opacity-90 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             style={{ backgroundColor: primaryColor }}
           >
             <span>

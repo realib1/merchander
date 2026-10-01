@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { AlertTriangle, AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 import type { DashboardMetrics } from '@/types/dashboard';
 
@@ -12,13 +12,13 @@ export function DashboardAttentionCenter({ attention }: DashboardAttentionCenter
     attention.purchaseOrders.length > 0 || attention.lowStock.length > 0 || attention.supplierBalances.length > 0;
 
   return (
-    <div className="lg:col-span-4 bg-surface border border-separator rounded-2xl shadow-xs overflow-hidden flex flex-col min-h-87.5">
-      <div className="px-6 py-4 border-b border-separator bg-surface-elevated">
+    <div className="lg:col-span-4 bg-surface border border-separator/70 rounded-xl shadow-2xs overflow-hidden flex flex-col min-h-87.5">
+      <div className="px-6 py-4 border-b border-separator/60 bg-surface flex items-center justify-between">
         <h2 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
           <AlertTriangle size={15} className="text-warning" /> Needs your attention
         </h2>
       </div>
-      <div className="divide-y divide-separator overflow-y-auto flex-1">
+      <div className="divide-y divide-separator/60 overflow-y-auto flex-1">
         {attention.purchaseOrders.map((po) => (
           <div
             key={po.id}
@@ -54,7 +54,8 @@ export function DashboardAttentionCenter({ attention }: DashboardAttentionCenter
           >
             <div>
               <div className="font-semibold text-sm text-foreground flex items-center gap-1.5">
-                Low stock <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                <span>Low stock</span>
+                <AlertCircle size={14} className="text-destructive shrink-0" aria-hidden="true" />
               </div>
               <div className="text-xs text-muted mt-0.5">
                 {stock.name} - {stock.size}

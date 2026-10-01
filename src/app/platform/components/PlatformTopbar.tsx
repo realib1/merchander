@@ -110,7 +110,7 @@ export function PlatformTopbar({ userEmail, userRole = 'platform_admin' }: Platf
 
         {userEmail && (
           <div className="flex items-center gap-2 pl-3 border-l border-separator/60">
-            <div className="w-8 h-8 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-xs font-mono shrink-0">
+            <div className="w-8 h-8 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-xs shrink-0">
               <Shield size={14} />
             </div>
 
@@ -118,7 +118,7 @@ export function PlatformTopbar({ userEmail, userRole = 'platform_admin' }: Platf
               <div className="text-xs font-semibold text-foreground truncate max-w-40">
                 {userEmail}
               </div>
-              <div className="text-[10px] font-medium text-brand-primary uppercase font-mono tracking-wider">
+              <div className="text-[10px] font-medium text-brand-primary uppercase tracking-wider">
                 {userRole.replace('_', ' ')}
               </div>
             </div>

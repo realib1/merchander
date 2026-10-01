@@ -55,7 +55,7 @@ export function LogoUploader({ logoUrl, businessName, onChange, disabled = false
     <div className="space-y-1.5">
       <div className="flex items-center gap-6">
         {/* Business Logo Preview with Profile Gradient Border */}
-        <div className="relative h-20 w-20 shrink-0 rounded-2xl bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-xs">
+        <div className="relative h-20 w-20 shrink-0 rounded-xl bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-xs">
           <div className="relative w-full h-full rounded-[14px] bg-surface flex items-center justify-center overflow-hidden">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element

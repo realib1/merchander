@@ -44,7 +44,7 @@ export function StorefrontPaymentCard({
     return (
       <div className="p-6 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <CheckCircle2 size={24} />
           </div>
           <div>
@@ -169,7 +169,7 @@ export function StorefrontPaymentCard({
       </div>
 
       {/* Payment Provider Selector */}
-      <div className={`grid gap-2 p-1 bg-surface rounded-2xl border border-separator/60 ${config?.p2p_accounts?.length ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <div className={`grid gap-2 p-1 bg-surface rounded-xl border border-separator/60 ${config?.p2p_accounts?.length ? 'grid-cols-3' : 'grid-cols-2'}`}>
         <button
           type="button"
           onClick={() => {
@@ -222,14 +222,14 @@ export function StorefrontPaymentCard({
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-start gap-2">
+        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-start gap-2">
           <AlertCircle size={16} className="shrink-0 mt-0.5 text-rose-500" />
           <span>{error}</span>
         </div>
       )}
 
       {promptMessage ? (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-3">
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-3">
           <div className="flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-300 font-medium">
             <Smartphone size={18} className="shrink-0 text-amber-500 mt-0.5" />
             <div>
@@ -253,13 +253,13 @@ export function StorefrontPaymentCard({
         </div>
       ) : providerTab === 'manual' && config?.p2p_accounts ? (
         <div className="space-y-4">
-          <div className="p-4 bg-surface rounded-2xl border border-separator/60 space-y-4">
+          <div className="p-4 bg-surface rounded-xl border border-separator/60 space-y-4">
             <div className="space-y-2">
               {config.p2p_accounts.map((acc) => (
                 <div key={acc.id} className="p-3 bg-surface-elevated rounded-xl border border-separator/40 text-xs text-foreground">
                   <p className="font-bold">{acc.providerName}</p>
-                  <p className="font-mono text-sm mt-1">{acc.accountNumber} <span className="text-muted font-sans">- {acc.accountName}</span></p>
-                  {acc.shortcode && <p className="mt-1 text-amber-500 font-mono font-medium">USSD: {acc.shortcode}</p>}
+                  <p className="text-sm mt-1">{acc.accountNumber} <span className="text-muted font-sans">- {acc.accountName}</span></p>
+                  {acc.shortcode && <p className="mt-1 text-amber-500 font-medium">USSD: {acc.shortcode}</p>}
                 </div>
               ))}
             </div>
@@ -275,7 +275,7 @@ export function StorefrontPaymentCard({
             type="button"
             onClick={handleRefreshStatus}
             disabled={isChecking}
-            className="w-full py-3.5 px-4 rounded-2xl text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-xl text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
             style={{ backgroundColor: primaryColor }}
           >
             {isChecking ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
@@ -297,7 +297,7 @@ export function StorefrontPaymentCard({
                   placeholder="e.g. 024 123 4567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-surface border border-separator text-sm text-foreground focus:outline-hidden focus:ring-2 focus:ring-brand-primary/30 transition placeholder:text-muted/60 font-mono"
+                  className="w-full px-4 py-3 rounded-xl bg-surface border border-separator text-sm text-foreground focus:outline-hidden focus:ring-2 focus:ring-brand-primary/30 transition placeholder:text-muted/60 "
                 />
               </div>
               <p className="text-[11px] text-muted">
@@ -305,7 +305,7 @@ export function StorefrontPaymentCard({
               </p>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-surface border border-separator space-y-2 text-xs text-muted">
+            <div className="p-4 rounded-xl bg-surface border border-separator space-y-2 text-xs text-muted">
               <p className="font-semibold text-foreground">Paystack Secure Hosted Checkout</p>
               <p>
                 You will be securely redirected to Paystack to complete payment with your Visa, Mastercard, or
@@ -317,7 +317,7 @@ export function StorefrontPaymentCard({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 px-4 rounded-2xl text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-xl text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
             style={{ backgroundColor: primaryColor }}
           >
             {isSubmitting ? (

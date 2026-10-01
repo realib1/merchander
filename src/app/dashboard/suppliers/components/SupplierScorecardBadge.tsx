@@ -78,7 +78,7 @@ export function SupplierScorecardBadge({
       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} />
       <span>Grade {grade}</span>
       {showScore && score !== undefined && grade !== 'Unrated' && (
-        <span className="font-mono text-[10px] opacity-80 tabular-nums">
+        <span className="text-[10px] opacity-80 tabular-nums">
           ({Math.round(score)}%)
         </span>
       )}

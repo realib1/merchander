@@ -74,7 +74,7 @@ export function InsightCard({ insight }: InsightCardProps) {
   const isWhatsApp = insight.action.type === 'whatsapp';
 
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+    <div className="bg-surface border border-separator rounded-xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
       <div>
         {/* Header: Category Icon & Severity Badge */}
         <div className="flex items-center justify-between gap-3 mb-3">

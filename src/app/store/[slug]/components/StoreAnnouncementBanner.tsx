@@ -112,7 +112,7 @@ export function StoreAnnouncementBanner({
               <button type="button" onClick={handlePrev} className="p-0.5 text-muted hover:text-foreground transition cursor-pointer" aria-label="Previous announcement">
                 <ChevronLeft size={13} />
               </button>
-              <span className="text-[10px] font-mono font-semibold px-1 text-muted">{currentIndex + 1}/{bannerItems.length}</span>
+              <span className="text-[10px] font-semibold px-1 text-muted">{currentIndex + 1}/{bannerItems.length}</span>
               <button type="button" onClick={handleNext} className="p-0.5 text-muted hover:text-foreground transition cursor-pointer" aria-label="Next announcement">
                 <ChevronRight size={13} />
               </button>

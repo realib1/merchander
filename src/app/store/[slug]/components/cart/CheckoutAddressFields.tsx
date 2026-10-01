@@ -42,7 +42,7 @@ export function CheckoutAddressFields({
             placeholder="e.g. GA-183-9024"
             value={gpsAddress}
             onChange={(e) => onGpsAddressChange(e.target.value.toUpperCase())}
-            className="w-full text-xs font-mono uppercase rounded-xl bg-surface-elevated border border-separator px-3.5 py-2.5 pl-8 text-foreground placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none transition"
+            className="w-full text-xs uppercase rounded-xl bg-surface-elevated border border-separator px-3.5 py-2.5 pl-8 text-foreground placeholder:text-muted/60 focus:ring-1 focus:ring-brand-primary focus:outline-none transition"
           />
           <Navigation size={13} className="absolute left-2.5 text-muted shrink-0 pointer-events-none" />
         </div>

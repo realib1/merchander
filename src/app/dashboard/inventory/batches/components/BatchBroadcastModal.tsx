@@ -128,7 +128,7 @@ export function BatchBroadcastModal({ isOpen, onClose, batch }: BatchBroadcastMo
             <MessageSquare size={18} />
           </div>
           <div>
-            <div className="text-[10px] font-mono font-bold text-emerald-500 uppercase">
+            <div className="text-[10px] font-bold text-emerald-500 uppercase">
               Customer Communications
             </div>
             <div className="text-base font-bold text-foreground font-display mt-0.5">
@@ -203,13 +203,13 @@ export function BatchBroadcastModal({ isOpen, onClose, batch }: BatchBroadcastMo
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-foreground flex items-center justify-between">
             <span>Message Content Preview</span>
-            <span className="text-[10px] text-muted font-normal font-mono">Dynamic Tags Supported</span>
+            <span className="text-[10px] text-muted font-normal ">Dynamic Tags Supported</span>
           </label>
           <textarea
             rows={5}
             value={activeMessage}
             onChange={(e) => setUserEditedMessage(e.target.value)}
-            className="w-full text-xs font-mono rounded-xl bg-surface-elevated border border-separator p-3 text-foreground focus:outline-hidden focus:border-emerald-500 leading-relaxed"
+            className="w-full text-xs rounded-xl bg-surface-elevated border border-separator p-3 text-foreground focus:outline-hidden focus:border-emerald-500 leading-relaxed"
           />
         </div>
 
@@ -222,7 +222,7 @@ export function BatchBroadcastModal({ isOpen, onClose, batch }: BatchBroadcastMo
             </span>
           </div>
 
-          <div className="rounded-2xl border border-separator bg-surface-elevated max-h-36 overflow-y-auto custom-scrollbar divide-y divide-separator/40 text-xs">
+          <div className="rounded-xl border border-separator bg-surface-elevated max-h-36 overflow-y-auto custom-scrollbar divide-y divide-separator/40 text-xs">
             {isLoadingRecipients ? (
               <div className="p-4 text-center text-muted flex items-center justify-center gap-2">
                 <Loader2 size={13} className="animate-spin" />
@@ -237,7 +237,7 @@ export function BatchBroadcastModal({ isOpen, onClose, batch }: BatchBroadcastMo
                 <div key={r.orderId} className="p-2.5 flex items-center justify-between gap-2">
                   <div>
                     <div className="font-semibold text-foreground">{r.customerName}</div>
-                    <div className="text-[10px] text-muted font-mono">
+                    <div className="text-[10px] text-muted ">
                       Order #{r.orderShortId} • {r.customerPhone}
                     </div>
                   </div>

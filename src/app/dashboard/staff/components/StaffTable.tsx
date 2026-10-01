@@ -101,7 +101,7 @@ export function StaffTable({ staff, customRoles = [] }: StaffTableProps) {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <div className="bg-surface border border-separator rounded-2xl overflow-hidden shadow-xs">
+      <div className="bg-surface border border-separator rounded-xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm">
             <thead>

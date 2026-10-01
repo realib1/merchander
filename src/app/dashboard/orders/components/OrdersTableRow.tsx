@@ -28,9 +28,11 @@ export interface Order {
 interface OrdersTableRowProps {
   order: Order;
   isSelected: boolean;
+  isFocused: boolean;
   isMenuOpen: boolean;
   onToggleSelect: (id: string, checked: boolean) => void;
   onToggleMenu: (id: string) => void;
+  onSelectOrder: (order: Order) => void;
   onOpenDetails: (order: Order) => void;
   onOpenReconcile: (order: Order) => void;
   onStatusChange: (id: string, newStatus: OrderStatus) => void;
@@ -40,9 +42,11 @@ interface OrdersTableRowProps {
 export function OrdersTableRow({
   order,
   isSelected,
+  isFocused,
   isMenuOpen,
   onToggleSelect,
   onToggleMenu,
+  onSelectOrder,
   onOpenDetails,
   onOpenReconcile,
   onStatusChange,
@@ -92,7 +96,7 @@ export function OrdersTableRow({
   };
 
   return (
-    <tr className="hover:bg-surface-elevated/40 transition-colors group">
+    <tr className={`transition-colors group ${isFocused ? 'bg-brand-primary/5' : 'hover:bg-surface-elevated/40'}`}>
       <td className="p-4">
         <input
           type="checkbox"
@@ -103,22 +107,18 @@ export function OrdersTableRow({
       </td>
       <td className="p-4 font-medium text-foreground">
         <button
-          onClick={() => onOpenDetails(order)}
+          type="button"
+          onClick={() => onSelectOrder(order)}
+          aria-pressed={isFocused}
           className="hover:text-brand-primary transition-colors text-left flex flex-col cursor-pointer"
         >
           <span className="font-semibold text-xs sm:text-sm">
             #{order.short_id ? order.short_id : order.id.substring(0, 8).toUpperCase()}
           </span>
-          <span className="text-[10px] text-muted sm:hidden">{new Date(order.created_at).toLocaleDateString()}</span>
+          <span className="text-[10px] text-muted">
+            {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          </span>
         </button>
-      </td>
-      <td className="p-4 text-muted hidden sm:table-cell text-xs">
-        {new Date(order.created_at).toLocaleDateString(undefined, {
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })}
       </td>
       <td className="p-4">
         <div className="flex flex-col">

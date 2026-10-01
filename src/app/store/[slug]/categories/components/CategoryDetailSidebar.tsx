@@ -21,7 +21,7 @@ interface CategoryDetailSidebarProps {
 
 export function CategoryDetailSidebar({ categories, primaryColor }: CategoryDetailSidebarProps) {
   return (
-    <aside className="hidden lg:block space-y-4 rounded-2xl border border-separator/70 bg-surface p-4 sticky top-24 shadow-2xs">
+    <aside className="hidden lg:block space-y-4 rounded-xl border border-separator/70 bg-surface p-4 sticky top-24 shadow-2xs">
       <div className="flex items-center gap-2 px-2 pb-3 border-b border-separator/60">
         <Layers size={16} className="text-brand-primary" />
         <h2 className="text-xs font-black uppercase tracking-widest text-foreground">Categories</h2>

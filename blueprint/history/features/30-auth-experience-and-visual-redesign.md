@@ -2,7 +2,7 @@
 
 **Status:** Completed  
 **Completed Date:** 2026-09-11  
-**Branch:** feature/auth-ui-redesign  
+**Branch:** feature/auth-ui-redesign
 
 ---
 
@@ -29,7 +29,7 @@
      - `WizardControls.tsx` (61 LOC): back, continue, and launch workspace actions.
      - `useSignupWizard.ts` (124 LOC): clean state management and validation hook.
      - `SignupWizardClient.tsx` (88 LOC): lightweight orchestrator component.
-   - Unified card container styling (`bg-surface rounded-2xl border border-separator shadow-xl p-5 sm:p-7`) and `max-w-xl` width across all steps.
+   - Unified card container styling (`bg-surface rounded-xl border border-separator shadow-xl p-5 sm:p-7`) and `max-w-xl` width across all steps.
 
 ---
 

@@ -63,7 +63,7 @@ export function SupplierScorecardModal({
     >
       <div className="space-y-4">
         {/* Composite Score Banner */}
-        <div className="p-4 rounded-2xl bg-surface-elevated border border-separator/80 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-surface-elevated border border-separator/80 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-muted tracking-wider uppercase">
               Overall Reliability Index

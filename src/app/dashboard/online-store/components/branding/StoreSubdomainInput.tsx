@@ -56,7 +56,7 @@ export function StoreSubdomainInput({
       </div>
 
       <div className="flex items-center bg-surface-elevated border border-separator rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-brand-primary focus-within:border-brand-primary transition shadow-2xs">
-        <span className="text-[11px] text-muted px-2.5 sm:px-3 py-2 bg-surface/60 border-r border-separator select-none font-mono">
+        <span className="text-[11px] text-muted px-2.5 sm:px-3 py-2 bg-surface/60 border-r border-separator select-none ">
           https://
         </span>
         <input
@@ -68,9 +68,9 @@ export function StoreSubdomainInput({
             onSlugChange(sanitized);
           }}
           placeholder="yourstore"
-          className="flex-1 min-w-0 bg-transparent px-3 py-2 text-xs font-mono font-medium text-foreground placeholder:text-muted outline-none"
+          className="flex-1 min-w-0 bg-transparent px-3 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none"
         />
-        <span className="text-[11px] text-muted px-2.5 sm:px-3 py-2 bg-surface/60 border-l border-separator select-none font-mono">
+        <span className="text-[11px] text-muted px-2.5 sm:px-3 py-2 bg-surface/60 border-l border-separator select-none ">
           .{ROOT_DOMAIN}
         </span>
       </div>
@@ -79,7 +79,7 @@ export function StoreSubdomainInput({
       <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px]">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className={`w-1.5 h-1.5 rounded-full ${isValidSlug ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-          <span className="text-muted truncate font-mono text-[11px]">{fullSubdomainUrl}</span>
+          <span className="text-muted truncate text-[11px]">{fullSubdomainUrl}</span>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

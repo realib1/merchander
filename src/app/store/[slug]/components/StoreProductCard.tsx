@@ -75,7 +75,7 @@ export function StoreProductCard({
   }, [hasMultipleVariants, product.variants]);
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-separator/70 bg-surface shadow-2xs hover:border-separator hover:shadow-md transition-all duration-200 select-none">
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-xl border border-separator/70 bg-surface shadow-2xs hover:border-separator hover:shadow-md transition-all duration-200 select-none">
       <ProductCardCanvas
         productUrl={productUrl}
         imageUrl={product.image_url}

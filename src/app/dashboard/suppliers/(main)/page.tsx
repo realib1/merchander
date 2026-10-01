@@ -31,7 +31,7 @@ export default async function SuppliersPage() {
         <NewSupplierModal />
       </div>
 
-      <div className="flex-1 min-h-0 bg-surface border border-separator rounded-2xl flex flex-col shadow-sm overflow-hidden">
+      <div className="flex-1 min-h-0 bg-surface border border-separator rounded-xl flex flex-col shadow-sm overflow-hidden">
         <Suspense fallback={<div className="p-12 text-center text-muted">Loading suppliers...</div>}>
           <SuppliersTable suppliers={suppliers || []} scorecards={scorecardsMap} />
         </Suspense>

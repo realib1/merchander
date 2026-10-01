@@ -46,7 +46,7 @@ export default function NewCustomerPage() {
         <p className="mt-1 font-medium">Create a new customer profile.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-surface border border-separator rounded-2xl p-6 shadow-sm space-y-6">
+      <form onSubmit={handleSubmit} className="bg-surface border border-separator rounded-xl p-6 shadow-sm space-y-6">
         <div>
           <label htmlFor="name" className="block text-sm font-medium  mb-1.5">
             Full Name

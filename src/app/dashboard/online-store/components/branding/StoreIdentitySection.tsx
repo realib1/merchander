@@ -38,7 +38,7 @@ export function StoreIdentitySection({
   onIsActiveChange,
 }: StoreIdentitySectionProps) {
   return (
-    <div className="bg-surface border border-separator rounded-2xl p-5 sm:p-6 shadow-xs space-y-6">
+    <div className="bg-surface border border-separator rounded-xl p-5 sm:p-6 shadow-xs space-y-6">
       {/* Header with Title and Live Status Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-separator/70">
         <div>
@@ -81,7 +81,7 @@ export function StoreIdentitySection({
               <span>Store Name</span>
               <span className="text-destructive">*</span>
             </label>
-            <span className="text-[10px] text-muted font-mono">{storeName.length}/60</span>
+            <span className="text-[10px] text-muted ">{storeName.length}/60</span>
           </div>
           <input
             type="text"
@@ -108,7 +108,7 @@ export function StoreIdentitySection({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-foreground">Short Tagline</label>
-            <span className="text-[10px] text-muted font-mono">{tagline.length}/80</span>
+            <span className="text-[10px] text-muted ">{tagline.length}/80</span>
           </div>
           <input
             type="text"
@@ -124,7 +124,7 @@ export function StoreIdentitySection({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-foreground">Store Bio / Description</label>
-            <span className="text-[10px] text-muted font-mono">{bio.length}/300</span>
+            <span className="text-[10px] text-muted ">{bio.length}/300</span>
           </div>
           <textarea
             rows={3}

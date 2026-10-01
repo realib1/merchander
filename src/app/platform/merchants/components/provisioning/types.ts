@@ -1,5 +1,5 @@
 import React from 'react';
-import { Store, ShoppingBag, Package, Sparkles } from 'lucide-react';
+import { Store, ShoppingBag, Package, Shirt } from 'lucide-react';
 import { PlatformTier } from '@/types/platform';
 
 export type Archetype = 'general' | 'grocery' | 'importer' | 'boutique';
@@ -41,7 +41,7 @@ export const ARCHETYPES: ArchetypeConfig[] = [
   {
     id: 'boutique',
     label: 'Social Boutique',
-    icon: Sparkles,
+    icon: Shirt,
     description: 'Fashion and beauty with Link-in-Bio mobile store and MoMo checkouts.',
     defaultCity: 'Kumasi',
     modules: { inventory: true, orders: true, storefront: true, instagram_sync: true, momo_auto: true },

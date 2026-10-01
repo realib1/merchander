@@ -51,9 +51,9 @@ export function HeroSlidePreview({
         <span>{slide.is_active ? 'Visible to shoppers' : 'Hidden from storefront'}</span>
       </div>
 
-      <div className="flex justify-center bg-zinc-950/5 dark:bg-black/40 border border-separator/80 rounded-2xl p-3 sm:p-4 overflow-hidden">
+      <div className="flex justify-center bg-zinc-950/5 dark:bg-black/40 border border-separator/80 rounded-xl p-3 sm:p-4 overflow-hidden">
         <div
-          className={`transition-all duration-300 relative rounded-2xl overflow-hidden border border-separator shadow-sm ${
+          className={`transition-all duration-300 relative rounded-xl overflow-hidden border border-separator shadow-sm ${
             previewViewport === 'mobile' ? 'w-[360px] min-h-[220px]' : 'w-full min-h-[280px] sm:min-h-[320px]'
           }`}
         >
