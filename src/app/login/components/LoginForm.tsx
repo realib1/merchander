@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { getRememberedIdentifier, saveRememberedIdentifier, clearRememberedIdentifier } from '@/utils/remember-me';
 import { MfaChallengeForm } from './MfaChallengeForm';
+import { Button } from '@/components/ui/Button';
 
 interface LoginFormProps {
   initialMfaRequired?: boolean;
@@ -86,7 +87,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
             autoComplete="username"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            className="w-full px-4 py-2 rounded-md border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none font-medium transition-all shadow-xs"
+            className="w-full px-4 py-2 rounded-lg border border-separator bg-surface text-foreground placeholder:text-muted/60 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background outline-none font-medium transition-all shadow-xs"
           />
         </div>
 
@@ -102,12 +103,12 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
               placeholder="Enter your password"
               required
               autoComplete="current-password"
-              className="w-full pl-4 pr-11 py-2 rounded-md border border-separator bg-surface text-foreground placeholder:text-muted/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none font-medium transition-all shadow-xs"
+              className="w-full pl-4 pr-11 py-2 rounded-lg border border-separator bg-surface text-foreground placeholder:text-muted/60 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background outline-none font-medium transition-all shadow-xs"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-muted hover:text-foreground transition-colors focus:outline-hidden cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-md cursor-pointer"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -123,7 +124,7 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
               name="remember"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded-sm border-separator text-brand-primary focus:ring-brand-primary/30 accent-brand-primary cursor-pointer"
+              className="w-4 h-4 rounded-sm border-separator text-brand-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background accent-brand-primary cursor-pointer"
             />
             <span className="text-sm text-muted hover:text-foreground transition-colors">Remember me</span>
           </label>
@@ -135,13 +136,15 @@ export function LoginForm({ initialMfaRequired = false }: LoginFormProps) {
           </Link>
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={isPending}
-          className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99] disabled:opacity-60 text-white rounded-md font-semibold shadow-sm shadow-brand-primary/25 transition-all cursor-pointer mt-3"
+          isLoading={isPending}
+          className="w-full mt-3 h-10 rounded-lg text-sm font-semibold"
         >
-          {isPending ? 'Signing in...' : 'Sign In'}
-        </button>
+          Sign In
+        </Button>
       </form>
     </div>
   );

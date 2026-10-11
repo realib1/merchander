@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/utils/cn';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline' | 'success' | 'subtle';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -22,17 +22,26 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
-  primary: 'bg-brand-primary text-white hover:opacity-90 active:scale-[0.98]',
-  secondary: 'bg-brand-secondary text-white hover:opacity-90 active:scale-[0.98]',
-  outline: 'border border-separator bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]',
-  ghost: 'bg-transparent text-primary hover:bg-surface-elevated active:scale-[0.98]',
-  destructive: 'bg-destructive text-white hover:opacity-90 active:scale-[0.98]',
+  primary:
+    'bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.98] shadow-xs font-semibold',
+  secondary:
+    'bg-surface text-foreground border border-separator hover:bg-surface-elevated hover:border-separator/80 dark:bg-surface-elevated dark:text-foreground dark:border-separator dark:hover:bg-surface shadow-2xs font-semibold active:scale-[0.98]',
+  outline:
+    'border border-separator bg-transparent text-foreground hover:bg-surface-elevated dark:border-separator dark:text-foreground dark:hover:bg-surface-elevated font-semibold active:scale-[0.98]',
+  ghost:
+    'bg-transparent text-secondary hover:text-foreground hover:bg-surface-elevated dark:text-secondary dark:hover:text-foreground dark:hover:bg-surface-elevated font-semibold active:scale-[0.98]',
+  destructive:
+    'bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:text-white shadow-xs font-semibold active:scale-[0.98]',
+  success:
+    'bg-success text-white hover:bg-success/90 dark:bg-success dark:text-white shadow-xs font-semibold active:scale-[0.98]',
+  subtle:
+    'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 dark:bg-brand-primary/15 dark:text-brand-primary-400 dark:hover:bg-brand-primary/25 font-semibold active:scale-[0.98]',
 };
 
 const SIZE_STYLES: Record<ButtonSize, string> = {
-  sm: 'h-10 px-3 text-xs gap-1.5 min-h-10',
-  md: 'h-12 px-4 text-sm gap-2 min-h-12',
-  lg: 'h-14 px-6 text-base gap-2.5 min-h-14',
+  sm: 'h-8 px-3 text-xs gap-1.5 min-h-8',
+  md: 'h-9 px-4 text-sm gap-2 min-h-9',
+  lg: 'h-10 px-5 text-sm gap-2.5 min-h-10',
 };
 
 /**
@@ -61,9 +70,10 @@ export function Button({
       disabled={isDisabled}
       aria-busy={isLoading}
       className={cn(
-        'inline-flex items-center justify-center font-medium transition-all duration-150 select-none cursor-pointer',
-        'rounded-md disabled:cursor-not-allowed disabled:opacity-50',
-        'focus-visible:ring-3 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:outline-none',
+        'inline-flex items-center justify-center transition-all duration-150 select-none cursor-pointer',
+        'rounded-lg disabled:cursor-not-allowed disabled:opacity-40',
+        'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        variant === 'destructive' ? 'focus-visible:ring-destructive' : 'focus-visible:ring-brand-primary',
         VARIANT_STYLES[variant],
         SIZE_STYLES[size],
         className

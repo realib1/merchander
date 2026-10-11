@@ -172,7 +172,7 @@ export function Modal({
           <div className="shrink-0 flex items-start justify-between border-b border-separator/60 p-4 sm:p-5 bg-surface-elevated">
             <div className="flex flex-col gap-1 pr-4">
               {title && (
-                <h2 id="modal-title" className="text-base sm:text-lg font-semibold tracking-tight">
+                <h2 id="modal-title" className="font-heading text-lg font-bold tracking-tight text-foreground">
                   {title}
                 </h2>
               )}
@@ -188,7 +188,7 @@ export function Modal({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="shrink-0 rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-brand-primary cursor-pointer"
+                className="shrink-0 rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-primary cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>

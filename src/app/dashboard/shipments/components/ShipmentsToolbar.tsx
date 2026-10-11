@@ -67,7 +67,7 @@ export function ShipmentsToolbar({ suppliers, purchaseOrders }: ShipmentsToolbar
               aria-label="Search shipments"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-xl text-sm placeholder-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/40 transition-all shadow-xs"
+              className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm placeholder-muted outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all shadow-xs"
             />
           </div>
 

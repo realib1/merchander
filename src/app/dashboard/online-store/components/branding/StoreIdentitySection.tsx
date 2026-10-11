@@ -90,7 +90,7 @@ export function StoreIdentitySection({
             value={storeName}
             onChange={(e) => onNameChange(e.target.value)}
             placeholder="e.g. Unique Fashion"
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:border-brand-primary transition shadow-2xs"
+            className="w-full bg-surface-elevated border border-separator rounded-lg px-3.5 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition shadow-2xs"
           />
           <p className="text-[11px] text-muted">Primary name shown on storefront navigation, search engines, and messages.</p>
         </div>
@@ -116,7 +116,7 @@ export function StoreIdentitySection({
             value={tagline}
             onChange={(e) => onTaglineChange(e.target.value)}
             placeholder="e.g. Premium everyday essentials designed for comfort"
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:border-brand-primary transition shadow-2xs"
+            className="w-full bg-surface-elevated border border-separator rounded-lg px-3.5 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition shadow-2xs"
           />
           <p className="text-[11px] text-muted">Appears under your hero banner, SEO description, and WhatsApp share cards.</p>
         </div>
@@ -132,7 +132,7 @@ export function StoreIdentitySection({
             value={bio}
             onChange={(e) => onBioChange(e.target.value)}
             placeholder="Tell your brand story, craftsmanship, or key value proposition for shoppers..."
-            className="w-full bg-surface-elevated border border-separator rounded-xl px-3.5 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:border-brand-primary transition shadow-2xs resize-none leading-relaxed"
+            className="w-full bg-surface-elevated border border-separator rounded-lg px-3.5 py-2 text-xs font-medium text-foreground placeholder:text-muted outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition shadow-2xs resize-none leading-relaxed"
           />
           <p className="text-[11px] text-muted">Detailed brand summary presented in the storefront footer and About modal.</p>
         </div>

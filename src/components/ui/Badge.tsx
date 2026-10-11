@@ -15,30 +15,30 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const VARIANT_STYLES: Record<BadgeVariant, { container: string; dot: string }> = {
   default: {
-    container: 'bg-surface-elevated text-primary',
-    dot: 'bg-text-secondary',
+    container: 'bg-[oklch(0.96_0.01_260)] text-[oklch(0.45_0.02_260)] dark:bg-white/10 dark:text-muted-foreground',
+    dot: 'bg-[oklch(0.7_0.01_260)] dark:bg-muted-foreground',
   },
   success: {
-    container: 'bg-success/15 text-success',
-    dot: 'bg-success',
+    container: 'bg-[oklch(0.95_0.04_150)] text-[oklch(0.38_0.1_150)] dark:bg-emerald-500/15 dark:text-emerald-300',
+    dot: 'bg-[oklch(0.65_0.15_150)] dark:bg-emerald-400',
   },
   warning: {
-    container: 'bg-warning/15 text-warning',
-    dot: 'bg-warning',
+    container: 'bg-[oklch(0.96_0.05_85)] text-[oklch(0.42_0.1_70)] dark:bg-amber-500/15 dark:text-amber-300',
+    dot: 'bg-[oklch(0.75_0.15_85)] dark:bg-amber-400',
   },
   destructive: {
-    container: 'bg-destructive/15 text-destructive',
-    dot: 'bg-destructive',
+    container: 'bg-[oklch(0.95_0.04_25)] text-[oklch(0.45_0.18_25)] dark:bg-red-500/15 dark:text-red-300',
+    dot: 'bg-[oklch(0.55_0.22_25)] dark:bg-red-400',
   },
   info: {
-    container: 'bg-info/15 text-info',
-    dot: 'bg-info',
+    container: 'bg-[oklch(0.95_0.03_250)] text-[oklch(0.42_0.14_255)] dark:bg-blue-500/15 dark:text-blue-300',
+    dot: 'bg-[oklch(0.6_0.15_250)] dark:bg-blue-400',
   },
 };
 
 const SIZE_STYLES: Record<BadgeSize, string> = {
-  sm: 'px-2 py-0.5 text-caption gap-1 rounded-full',
-  md: 'px-2.5 py-1 text-xs gap-1.5 rounded-full',
+  sm: 'px-2 py-0.5 text-xs font-semibold gap-1 rounded-full',
+  md: 'px-2.5 py-1 text-xs font-semibold gap-1.5 rounded-full',
 };
 
 /**

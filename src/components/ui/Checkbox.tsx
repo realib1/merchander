@@ -51,10 +51,10 @@ export function Checkbox({
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={cn(
-          'relative flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-1 cursor-pointer',
+          'relative flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded border transition-all duration-150 outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer',
           checked
             ? 'border-brand-primary bg-brand-primary text-white shadow-xs'
-            : 'border-text-secondary/70 bg-surface hover:border-text-secondary'
+            : 'border-separator bg-surface hover:border-secondary'
         )}
         {...props}
       >
@@ -64,7 +64,7 @@ export function Checkbox({
       {(label || description) && (
         <div className="space-y-0.5 leading-none cursor-pointer" onClick={handleClick}>
           {label && <p className="text-xs font-semibold text-foreground">{label}</p>}
-          {description && <p className="text-[11px] text-muted">{description}</p>}
+          {description && <p className="text-xs text-muted">{description}</p>}
         </div>
       )}
     </div>

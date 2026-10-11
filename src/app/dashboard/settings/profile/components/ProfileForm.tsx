@@ -207,7 +207,7 @@ export function ProfileForm({
               id="profile-language"
               name="language"
               defaultValue={language}
-              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 cursor-pointer"
+              className="w-full rounded-lg border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
             >
               <option value="en">English (Default)</option>
               <option value="tw">Twi (Ghana)</option>
@@ -226,7 +226,7 @@ export function ProfileForm({
               id="profile-timezone"
               name="timezone"
               defaultValue={timezone}
-              className="w-full rounded-xl border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 cursor-pointer"
+              className="w-full rounded-lg border border-separator bg-surface px-3 py-2 text-xs transition-colors outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
             >
               <option value="Africa/Accra">GMT (Accra, Ghana - UTC+0)</option>
               <option value="Africa/Lagos">WAT (Lagos, Nigeria - UTC+1)</option>

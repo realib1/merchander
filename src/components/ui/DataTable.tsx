@@ -121,14 +121,14 @@ export function DataTable<T extends Record<string, unknown>>({
 
   return (
     <div
-      className={cn('flex w-full flex-col overflow-hidden rounded-lg border border-separator bg-surface', className)}
+      className={cn('flex w-full flex-col overflow-hidden rounded-xl border border-separator bg-surface', className)}
     >
       <div className="w-full overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="border-b border-separator bg-surface-elevated text-secondary">
+            <tr className="border-b border-separator bg-surface-elevated/70 text-secondary">
               {selectable && (
-                <th className="w-10 px-4 py-3 text-center">
+                <th className="w-10 px-4 py-2.5 text-center">
                   <div className="flex items-center justify-center">
                     <Checkbox
                       checked={isAllPageSelected}
@@ -143,8 +143,8 @@ export function DataTable<T extends Record<string, unknown>>({
                   key={col.key}
                   onClick={() => col.sortable && handleSort(col.key)}
                   className={cn(
-                    'px-4 py-3 text-xs font-semibold select-none',
-                    col.sortable && 'cursor-pointer hover:text-brand-primary',
+                    'px-4 py-2.5 text-[11px] font-bold tracking-[0.1em] uppercase text-secondary select-none',
+                    col.sortable && 'cursor-pointer hover:text-primary',
                     col.className
                   )}
                 >
@@ -198,10 +198,10 @@ export function DataTable<T extends Record<string, unknown>>({
                 return (
                   <tr
                     key={rowKey}
-                    className={cn('transition-colors hover:bg-surface-elevated/50', isSelected && 'bg-brand-primary/5')}
+                    className={cn('min-h-[44px] transition-colors hover:bg-surface-elevated/50', isSelected && 'bg-brand-primary/10')}
                   >
                     {selectable && (
-                      <td className="w-10 px-4 py-3 text-center">
+                      <td className="w-10 px-4 py-2.5 text-center">
                         <div className="flex items-center justify-center">
                           <Checkbox
                             checked={isSelected}
@@ -212,7 +212,7 @@ export function DataTable<T extends Record<string, unknown>>({
                       </td>
                     )}
                     {columns.map((col) => (
-                      <td key={col.key} className={cn('px-4 py-3', col.className)}>
+                      <td key={col.key} className={cn('px-4 py-2.5 text-sm', col.className)}>
                         {col.render ? col.render(item, index) : String(item[col.key] ?? '')}
                       </td>
                     ))}
@@ -234,7 +234,7 @@ export function DataTable<T extends Record<string, unknown>>({
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="rounded border border-separator bg-surface px-2.5 py-1 disabled:opacity-40"
+              className="rounded-lg border border-separator bg-surface px-3 py-1 text-xs font-semibold hover:bg-surface-elevated disabled:opacity-40"
             >
               Previous
             </button>
@@ -242,7 +242,7 @@ export function DataTable<T extends Record<string, unknown>>({
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded border border-separator bg-surface px-2.5 py-1 disabled:opacity-40"
+              className="rounded-lg border border-separator bg-surface px-3 py-1 text-xs font-semibold hover:bg-surface-elevated disabled:opacity-40"
             >
               Next
             </button>

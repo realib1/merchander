@@ -117,10 +117,11 @@ export function OrdersHeader() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
           <input
             type="text"
+            aria-label="Search order, customer or email"
             placeholder="Search order, customer or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary   placeholder:text-muted transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-surface border border-separator rounded-lg text-sm outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background placeholder:text-muted transition-all"
           />
         </div>
 
@@ -135,6 +136,7 @@ export function OrdersHeader() {
               }}
               className={`p-1.5 rounded-md transition-colors ${!searchParams.get('view') || searchParams.get('view') === 'table' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
               title="Table View"
+              aria-label="Table view"
             >
               <LayoutList size={14} />
             </button>
@@ -146,6 +148,7 @@ export function OrdersHeader() {
               }}
               className={`p-1.5 rounded-md transition-colors ${searchParams.get('view') === 'kanban' ? 'bg-brand-primary text-white shadow-sm' : 'text-muted hover:text-brand-primary'}`}
               title="Kanban View"
+              aria-label="Kanban view"
             >
               <KanbanSquare size={14} />
             </button>
@@ -153,7 +156,7 @@ export function OrdersHeader() {
 
           <Link
             href="/dashboard/orders/new"
-            className="flex justify-center items-center gap-1.5 bg-brand-primary hover:bg-brand-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="flex justify-center items-center gap-1.5 bg-brand-primary hover:bg-brand-primary-hover text-white h-9 px-4 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Plus size={16} />
             Create order

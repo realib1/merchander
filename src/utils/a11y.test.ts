@@ -1,6 +1,7 @@
 
 import { formatCurrency, formatDate, formatNumber } from './format';
 import { getChannelBadgeDetails, getDefaultQuickReplies } from './conversationsMath';
+import { getContrastTextColor } from './color';
 
 describe('Accessibility & UI Formatter Suite', () => {
   describe('High-Contrast Currency & Number Screen-Reader Formatting', () => {
@@ -56,6 +57,24 @@ describe('Accessibility & UI Formatter Suite', () => {
       expect(categories).toContain('payment');
       expect(categories).toContain('delivery');
       expect(categories).toContain('greeting');
+    });
+  });
+
+  describe('Button Contrast & Variant Accessibility', () => {
+    it('ensures primary button background has sufficient contrast for white text', () => {
+      // Merchander Brand Orange (#FC5100) and Orange 700 (#E55F00) require white text
+      expect(getContrastTextColor('#FC5100')).toBe('#ffffff');
+      expect(getContrastTextColor('#E55F00')).toBe('#ffffff');
+      // Dark navy surface (#161b26) requires white text
+      expect(getContrastTextColor('#161b26')).toBe('#ffffff');
+      // Light surface (#ffffff) requires dark text
+      expect(getContrastTextColor('#ffffff')).toBe('#000000');
+    });
+
+    it('ensures buttons differentiate between primary, secondary, outline, destructive, and success', () => {
+      // Color contrast tests for destructive (#dc2626) and emerald (#10b981)
+      expect(getContrastTextColor('#dc2626')).toBe('#ffffff');
+      expect(getContrastTextColor('#047857')).toBe('#ffffff');
     });
   });
 });

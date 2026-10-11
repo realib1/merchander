@@ -136,7 +136,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
             placeholder="Search by ref, phone, sender, customer, or notes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-separator bg-surface placeholder:text-muted focus:ring-2 focus:ring-brand-primary/50 outline-none transition-all"
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-separator bg-surface placeholder:text-muted outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all"
           />
         </div>
 
@@ -154,7 +154,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
               variant="outline"
               onClick={() => setIsExportOpen(!isExportOpen)}
               rightIcon={<ChevronDown size={14} />}
-              className="h-10 px-3.5 text-sm font-semibold rounded-xl"
+              className="h-9 px-3.5 text-sm font-semibold rounded-lg"
             >
               <Download size={15} />
               <span className="hidden sm:inline">Export</span>
@@ -190,7 +190,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
         <select
           value={currentProvider}
           onChange={(e) => updateParam('provider', e.target.value)}
-          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none cursor-pointer"
+          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-separator bg-surface text-foreground outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
         >
           <option value="all">All Methods</option>
           <option value="mtn_momo">MTN Mobile Money</option>
@@ -206,7 +206,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
         <select
           value={currentStatus}
           onChange={(e) => updateParam('status', e.target.value)}
-          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none cursor-pointer"
+          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-separator bg-surface text-foreground outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
         >
           <option value="all">All Statuses</option>
           <option value="completed">Completed / Verified</option>
@@ -219,7 +219,7 @@ export function PaymentsToolbar({ payments, orders, customers }: PaymentsToolbar
         <select
           value={currentPeriod}
           onChange={(e) => updateParam('period', e.target.value)}
-          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-separator bg-surface text-foreground focus:ring-2 focus:ring-brand-primary/50 outline-none cursor-pointer"
+          className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-separator bg-surface text-foreground outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
         >
           <option value="this_month">This Month</option>
           <option value="last_month">Last Month</option>

@@ -47,16 +47,16 @@ export function FormField({
   const hintId = `${id}-hint`;
 
   const baseInputStyles = cn(
-    'w-full rounded-xl border bg-surface px-3.5 text-sm',
-    !isTextarea ? 'h-10 py-2' : 'py-2.5',
+    'w-full rounded-lg border bg-surface px-3 text-sm',
+    !isTextarea ? 'h-9 py-1.5' : 'py-2.5',
     'placeholder:text-muted',
     'transition-colors duration-150 outline-none',
-    'focus-visible:ring-2',
-    leftIcon && 'pl-10',
-    rightIcon && 'pr-10',
+    'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    leftIcon && 'pl-9',
+    rightIcon && 'pr-9',
     error
       ? 'border-destructive focus-visible:ring-destructive'
-      : 'border-separator focus-visible:ring-brand-primary/50',
+      : 'border-separator focus-visible:ring-brand-primary',
     disabled && 'opacity-50 cursor-not-allowed bg-surface-elevated',
     className
   );
@@ -64,7 +64,7 @@ export function FormField({
   return (
     <div className="flex w-full flex-col gap-1.5 text-left">
       {label && (
-        <label htmlFor={id} className="flex items-center gap-1 text-xs font-semibold text-primary select-none">
+        <label htmlFor={id} className="flex items-center gap-1 text-[13px] font-semibold text-foreground select-none">
           {label}
           {required && (
             <span className="text-destructive" aria-hidden="true">

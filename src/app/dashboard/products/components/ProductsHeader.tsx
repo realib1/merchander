@@ -49,7 +49,7 @@ export function ProductsHeader() {
         </div>
         <Link
           href="/dashboard/products/new"
-          className="inline-flex h-9 items-center gap-2 rounded-md bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover"
+          className="inline-flex h-9 items-center gap-2 rounded-lg bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-primary-hover focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Plus size={15} strokeWidth={2.5} />
           New product
@@ -61,25 +61,28 @@ export function ProductsHeader() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={15} />
           <input
             type="text"
+            aria-label="Search products, SKU"
             placeholder="Search products, SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-full rounded-md border border-separator bg-surface-elevated px-3 pl-9 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 placeholder:text-muted"
+            className="h-9 w-full rounded-lg border border-separator bg-surface-elevated px-3 pl-9 text-sm outline-none transition focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background placeholder:text-muted"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <select
             disabled
-            className="h-9 min-w-32 rounded-md border border-separator bg-surface px-3 text-sm font-medium outline-none focus:ring-1 focus:ring-brand-primary"
+            aria-label="Filter products by category"
+            className="h-9 min-w-32 rounded-lg border border-separator bg-surface px-3 text-sm font-medium outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <option>All categories</option>
           </select>
 
           <select
             value={currentStatus}
+            aria-label="Filter products by status"
             onChange={(e) => updateParam('status', e.target.value)}
-            className="h-9 min-w-32 rounded-md border border-separator bg-surface px-3 text-sm font-medium outline-none focus:ring-1 focus:ring-brand-primary"
+            className="h-9 min-w-32 rounded-lg border border-separator bg-surface px-3 text-sm font-medium outline-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <option value="all">All statuses</option>
             <option value="active">Active</option>

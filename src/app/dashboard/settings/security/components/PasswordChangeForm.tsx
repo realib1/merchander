@@ -88,7 +88,7 @@ export function PasswordChangeForm() {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full rounded-xl border border-separator bg-surface px-3.5 py-2 pr-10 text-sm placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand-primary/50 outline-none transition-colors"
+              className="w-full rounded-lg border border-separator bg-surface px-3.5 py-2 pr-10 text-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background outline-none transition-colors"
             />
             <button
               type="button"
@@ -117,7 +117,7 @@ export function PasswordChangeForm() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full rounded-xl border border-separator bg-surface px-3.5 py-2 pr-10 text-sm placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand-primary/50 outline-none transition-colors"
+                className="w-full rounded-lg border border-separator bg-surface px-3.5 py-2 pr-10 text-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background outline-none transition-colors"
               />
               <button
                 type="button"
@@ -164,7 +164,7 @@ export function PasswordChangeForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full rounded-xl border border-separator bg-surface px-3.5 py-2 pr-10 text-sm placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand-primary/50 outline-none transition-colors"
+                className="w-full rounded-lg border border-separator bg-surface px-3.5 py-2 pr-10 text-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background outline-none transition-colors"
               />
               <button
                 type="button"

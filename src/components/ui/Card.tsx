@@ -12,9 +12,9 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const VARIANT_STYLES: Record<CardVariant, string> = {
   default: 'bg-surface border border-separator',
-  elevated: 'bg-surface-elevated border border-separator shadow-md',
+  elevated: 'bg-surface-elevated border border-separator',
   interactive:
-    'bg-surface border border-separator hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer',
+    'bg-surface border border-separator hover:bg-surface-elevated hover:border-primary/40 transition-colors duration-150 cursor-pointer',
 };
 
 /**
@@ -43,7 +43,7 @@ export function CardHeader({ children, className, ...props }: React.HTMLAttribut
 
 export function CardTitle({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-lg leading-tight font-semibold tracking-tight', className)} {...props}>
+    <h3 className={cn('font-heading text-xl font-bold leading-tight tracking-tight text-foreground', className)} {...props}>
       {children}
     </h3>
   );
@@ -51,7 +51,7 @@ export function CardTitle({ children, className, ...props }: React.HTMLAttribute
 
 export function CardDescription({ children, className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn('text-xs text-secondary', className)} {...props}>
+    <p className={cn('text-[13px] text-secondary', className)} {...props}>
       {children}
     </p>
   );
