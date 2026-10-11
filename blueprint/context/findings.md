@@ -7,4 +7,4 @@
 > finding is `open` or `fixed`, then archives resolved findings with the work
 > and resets this file.
 
-No open findings.
+_No findings recorded. `/audit` appends findings here when it finds them._

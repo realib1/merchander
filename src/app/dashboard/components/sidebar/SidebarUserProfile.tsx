@@ -38,7 +38,7 @@ export function SidebarUserProfile({
           onClick={onNavigate}
           className="flex items-center gap-2.5 min-w-0 flex-1 group cursor-pointer"
         >
-          <div className="w-8 h-8 shrink-0 rounded-full bg-linear-to-tr from-brand-secondary to-brand-primary p-0.5 shadow-2xs">
+          <div className="w-8 h-8 shrink-0 rounded-full bg-brand-primary/20 p-0.5">
             <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
               {hasValidImage && avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -61,11 +61,11 @@ export function SidebarUserProfile({
                 <p className="text-xs font-semibold truncate text-foreground group-hover:text-brand-primary transition-colors leading-tight">
                   {userName}
                 </p>
-                <span className="px-1.5 py-0.2 rounded text-[8px] font-semibold bg-brand-primary/10 text-brand-primary uppercase tracking-wider shrink-0">
+                <span className="px-1.5 py-0.5 rounded text-[11px] font-semibold bg-brand-primary/10 text-brand-primary uppercase tracking-wider shrink-0">
                   {userRole}
                 </span>
               </div>
-              <p className="text-[10px] text-muted truncate leading-tight mt-0.5">{userEmail}</p>
+              <p className="text-xs text-muted truncate leading-tight mt-0.5">{userEmail}</p>
             </div>
           )}
         </Link>

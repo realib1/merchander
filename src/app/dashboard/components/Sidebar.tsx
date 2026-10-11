@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { LifeBuoy, ChevronLeft } from 'lucide-react';
+import { LifeBuoy, Settings, UserCog } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useMobileNav } from './MobileNavContext';
 import { toast } from 'sonner';
@@ -32,7 +32,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const supabase = createClient();
-  const { isOpen, setIsOpen, isDesktopCollapsed, setIsDesktopCollapsed } = useMobileNav();
+  const { isOpen, setIsOpen, isDesktopCollapsed } = useMobileNav();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -64,7 +64,7 @@ export function Sidebar({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-separator/70 bg-surface/90 backdrop-blur-xl transition-all duration-300 ease-in-out xl:static xl:relative xl:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-separator bg-surface transition-all duration-300 ease-in-out xl:static xl:relative xl:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isDesktopCollapsed ? 'xl:w-20' : 'xl:w-64'} w-64`}
       >
@@ -96,7 +96,7 @@ export function Sidebar({
                 <span className="font-display font-bold text-base tracking-tight text-foreground truncate leading-tight">
                   {businessName || 'Merchander'}
                 </span>
-                <span className="text-[10px] text-brand-primary/80 font-semibold uppercase tracking-widest mt-0.5">
+                <span className="text-[11px] text-brand-primary font-semibold uppercase tracking-wider mt-0.5">
                   Merchander
                 </span>
               </div>
@@ -109,7 +109,7 @@ export function Sidebar({
           {getFilteredNavGroups(navGroups, enabledModules).map((group) => (
             <div key={group.title} className="space-y-1">
               {!isDesktopCollapsed ? (
-                <div className="text-[10px] font-bold text-muted/80 mb-1 px-3 tracking-widest uppercase">
+                <div className="text-[11px] font-bold text-muted mb-1 px-3 tracking-wider uppercase">
                   {group.title}
                 </div>
               ) : (
@@ -126,35 +126,33 @@ export function Sidebar({
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className={`group relative flex items-center gap-3 rounded px-3 py-2 text- font-medium transition-all ${
+                    className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-brand-primary/10 text-brand-primary font-semibold shadow-2xs'
+                        ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary/10 dark:text-brand-primary font-semibold'
                         : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
                     }`}
                     title={isDesktopCollapsed ? item.name : undefined}
                   >
                     <Icon
                       size={17}
-                      className={`shrink-0 transition-transform group-hover:scale-110 ${
-                        isActive ? 'text-brand-primary' : 'text-muted group-hover:text-foreground'
+                      className={`shrink-0 transition-transform group-hover:scale-105 ${
+                        isActive
+                          ? 'text-brand-primary-700 dark:text-brand-primary'
+                          : 'text-muted group-hover:text-foreground'
                       }`}
                     />
                     {!isDesktopCollapsed && <span className="truncate flex-1">{item.name}</span>}
 
                     {!isDesktopCollapsed && item.badge && (
                       <span
-                        className={`ml-auto px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                        className={`ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${
                           item.badgeType === 'accent'
-                            ? 'bg-brand-primary text-white shadow-2xs'
+                            ? 'bg-brand-primary text-white'
                             : 'bg-surface-elevated text-muted'
                         }`}
                       >
                         {item.badge}
                       </span>
-                    )}
-
-                    {isActive && (
-                      <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1 h-4 bg-brand-primary rounded-full" />
                     )}
                   </Link>
                 );
@@ -163,14 +161,56 @@ export function Sidebar({
           ))}
         </nav>
 
-        {/* Help & Support Page Link */}
-        <div className="px-3 pb-2">
+        {/* Secondary Account / Management Links (§07) */}
+        <div className="px-3 pb-2 space-y-1">
+          <Link
+            href="/dashboard/staff"
+            onClick={() => setIsOpen(false)}
+            className={`w-full group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+              pathname.startsWith('/dashboard/staff')
+                ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary/10 dark:text-brand-primary font-semibold'
+                : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
+            }`}
+            title={isDesktopCollapsed ? 'Staff' : undefined}
+          >
+            <UserCog
+              size={17}
+              className={`shrink-0 transition-colors ${
+                pathname.startsWith('/dashboard/staff')
+                  ? 'text-brand-primary-700 dark:text-brand-primary'
+                  : 'text-muted group-hover:text-foreground'
+              }`}
+            />
+            {!isDesktopCollapsed && <span className="truncate">Staff</span>}
+          </Link>
+
+          <Link
+            href="/dashboard/settings"
+            onClick={() => setIsOpen(false)}
+            className={`w-full group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+              pathname.startsWith('/dashboard/settings')
+                ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary/10 dark:text-brand-primary font-semibold'
+                : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
+            }`}
+            title={isDesktopCollapsed ? 'Settings' : undefined}
+          >
+            <Settings
+              size={17}
+              className={`shrink-0 transition-colors ${
+                pathname.startsWith('/dashboard/settings')
+                  ? 'text-brand-primary-700 dark:text-brand-primary'
+                  : 'text-muted group-hover:text-foreground'
+              }`}
+            />
+            {!isDesktopCollapsed && <span className="truncate">Settings</span>}
+          </Link>
+
           <Link
             href="/dashboard/help"
             onClick={() => setIsOpen(false)}
-            className={`w-full group flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+            className={`w-full group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
               pathname === '/dashboard/help'
-                ? 'bg-brand-primary text-white shadow-xs'
+                ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary/10 dark:text-brand-primary font-semibold'
                 : 'text-muted hover:bg-surface-elevated/70 hover:text-foreground'
             }`}
             title={isDesktopCollapsed ? 'Help & Support' : undefined}
@@ -178,7 +218,9 @@ export function Sidebar({
             <LifeBuoy
               size={17}
               className={`shrink-0 transition-colors ${
-                pathname === '/dashboard/help' ? 'text-white' : 'text-muted group-hover:text-brand-primary'
+                pathname === '/dashboard/help'
+                  ? 'text-brand-primary-700 dark:text-brand-primary'
+                  : 'text-muted group-hover:text-foreground'
               }`}
             />
             {!isDesktopCollapsed && (

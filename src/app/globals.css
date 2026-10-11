@@ -37,9 +37,6 @@
   --color-brand-emerald-subtle: var(--brand-emerald-subtle);
   --color-brand-amber: var(--brand-amber);
   --color-brand-amber-subtle: var(--brand-amber-subtle);
-  --color-brand-indigo: var(--brand-indigo);
-  --color-brand-indigo-subtle: var(--brand-indigo-subtle);
-  --shadow-glow: var(--shadow-glow);
 
   /* External Brand Colors */
   --color-brand-whatsapp: var(--brand-whatsapp);
@@ -116,24 +113,21 @@
     --warning: oklch(0.75 0.15 85);
     --success: oklch(0.65 0.15 150);
     --info: oklch(0.6 0.15 250);
-    --background: #fbfbfc;
+    --background: oklch(0.985 0 0);
     --surface: #ffffff;
-    --surface-elevated: #f4f4f6;
-    --text-primary: #09090b;
-    --text-secondary: #52525b;
-    --text-muted: #71717a;
-    --separator: #e4e4e7;
+    --surface-elevated: oklch(0.98 0 0);
+    --text-primary: oklch(0.2 0.02 260);
+    --text-secondary: oklch(0.45 0.02 260);
+    --text-muted: oklch(0.52 0.01 260);
+    --separator: oklch(0.9 0.01 260);
 
-    /* Prototype Theme Tokens - Light */
+    /* Semantic Compatibility Aliases */
     --brand-primary-hover: #e55f00;
     --brand-primary-subtle: rgba(255, 106, 0, 0.08);
-    --brand-emerald: #10b981;
+    --brand-emerald: var(--success);
     --brand-emerald-subtle: rgba(16, 185, 129, 0.12);
-    --brand-amber: #f59e0b;
+    --brand-amber: var(--warning);
     --brand-amber-subtle: rgba(245, 158, 11, 0.12);
-    --brand-indigo: #6366f1;
-    --brand-indigo-subtle: rgba(99, 102, 241, 0.12);
-    --shadow-glow: 0 0 20px rgba(255, 106, 0, 0.18);
 
     /* Brand Logo Colors */
     --brand-whatsapp: #25d366;
@@ -213,26 +207,23 @@
     --success: oklch(0.75 0.15 150);
     --info: oklch(0.7 0.17 250);
 
-    /* Dark Slate/Charcoal background matching Apex/Zenith */
-    --background: #111318;
-    --surface: #181b22;
-    --surface-elevated: #20242e;
+    /* Navy surfaces (§08) */
+    --background: oklch(0.18 0.02 260);
+    --surface: oklch(0.22 0.02 260);
+    --surface-elevated: oklch(0.26 0.02 260);
 
-    --text-primary: #f9fafb;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --separator: #272a34;
+    --text-primary: oklch(0.93 0.01 260);
+    --text-secondary: oklch(0.75 0.01 260);
+    --text-muted: oklch(0.65 0.01 260);
+    --separator: oklch(0.35 0.02 260);
 
-    /* Prototype Theme Tokens - Dark */
+    /* Theme Tokens - Dark */
     --brand-primary-hover: #ff7a1a;
     --brand-primary-subtle: rgba(255, 106, 0, 0.12);
-    --brand-emerald: #10b981;
+    --brand-emerald: var(--success);
     --brand-emerald-subtle: rgba(16, 185, 129, 0.12);
-    --brand-amber: #f59e0b;
+    --brand-amber: var(--warning);
     --brand-amber-subtle: rgba(245, 158, 11, 0.12);
-    --brand-indigo: #6366f1;
-    --brand-indigo-subtle: rgba(99, 102, 241, 0.12);
-    --shadow-glow: 0 0 25px rgba(255, 106, 0, 0.28);
 
     /* Brand Logo Colors (Same in dark mode, AT adjusted) */
     --brand-whatsapp: #25d366;

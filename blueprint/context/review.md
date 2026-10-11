@@ -1,10 +1,8 @@
 # Independent Review
 
-> **Generated file.** Receipts and feedback from independent human or agent
-> reviewers. `audit independent current` prepares a handoff; the reviewer
-> evaluates the checkpoint and records a `pass`, `fail`, or `pass with comments`
-> receipt here. `/complete` refuses to merge if this gate is required but
-> missing, or if the review is stale (the branch moved forward since the
-> receipt).
+> **Generated file.** Holds the active independent-review request or latest
+> receipt for the current work item. `/audit independent current` prepares a
+> handoff against an approved checkpoint, a fresh reviewer session completes it,
+> and `/complete` refuses stale, pending, or changes-requested review state.
 
-No active review.
+_No independent review requested. Run `/audit independent current` to prepare one._

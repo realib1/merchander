@@ -12,8 +12,6 @@ import {
   Lightbulb,
   PieChart,
   CheckSquare,
-  UserCog,
-  Settings,
   FolderTree,
   Store,
   LucideIcon,
@@ -67,13 +65,6 @@ export const navGroups: NavGroup[] = [
     items: [
       { name: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
       { name: 'Analytics', href: '/dashboard/analytics', icon: PieChart },
-    ],
-  },
-  {
-    title: 'MANAGEMENT',
-    items: [
-      { name: 'Staff', href: '/dashboard/staff', icon: UserCog },
-      { name: 'Settings', href: '/dashboard/settings', icon: Settings },
     ],
   },
 ];

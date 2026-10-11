@@ -19,6 +19,13 @@ describe('sidebarNavigation', () => {
     expect(approvalsItem?.icon).toBe(CheckSquare);
   });
 
+  it('defines exactly four core navigation groups', () => {
+    expect(navGroups).toHaveLength(4);
+    const titles = navGroups.map((g) => g.title);
+    expect(titles).toEqual(['COMMAND', 'COMMERCE & INVENTORY', 'FINANCES', 'INTELLIGENCE']);
+    expect(titles).not.toContain('MANAGEMENT');
+  });
+
   it('maps /dashboard/conversations to the intelligence module', () => {
     expect(NAV_ITEM_MODULE_MAP['/dashboard/conversations']).toBe('intelligence');
   });

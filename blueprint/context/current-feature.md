@@ -1,9 +1,9 @@
 # Current Feature
 
-> **Generated file.** The active build spec. The agent runs `/feature` to
-> expand one item from the build plan into a detailed spec here before coding.
-> The agent runs `/implement` to build it one step at a time. The agent runs
-> `/complete` to archive this spec to `blueprint/history/features/`, check off
-> the item, and merge the branch.
+> **Generated file.** Holds the one feature, fix, or rollback being built right now. Run
+> `/feature <number-or-name>` to spec a build-plan feature, or `/fix "<bug>"` for
+> an ad-hoc fix. Use `/rollback <completed-feature>` to plan a safe reversal.
+> Build one thing at a time; `/complete` archives it under
+> `blueprint/history/` and resets this file.
 
-No active feature. Run `/feature` to start.
+_Nothing in progress. Run `/feature`, `/fix`, or `/rollback` to start._
